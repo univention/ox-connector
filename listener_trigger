@@ -1,0 +1,175 @@
+#!/usr/local/bin/python
+
+import sys
+from json import load
+from pathlib import Path
+
+from oxconnector import get_ox_integration_backend_class
+
+APP = 'ox-connector'
+NEW_FILES_DIR = Path('/var') / 'lib' / 'univention-appcenter' / 'apps' / APP / 'data' / 'listener'
+OLD_FILES_DIR = NEW_FILES_DIR / 'old'
+
+def load_from_json_file(path):
+	'''Just a helper function to get JSON content from a file, if it
+	exists'''
+	if not path.exists():
+		return None
+	with path.open() as fd:
+		return load(fd)
+
+class TriggerObject(object):
+	'''A thin wrapper over a JSON file. Holds all the information from that
+	file. May also hold information of this object from a previous run
+	(needs a second, backup file for that)'''
+	def __init__(self, entry_uuid, object_type, dn, attributes, options):
+		self.entry_uuid = entry_uuid
+		self.object_type = object_type
+		self.dn = dn
+		self.attributes = attributes
+		self.options = options
+		self.old_dn = None
+		self.old_attributes = None
+		self.old_options = None
+		self._old_loaded = False
+
+	def get_old_file_path(self):
+		'''Name of the old file. May or may not be present. Is used by
+		objects_from_files to move files if speceified.'''
+		return OLD_FILES_DIR / '{}.json'.format(self.entry_uuid)
+
+	def load_old(self):
+		'''Loads the old filename and sets attributs accordingly'''
+		old_path = self.get_old_file_path()
+		content = load_from_json_file(old_path)
+		if content is not None:
+			self.old_dn = content['dn']
+			self.old_attributes = content['object']
+			self.old_options = content['options']
+		self._old_loaded = True
+
+	def was_added(self):
+		'''Whether this object is new. Needs the have read an old file
+		for this to give a meaningful response'''
+		if self._old_loaded is False:
+			return None
+		return self.old_dn is None
+
+	def was_modified(self):
+		'''Whether this object was modified. Needs the have read an old
+		file for this to give a meaningful response'''
+		if self.was_deleted():
+			return False
+		if self._old_loaded is False:
+			return None
+		return not self.was_added() and not self.was_deleted()
+
+	def was_deleted(self):
+		'''Whether this object was deleted.'''
+		return self.dn is None
+
+	def __repr__(self):
+		if not self._old_loaded:
+			return 'Object({}, {}, {})'.format(self.entry_uuid, self.object_type, self.dn)
+		else:
+			return 'Object({}, {}, {}, {})'.format(self.entry_uuid, self.object_type, self.dn, self.old_dn)
+
+def objects_from_files(delete_files=True, move_files=False):
+	'''Iterates over all JSON files and yields a TriggerObject. After the
+	caller is done with it, it can delete or move the file. If it moves the
+	file, a copy of this very JSON file is created so that a new run can
+	reload it (useful if you need to act on various changes in
+	attributes)'''
+	for path in NEW_FILES_DIR.glob('*.json'):
+		content = load_from_json_file(path)
+		entry_uuid = content['id']
+		object_type = content['udm_object_type']
+		dn = content['dn']
+		attributes = content['object']
+		options = content['options']
+		obj = TriggerObject(entry_uuid, object_type, dn, attributes, options)
+		if move_files:
+			obj.load_old()
+		yield obj
+		if move_files:
+			old_file_path = obj.get_old_file_path()
+			old_file_path.parent.mkdir(parents=True, exist_ok=True)
+			path.rename(old_file_path)
+		elif delete_files:
+			path.unlink()
+
+def run_on_files(objs, f, stop_at_first_error=True):
+	'''Iterate over objects (returned by objects_from_files) and runs a
+	function f on this object. May continue to do so even if one iteration
+	failed. Returns a reasonable exit code'''
+	ret = 0
+	for obj in objs:
+		try:
+			f(obj)
+		except Exception as exc:
+			print(exc)
+			ret = 1
+			if stop_at_first_error:
+				break
+	return ret
+
+def create_context(obj):
+	Context = get_ox_integration_backend_class('SOAP', 'Context')
+	context = Context(
+		id=obj.attributes['contextid'],
+		name=obj.attributes['name'],
+		max_quota = obj.attributes['oxQuota'],
+		enabled = True,
+		#average_size = ...,
+		#filestore_id = ...,
+		#filestore_name = ...,
+		#login_mappings = ...,
+		#read_database = ...,
+		#used_quota = ...,
+		#user_attributes = ...,
+		#wite_database = ...,
+	)
+	context.create()
+
+def modify_context(obj):
+	print('modify_context')
+	print(obj)
+
+def delete_context(obj):
+	print('delete_context')
+	print(obj)
+
+def do(obj):
+	'''This is your main function. Implement all your logic here'''
+	#import zeep
+	#c = zeep.Client('http://10.200.4.150/webservices/OXUserService?wsdl')
+	#users = zeep.Client('http://10.200.4.150/webservices/OXUserService?wsdl')
+	#groups = zeep.Client('http://10.200.4.150/webservices/OXGroupService?wsdl')
+	#resources = zeep.Client('http://10.200.4.150/webservices/OXResourceService?wsdl')
+	#credentials_type = c.wsdl.types.get_type('{http://dataobjects.rmi.admin.openexchange.com/xsd}Credentials')
+
+	def get_master_auth():
+		return {
+			'login': 'oxadminmaster',
+			'password': 'Ku602IQNZK'
+		}
+
+	def get_context_auth(ctx_id):
+		return {
+			'login': 'oxadminmaster',
+			'password': 'Ku602IQNZK'
+		}
+
+	if obj.object_type == 'oxmail/oxcontext':
+		if obj.was_added():
+			create_context(obj)
+		elif obj.was_modified():
+			modify_context(obj)
+		elif obj.was_deleted():
+			delete_context(obj)
+	#print(contexts.service.listAll(auth=auth))
+
+	raise ValueError('oh oh')
+
+objs = objects_from_files(delete_files=False, move_files=True)
+sys.exit(run_on_files(objs, do))
