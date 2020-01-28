@@ -1,0 +1,19 @@
+[Application]
+ID = ox-connector
+Code = 31
+Version = 1.0
+Name = OX Connector
+Vendor = Univention
+DockerScriptRestoreDataAfterSetup = 
+DockerScriptStoreData = 
+DockerScriptUpdateAvailable = 
+DockerScriptRestoreDataBeforeSetup = 
+DockerScriptUpdatePackages = 
+DockerScriptUpdateAppVersion = 
+DockerScriptUpdateRelease = 
+DockerScriptSetup = 
+ListenerUDMModules = oxmail/oxcontext
+DockerShellCommand = /bin/sh
+DockerScriptInit = /sbin/init
+DockerImage = ox-listener:1.0
+
