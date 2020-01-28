@@ -29,15 +29,14 @@ def get_new_context_attributes(context_id):  # type: int -> Dict[str, str]
 	}
 
 def get_random_password(length=15):  # type: (Optional[int]) -> str
-	specials='@#$%&*-_+=:,.;?/()'
 	pw = list()
 	if length >= 4:
-		pw.append(random.choice(string.lowercase))
-		pw.append(random.choice(string.uppercase))
+		pw.append(random.choice(string.ascii_lowercase))
+		pw.append(random.choice(string.ascii_uppercase))
 		pw.append(random.choice(string.digits))
-		pw.append(random.choice(specials))
+		pw.append(random.choice(string.punctuation))
 		length -= len(pw)
-	pw.extend(random.choice(string.ascii_letters + string.digits + specials) for _x in range(length))
+	pw.extend(random.choice(string.ascii_letters + string.digits + string.punctuation) for _x in range(length))
 	random.shuffle(pw)
 	return ''.join(pw)
 
@@ -52,7 +51,7 @@ def get_context_admin_user(context_id):  # type: (Union[int, str]) -> str
 def save_context_admin_password(context_id, password):
 	context_admin_pwd_file = os.path.join(DATA_DIR, 'context{}.secret'.format(context_id))
 	open(context_admin_pwd_file, 'w')
-	os.chmod(0o600, context_admin_pwd_file)
+	os.chmod(context_admin_pwd_file, 0o600)
 	with open(context_admin_pwd_file, 'w') as fd:
 		fd.write(password)
 

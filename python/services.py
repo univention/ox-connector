@@ -55,6 +55,8 @@ from zeep import Client as ZeepClient
 from zeep.cache import InMemoryCache
 from zeep.transports import Transport
 
+from .soap_config import SERVER
+
 
 __all__ = ['get_ox_soap_service_class']
 
@@ -77,7 +79,7 @@ def get_ox_soap_service_class(service_type):  # type: (str) -> Type[OxSoapServic
 	return __ox_service_registry[service_type]
 
 
-def get_wsdl(server='127.0.0.1', object_type='Context'):  # type: (Optional[str]) -> zeep.wsdl.Document
+def get_wsdl(server=SERVER, object_type='Context'):  # type: (Optional[str]) -> zeep.wsdl.Document
 	"""
 	Get WSDL from server.
 
@@ -151,14 +153,12 @@ class OxSoapService(ZeepClient):
 		return getattr(self.service, func)(**kwargs)
 
 
-class OXContextService(OxSoapService):
+class OXContextService(OxSoapService, metaclass=OxServiceMetaClass):
 	"""
 	See comments in the source code of univention.ox.soap.types for dict
 	representations of univention.ox.soap.types.Types.Context
 	and univention.ox.soap.types.Types.UserModuleAccess.
 	"""
-
-	__metaclass__ = OxServiceMetaClass
 	_type_name = 'Context'
 
 	def change(self, context_obj):  # type: (univention.ox.soap.types.Types.Context) -> None
@@ -402,13 +402,11 @@ class OXContextService(OxSoapService):
 		)
 
 
-class OXGroupService(OxSoapService):
+class OXGroupService(OxSoapService, metaclass=OxServiceMetaClass):
 	"""
 	See comments in the source code of univention.ox.soap.types for dict
 	representations of univention.ox.soap.types.Types.Group.
 	"""
-
-	__metaclass__ = OxServiceMetaClass
 	_type_name = 'Group'
 
 	def add_member(self, grp, members):
@@ -470,8 +468,7 @@ class OXGroupService(OxSoapService):
 		return self._call_ox('removeMember', grp=grp, members=members)
 
 
-class OXResourceService(OxSoapService):
-	__metaclass__ = OxServiceMetaClass
+class OXResourceService(OxSoapService, metaclass=OxServiceMetaClass):
 	_type_name = 'Resource'
 
 	def change(self, res):  # type: (univention.ox.soap.types.Types.Resource) -> None
@@ -498,13 +495,11 @@ class OXResourceService(OxSoapService):
 		return self._call_ox('listAll')
 
 
-class OXUserService(OxSoapService):
+class OXUserService(OxSoapService, metaclass=OxServiceMetaClass):
 	"""
 	See comments in the source code of univention.ox.soap.types for dict
 	representations of univention.ox.soap.types.Types.User.
 	"""
-
-	__metaclass__ = OxServiceMetaClass
 	_type_name = 'User'
 
 	def change(self, user):  # type: (univention.ox.soap.types.Types.User) -> None

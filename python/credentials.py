@@ -39,6 +39,7 @@
 from __future__ import absolute_import
 
 from .soap_types import Types
+from .soap_config import SERVER
 
 
 def get_master_credentials():
@@ -54,7 +55,7 @@ class ClientCredentials(object):
 	_context_objs = dict()
 	_types = None
 
-	def __init__(self, server='127.0.0.1', context_id=10, username=None, password=None):
+	def __init__(self, server=SERVER, context_id=10, username=None, password=None):
 		# type: (Optional[str], Optional[int], Optional[str], Optional[str]) -> None
 
 		self.server = server

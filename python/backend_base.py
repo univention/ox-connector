@@ -48,7 +48,7 @@ def register_ox_integration_backend_class(backend, object_type, cls):  # type: (
 	__ox_integration_backend_class_registry.setdefault(backend, {})[object_type] = cls
 
 
-def get_ox_integration_backend_class(backend, object_type):  # type: (str, str) -> Type[OxObject]
+def get_ox_integration_class(backend, object_type):  # type: (str, str) -> Type[OxObject]
 	"""
 	Get a class implementing OX object manipulation.
 
@@ -70,7 +70,7 @@ class BackendMetaClass(type):
 		kls = super(BackendMetaClass, cls).__new__(cls, clsname, bases, attrs)  # type: Type[OxObject]
 		if issubclass(kls, OxObject) and getattr(kls, '_backend') and getattr(kls, '_object_type'):
 			if not cls.logger:
-				cls.logger = getLogger('ox.connector.backend.{}' % clsname)
+				cls.logger = getLogger('ox.connector.backend.{}'.format(clsname))
 			register_ox_integration_backend_class(kls._backend, kls._object_type, kls)
 			cls.logger.info('Registered class {!r} of backend {!r} for object type {!r}.'.format(
 				cls.__name__, kls._backend, kls._object_type))

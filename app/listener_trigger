@@ -1,10 +1,11 @@
 #!/usr/local/bin/python
 
 import sys
+import traceback
 from json import load
 from pathlib import Path
 
-from oxconnector import get_ox_integration_backend_class
+from oxconnector import get_ox_integration_class
 
 APP = 'ox-connector'
 NEW_FILES_DIR = Path('/var') / 'lib' / 'univention-appcenter' / 'apps' / APP / 'data' / 'listener'
@@ -106,15 +107,17 @@ def run_on_files(objs, f, stop_at_first_error=True):
 	for obj in objs:
 		try:
 			f(obj)
-		except Exception as exc:
-			print(exc)
+		except Exception:
+			traceback.print_exc()
 			ret = 1
 			if stop_at_first_error:
 				break
 	return ret
 
 def create_context(obj):
-	Context = get_ox_integration_backend_class('SOAP', 'Context')
+	print('ok')
+	Context = get_ox_integration_class('SOAP', 'Context')
+	print('classified')
 	context = Context(
 		id=obj.attributes['contextid'],
 		name=obj.attributes['name'],
@@ -129,7 +132,9 @@ def create_context(obj):
 		#user_attributes = ...,
 		#wite_database = ...,
 	)
+	print('init')
 	context.create()
+	print('done')
 
 def modify_context(obj):
 	print('modify_context')
@@ -141,25 +146,6 @@ def delete_context(obj):
 
 def do(obj):
 	'''This is your main function. Implement all your logic here'''
-	#import zeep
-	#c = zeep.Client('http://10.200.4.150/webservices/OXUserService?wsdl')
-	#users = zeep.Client('http://10.200.4.150/webservices/OXUserService?wsdl')
-	#groups = zeep.Client('http://10.200.4.150/webservices/OXGroupService?wsdl')
-	#resources = zeep.Client('http://10.200.4.150/webservices/OXResourceService?wsdl')
-	#credentials_type = c.wsdl.types.get_type('{http://dataobjects.rmi.admin.openexchange.com/xsd}Credentials')
-
-	def get_master_auth():
-		return {
-			'login': 'oxadminmaster',
-			'password': 'Ku602IQNZK'
-		}
-
-	def get_context_auth(ctx_id):
-		return {
-			'login': 'oxadminmaster',
-			'password': 'Ku602IQNZK'
-		}
-
 	if obj.object_type == 'oxmail/oxcontext':
 		if obj.was_added():
 			create_context(obj)
@@ -167,7 +153,6 @@ def do(obj):
 			modify_context(obj)
 		elif obj.was_deleted():
 			delete_context(obj)
-	#print(contexts.service.listAll(auth=auth))
 
 	raise ValueError('oh oh')
 

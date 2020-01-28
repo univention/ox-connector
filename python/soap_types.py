@@ -48,6 +48,7 @@
 from __future__ import absolute_import
 
 from .services import get_wsdl
+from .soap_config import SERVER
 
 
 # The SOAP object classes have to be fetched once through the network.
@@ -64,7 +65,7 @@ class Types(object):
 	wsdl_resource = None
 	wsdl_user = None
 
-	def __init__(self, server='127.0.0.1'):  # type: (Optional[str]) -> None
+	def __init__(self, server=SERVER):  # type: (Optional[str]) -> None
 		if not self.wsdl_context:
 			self.__class__.wsdl_context = get_wsdl(server, 'Context')
 		if not self.wsdl_group:

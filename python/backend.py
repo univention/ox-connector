@@ -29,8 +29,8 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-from .soap_config import save_context_admin_password, get_new_context_attributes, DEFAULT_CONTEXT
-from .backend_base import BackendMetaClass, Context, Group, Resource, User, get_ox_integration_backend_class
+from .soap_config import save_context_admin_password, get_new_context_attributes, DEFAULT_CONTEXT, SERVER
+from .backend_base import BackendMetaClass, Context, Group, Resource, User, get_ox_integration_class
 from .credentials import ClientCredentials
 from .services import get_ox_soap_service_class
 
@@ -53,7 +53,7 @@ class SoapBackend(object):
 		super(SoapBackend, self).backend_init(*args, **kwargs)
 		self.context_id = int(kwargs.get('context_id') or self.context_id or DEFAULT_CONTEXT)
 		self.default_service = self.service(DEFAULT_CONTEXT)
-		self._soap_server = kwargs.pop('soap_server', '127.0.0.1')
+		self._soap_server = kwargs.pop('soap_server', SERVER)
 		self._soap_username = kwargs.pop('soap_username', None)
 		self._soap_password = kwargs.pop('soap_password', None)
 
@@ -82,7 +82,7 @@ class SoapBackend(object):
 
 	@classmethod
 	def get_ox_soap_type_class(cls, object_type):  # type: (str) -> Type
-		return get_ox_integration_backend_class(cls._backend, object_type)().default_service.Type
+		return get_ox_integration_class(cls._backend, object_type)().default_service.Type
 
 	@classmethod
 	def from_ox(cls, context_id, obj_id=None, name=None):  # type: (int, Optional[int], Optional[str]) -> OxObject
@@ -180,9 +180,7 @@ class SoapBackend(object):
 		return cls(**kwargs)
 
 
-class SoapContext(SoapBackend, Context):
-	__metaclass__ = BackendMetaClass
-
+class SoapContext(SoapBackend, Context, metaclass=BackendMetaClass):
 	_base2soap = {
 		'average_size': 'average_size',
 		'enabled': 'enabled',
@@ -272,9 +270,7 @@ class SoapContext(SoapBackend, Context):
 		return [cls._soap_obj2base_obj(int(soap_obj.id), soap_obj) for soap_obj in soap_objs]
 
 
-class SoapGroup(SoapBackend, Group):
-	__metaclass__ = BackendMetaClass
-
+class SoapGroup(SoapBackend, Group, metaclass=BackendMetaClass):
 	_base2soap = {
 		'display_name': 'displayname',
 		'members': 'members',
@@ -282,9 +278,7 @@ class SoapGroup(SoapBackend, Group):
 	_mandatory_creation_attr = ('name',)
 
 
-class SoapResource(SoapBackend, Resource):
-	__metaclass__ = BackendMetaClass
-
+class SoapResource(SoapBackend, Resource, metaclass=BackendMetaClass):
 	_base2soap = {
 		'available': 'available',
 		'description': 'description',
@@ -294,9 +288,7 @@ class SoapResource(SoapBackend, Resource):
 	_mandatory_creation_attr = ('name', 'email')
 
 
-class SoapUser(SoapBackend, User):
-	__metaclass__ = BackendMetaClass
-
+class SoapUser(SoapBackend, User, metaclass=BackendMetaClass):
 	_base2soap = {
 		'aliases': 'aliases',
 		'anniversary': 'anniversary',
