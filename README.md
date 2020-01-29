@@ -22,3 +22,22 @@ Dev
 How to build the container:
 
 `docker build . -t "ox-listener:1.0"`
+
+
+Install
+-------
+
+For now, follow docker build instructions in Dev. Then
+
+`univention-app install ox-connector --do-not-pull`
+
+Tests
+-----
+
+There shall be a lot of tests. These can be executed like this:
+
+```
+univention-app shell ox-connector
+cd /usr/local/share/oxconnector/tests/
+py.test context.py
+```
