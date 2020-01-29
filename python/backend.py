@@ -46,7 +46,7 @@ class SoapBackend(object):
 	_mandatory_creation_attr = ()
 
 	def __repr__(self):
-		attrs = self._base2soap.keys() + ['id', 'name', 'context_id']
+		attrs = list(self._base2soap.keys()) + ['id', 'name', 'context_id']
 		return str(dict((k, getattr(self, k)) for k in attrs))
 
 	def backend_init(self, *args, **kwargs):  # type: (*str, **str) -> None
