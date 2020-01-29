@@ -114,10 +114,14 @@ def run_on_files(objs, f, stop_at_first_error=True):
 				break
 	return ret
 
-def create_context(obj):
-	print('ok')
+def context_exists(obj):
 	Context = get_ox_integration_class('SOAP', 'Context')
-	print('classified')
+	return bool(Context.list(pattern=obj.attributes['contextid']))
+
+def create_context(obj):
+	if context_exists(obj):
+		return modify_context(obj)
+	Context = get_ox_integration_class('SOAP', 'Context')
 	context = Context(
 		id=obj.attributes['contextid'],
 		name=obj.attributes['name'],
@@ -132,13 +136,25 @@ def create_context(obj):
 		#user_attributes = ...,
 		#wite_database = ...,
 	)
-	print('init')
 	context.create()
-	print('done')
 
 def modify_context(obj):
-	print('modify_context')
-	print(obj)
+	Context = get_ox_integration_class('SOAP', 'Context')
+	context = Context(
+		id=obj.attributes['contextid'],
+		name=obj.attributes['name'],
+		max_quota = obj.attributes['oxQuota'],
+		enabled = True,
+		#average_size = ...,
+		#filestore_id = ...,
+		#filestore_name = ...,
+		#login_mappings = ...,
+		#read_database = ...,
+		#used_quota = ...,
+		#user_attributes = ...,
+		#wite_database = ...,
+	)
+	context.modify()
 
 def delete_context(obj):
 	print('delete_context')
@@ -153,8 +169,6 @@ def do(obj):
 			modify_context(obj)
 		elif obj.was_deleted():
 			delete_context(obj)
-
-	raise ValueError('oh oh')
 
 objs = objects_from_files(delete_files=False, move_files=True)
 sys.exit(run_on_files(objs, do))
