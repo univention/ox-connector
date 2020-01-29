@@ -40,7 +40,7 @@ class TriggerObject(object):
 		return OLD_FILES_DIR / '{}.json'.format(self.entry_uuid)
 
 	def load_old(self):
-		'''Loads the old filename and sets attributs accordingly'''
+		'''Loads the old filename and sets attributes accordingly'''
 		old_path = self.get_old_file_path()
 		content = load_from_json_file(old_path)
 		if content is not None:
@@ -67,7 +67,7 @@ class TriggerObject(object):
 
 	def was_deleted(self):
 		'''Whether this object was deleted.'''
-		return self.dn is None
+		return self.attributes is None
 
 	def __repr__(self):
 		if not self._old_loaded:
@@ -91,7 +91,12 @@ def objects_from_files(delete_files=True, move_files=False):
 		obj = TriggerObject(entry_uuid, object_type, dn, attributes, options)
 		if move_files:
 			obj.load_old()
-		yield obj
+		if obj.attributes is None and obj.old_attributes is None:
+			# happens when creation and deletion happens within one
+			# "listener cycle" => nothing happened
+			pass
+		else:
+			yield obj
 		if move_files:
 			old_file_path = obj.get_old_file_path()
 			old_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -115,18 +120,26 @@ def run_on_files(objs, f, stop_at_first_error=True):
 	return ret
 
 def context_exists(obj):
+	if obj.attributes is None:
+		# before delete
+		context_id = obj.old_attributes['contextid']
+	else:
+		# before create
+		context_id = obj.attributes['contextid']
 	Context = get_ox_integration_class('SOAP', 'Context')
-	return bool(Context.list(pattern=obj.attributes['contextid']))
+	return bool(Context.list(pattern=context_id))
 
 def create_context(obj):
+	print('Creating', obj)
 	if context_exists(obj):
+		print(obj, 'exists. Modifying instead...')
 		return modify_context(obj)
 	Context = get_ox_integration_class('SOAP', 'Context')
 	context = Context(
 		id=obj.attributes['contextid'],
 		name=obj.attributes['name'],
 		max_quota = obj.attributes['oxQuota'],
-		enabled = True,
+		#enabled = True,
 		#average_size = ...,
 		#filestore_id = ...,
 		#filestore_name = ...,
@@ -139,26 +152,31 @@ def create_context(obj):
 	context.create()
 
 def modify_context(obj):
+	print('Modifying', obj)
 	Context = get_ox_integration_class('SOAP', 'Context')
-	context = Context(
-		id=obj.attributes['contextid'],
-		name=obj.attributes['name'],
-		max_quota = obj.attributes['oxQuota'],
-		enabled = True,
-		#average_size = ...,
-		#filestore_id = ...,
-		#filestore_name = ...,
-		#login_mappings = ...,
-		#read_database = ...,
-		#used_quota = ...,
-		#user_attributes = ...,
-		#wite_database = ...,
-	)
+	if obj.old_attributes:
+		context = Context(
+			id=obj.old_attributes['contextid'],
+		)
+	else:
+		print(obj, 'has no old data. Resync?')
+		context = Context(
+			id=obj.attributes['contextid'],
+		)
+	context.max_quota = obj.attributes['oxQuota']
+	context.name = obj.attributes['name']
 	context.modify()
 
 def delete_context(obj):
-	print('delete_context')
-	print(obj)
+	print('Deleting', obj)
+	if not context_exists(obj):
+		print(obj, 'does not exist. Doing nothing...')
+		return
+	Context = get_ox_integration_class('SOAP', 'Context')
+	context = Context(
+		id=obj.old_attributes['contextid'],
+	)
+	context.remove()
 
 def do(obj):
 	'''This is your main function. Implement all your logic here'''
