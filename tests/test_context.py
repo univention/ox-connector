@@ -3,7 +3,7 @@
 import time
 import os
 
-from oxconnector import get_ox_integration_class
+from univention.ox.backend_base import get_ox_integration_class
 from udm_rest import UDM
 
 import pytest

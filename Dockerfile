@@ -1,15 +1,39 @@
-FROM python:3.8-alpine
+FROM alpine:3.11
 
-RUN apk add libxml2-dev gcc libc-dev libxslt-dev
-RUN pip install zeep
+ARG version
 
-ADD python/*.py /usr/local/lib/python3.8/site-packages/oxconnector/
+WORKDIR /oxp
 
-# for me. FIXME: remove
-RUN apk add vim
-RUN pip install pytest uritemplate
-ADD test/*.py /usr/local/share/oxconnector/tests/
-# super simple test that the very basics work
-RUN python -c "import oxconnector.backend"
+EXPOSE 7990
 
-CMD [ "/sbin/init" ]
+CMD ["/sbin/init"]
+
+LABEL "description"="UCS OX provisioning app" \
+    "version"="$version"
+
+# package and Python dependency installation, base system configuration,
+# and uninstallation - all in one step to keep image small
+COPY alpine_apk_list.* requirements_all.txt /tmp/
+RUN apk add --no-cache $(cat /tmp/alpine_apk_list.build) $(cat /tmp/alpine_apk_list.runtime) && \
+    cp -v /usr/share/zoneinfo/Europe/Berlin /etc/localtime && \
+    echo "Europe/Berlin" > /etc/timezone && \
+	pip3 install --no-cache-dir --compile --upgrade pip && \
+	pip3 install --no-cache-dir --compile --upgrade -r /tmp/requirements_all.txt && \
+	apk del --no-cache $(cat /tmp/alpine_apk_list.build) && \
+	python3 -c "from zeep import Client" && \
+	rm -rf /tmp/*
+
+COPY appsuite/univention-ox/ /tmp/univention-ox/
+RUN	pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox && \
+	python3 -c "from univention.ox.backend_base import get_ox_integration_class" && \
+	rm -rf /tmp/*
+
+COPY appsuite/univention-ox-soap-api/ /tmp/univention-ox-soap-api/
+RUN	pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api && \
+	python3 -c "from univention.ox.soap.services import get_ox_soap_service_class" && \
+	rm -rf /tmp/*
+
+COPY univention-ox-provisioning /tmp/univention-ox-provisioning
+RUN pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
+	python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
+	rm -rf /tmp/*

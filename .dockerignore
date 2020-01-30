@@ -1,0 +1,4 @@
+.git*
+appsuite
+!appsuite/univention-ox/
+!appsuite/univention-ox-soap-api/

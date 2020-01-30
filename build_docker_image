@@ -1,0 +1,83 @@
+#!/bin/bash
+
+set -e
+
+
+APP_ID="ox-listener"
+APP_VERSION="$(cd univention-ox-provisioning; python3 -B -c 'import univention.ox.provisioning.constants; print(univention.ox.provisioning.constants.__version__)')"
+DOCKERFILE="$(basename "$(readlink -f Dockerfile)")"
+DOCKERFILE_TEST="$DOCKERFILE-test"
+BASE_IMG="$(egrep ^FROM "$DOCKERFILE" | cut -d ' ' -f 2-)"
+APP_IMG_NO_VERSION="docker-test-upload.software-univention.de/${APP_ID}"
+APP_IMG="${APP_IMG_NO_VERSION}:${APP_VERSION}"
+APP_IMG_TEST="${APP_IMG_NO_VERSION}:${APP_VERSION}-test"
+DOCKER_REGISTRY_SERVER="docker.knut.univention.de"
+
+APPSUITE_REPO_DIR="appsuite"
+APPSUITE_BRANCH="4.4"
+GIT_ARGS="-c http.sslVerify=false"
+
+OUR_PYTHON_PACKAGES="appsuite/univention-ox appsuite/univention-ox-soap-api univention-ox-provisioning"
+
+
+if [ "$1" = "--release" ]; then
+  RELEASE=1
+fi
+
+PUSH_DEV=0
+if [ "$1" = "--push" ] || [ "$2" = "--push" ]; then
+  PUSH_DEV=1
+fi
+if [ "$PUSH_DEV" = 1 ] && [ "$(hostname -f)" != "$DOCKER_REGISTRY_SERVER" ]; then
+  echo "Pushing image to docker registry only possible on $DOCKER_REGISTRY_SERVER."
+  exit 1
+fi
+
+if [ -n "$http_proxy" ]; then
+    PROXY_ARGS="--build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy"
+fi
+
+echo "APP_ID=$APP_ID"
+echo "APP_VERSION=$APP_VERSION"
+echo "BASE_IMG=$BASE_IMG"
+echo "APP_IMG=$APP_IMG"
+echo "DOCKERFILE: $DOCKERFILE"
+echo "PROXY_ARGS: $PROXY_ARGS"
+
+echo "Updating base image..."
+docker pull "$BASE_IMG"
+
+if [ "$RELEASE" = 1 ]; then
+  echo "Removing old final image..."
+  docker rmi -f "$APP_IMG" || true
+fi
+
+echo "Updating 'appsuite' git repo submodule..."
+git $GIT_ARGS submodule update --init --recursive
+(cd "$APPSUITE_REPO_DIR" && git checkout "$APPSUITE_BRANCH")
+git $GIT_ARGS submodule foreach --recursive git pull
+
+echo "Collecting all Python dependencies..." # to minimize Docker image by installing and uninstalling in one step
+find $OUR_PYTHON_PACKAGES -name 'requirements.txt' -exec cat {} + | egrep -v 'univention' | sort | uniq > requirements_all.txt
+
+echo "Building docker image..."
+docker build $PROXY_ARGS --build-arg version="$APP_VERSION" -t "$APP_IMG" .
+
+echo "Local Docker images:"
+docker images "$APP_IMG_NO_VERSION"
+
+if [ "$PUSH_DEV" = 1 ]; then
+  read -p "Push 'Y' if you are sure you want to push '$APP_IMG' to the docker registry. " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[yY]$ ]]; then
+    echo "Pushing image to docker registry..."
+    docker push "$APP_IMG"
+  fi
+fi
+
+if [ "$RELEASE" != 1 ] && [ "$PUSH_DEV" != 1 ]; then
+  echo "Building docker image with testing support..."
+  docker build $PROXY_ARGS --build-arg PROD_APP_IMG="$APP_IMG" -t "$APP_IMG_TEST" -f "$DOCKERFILE_TEST" .
+  echo "Local Docker images:"
+  docker images "$APP_IMG_NO_VERSION"
+fi
