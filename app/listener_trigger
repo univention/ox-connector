@@ -6,10 +6,14 @@ from json import load
 from pathlib import Path
 
 from oxconnector import get_ox_integration_class
+from oxconnector.soap_config import DEFAULT_CONTEXT
 
 APP = 'ox-connector'
 NEW_FILES_DIR = Path('/var') / 'lib' / 'univention-appcenter' / 'apps' / APP / 'data' / 'listener'
 OLD_FILES_DIR = NEW_FILES_DIR / 'old'
+
+Context = get_ox_integration_class('SOAP', 'Context')
+User = get_ox_integration_class('SOAP', 'User')
 
 def load_from_json_file(path):
 	'''Just a helper function to get JSON content from a file, if it
@@ -81,7 +85,7 @@ def objects_from_files(delete_files=True, move_files=False):
 	file, a copy of this very JSON file is created so that a new run can
 	reload it (useful if you need to act on various changes in
 	attributes)'''
-	for path in NEW_FILES_DIR.glob('*.json'):
+	for path in sorted(NEW_FILES_DIR.glob('*.json')):
 		content = load_from_json_file(path)
 		entry_uuid = content['id']
 		object_type = content['udm_object_type']
@@ -126,7 +130,6 @@ def context_exists(obj):
 	else:
 		# before create
 		context_id = obj.attributes['contextid']
-	Context = get_ox_integration_class('SOAP', 'Context')
 	return bool(Context.list(pattern=context_id))
 
 def create_context(obj):
@@ -134,7 +137,6 @@ def create_context(obj):
 	if context_exists(obj):
 		print(obj, 'exists. Modifying instead...')
 		return modify_context(obj)
-	Context = get_ox_integration_class('SOAP', 'Context')
 	context = Context(
 		id=obj.attributes['contextid'],
 		name=obj.attributes['name'],
@@ -153,7 +155,6 @@ def create_context(obj):
 
 def modify_context(obj):
 	print('Modifying', obj)
-	Context = get_ox_integration_class('SOAP', 'Context')
 	if obj.old_attributes:
 		context = Context(
 			id=obj.old_attributes['contextid'],
@@ -172,11 +173,168 @@ def delete_context(obj):
 	if not context_exists(obj):
 		print(obj, 'does not exist. Doing nothing...')
 		return
-	Context = get_ox_integration_class('SOAP', 'Context')
 	context = Context(
 		id=obj.old_attributes['contextid'],
 	)
 	context.remove()
+
+def create_user(obj):
+	print('Creating', obj)
+	if obj.attributes['isOxUser'] == 'Not':
+		print(obj, 'is no OX user. Not creating...')
+		return
+	context_id = obj.attributes['oxContext'] or DEFAULT_CONTEXT
+	#context_admin = get_admin_user(context_id)
+	user = User(
+		context_id = context_id,
+		#context_admin = context_admin,
+		name = obj.attributes['username'],
+		display_name = obj.attributes['oxDisplayName'],
+		password = None,
+		given_name = obj.attributes['firstname'],
+		sur_name = obj.attributes['lastname'],
+		primary_email = obj.attributes['mailPrimaryAddress'],
+		email1 = obj.attributes['e-mail'],
+		#aliases = obj.attributes[],
+		anniversary = obj.attributes['oxAnniversary'],
+		#assistant_name = obj.attributes[],
+		birthday = obj.attributes['oxBirthday'],
+		branches = obj.attributes['oxBranches'],
+		#business_category = obj.attributes[],
+		#categories = obj.attributes[],
+		#cellular_telephone1 = obj.attributes[],
+		#cellular_telephone2 = obj.attributes[],
+		city_business = obj.attributes['city'],  # ???
+		city_home = obj.attributes['oxCityHome'],
+		city_other = obj.attributes['oxCityOther'],
+		commercial_register = obj.attributes['oxCommercialRegister'],
+		#company = obj.attributes[],
+		country_business = obj.attributes['oxCountryBusiness'],
+		country_home = obj.attributes['oxCountryHome'],
+		country_other = obj.attributes['oxCountryOther'],
+		#drive_user_folder_mode = obj.attributes[],
+		#default_sender_address = obj.attributes[],
+		#default_group = obj.attributes[],
+		department = obj.attributes['oxDepartment'],
+		email2 = obj.attributes['oxEmail2'],
+		email3 = obj.attributes['oxEmail3'],
+		employee_type = obj.attributes['employeeType'],  # ???
+		fax_business = obj.attributes['oxFaxBusiness'],
+		fax_home = obj.attributes['oxFaxHome'],
+		fax_other = obj.attributes['oxFaxOther'],
+		#filestore_id = obj.attributes[],
+		#filestore_name = obj.attributes[],
+		#folder_tree = obj.attributes[],
+		#gui_preferences_for_soap = obj.attributes[],
+		#gui_spam_filter_enabled = obj.attributes[],
+		#imap_login = obj.attributes[],
+		#imap_port = obj.attributes[],
+		#imap_schema = obj.attributes[],
+		#imap_server = obj.attributes[],
+		#imap_server_string = obj.attributes[],
+		#info = obj.attributes[],
+		instant_messenger1 = obj.attributes['oxInstantMessenger1'],
+		instant_messenger2 = obj.attributes['oxInstantMessenger2'],
+		language = obj.attributes['oxLanguage'],
+		#mail_folder_confirmed_ham_name = obj.attributes[],
+		#mail_folder_confirmed_spam_name = obj.attributes[],
+		#mail_folder_drafts_name = obj.attributes[],
+		#mail_folder_sent_name = obj.attributes[],
+		#mail_folder_spam_name = obj.attributes[],
+		#mail_folder_trash_name = obj.attributes[],
+		#mail_folder_archive_full_name = obj.attributes[],
+		#mail_enabled = obj.attributes[],
+		manager_name = obj.attributes['oxManagerName'],
+		marital_status = obj.attributes['oxMarialStatus'],
+		#max_quota = obj.attributes[],
+		middle_name = obj.attributes['oxMiddleName'],
+		nickname = obj.attributes['oxNickName'],
+		note = obj.attributes['oxNote'],
+		number_of_children = obj.attributes['oxNumOfChildren'],
+		#number_of_employee = obj.attributes[],
+		#password_mech = obj.attributes[],
+		#password_expired = obj.attributes[],
+		position = obj.attributes['oxPosition'],
+		postal_code_business = obj.attributes['postcode'],  # ???
+		postal_code_home = obj.attributes['oxPostalCodeHome'],
+		postal_code_other = obj.attributes['oxPostalCodeOther'],
+		profession = obj.attributes['oxProfession'],
+		#room_number = obj.attributes[],
+		sales_volume = obj.attributes['oxSalesVolume'],
+		#smtp_port = obj.attributes[],
+		#smtp_schema = obj.attributes[],
+		#smtp_server = obj.attributes[],
+		#smtp_server_string = obj.attributes[],
+		spouse_name = obj.attributes['oxSpouseName'],
+		state_business = obj.attributes['oxStateBusiness'],
+		state_home = obj.attributes['oxStateHome'],
+		state_other = obj.attributes['oxStateOther'],
+		#street_business = obj.attributes[],
+		street_home = obj.attributes['oxStreetHome'],
+		street_other = obj.attributes['oxStreetOther'],
+		suffix = obj.attributes['oxSuffix'],
+		tax_id = obj.attributes['oxTaxId'],
+		telephone_assistant = obj.attributes['oxTelephoneAssistant'],
+		#telephone_business1 = obj.attributes[],
+		#telephone_business2 = obj.attributes[],
+		#telephone_callback = obj.attributes[],
+		telephone_car = obj.attributes['oxTelephoneCar'],
+		telephone_company = obj.attributes['oxTelephoneCompany'],
+		#telephone_home1 = obj.attributes[],
+		#telephone_home2 = obj.attributes[],
+		telephone_ip = obj.attributes['oxTelephoneIp'],
+		#telephone_isdn = obj.attributes[],
+		telephone_other = obj.attributes['oxTelephoneOther'],
+		#telephone_pager = obj.attributes[],
+		#telephone_primary = obj.attributes[],
+		#telephone_radio = obj.attributes[],
+		telephone_telex = obj.attributes['oxTelephoneTelex'],
+		telephone_ttytdd = obj.attributes['oxTelephoneTtydd'],
+		timezone = obj.attributes['oxTimeZone'],
+		title = obj.attributes['title'],  # ???
+		#upload_file_size_limit = obj.attributes[],
+		#upload_file_size_limitPerFile = obj.attributes[],
+		url = obj.attributes['oxUrl'],
+		#used_quota = obj.attributes['oxUserQuota'], ???
+		#user_attributes = obj.attributes[],
+		userfield01 = obj.attributes['oxUserfield01'],
+		userfield02 = obj.attributes['oxUserfield02'],
+		userfield03 = obj.attributes['oxUserfield03'],
+		userfield04 = obj.attributes['oxUserfield04'],
+		userfield05 = obj.attributes['oxUserfield05'],
+		userfield06 = obj.attributes['oxUserfield06'],
+		userfield07 = obj.attributes['oxUserfield07'],
+		userfield08 = obj.attributes['oxUserfield08'],
+		userfield09 = obj.attributes['oxUserfield09'],
+		userfield10 = obj.attributes['oxUserfield10'],
+		userfield11 = obj.attributes['oxUserfield11'],
+		userfield12 = obj.attributes['oxUserfield12'],
+		userfield13 = obj.attributes['oxUserfield13'],
+		userfield14 = obj.attributes['oxUserfield14'],
+		userfield15 = obj.attributes['oxUserfield15'],
+		userfield16 = obj.attributes['oxUserfield16'],
+		userfield17 = obj.attributes['oxUserfield17'],
+		userfield18 = obj.attributes['oxUserfield18'],
+		userfield19 = obj.attributes['oxUserfield19'],
+		userfield20 = obj.attributes['oxUserfield20'],
+		#primary_account_name = obj.attributes[],
+		#convert_drive_user_folders = obj.attributes[],
+	)
+	print(user)
+	raise ValueError('oh')
+	user.create()
+
+def modify_user(obj):
+	print('Modifying', obj)
+	if obj.old_attributes['isOxUser'] == 'Not':
+		print(obj, 'was no OX user before. Creating instead')
+		return create_user(obj)
+	return create_user(obj)
+	raise NotImplementedError()
+
+def delete_user(obj):
+	print('Deleting', obj)
+	raise NotImplementedError()
 
 def do(obj):
 	'''This is your main function. Implement all your logic here'''
@@ -187,6 +345,16 @@ def do(obj):
 			modify_context(obj)
 		elif obj.was_deleted():
 			delete_context(obj)
+	if obj.object_type == 'users/user':
+		if obj.attributes['username'] == 'oxadmin':
+			# FIXME
+			return
+		if obj.was_added():
+			create_user(obj)
+		elif obj.was_modified():
+			modify_user(obj)
+		elif obj.was_deleted():
+			delete_user(obj)
 
 objs = objects_from_files(delete_files=False, move_files=True)
 sys.exit(run_on_files(objs, do))
