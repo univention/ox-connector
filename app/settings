@@ -1,6 +1,8 @@
 [OX_HOSTNAME]
 Description = The server where Open-Xchange is installed
 Description[de] = Der Server, auf dem Open-Xchange installiert ist
+Show = Install
+ShowReadOnly = Settings
 Type = String
 Required = True
 InitialValue = @%@hostname@%@.@%@domainname@%@
