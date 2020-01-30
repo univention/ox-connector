@@ -1,6 +1,7 @@
 #!/usr/bin/py.test
 
 import time
+import os
 
 from oxconnector import get_ox_integration_class
 from udm_rest import UDM
@@ -11,17 +12,20 @@ def wait_for_listener():
 	time.sleep(10)
 
 @pytest.fixture
-def new_context_id():
-	return '23'
+def new_context_id(cache):
+	value = cache.get('contexts/id', 100)
+	value += 1
+	cache.set('contexts/id', value)
+	return str(value)
 
 @pytest.fixture
 def ldap_base():
-	return 'dc=intranet,dc=ox,dc=de'
+	return os.environ['LDAP_BASE']
 
 @pytest.fixture
 def udm_uri():
 	# cannot verify https in the container at the moment
-	return 'http://master150.intranet.ox.de/univention/udm/'
+	return 'http://{}/univention/udm/'.format(os.environ['LDAP_MASTER'])
 
 @pytest.fixture
 def udm_admin_username():
@@ -30,6 +34,10 @@ def udm_admin_username():
 @pytest.fixture
 def udm_admin_password():
 	return 'univention'
+
+@pytest.fixture
+def ox_host():
+	return os.environ['OX_HOSTNAME']
 
 class UDMTest(object):
 	def __init__(self, uri, ldap_base, username, password):
@@ -89,54 +97,40 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
 				_udm.remove(module, dn)
 		wait_for_listener()
 
-@pytest.fixture
-def ox_host():
-	return 'master150.intranet.ox.de'
-
-def test_add_context(new_context_id, udm, ox_host):
-	udm.create('oxmail/oxcontext', 'cn=open-xchange', {
+def create_context(udm, ox_host, context_id):
+	dn = udm.create('oxmail/oxcontext', 'cn=open-xchange', {
 		'hostname': ox_host,
 		'oxQuota': 1000,
 		'oxDBServer': ox_host,
 		'oxintegrationversion': '11.0.0-32A~4.4.0.201911191756',
-		'contextid': new_context_id,
-		'name': 'context{}'.format(new_context_id),
+		'contextid': context_id,
+		'name': 'context{}'.format(context_id),
 	})
 	wait_for_listener()
+	return dn
+
+def test_add_context(new_context_id, udm, ox_host):
+	create_context(udm, ox_host, new_context_id)
 	Context = get_ox_integration_class('SOAP', 'Context')
 	c = Context.list(pattern=new_context_id)
+	assert len(c) == 1
 	assert c[0].name == 'context{}'.format(new_context_id)
 	assert c[0].max_quota == 1000
 
 def test_modify_context(new_context_id, udm, ox_host):
-	dn = udm.create('oxmail/oxcontext', 'cn=open-xchange', {
-		'hostname': ox_host,
-		'oxQuota': 1000,
-		'oxDBServer': ox_host,
-		'oxintegrationversion': '11.0.0-32A~4.4.0.201911191756',
-		'contextid': new_context_id,
-		'name': 'context{}'.format(new_context_id),
-	})
-	wait_for_listener()
+	dn = create_context(udm, ox_host, new_context_id)
 	udm.modify('oxmail/oxcontext', dn, {'oxQuota': 2000})
 	wait_for_listener()
 	Context = get_ox_integration_class('SOAP', 'Context')
 	c = Context.list(pattern=new_context_id)
+	assert len(c) == 1
 	assert c[0].name == 'context{}'.format(new_context_id)
 	assert c[0].max_quota == 2000
 
 def test_remove_context(new_context_id, udm, ox_host):
-	dn = udm.create('oxmail/oxcontext', 'cn=open-xchange', {
-		'hostname': ox_host,
-		'oxQuota': 1000,
-		'oxDBServer': ox_host,
-		'oxintegrationversion': '11.0.0-32A~4.4.0.201911191756',
-		'contextid': new_context_id,
-		'name': 'context{}'.format(new_context_id),
-	})
-	wait_for_listener()
+	dn = create_context(udm, ox_host, new_context_id)
 	udm.remove('oxmail/oxcontext', dn)
 	wait_for_listener()
 	Context = get_ox_integration_class('SOAP', 'Context')
 	c = Context.list(pattern=new_context_id)
-	assert c == []
+	assert len(c) == 0
