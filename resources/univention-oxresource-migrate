@@ -1,0 +1,136 @@
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
+"""
+This script was used to migrate OX resources on Upgrade to UCS-3.1.
+It is obsolete but kept for manual calling.
+"""
+#
+# Copyright (C) 2012-2019 Univention GmbH
+#
+# http://www.univention.de/
+#
+# All rights reserved.
+#
+# The source code of this program is made available
+# under the terms of the GNU Affero General Public License version 3
+# (GNU AGPL V3) as published by the Free Software Foundation.
+#
+# Binary versions of this program provided by Univention to you as
+# well as other copyrighted, protected or trademarked materials like
+# Logos, graphics, fonts, specific documentations and configurations,
+# cryptographic keys etc. are subject to a license agreement between
+# you and Univention and not subject to the GNU AGPL V3.
+#
+# In the case you use this program under the terms of the GNU AGPL V3,
+# the program is provided in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License with the Debian GNU/Linux or Univention distribution in file
+# /usr/share/common-licenses/AGPL-3; if not, see
+# <http://www.gnu.org/licenses/>.
+from ldap.filter import filter_format
+import univention.admin.allocators
+import univention.admin.modules
+import univention.admin.config
+import univention.admin.uldap
+import univention.config_registry
+import optparse, sys
+
+parser = optparse.OptionParser()
+parser.add_option('--binddn', action='store', dest='binddn', help = 'ldap bind dn for UDM CLI operation' )
+parser.add_option('--bindpwd', action='store', dest='bindpwd', help = 'ldap bind password for bind dn' )
+(options, params) = parser.parse_args()
+
+ucr = univention.config_registry.ConfigRegistry()
+ucr.load()
+config = univention.admin.config.config()
+
+if options.binddn and options.bindpwd:
+	lo = univention.admin.uldap.access(
+		host = ucr["ldap/master"],
+		port = int(ucr.get('ldap/master/port', '7389')),
+		base = ucr['ldap/base'],
+		binddn = options.binddn,
+		bindpw = options.bindpwd,
+		start_tls = 1)
+	position = univention.admin.uldap.position(ucr['ldap/base'])
+else:
+	lo, position = univention.admin.uldap.getAdminConnection()
+
+PREFIX_OXRESOURCE = 'oxresource-'
+DOMAIN = ucr.get('ox/mail/domain/primary', ucr.get('domainname', 'localhost'))
+
+def getAddress(name, lo, position):
+	newaddr = '%s%s@%s' % (PREFIX_OXRESOURCE, name, DOMAIN)
+	i = 0
+	while True:
+		try:
+			univention.admin.allocators.request(lo, position, 'mailPrimaryAddress', value=newaddr)
+		except univention.admin.uexceptions.noLock:
+			univention.admin.allocators.release(lo, position, 'mailPrimaryAddress', newaddr)
+			i += 1
+			newaddr = '%s%s-%d@%s' % (PREFIX_OXRESOURCE, name, i, DOMAIN)
+			continue
+
+		univention.admin.allocators.confirm(lo, position, 'mailPrimaryAddress', newaddr)
+		return newaddr
+
+
+
+print 'Looking for oxadmin...',
+oxadminresult = lo.search(filter='(&(objectClass=oxUserObject)(uid=oxadmin))')
+if not oxadminresult:
+	print >>sys.stderr, '\nCannot find oxUser with uid=oxadmin - stopping here'
+	sys.exit(1)
+oxadminDN, oxadminAttr = oxadminresult[0]
+print ' found.'
+
+for dn, attr in lo.search(filter='(&(objectClass=oxResourceObject)(!(mailPrimaryAddress=*)))'):
+	print 'Updating %s...' % dn
+	admin = attr.get('oxResourceAdmin')[0]
+	newAdmin = None
+	name = attr.get('cn')[0]
+	result = lo.search(filter=filter_format('(&(objectClass=oxUserObject)(uidNumber=%s))', (admin,)))
+	if not result:
+		print >>sys.stderr, 'Resource %s: cannot find oxUser with uidNumber=%s' % (dn, admin)
+		print >>sys.stderr, 'Using oxadmin as fallback'
+		newAdmin = oxadminAttr.get('uidNumber')[0]
+		userdn = oxadminDN
+		userattr = oxadminAttr
+	else:
+		userdn, userattr = result[0]
+
+	newAddr = getAddress(name, lo, position)
+	print '           admin: %s/%s     mail address: "%s"' % (admin, userattr.get('uid')[0], newAddr)
+
+	# converting oxresource object
+
+	changes = [
+			['mailPrimaryAddress', [], [newAddr]],
+			['objectClass', [], ['univentionObject']],
+			['univentionObjectType', [], ['oxresources/oxresources']],
+		]
+	if newAdmin:
+		changes.append(['oxResourceAdmin', [admin], [newAdmin]])
+
+	try:
+		lo.modify(dn, changes)
+	except Exception, e:
+		print >>sys.stderr, 'Failed to update %r: %r' % (dn, str(e))
+		print >>sys.stderr, '   changes = %r' % changes
+
+	# adding mail address to user
+
+	print 'Updating %s...' % userdn
+
+	changes = [ ['oxResourceMailAddress', [], newAddr] ]
+	try:
+		lo.modify(userdn, changes)
+	except Exception, e:
+		print >>sys.stderr, 'Failed to update %r: %r' % (userdn, str(e))
+		print >>sys.stderr, '   changes = %r' % changes
+
+print 'Done.'

@@ -1,0 +1,988 @@
+#!/bin/bash
+
+# Copyright (C) 2019 Univention GmbH
+#
+# http://www.univention.de/
+#
+# All rights reserved.
+#
+# The source code of this program is made available
+# under the terms of the GNU Affero General Public License version 3
+# (GNU AGPL V3) as published by the Free Software Foundation.
+#
+# Binary versions of this program provided by Univention to you as
+# well as other copyrighted, protected or trademarked materials like
+# Logos, graphics, fonts, specific documentations and configurations,
+# cryptographic keys etc. are subject to a license agreement between
+# you and Univention and not subject to the GNU AGPL V3.
+#
+# In the case you use this program under the terms of the GNU AGPL V3,
+# the program is provided in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License with the Debian GNU/Linux or Univention distribution in file
+# /usr/share/common-licenses/AGPL-3; if not, see
+# <http://www.gnu.org/licenses/>.
+
+. /usr/share/univention-lib/ldap.sh
+
+ldap_base="$(ucr get ldap/base)"
+
+#  isOxUser
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=isOxUser,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=4' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxContextUser
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'doNotSearch=1' \
+    --remove 'notEditable' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=4' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxAccess
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxAccess,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=1' \
+    --set 'translationLongDescription="de_DE" "OX-Berechtigung"' \
+    --set 'translationShortDescription="de_DE" "OX-Berechtigung"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxDisplayName
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxDisplayName,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Open-Xchange' \
+    --set 'groupPosition=1' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=1' \
+    --remove 'translationGroupName' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxLanguage
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=2' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTimeZone
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=2' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxDrive
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxDrive,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=3' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserQuota
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserQuota,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=3' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxMiddleName
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxMiddleName,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxSuffix
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxSuffix,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxNickName
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxNickName,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxNote
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxNote,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxMobileBusiness
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxMobileBusiness,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxFaxBusiness
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxFaxBusiness,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxInstantMessenger1
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxInstantMessenger1,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneCompany
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneCompany,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneIp
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneIp,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneCar
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneCar,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneTelex
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneTelex,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneTtydd
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneTtydd,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxStateBusiness
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxStateBusiness,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxCountryBusiness
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxCountryBusiness,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxPosition
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxPosition,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxDepartment
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxDepartment,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxBranches
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxBranches,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxManagerName
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxManagerName,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneAssistant
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneAssistant,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTaxId
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTaxId,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxCommercialRegister
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxCommercialRegister,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxSalesVolume
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxSalesVolume,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUrl
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUrl,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=2' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxStreetHome
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxStreetHome,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxPostalCodeHome
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxPostalCodeHome,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxCityHome
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxCityHome,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxStateHome
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxStateHome,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxCountryHome
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxCountryHome,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxEmail2
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxEmail2,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxFaxHome
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxFaxHome,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxInstantMessenger2
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxInstantMessenger2,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxBirthday
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxBirthday,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxAnniversary
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxAnniversary,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxNumOfChildren
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxNumOfChildren,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxMarialStatus
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxMarialStatus,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxSpouseName
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxSpouseName,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxProfession
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxProfession,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupPosition=3' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxStreetOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxStreetOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxPostalCodeOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxPostalCodeOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxCityOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxCityOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxStateOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxStateOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxCountryOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxCountryOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxTelephoneOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxTelephoneOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxFaxOther
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxFaxOther,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxEmail3
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxEmail3,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Contact other' \
+    --set 'groupPosition=4' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationGroupName="de_DE" "Kontakt Weiteres"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield01
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield01,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=1' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield02
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield02,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=2' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield03
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield03,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=3' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield04
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield04,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=4' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield05
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield05,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=5' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield06
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield06,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=6' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield07
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield07,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=7' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield08
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield08,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=8' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield09
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield09,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=9' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield10
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield10,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=10' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield11
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield11,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=11' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield12
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield12,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=12' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield13
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield13,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=13' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield14
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield14,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=14' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield15
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield15,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=15' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield16
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield16,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=16' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield17
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield17,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=17' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield18
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield18,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=18' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield19
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield19,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=19' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxUserfield20
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxUserfield20,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Optional settings' \
+    --set 'groupPosition=5' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'tabPosition=20' \
+    --set 'translationGroupName="de_DE" "Optionale Einstellungen"' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  isOxGroup
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=isOxGroup,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxContextGroup
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxContextGroup,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'multivalue=0' \
+    --remove 'notEditable' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  templateOxAccess
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=templateOxAccess,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  templateOxDisplayName
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=templateOxDisplayName,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set 'groupName=Open-Xchange' \
+    --set 'groupPosition=1' \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --remove 'translationGroupName' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  templateOxLanguage
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=templateOxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  templateOxTimeZone
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=templateOxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'hook' \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
+#  oxContextResource
+univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --remove 'overwritePosition' \
+    --remove 'overwriteTab' \
+    --remove 'tabAdvanced' \
+    --set 'tabName=OX App Suite' \
+    --set 'translationTabName="de_DE" "OX App Suite"' || die
+
