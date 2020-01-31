@@ -204,7 +204,7 @@ def delete_context(obj):
 # ==========
 
 def user_from_attributes(attributes):
-	context_id = attributes['oxContext'] or DEFAULT_CONTEXT
+	context_id = attributes.get('oxContext', DEFAULT_CONTEXT)
 	user = User(context_id=context_id)
 	update_user(user, attributes)
 	return user
