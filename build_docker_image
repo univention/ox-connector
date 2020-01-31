@@ -74,10 +74,3 @@ if [ "$PUSH_DEV" = 1 ]; then
     docker push "$APP_IMG"
   fi
 fi
-
-if [ "$RELEASE" != 1 ] && [ "$PUSH_DEV" != 1 ]; then
-  echo "Building docker image with testing support..."
-  docker build $PROXY_ARGS --build-arg PROD_APP_IMG="$APP_IMG" -t "$APP_IMG_TEST" -f "$DOCKERFILE_TEST" .
-  echo "Local Docker images:"
-  docker images "$APP_IMG_NO_VERSION"
-fi

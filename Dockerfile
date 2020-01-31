@@ -37,3 +37,13 @@ RUN pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
 	rm -rf /tmp/*
 
 COPY resources /usr/local/share/ox-connector/resources
+
+#
+# comment below out for final image
+#
+RUN apk add --no-cache vim
+
+COPY univention-ox-provisioning/requirements_tests.txt tests/ /oxp/tests/
+RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt && \
+	python3 -m pytest --collect-only /oxp/tests && \
+	rm -f /oxp/tests/requirements_tests.txt
