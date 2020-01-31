@@ -1,4 +1,4 @@
-[OX_HOSTNAME]
+[OX_SOAP_SERVER]
 Description = The server where Open-Xchange is installed
 Description[de] = Der Server, auf dem Open-Xchange installiert ist
 Show = Install
@@ -6,3 +6,37 @@ ShowReadOnly = Settings
 Type = String
 Required = True
 InitialValue = @%@hostname@%@.@%@domainname@%@
+
+[DEFAULT_CONTEXT]
+Description = Default context for users
+Show = Install
+Type = Int
+Required = True
+InitialValue = 10
+
+[LOCAL_TIMEZONE]
+Description = Default timezone for users
+Show = Install
+Type = String
+Required = True
+InitialValue = Europe/Berlin
+
+[OX_MASTER_ADMIN]
+Description = OX Admin username
+Show = Install
+Type = String
+Required = True
+InitialValue = oxadminmaster
+
+[OX_MASTER_PASSWORD]
+Description = OX Admin password
+Show = Install
+Type = Password
+Required = True
+
+[OX_CONTEXT_DEFAULT_QUOTA]
+Description = Default quota for new contexts (MB)
+Show = Install
+Type = Int
+Required = True
+InitialValue = 1048576
