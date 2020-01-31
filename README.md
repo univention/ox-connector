@@ -63,16 +63,10 @@ Build
 How to build the container. On a UCS:
 
 ```
-git clone ...
+git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
 ./build_docker_image
-# creates ...
+# creates docker-test-upload.software-univention.de/ox-connector:1.0.0
 ```
-
-*Upload*
-
-Build on docker.knut.univention.de as instructed above
-
-`docker push ...`
 
 Release
 -------
@@ -93,13 +87,13 @@ Transfer Appcenter configuration to App Provider Portal:
 ./push_config_to_appcenter
 ```
 
-Install
--------
+Install during Development Phase
+--------------------------------
 
 For now, follow docker build instructions in Build. Then
 
 ```
-univention-app dev-set ox-connector DockerImage=... Volumes=ox-connector:/
+univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
 univention-app install ox-connector --do-not-pull
 ```
 
@@ -108,7 +102,7 @@ Dev
 
 On your laptop:
 
-`devsync ~/git/provisioning/ /var/lib/docker/volumes/ox-connector/_data/`
+`devsync ~/git/provisioning/ /var/lib/docker/volumes/ox-connector/_data/`  # tbd
 
 Install OX on UCS
 -----------------

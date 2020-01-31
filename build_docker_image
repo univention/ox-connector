@@ -14,7 +14,7 @@ APP_IMG_TEST="${APP_IMG_NO_VERSION}:${APP_VERSION}-test"
 DOCKER_REGISTRY_SERVER="docker.knut.univention.de"
 
 APPSUITE_REPO_DIR="appsuite"
-APPSUITE_BRANCH="4.4"
+APPSUITE_BRANCH="dwiesent/ox-provisioning-app"
 GIT_ARGS="-c http.sslVerify=false"
 GIT_REPO_URI="https://git.knut.univention.de/univention/open-xchange/appsuite.git"
 OUR_PYTHON_PACKAGES="appsuite/univention-ox appsuite/univention-ox-soap-api univention-ox-provisioning"
