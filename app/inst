@@ -71,6 +71,9 @@ setup_vars () {
 	OXTIMEZONE="ox_timezone"
 	OXLANG="ox_lang"
 	CONTEXTDOMAIN="$domainname"
+
+	PACKAGE_NAME="univention-ox"
+	PACKAGE_VERSION="11.0.0-32A~4.4.0.201911191756"  # FIXME: Need to get from ox branch? Or is it okay as it is?
 }
 
 register_ldap () {
@@ -115,6 +118,8 @@ register_ldap_extension () {
 		args+=("$1")
 		shift
 	done
+	args+=(--packagename "$PACKAGE_NAME")
+	args+=(--packageversion "$PACKAGE_VERSION")
 	shift
 	while [ $# -ge 1 ]
 	do
@@ -157,7 +162,7 @@ create_eas () {
 		--set description="Select OX context objects"
 
 	# create all default extended attributes
-	python /var/lib/univention-appcenter/apps/ox-connector/data/files/createextattr.py "$@"  || die
+	python /var/lib/univention-appcenter/apps/ox-connector/data/resources/createextattr.py "$@"  || die
 
 	stop_udm_cli_server
 }
