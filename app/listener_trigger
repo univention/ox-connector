@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 # -*- coding: utf-8 -*-
 
 # Copyright 2020 Univention GmbH
@@ -30,12 +29,398 @@
 # <http://www.gnu.org/licenses/>.
 
 """
-Script called by app center listener converter.
+Entry point for listener_trigger script.
 """
 
+from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.config import DEFAULT_CONTEXT
+
+Context = get_ox_integration_class('SOAP', 'Context')
+User = get_ox_integration_class('SOAP', 'User')
+
+# oxmail/oxcontext
+# ================
+def context_from_attributes(attributes):
+	context = Context(id=attributes['contextid'])
+	update_context(context, attributes)
+	return context
+
+def update_context(context, attributes):
+	context.max_quota = attributes['oxQuota']
+	context.name = attributes['name']
+
+def context_exists(obj):
+	if obj.attributes is None:
+		# before delete
+		context_id = obj.old_attributes['contextid']
+	else:
+		# before create
+		context_id = obj.attributes['contextid']
+	return bool(Context.list(pattern=context_id))
+
+def create_context(obj):
+	print('Creating', obj)
+	if context_exists(obj):
+		print(obj, 'exists. Modifying instead...')
+		return modify_context(obj)
+	context = context_from_attributes(obj.attributes)
+	context.create()
+
+def modify_context(obj):
+	print('Modifying', obj)
+	if obj.old_attributes:
+		context = context_from_attributes(obj.old_attributes)
+	else:
+		print(obj, 'has no old data. Resync?')
+		context = context_from_attributes(obj.attributes)
+	update_context(context, obj.attributes)
+	context.modify()
+
+def delete_context(obj):
+	print('Deleting', obj)
+	if not context_exists(obj):
+		print(obj, 'does not exist. Doing nothing...')
+		return
+	context = context_from_attributes(obj.old_attributes)
+	context.remove()
+
+# users/user
+# ==========
+
+def user_from_attributes(attributes, user_id=None):
+	context_id = attributes.get('oxContext', DEFAULT_CONTEXT)
+	user = User(id=user_id, context_id=context_id)
+	update_user(user, attributes)
+	return user
+
+def update_user(user, attributes):
+	#user.context_admin = context_admin,
+	user.name = attributes.get('username'),
+	user.display_name = attributes.get('oxDisplayName'),
+	user.password = None,
+	user.given_name = attributes.get('firstname'),
+	user.sur_name = attributes.get('lastname'),
+	user.primary_email = attributes.get('mailPrimaryAddress'),
+	user.email1 = attributes.get('e-mail'),
+	#user.aliases = attributes.get(),
+	#user.anniversary = attributes.get('oxAnniversary'),  # FIXME: date traceback on None
+	#user.assistant_name = attributes.get(),
+	#user.birthday = attributes.get('oxBirthday'),  # FIXME: date traceback on None
+	user.branches = attributes.get('oxBranches'),
+	#user.business_category = attributes.get(),
+	#user.categories = attributes.get(),
+	#user.cellular_telephone1 = attributes.get(),
+	#user.cellular_telephone2 = attributes.get(),
+	user.city_business = attributes.get('city'),  # ???
+	user.city_home = attributes.get('oxCityHome'),
+	user.city_other = attributes.get('oxCityOther'),
+	user.commercial_register = attributes.get('oxCommercialRegister'),
+	#user.company = attributes.get(),
+	user.country_business = attributes.get('oxCountryBusiness'),
+	user.country_home = attributes.get('oxCountryHome'),
+	user.country_other = attributes.get('oxCountryOther'),
+	#user.drive_user_folder_mode = attributes.get(),
+	#user.default_sender_address = attributes.get(),
+	#user.default_group = attributes.get(),
+	user.department = attributes.get('oxDepartment'),
+	user.email2 = attributes.get('oxEmail2'),
+	user.email3 = attributes.get('oxEmail3'),
+	user.employee_type = attributes.get('employeeType'),  # ???
+	user.fax_business = attributes.get('oxFaxBusiness'),
+	user.fax_home = attributes.get('oxFaxHome'),
+	user.fax_other = attributes.get('oxFaxOther'),
+	#user.filestore_id = attributes.get(),
+	#user.filestore_name = attributes.get(),
+	#user.folder_tree = attributes.get(),
+	#user.gui_preferences_for_soap = attributes.get(),
+	#user.gui_spam_filter_enabled = attributes.get(),
+	#user.imap_login = attributes.get(),
+	#user.imap_port = attributes.get(),
+	#user.imap_schema = attributes.get(),
+	#user.imap_server = attributes.get(),
+	#user.imap_server_string = attributes.get(),
+	#user.info = attributes.get(),
+	user.instant_messenger1 = attributes.get('oxInstantMessenger1'),
+	user.instant_messenger2 = attributes.get('oxInstantMessenger2'),
+	user.language = attributes.get('oxLanguage'),
+	#user.mail_folder_confirmed_ham_name = attributes.get(),
+	#user.mail_folder_confirmed_spam_name = attributes.get(),
+	#user.mail_folder_drafts_name = attributes.get(),
+	#user.mail_folder_sent_name = attributes.get(),
+	#user.mail_folder_spam_name = attributes.get(),
+	#user.mail_folder_trash_name = attributes.get(),
+	#user.mail_folder_archive_full_name = attributes.get(),
+	#user.mail_enabled = attributes.get(),
+	user.manager_name = attributes.get('oxManagerName'),
+	user.marital_status = attributes.get('oxMarialStatus'),
+	#user.max_quota = attributes.get(),
+	user.middle_name = attributes.get('oxMiddleName'),
+	user.nickname = attributes.get('oxNickName'),
+	user.note = attributes.get('oxNote'),
+	user.number_of_children = attributes.get('oxNumOfChildren'),
+	#user.number_of_employee = attributes.get(),
+	#user.password_mech = attributes.get(),
+	#user.password_expired = attributes.get(),
+	user.position = attributes.get('oxPosition'),
+	user.postal_code_business = attributes.get('postcode'),  # ???
+	user.postal_code_home = attributes.get('oxPostalCodeHome'),
+	user.postal_code_other = attributes.get('oxPostalCodeOther'),
+	user.profession = attributes.get('oxProfession'),
+	#user.room_number = attributes.get(),
+	user.sales_volume = attributes.get('oxSalesVolume'),
+	#user.smtp_port = attributes.get(),
+	#user.smtp_schema = attributes.get(),
+	#user.smtp_server = attributes.get(),
+	#user.smtp_server_string = attributes.get(),
+	user.spouse_name = attributes.get('oxSpouseName'),
+	user.state_business = attributes.get('oxStateBusiness'),
+	user.state_home = attributes.get('oxStateHome'),
+	user.state_other = attributes.get('oxStateOther'),
+	#user.street_business = attributes.get(),
+	user.street_home = attributes.get('oxStreetHome'),
+	user.street_other = attributes.get('oxStreetOther'),
+	user.suffix = attributes.get('oxSuffix'),
+	user.tax_id = attributes.get('oxTaxId'),
+	user.telephone_assistant = attributes.get('oxTelephoneAssistant'),
+	#user.telephone_business1 = attributes.get(),
+	#user.telephone_business2 = attributes.get(),
+	#user.telephone_callback = attributes.get(),
+	user.telephone_car = attributes.get('oxTelephoneCar'),
+	user.telephone_company = attributes.get('oxTelephoneCompany'),
+	#user.telephone_home1 = attributes.get(),
+	#user.telephone_home2 = attributes.get(),
+	user.telephone_ip = attributes.get('oxTelephoneIp'),
+	#user.telephone_isdn = attributes.get(),
+	user.telephone_other = attributes.get('oxTelephoneOther'),
+	#user.telephone_pager = attributes.get(),
+	#user.telephone_primary = attributes.get(),
+	#user.telephone_radio = attributes.get(),
+	user.telephone_telex = attributes.get('oxTelephoneTelex'),
+	user.telephone_ttytdd = attributes.get('oxTelephoneTtydd'),
+	user.timezone = attributes.get('oxTimeZone'),
+	user.title = attributes.get('title'),  # ???
+	#user.upload_file_size_limit = attributes.get(),
+	#user.upload_file_size_limitPerFile = attributes.get(),
+	user.url = attributes.get('oxUrl'),
+	#user.used_quota = attributes.get('oxUserQuota'), ???
+	#user.user_attributes = attributes.get(),
+	user.userfield01 = attributes.get('oxUserfield01'),
+	user.userfield02 = attributes.get('oxUserfield02'),
+	user.userfield03 = attributes.get('oxUserfield03'),
+	user.userfield04 = attributes.get('oxUserfield04'),
+	user.userfield05 = attributes.get('oxUserfield05'),
+	user.userfield06 = attributes.get('oxUserfield06'),
+	user.userfield07 = attributes.get('oxUserfield07'),
+	user.userfield08 = attributes.get('oxUserfield08'),
+	user.userfield09 = attributes.get('oxUserfield09'),
+	user.userfield10 = attributes.get('oxUserfield10'),
+	user.userfield11 = attributes.get('oxUserfield11'),
+	user.userfield12 = attributes.get('oxUserfield12'),
+	user.userfield13 = attributes.get('oxUserfield13'),
+	user.userfield14 = attributes.get('oxUserfield14'),
+	user.userfield15 = attributes.get('oxUserfield15'),
+	user.userfield16 = attributes.get('oxUserfield16'),
+	user.userfield17 = attributes.get('oxUserfield17'),
+	user.userfield18 = attributes.get('oxUserfield18'),
+	user.userfield19 = attributes.get('oxUserfield19'),
+	user.userfield20 = attributes.get('oxUserfield20'),
+	#user.primary_account_name = attributes.get(),
+	#user.convert_drive_user_folders = attributes.get(),
+
+def get_user_id(obj):
+	if obj.attributes is None:
+		# before delete
+		context_id = obj.old_attributes('contextid')
+		username = obj.attributes.get('username')
+	else:
+		# before create
+		context_id = obj.attributes.get('contextid')
+		username = obj.attributes.get('username')
+	if context_id is None:
+		return None
+	users = User.list(context_id, pattern=username)
+	if not users:
+		return None
+	assert len(users) == 1
+	return users[0].id
+
+def create_user(obj):
+	print('Creating', obj)
+	if obj.attributes['isOxUser'] == 'Not':
+		print(obj, 'is no OX user. Deleting instead...')
+		return delete_user(obj)
+	if get_user_id(obj):
+		print(obj, 'exists. Modifying instead...')
+		return modify_user(obj)
+	user = user_from_attributes(obj.attributes)
+	user.create()
+
+def modify_user(obj):
+	print('Modifying', obj)
+	user_id = get_user_id(obj)
+	if not user_id:
+		print(obj, 'does not exist. Doing nothing...')
+		return
+	if obj.old_attributes:
+		if obj.old_attributes['isOxUser'] == 'Not':
+			print(obj, 'was no OX user before. Creating instead')
+			return create_user(obj)
+		user = user_from_attributes(obj.old_attributes, user_id)
+	else:
+		print(obj, 'has no old data. Resync?')
+		user = user_from_attributes(obj.attributes, user_id)
+	update_user(user, obj.attributes)
+	user.modify()
+
+def delete_user(obj):
+	print('Deleting', obj)
+	user_id = get_user_id(obj)
+	if not user_id:
+		print(obj, 'does not exist. Doing nothing...')
+		return
+	user = user_from_attributes(obj.old_attributes, user_id)
+	user.remove()
+
+##############################
+### end ox listener lib ######
+### begin listener skeleton ##
+
+import traceback
+import json
 import sys
-from univention.ox.provisioning.listener_trigger import do, objects_from_files, run_on_files
+
+from pathlib import Path
+APP = 'ox-connector'
+DATA_DIR = Path('/var/lib/univention-appcenter/apps', APP, 'data')
+NEW_FILES_DIR = DATA_DIR / 'listener'
+OLD_FILES_DIR = NEW_FILES_DIR / 'old'
+
+def load_from_json_file(path):
+	'''Just a helper function to get JSON content from a file, if it
+	exists'''
+	if not path.exists():
+		return None
+	with path.open() as fd:
+		return json.load(fd)
+
+class TriggerObject(object):
+	'''A thin wrapper over a JSON file. Holds all the information from that
+	file. May also hold information of this object from a previous run
+	(needs a second, backup file for that)'''
+	def __init__(self, entry_uuid, object_type, dn, attributes, options):
+		self.entry_uuid = entry_uuid
+		self.object_type = object_type
+		self.dn = dn
+		self.attributes = attributes
+		self.options = options
+		self.old_dn = None
+		self.old_attributes = None
+		self.old_options = None
+		self._old_loaded = False
+
+	def get_old_file_path(self):
+		'''Name of the old file. May or may not be present. Is used by
+		objects_from_files to move files if speceified.'''
+		return OLD_FILES_DIR / '{}.json'.format(self.entry_uuid)
+
+	def load_old(self):
+		'''Loads the old filename and sets attributes accordingly'''
+		old_path = self.get_old_file_path()
+		content = load_from_json_file(old_path)
+		if content is not None:
+			self.old_dn = content['dn']
+			self.old_attributes = content['object']
+			self.old_options = content['options']
+		self._old_loaded = True
+
+	def was_added(self):
+		'''Whether this object is new. Needs the have read an old file
+		for this to give a meaningful response'''
+		if self._old_loaded is False:
+			return None
+		return self.old_dn is None
+
+	def was_modified(self):
+		'''Whether this object was modified. Needs the have read an old
+		file for this to give a meaningful response'''
+		if self.was_deleted():
+			return False
+		if self._old_loaded is False:
+			return None
+		return not self.was_added() and not self.was_deleted()
+
+	def was_deleted(self):
+		'''Whether this object was deleted.'''
+		return self.attributes is None
+
+	def __repr__(self):
+		return 'Object({!r}, {!r})'.format(self.object_type, self.dn)
+
+def objects_from_files(delete_files=True, move_files=False):
+	'''Iterates over all JSON files and yields a TriggerObject. After the
+	caller is done with it, it can delete or move the file. If it moves the
+	file, a copy of this very JSON file is created so that a new run can
+	reload it (useful if you need to act on various changes in
+	attributes)'''
+	for path in sorted(NEW_FILES_DIR.glob('*.json')):
+		content = load_from_json_file(path)
+		entry_uuid = content['id']
+		object_type = content['udm_object_type']
+		dn = content['dn']
+		attributes = content['object']
+		options = content['options']
+		obj = TriggerObject(entry_uuid, object_type, dn, attributes, options)
+		if move_files:
+			obj.load_old()
+		if obj.attributes is None and obj.old_attributes is None:
+			# happens when creation and deletion happens within one
+			# "listener cycle" => nothing happened
+			pass
+		else:
+			yield obj
+		if move_files:
+			old_file_path = obj.get_old_file_path()
+			old_file_path.parent.mkdir(parents=True, exist_ok=True)
+			path.rename(old_file_path)
+		elif delete_files:
+			path.unlink()
+
+def run_on_files(objs, f, stop_at_first_error=True):
+	'''Iterate over objects (returned by objects_from_files) and runs a
+	function f on this object. May continue to do so even if one iteration
+	failed. Returns a reasonable exit code'''
+	ret = 0
+	for obj in objs:
+		try:
+			f(obj)
+		except Exception:
+			traceback.print_exc()
+			ret = 1
+			if stop_at_first_error:
+				break
+	return ret
+
+def run(obj):
+	'''This is your main function. Implement all your logic here'''
+	if obj.object_type == 'oxmail/oxcontext':
+		if obj.was_added():
+			create_context(obj)
+		elif obj.was_modified():
+			modify_context(obj)
+		elif obj.was_deleted():
+			delete_context(obj)
+	if obj.object_type == 'users/user':
+		if obj.attributes['username'] == 'oxadmin':
+			# FIXME
+			return
+		if obj.was_added():
+			create_user(obj)
+		elif obj.was_modified():
+			modify_user(obj)
+		elif obj.was_deleted():
+			delete_user(obj)
 
 
 objs = objects_from_files(delete_files=False, move_files=True)
-sys.exit(run_on_files(objs, do))
+sys.exit(run_on_files(objs, run))
+
