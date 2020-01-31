@@ -23,6 +23,7 @@ How to build the container:
 
 `docker build . -t "ox-listener:1.0"`
 
+Preferrably on the UCS you want to install the App on (see Install)
 
 Install
 -------
@@ -30,6 +31,17 @@ Install
 For now, follow docker build instructions in Dev. Then
 
 `univention-app install ox-connector --do-not-pull`
+
+
+Install OX on UCS
+-----------------
+
+The whole point is to decouple OX and the integration. Yet, we want to run against a real OX. Setup a (different?) UCS server with OX:
+
+```
+ucr set ox/joinscript/skip=yes ox/listener/enabled=false
+univention-app install oxseforucs
+```
 
 Tests
 -----
