@@ -35,15 +35,12 @@ import traceback
 import json
 
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.soap.config import DEFAULT_CONTEXT, set_secrets_dir, set_soap_server
-from .constants import DATA_DIR, NEW_FILES_DIR, OLD_FILES_DIR, OX_SOAP_SERVER
+from univention.ox.soap.config import DEFAULT_CONTEXT
+from .constants import NEW_FILES_DIR, OLD_FILES_DIR
 
 
 Context = get_ox_integration_class('SOAP', 'Context')
 User = get_ox_integration_class('SOAP', 'User')
-
-set_secrets_dir(DATA_DIR)
-set_soap_server(OX_SOAP_SERVER)
 
 
 def load_from_json_file(path):

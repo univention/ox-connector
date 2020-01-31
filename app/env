@@ -1,1 +1,1 @@
-SECRETS_DIR=/var/lib/univention-appcenter/apps/ox-connector/data/
+OX_SECRETS_DIR=/var/lib/univention-appcenter/apps/ox-connector/data/
