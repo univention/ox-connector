@@ -24,9 +24,28 @@ Dev
 
 How to build the container:
 
-`docker build . -t "ox-listener:1.0"`
+`./build_docker_image`
 
 Preferrably on the UCS you want to install the App on (see Install)
+
+Release
+-------
+
+Build and push the container:
+
+```bash
+$ rsync -av -n --delete --exclude .git --exclude appsuite --exclude __pycache__ ./ root@docker.knut.univention.de:ox-provisioning/
+# All OK? Then repeat the above command with the '-n'.
+$ ssh root@docker.knut.univention.de
+$ cd ox-provisioning
+$ ./build_docker_image --release --push
+```
+
+Transfer Appcenter configuration to App Provider Portal:
+
+```bash
+./push_config_to_appcenter
+```
 
 Install
 -------

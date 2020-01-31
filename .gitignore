@@ -2,4 +2,5 @@
 **/.eggs
 **/*.egg-info
 requirements_all.txt
+univention-appcenter-control
 
