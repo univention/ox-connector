@@ -18,15 +18,61 @@ The following UDM objects are covered:
 * Groups
 * Resources
 
+How it works
+------------
 
-Dev
----
+The App Center creates a listener for the App directly on the UCS server, it is installed on, based on the following attribute in the ini file:
 
-How to build the container:
+`ListenerUDMModules = oxmail/oxcontext, users/user`
 
-`./build_docker_image`
+The listener then writes on each and every change a file with only :
 
-Preferrably on the UCS you want to install the App on (see Install)
+`/var/lib/univention-appcenter/listener/ox-connector/$timestamp.json`
+
+Additionally, a service runs on UCS: The "listener converter". It converts the afore mentioned json file into another json file. The first file (from the listener) basically only writes the entryUUID of the object. The converter uses UDM and dumps the attribute of the object to
+
+`/var/lib/univention-appcenter/apps/ox-connector/data/listener/$timestamp.json`
+
+When done converting all files it found in the directory of the listener, the converter looks in its own directory: Are there any JSON files? If yes, it triggers a script in the container of the App:
+
+```
+docker cp ... /var/cache/univention-appcenter/.../ox-connector.listener_trigger:/tmp/listener_trigger`
+docker exec ... /tmp/listener_trigger
+```
+
+The trigger file, shipped by the App itself, runs and shall find and process all files in `/var/lib/univention-appcenter/apps/ox-connector/data/listener/` (this directory is mounted automatically).
+
+It has to iterate over all files it finds. Every file it processed successfully, it shall delete.
+
+After the trigger script finishes, the converter waits 5 seconds and repeats converting files and running the trigger again (if there are new files or files from a prior, unsuccessful run of the trigger).
+
+To summarize:
+
+ * The App Center takes care of putting JSON files into the container
+ * The files contain the information about one and only one object. It may be of Context, User, ...
+ * The files are ordered by timestamp
+ * The logic how to process these is in a script that runs inside the container
+ * The script can process the files in order
+ * The script will not run twice at the same time
+ * The script exits on the first failed SOAP call. It can repeat processing the JSON file after 5 seconds because it runs again
+ * Proper Queue Management is not yet implemented. But you may do `rm /var/lib/univention-appcenter/apps/ox-connector/listener/$broken.json` at any time
+
+Build
+-----
+
+How to build the container. On a UCS:
+
+```
+git clone ...
+./build_docker_image
+# creates ...
+```
+
+*Upload*
+
+Build on docker.knut.univention.de as instructed above
+
+`docker push ...`
 
 Release
 -------
@@ -50,10 +96,19 @@ Transfer Appcenter configuration to App Provider Portal:
 Install
 -------
 
-For now, follow docker build instructions in Dev. Then
+For now, follow docker build instructions in Build. Then
 
-`univention-app install ox-connector --do-not-pull`
+```
+univention-app dev-set ox-connector DockerImage=... Volumes=ox-connector:/
+univention-app install ox-connector --do-not-pull
+```
 
+Dev
+---
+
+On your laptop:
+
+`devsync ~/git/provisioning/ /var/lib/docker/volumes/ox-connector/_data/`
 
 Install OX on UCS
 -----------------
