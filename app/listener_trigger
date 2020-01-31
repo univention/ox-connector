@@ -34,7 +34,7 @@ Script called by app center listener converter.
 """
 
 import sys
-from univention.ox.provisioning import do, objects_from_files, run_on_files
+from univention.ox.provisioning.listener_trigger import do, objects_from_files, run_on_files
 
 
 objs = objects_from_files(delete_files=False, move_files=True)

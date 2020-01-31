@@ -1,0 +1,4 @@
+#!/bin/sh
+
+[ -e /var/lib/univention-appcenter/apps/ox-connector/data/resources ] && rm -r /var/lib/univention-appcenter/apps/ox-connector/data/resources
+cp -r /usr/local/share/ox-connector/resources/ /var/lib/univention-appcenter/apps/ox-connector/data/resources
