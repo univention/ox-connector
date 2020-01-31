@@ -3,7 +3,7 @@
 set -e
 
 
-APP_ID="ox-listener"
+APP_ID="ox-connector"
 APP_VERSION="$(cd univention-ox-provisioning; python3 -B -c 'import univention.ox.provisioning.constants; print(univention.ox.provisioning.constants.__version__)')"
 DOCKERFILE="$(basename "$(readlink -f Dockerfile)")"
 DOCKERFILE_TEST="$DOCKERFILE-test"

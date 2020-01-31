@@ -5,6 +5,9 @@ A provisioning App that connects UCS' IDM with OX' database. This is done via th
 
 The App itself is a Docker container that brings nothing but the files needed to speak to the SOAP server.
 
+* App name: `TODO`
+* AppID: `ox-connector`
+
 Scope
 -----
 
