@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ ! -d /var/lib/univention-appcenter/apps/ox-connector/data/secrets/ ]; then
+	mkdir -p /var/lib/univention-appcenter/apps/ox-connector/data/secrets/
+	cp /etc/ox-secrets/* /var/lib/univention-appcenter/apps/ox-connector/data/secrets/
+fi

@@ -63,10 +63,12 @@ Build
 How to build the container. On a UCS:
 
 ```
-git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
+GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
 ./build_docker_image
 # creates docker-test-upload.software-univention.de/ox-connector:1.0.0
 ```
+
+(This checks out certain submodules. There are some flaws when the submodules branch changes. You may need to remove and re-clone the whole repository sometimes?)
 
 Release
 -------
@@ -94,7 +96,8 @@ For now, follow docker build instructions in Build. Then
 
 ```
 univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
-univention-app install ox-connector --do-not-pull
+univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD=...  # somewhere here? /etc/ox-secrets/
+service univention-directory-manager-rest reload
 ```
 
 Dev
