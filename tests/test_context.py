@@ -4,8 +4,6 @@ import time
 import os
 
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.soap.services import ZeepClient, get_wsdl
-from univention.ox.soap.credentials import ClientCredentials
 from udm_rest import UDM
 
 import pytest
@@ -119,12 +117,6 @@ def test_add_context(new_context_id, udm, ox_host):
 	c = cs[0]
 	assert c.name == 'context{}'.format(new_context_id)
 	assert c.max_quota == 1000
-	auth = ClientCredentials().master_credentials
-	utils_wsdl = get_wsdl(object_type='Utils')
-	client = ZeepClient(utils_wsdl.location)
-	for fs in client.service.listFilestore(auth=auth):
-		if fs.id == c.filestore_id:
-			assert fs.size == c.max_quota
 
 def test_modify_context(new_context_id, udm, ox_host):
 	dn = create_context(udm, ox_host, new_context_id)
@@ -136,12 +128,6 @@ def test_modify_context(new_context_id, udm, ox_host):
 	c = cs[0]
 	assert c.name == 'context{}'.format(new_context_id)
 	assert c.max_quota == 2000
-	auth = ClientCredentials().master_credentials
-	utils_wsdl = get_wsdl(object_type='Utils')
-	client = ZeepClient(utils_wsdl.location)
-	for fs in client.service.listFilestore(auth=auth):
-		if fs.id == c.filestore_id:
-			assert fs.size == c.max_quota
 
 def test_remove_context(new_context_id, udm, ox_host):
 	dn = create_context(udm, ox_host, new_context_id)
