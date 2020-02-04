@@ -1,5 +1,4 @@
-OX Provisioning App
-===================
+= OX Provisioning App
 
 A provisioning App that connects UCS' IDM with OX' database. This is done via the App Center's listener integration and OX' SOAP API.
 
@@ -8,8 +7,7 @@ The App itself is a Docker container that brings nothing but the files needed to
 * App name: `TODO`
 * AppID: `ox-connector`
 
-Scope
------
+== Scope
 
 The following UDM objects are covered:
 
@@ -18,8 +16,7 @@ The following UDM objects are covered:
 * Groups
 * Resources
 
-How it works
-------------
+== How it works
 
 The App Center creates a listener for the App directly on the UCS server, it is installed on, based on the following attribute in the ini file:
 
@@ -57,8 +54,18 @@ To summarize:
  * The script exits on the first failed SOAP call. It can repeat processing the JSON file after 5 seconds because it runs again
  * Proper Queue Management is not yet implemented. But you may do `rm /var/lib/univention-appcenter/apps/ox-connector/listener/$broken.json` at any time
 
-Build
------
+== Setup (Dev and QA)
+
+The whole point is to decouple OX and the integration. Yet, we want to run against a real OX.
+
+=== Setup OX
+
+```
+ucr set ox/joinscript/skip=yes ox/listener/enabled=false
+univention-app install oxseforucs
+```
+
+=== Build
 
 How to build the container. On a UCS:
 
@@ -70,8 +77,33 @@ GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xch
 
 (This checks out certain submodules. There are some flaws when the submodules branch changes. You may need to remove and re-clone the whole repository sometimes?)
 
-Release
--------
+=== Install during Development Phase
+
+For now, follow docker build instructions in Build. Then
+
+```
+univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
+univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD=...  # somewhere here? /etc/ox-secrets/
+service univention-directory-manager-rest reload  # Bug 50253
+```
+
+=== Dev
+
+On your laptop:
+
+`devsync ~/git/provisioning/ /var/lib/docker/volumes/ox-connector/_data/`  # tbd
+
+=== Tests
+
+There shall be a lot of tests. These can be executed like this:
+
+```
+univention-app shell ox-connector
+cd /usr/local/share/oxconnector/tests/
+py.test context.py
+```
+
+== Release
 
 Build and push the container:
 
@@ -89,41 +121,3 @@ Transfer Appcenter configuration to App Provider Portal:
 ./push_config_to_appcenter
 ```
 
-Install during Development Phase
---------------------------------
-
-For now, follow docker build instructions in Build. Then
-
-```
-univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
-univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD=...  # somewhere here? /etc/ox-secrets/
-service univention-directory-manager-rest reload
-```
-
-Dev
----
-
-On your laptop:
-
-`devsync ~/git/provisioning/ /var/lib/docker/volumes/ox-connector/_data/`  # tbd
-
-Install OX on UCS
------------------
-
-The whole point is to decouple OX and the integration. Yet, we want to run against a real OX. Setup a (different?) UCS server with OX:
-
-```
-ucr set ox/joinscript/skip=yes ox/listener/enabled=false
-univention-app install oxseforucs
-```
-
-Tests
------
-
-There shall be a lot of tests. These can be executed like this:
-
-```
-univention-app shell ox-connector
-cd /usr/local/share/oxconnector/tests/
-py.test context.py
-```
