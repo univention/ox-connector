@@ -65,7 +65,7 @@ ucr set ox/joinscript/skip=yes ox/listener/enabled=false
 univention-app install oxseforucs
 ```
 
-*IMPORTANT!*
+**IMPORTANT!**
 
 The SOAP endpoints are not avaiable by default. You need to modify `/etc/apache2/conf-available/proxy_http_ox_100_appsuite.conf`. This needs to be in there:
 
@@ -101,7 +101,7 @@ For now, follow docker build instructions in Build. Then
 ```
 #univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
 univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD="$(cat /etc/ox-secrets/master.secret)"
-service univention-directory-manager-rest reload  # Bug 50253
+service univention-directory-manager-rest restart  # Bug 50253
 ```
 
 ### Double check
@@ -122,8 +122,7 @@ There shall be a lot of tests. These can be executed like this:
 
 ```
 univention-app shell ox-connector
-cd /usr/local/share/oxconnector/tests/
-py.test context.py
+py.test tests
 ```
 
 ## Release

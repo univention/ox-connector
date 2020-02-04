@@ -4,6 +4,8 @@ import time
 import os
 
 from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.services import ZeepClient, get_wsdl
+from univention.ox.soap.credentials import ClientCredentials
 from udm_rest import UDM
 
 import pytest
@@ -37,7 +39,7 @@ def udm_admin_password():
 
 @pytest.fixture
 def ox_host():
-	return os.environ['OX_HOSTNAME']
+	return os.environ['OX_SOAP_SERVER']
 
 class UDMTest(object):
 	def __init__(self, uri, ldap_base, username, password):
@@ -112,25 +114,39 @@ def create_context(udm, ox_host, context_id):
 def test_add_context(new_context_id, udm, ox_host):
 	create_context(udm, ox_host, new_context_id)
 	Context = get_ox_integration_class('SOAP', 'Context')
-	c = Context.list(pattern=new_context_id)
-	assert len(c) == 1
-	assert c[0].name == 'context{}'.format(new_context_id)
-	assert c[0].max_quota == 1000
+	cs = Context.list(pattern=new_context_id)
+	assert len(cs) == 1
+	c = cs[0]
+	assert c.name == 'context{}'.format(new_context_id)
+	assert c.max_quota == 1000
+	auth = ClientCredentials().master_credentials
+	utils_wsdl = get_wsdl(object_type='Utils')
+	client = ZeepClient(utils_wsdl.location)
+	for fs in client.service.listFilestore(auth=auth):
+		if fs.id == c.filestore_id:
+			assert fs.size == c.max_quota
 
 def test_modify_context(new_context_id, udm, ox_host):
 	dn = create_context(udm, ox_host, new_context_id)
 	udm.modify('oxmail/oxcontext', dn, {'oxQuota': 2000})
 	wait_for_listener()
 	Context = get_ox_integration_class('SOAP', 'Context')
-	c = Context.list(pattern=new_context_id)
-	assert len(c) == 1
-	assert c[0].name == 'context{}'.format(new_context_id)
-	assert c[0].max_quota == 2000
+	cs = Context.list(pattern=new_context_id)
+	assert len(cs) == 1
+	c = cs[0]
+	assert c.name == 'context{}'.format(new_context_id)
+	assert c.max_quota == 2000
+	auth = ClientCredentials().master_credentials
+	utils_wsdl = get_wsdl(object_type='Utils')
+	client = ZeepClient(utils_wsdl.location)
+	for fs in client.service.listFilestore(auth=auth):
+		if fs.id == c.filestore_id:
+			assert fs.size == c.max_quota
 
 def test_remove_context(new_context_id, udm, ox_host):
 	dn = create_context(udm, ox_host, new_context_id)
 	udm.remove('oxmail/oxcontext', dn)
 	wait_for_listener()
 	Context = get_ox_integration_class('SOAP', 'Context')
-	c = Context.list(pattern=new_context_id)
-	assert len(c) == 0
+	cs = Context.list(pattern=new_context_id)
+	assert len(cs) == 0
