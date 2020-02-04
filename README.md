@@ -65,12 +65,29 @@ ucr set ox/joinscript/skip=yes ox/listener/enabled=false
 univention-app install oxseforucs
 ```
 
+*IMPORTANT!*
+
+The SOAP endpoints are not avaiable by default. You need to modify `/etc/apache2/conf-available/proxy_http_ox_100_appsuite.conf`. This needs to be in there:
+
+```
+<Location /webservices>
+    # restrict access to the soap provisioning API
+    Order Deny,Allow
+    Allow from all  # <- this changed. you may want to be more subtle, but this works
+    Allow from 127.0.0.1
+    # you might add more ip addresses / networks here
+    # Allow from 192.168 10 172.16
+</Location>
+```
+
+
 ### Build
 
 How to build the container. On a UCS:
 
 ```
 GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
+cd provisioning
 ./build_docker_image
 # creates docker-test-upload.software-univention.de/ox-connector:1.0.0
 ```
@@ -82,10 +99,16 @@ GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xch
 For now, follow docker build instructions in Build. Then
 
 ```
-univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
-univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD=...  # somewhere here? /etc/ox-secrets/
+#univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:1.0.0 Volumes=ox-connector:/  # tbd
+univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD="$(cat /etc/ox-secrets/master.secret)"
 service univention-directory-manager-rest reload  # Bug 50253
 ```
+
+### Double check
+
+Here you can follow what the App does:
+
+`tail -f /var/log/univention/listener_modules/ox-connector.log`
 
 ### Dev
 
