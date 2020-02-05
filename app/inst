@@ -38,6 +38,8 @@
 VERSION=1
 SERVICE='ox'
 
+set -e
+
 . /usr/share/univention-lib/all.sh || exit 1
 . /usr/share/univention-join/joinscripthelper.lib || exit 1
 
@@ -60,7 +62,6 @@ main () {
 	create_missing_domains "$@"
 
 	setup_umc "$@"
-	setup_portal_entries "$@"
 
 	joinscript_save_current_version
 }

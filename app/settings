@@ -15,7 +15,14 @@ Required = True
 InitialValue = 10
 
 [LOCAL_TIMEZONE]
-Description = Default timezone for users
+Description = Default language for new users
+Show = Install
+Type = String
+Required = True
+InitialValue = de_DE
+
+[LOCAL_TIMEZONE]
+Description = Default timezone for new users
 Show = Install
 Type = String
 Required = True

@@ -33,7 +33,9 @@ import sys
 import subprocess
 from univention.config_registry import ConfigRegistry
 
-csvfilename = '/usr/share/univention-ox/attrlist.csv'
+csvfilename = os.path.join(os.path.dirname(__file__), 'attrlist.csv')
+if not os.path.exits(csvfilename):
+	csvfilename = '/usr/share/univention-ox/attrlist.csv'
 pwfilename = '/etc/ldap.secret'
 
 ucr = ConfigRegistry()
@@ -99,17 +101,13 @@ for row in attrmap:
 		if row.get(propertyName):
 			cmd.extend(['--set', '{}={}'.format(propertyName, row[propertyName])])
 
-	#print('Installing extended attribute {}...'.format(row['name']))
+	print('Installing extended attribute {}...'.format(row['name']))
 	sys.stdout.flush()
-	#ret = subprocess.call(cmd)
-	import pipes
-	cmd_quotes = [pipes.quote(x) for x in cmd]
-	cmd_str = ' \\\n\t'.join(cmd_quotes)
-	print(cmd_str)
-	#if ret:
-	#	cmd_no_pw = [c if c != bindpwd else '********' for c in cmd]
-	#	print('FAILED (exit {}) installing extended attribute {!r} with command:\n{!r}'.format(ret, row['name'], cmd_no_pw))
-	#	sys.exit(ret)
+	ret = subprocess.call(cmd)
+	if ret:
+		cmd_no_pw = [c if c != bindpwd else '********' for c in cmd]
+		print('FAILED (exit {}) installing extended attribute {!r} with command:\n{!r}'.format(ret, row['name'], cmd_no_pw))
+		sys.exit(ret)
 
-#print('All extended attribute were installed successfully.')
+print('All extended attribute were installed successfully.')
 sys.exit(0)
