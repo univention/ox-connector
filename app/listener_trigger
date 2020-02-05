@@ -33,7 +33,7 @@ Entry point for listener_trigger script.
 """
 
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE
+from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_TIMEZONE
 
 Context = get_ox_integration_class('SOAP', 'Context')
 User = get_ox_integration_class('SOAP', 'User')
@@ -88,156 +88,170 @@ def delete_context(obj):
 # ==========
 
 def user_from_attributes(attributes, user_id=None):
-	context_id = attributes.get('oxContext', DEFAULT_CONTEXT)
+	context_id = attributes.get('oxContextUser', DEFAULT_CONTEXT)
 	user = User(id=user_id, context_id=context_id)
 	update_user(user, attributes)
 	return user
 
 def update_user(user, attributes):
-	#user.context_admin = context_admin,
-	user.name = attributes.get('username'),
-	user.display_name = attributes.get('oxDisplayName'),
-	user.password = None,
-	user.given_name = attributes.get('firstname'),
-	user.sur_name = attributes.get('lastname'),
-	user.primary_email = attributes.get('mailPrimaryAddress'),
-	user.email1 = attributes.get('e-mail'),
-	#user.aliases = attributes.get(),
-	#user.anniversary = attributes.get('oxAnniversary'),  # FIXME: date traceback on None
-	#user.assistant_name = attributes.get(),
-	#user.birthday = attributes.get('oxBirthday'),  # FIXME: date traceback on None
-	user.branches = attributes.get('oxBranches'),
-	#user.business_category = attributes.get(),
-	#user.categories = attributes.get(),
-	#user.cellular_telephone1 = attributes.get(),
-	#user.cellular_telephone2 = attributes.get(),
-	user.city_business = attributes.get('city'),  # ???
-	user.city_home = attributes.get('oxCityHome'),
-	user.city_other = attributes.get('oxCityOther'),
-	user.commercial_register = attributes.get('oxCommercialRegister'),
-	#user.company = attributes.get(),
-	user.country_business = attributes.get('oxCountryBusiness'),
-	user.country_home = attributes.get('oxCountryHome'),
-	user.country_other = attributes.get('oxCountryOther'),
-	#user.drive_user_folder_mode = attributes.get(),
-	#user.default_sender_address = attributes.get(),
-	#user.default_group = attributes.get(),
-	user.department = attributes.get('oxDepartment'),
-	user.email2 = attributes.get('oxEmail2'),
-	user.email3 = attributes.get('oxEmail3'),
-	user.employee_type = attributes.get('employeeType'),  # ???
-	user.fax_business = attributes.get('oxFaxBusiness'),
-	user.fax_home = attributes.get('oxFaxHome'),
-	user.fax_other = attributes.get('oxFaxOther'),
-	#user.filestore_id = attributes.get(),
-	#user.filestore_name = attributes.get(),
-	#user.folder_tree = attributes.get(),
-	#user.gui_preferences_for_soap = attributes.get(),
-	#user.gui_spam_filter_enabled = attributes.get(),
-	#user.imap_login = attributes.get(),
-	#user.imap_port = attributes.get(),
-	#user.imap_schema = attributes.get(),
-	#user.imap_server = attributes.get(),
-	#user.imap_server_string = attributes.get(),
-	#user.info = attributes.get(),
-	user.instant_messenger1 = attributes.get('oxInstantMessenger1'),
-	user.instant_messenger2 = attributes.get('oxInstantMessenger2'),
-	user.language = attributes.get('oxLanguage', DEFAULT_LANGUAGE),
-	#user.mail_folder_confirmed_ham_name = attributes.get(),
-	#user.mail_folder_confirmed_spam_name = attributes.get(),
-	#user.mail_folder_drafts_name = attributes.get(),
-	#user.mail_folder_sent_name = attributes.get(),
-	#user.mail_folder_spam_name = attributes.get(),
-	#user.mail_folder_trash_name = attributes.get(),
-	#user.mail_folder_archive_full_name = attributes.get(),
-	#user.mail_enabled = attributes.get(),
-	user.manager_name = attributes.get('oxManagerName'),
-	user.marital_status = attributes.get('oxMarialStatus'),
-	#user.max_quota = attributes.get(),
-	user.middle_name = attributes.get('oxMiddleName'),
-	user.nickname = attributes.get('oxNickName'),
-	user.note = attributes.get('oxNote'),
-	user.number_of_children = attributes.get('oxNumOfChildren'),
-	#user.number_of_employee = attributes.get(),
-	#user.password_mech = attributes.get(),
-	#user.password_expired = attributes.get(),
-	user.position = attributes.get('oxPosition'),
-	user.postal_code_business = attributes.get('postcode'),  # ???
-	user.postal_code_home = attributes.get('oxPostalCodeHome'),
-	user.postal_code_other = attributes.get('oxPostalCodeOther'),
-	user.profession = attributes.get('oxProfession'),
-	#user.room_number = attributes.get(),
-	user.sales_volume = attributes.get('oxSalesVolume'),
-	#user.smtp_port = attributes.get(),
-	#user.smtp_schema = attributes.get(),
-	#user.smtp_server = attributes.get(),
-	#user.smtp_server_string = attributes.get(),
-	user.spouse_name = attributes.get('oxSpouseName'),
-	user.state_business = attributes.get('oxStateBusiness'),
-	user.state_home = attributes.get('oxStateHome'),
-	user.state_other = attributes.get('oxStateOther'),
-	#user.street_business = attributes.get(),
-	user.street_home = attributes.get('oxStreetHome'),
-	user.street_other = attributes.get('oxStreetOther'),
-	user.suffix = attributes.get('oxSuffix'),
-	user.tax_id = attributes.get('oxTaxId'),
-	user.telephone_assistant = attributes.get('oxTelephoneAssistant'),
-	#user.telephone_business1 = attributes.get(),
-	#user.telephone_business2 = attributes.get(),
-	#user.telephone_callback = attributes.get(),
-	user.telephone_car = attributes.get('oxTelephoneCar'),
-	user.telephone_company = attributes.get('oxTelephoneCompany'),
-	#user.telephone_home1 = attributes.get(),
-	#user.telephone_home2 = attributes.get(),
-	user.telephone_ip = attributes.get('oxTelephoneIp'),
-	#user.telephone_isdn = attributes.get(),
-	user.telephone_other = attributes.get('oxTelephoneOther'),
-	#user.telephone_pager = attributes.get(),
-	#user.telephone_primary = attributes.get(),
-	#user.telephone_radio = attributes.get(),
-	user.telephone_telex = attributes.get('oxTelephoneTelex'),
-	user.telephone_ttytdd = attributes.get('oxTelephoneTtydd'),
-	user.timezone = attributes.get('oxTimeZone'),
-	user.title = attributes.get('title'),  # ???
-	#user.upload_file_size_limit = attributes.get(),
-	#user.upload_file_size_limitPerFile = attributes.get(),
-	user.url = attributes.get('oxUrl'),
-	#user.used_quota = attributes.get('oxUserQuota'), ???
-	#user.user_attributes = attributes.get(),
-	user.userfield01 = attributes.get('oxUserfield01'),
-	user.userfield02 = attributes.get('oxUserfield02'),
-	user.userfield03 = attributes.get('oxUserfield03'),
-	user.userfield04 = attributes.get('oxUserfield04'),
-	user.userfield05 = attributes.get('oxUserfield05'),
-	user.userfield06 = attributes.get('oxUserfield06'),
-	user.userfield07 = attributes.get('oxUserfield07'),
-	user.userfield08 = attributes.get('oxUserfield08'),
-	user.userfield09 = attributes.get('oxUserfield09'),
-	user.userfield10 = attributes.get('oxUserfield10'),
-	user.userfield11 = attributes.get('oxUserfield11'),
-	user.userfield12 = attributes.get('oxUserfield12'),
-	user.userfield13 = attributes.get('oxUserfield13'),
-	user.userfield14 = attributes.get('oxUserfield14'),
-	user.userfield15 = attributes.get('oxUserfield15'),
-	user.userfield16 = attributes.get('oxUserfield16'),
-	user.userfield17 = attributes.get('oxUserfield17'),
-	user.userfield18 = attributes.get('oxUserfield18'),
-	user.userfield19 = attributes.get('oxUserfield19'),
-	user.userfield20 = attributes.get('oxUserfield20'),
-	#user.primary_account_name = attributes.get(),
-	#user.convert_drive_user_folders = attributes.get(),
+	user.context_admin = False
+	user.name = attributes.get('username')
+	user.display_name = attributes.get('oxDisplayName')
+	user.password = 'this is some super secret password. but is it used in times of ldap? that is a very good question indeed'  # TODO: ???
+	user.given_name = attributes.get('firstname')
+	user.sur_name = attributes.get('lastname')
+	user.default_sender_address = attributes.get('mailPrimaryAddress')  # TODO: ???
+	#user.anniversary = attributes.get('oxAnniversary')  # FIXME: date traceback on None
+	#user.assistant_name = attributes.get()
+	#user.birthday = attributes.get('oxBirthday')  # FIXME: date traceback on None
+	user.branches = attributes.get('oxBranches')
+	#user.business_category = attributes.get()
+	user.cellular_telephone1 = attributes.get('oxMobileBusiness')
+	user.cellular_telephone2 = attributes.get('mobile')
+	user.city_business = attributes.get('city')
+	user.city_home = attributes.get('oxCityHome')
+	user.city_other = attributes.get('oxCityOther')
+	user.commercial_register = attributes.get('oxCommercialRegister')
+	user.company = attributes.get('organisation')
+	user.country_business = attributes.get('oxCountryBusiness')
+	user.country_home = attributes.get('oxCountryHome')
+	user.country_other = attributes.get('oxCountryOther')
+	#user.drive_user_folder_mode = attributes.get()
+	#user.default_group = attributes.get()
+	user.department = attributes.get('oxDepartment')
+	user.email1 = attributes.get('mailPrimaryAddress')
+	user.primary_email = user.email1
+	user.email2 = attributes.get('oxEmail2')
+	user.email3 = attributes.get('oxEmail3')
+	#user.categories = attributes.get('employeeType')  # TODO: or employee_type?
+	#user.employee_type = attributes.get('employeeType')  # TODO: or categories?
+	user.fax_business = attributes.get('oxFaxBusiness')
+	user.fax_home = attributes.get('oxFaxHome')
+	user.fax_other = attributes.get('oxFaxOther')
+	#user.filestore_id = attributes.get()
+	#user.filestore_name = attributes.get()
+	#user.folder_tree = attributes.get()
+	#user.gui_preferences_for_soap = attributes.get()
+	user.gui_spam_filter_enabled = True  # TODO: ???
+	#user.imap_login = attributes.get()
+	#user.imap_port = attributes.get()
+	#user.imap_schema = attributes.get()
+	#user.imap_server = attributes.get()
+	#user.imap_server_string = attributes.get()
+	#user.info = attributes.get()
+	user.instant_messenger1 = attributes.get('oxInstantMessenger1')
+	user.instant_messenger2 = attributes.get('oxInstantMessenger2')
+	user.language = attributes.get('oxLanguage', DEFAULT_LANGUAGE)
+	#user.mail_folder_confirmed_ham_name = attributes.get()
+	#user.mail_folder_confirmed_spam_name = attributes.get()
+	#user.mail_folder_drafts_name = attributes.get()
+	#user.mail_folder_sent_name = attributes.get()
+	#user.mail_folder_spam_name = attributes.get()
+	#user.mail_folder_trash_name = attributes.get()
+	#user.mail_folder_archive_full_name = attributes.get()
+	user.manager_name = attributes.get('oxManagerName')
+	user.marital_status = attributes.get('oxMarialStatus')
+	user.middle_name = attributes.get('oxMiddleName')
+	user.nickname = attributes.get('oxNickName')
+	user.note = attributes.get('oxNote')
+	user.number_of_children = attributes.get('oxNumOfChildren')
+	user.number_of_employee = attributes.get('employeeNumber')
+	#user.password_mech = attributes.get()
+	#user.password_expired = attributes.get()
+	user.position = attributes.get('oxPosition')
+	user.postal_code_business = attributes.get('postcode')  # ???
+	user.postal_code_home = attributes.get('oxPostalCodeHome')
+	user.postal_code_other = attributes.get('oxPostalCodeOther')
+	user.profession = attributes.get('oxProfession')
+	user.room_number = attributes.get('roomNumber')
+	user.sales_volume = attributes.get('oxSalesVolume')
+	#user.smtp_port = attributes.get()
+	#user.smtp_schema = attributes.get()
+	#user.smtp_server = attributes.get()
+	#user.smtp_server_string = attributes.get()
+	user.spouse_name = attributes.get('oxSpouseName')
+	user.state_business = attributes.get('oxStateBusiness')
+	user.state_home = attributes.get('oxStateHome')
+	user.state_other = attributes.get('oxStateOther')
+	user.street_business = attributes.get('street')
+	user.street_home = attributes.get('oxStreetHome')
+	user.street_other = attributes.get('oxStreetOther')
+	user.suffix = attributes.get('oxSuffix')
+	user.tax_id = attributes.get('oxTaxId')
+	user.telephone_assistant = attributes.get('oxTelephoneAssistant')
+	#user.telephone_callback = attributes.get()
+	user.telephone_car = attributes.get('oxTelephoneCar')
+	user.telephone_company = attributes.get('oxTelephoneCompany')
+	user.telephone_ip = attributes.get('oxTelephoneIp')
+	#user.telephone_isdn = attributes.get()
+	user.telephone_other = attributes.get('oxTelephoneOther')
+	user.telephone_pager = attributes.get('pagerTelephoneNumber')
+	#user.telephone_primary = attributes.get()
+	#user.telephone_radio = attributes.get()
+	user.telephone_telex = attributes.get('oxTelephoneTelex')
+	user.telephone_ttytdd = attributes.get('oxTelephoneTtydd')
+	user.timezone = attributes.get('oxTimeZone', LOCAL_TIMEZONE)
+	user.title = attributes.get('title')
+	#user.upload_file_size_limit = attributes.get()
+	#user.upload_file_size_limitPerFile = attributes.get()
+	user.url = attributes.get('oxUrl')
+	user.used_quota = attributes.get('oxUserQuota')  # TODO: or max_quota?
+	user.max_quota = attributes.get('oxUserQuota')  # TODO: or used_quota?
+	#user.user_attributes = attributes.get()
+	user.userfield01 = attributes.get('oxUserfield01')
+	user.userfield02 = attributes.get('oxUserfield02')
+	user.userfield03 = attributes.get('oxUserfield03')
+	user.userfield04 = attributes.get('oxUserfield04')
+	user.userfield05 = attributes.get('oxUserfield05')
+	user.userfield06 = attributes.get('oxUserfield06')
+	user.userfield07 = attributes.get('oxUserfield07')
+	user.userfield08 = attributes.get('oxUserfield08')
+	user.userfield09 = attributes.get('oxUserfield09')
+	user.userfield10 = attributes.get('oxUserfield10')
+	user.userfield11 = attributes.get('oxUserfield11')
+	user.userfield12 = attributes.get('oxUserfield12')
+	user.userfield13 = attributes.get('oxUserfield13')
+	user.userfield14 = attributes.get('oxUserfield14')
+	user.userfield15 = attributes.get('oxUserfield15')
+	user.userfield16 = attributes.get('oxUserfield16')
+	user.userfield17 = attributes.get('oxUserfield17')
+	user.userfield18 = attributes.get('oxUserfield18')
+	user.userfield19 = attributes.get('oxUserfield19')
+	user.userfield20 = attributes.get('oxUserfield20')
+	#user.primary_account_name = attributes.get()
+	#user.convert_drive_user_folders = attributes.get()
+	if attributes.get('phone') and len(attributes.get('phone')) >= 1:
+		user.telephone_business1 = attributes.get('phone')[0]
+	else:
+		user.telephone_business1 = None
+	if attributes.get('phone') and len(attributes.get('phone')) >= 2:
+		user.telephone_business2 = attributes.get('phone')[1]
+	else:
+		user.telephone_business2 = None
+	if attributes.get('homePhone') and len(attributes.get('homePhone')) >= 1:
+		user.telephone_home1 = attributes.get('homePhone')[0]
+	else:
+		user.telephone_home1 = None
+	if attributes.get('homePhone') and len(attributes.get('homePhone')) >= 2:
+		user.telephone_home2 = attributes.get('homePhone')[1]
+	else:
+		user.telephone_home2 = None
+	aliases = [user.email1] + attributes.get('mailAlternativeAddress', [])
+	user.aliases = aliases
+	if attributes.get('oxAccess'):
+		user.mail_enabled = True
+	else:
+		user.mail_enabled = False
 
 def get_user_id(obj):
 	if obj.attributes is None:
 		# before delete
-		context_id = obj.old_attributes('contextid')
+		context_id = obj.old_attributes('oxContextUser', DEFAULT_CONTEXT)
 		username = obj.attributes.get('username')
 	else:
 		# before create
-		context_id = obj.attributes.get('contextid')
+		context_id = obj.attributes.get('oxContextUser', DEFAULT_CONTEXT)
 		username = obj.attributes.get('username')
-	if context_id is None:
-		return None
 	users = User.list(context_id, pattern=username)
 	if not users:
 		return None
@@ -259,12 +273,11 @@ def modify_user(obj):
 	print('Modifying', obj)
 	user_id = get_user_id(obj)
 	if not user_id:
-		print(obj, 'does not exist. Doing nothing...')
-		return
+		print(obj, 'does not yet exist. Creating instead...')
+		return create_user(obj)
 	if obj.old_attributes:
 		if obj.old_attributes.get('isOxUser', 'Not') == 'Not':
-			print(obj, 'was no OX user before. Creating instead')
-			return create_user(obj)
+			print(obj, 'was no OX user before... that should not be the case. Modifying anyway...')
 		user = user_from_attributes(obj.old_attributes, user_id)
 	else:
 		print(obj, 'has no old data. Resync?')

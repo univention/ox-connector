@@ -28,13 +28,14 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
+import os.path
 import csv
 import sys
 import subprocess
 from univention.config_registry import ConfigRegistry
 
 csvfilename = os.path.join(os.path.dirname(__file__), 'attrlist.csv')
-if not os.path.exits(csvfilename):
+if not os.path.exists(csvfilename):
 	csvfilename = '/usr/share/univention-ox/attrlist.csv'
 pwfilename = '/etc/ldap.secret'
 
