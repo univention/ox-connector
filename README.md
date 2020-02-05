@@ -61,7 +61,8 @@ The whole point is to decouple OX and the integration. Yet, we want to run again
 ### Setup OX
 
 ```
-ucr set ox/joinscript/skip=yes ox/listener/enabled=false
+#ucr set ox/joinscript/skip=yes  # we provide a join script. but we need some setup steps nonetheless (creation of the ox master admin)
+ucr set ox/listener/enabled=false  # we provide the listener
 univention-app install oxseforucs
 ```
 
