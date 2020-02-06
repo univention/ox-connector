@@ -246,8 +246,8 @@ def update_user(user, attributes):
 def get_user_id(obj):
 	if obj.old_attributes is not None:
 		# before delete
-		context_id = obj.old_attributes('oxContextUser', DEFAULT_CONTEXT)
-		username = obj.attributes.get('username')
+		context_id = obj.old_attributes.get('oxContextUser', DEFAULT_CONTEXT)
+		username = obj.old_attributes.get('username')
 	else:
 		# before create
 		context_id = obj.attributes.get('oxContextUser', DEFAULT_CONTEXT)
