@@ -244,7 +244,7 @@ def update_user(user, attributes):
 		user.mail_enabled = False
 
 def get_user_id(obj):
-	if obj.attributes is None:
+	if obj.old_attributes is not None:
 		# before delete
 		context_id = obj.old_attributes('oxContextUser', DEFAULT_CONTEXT)
 		username = obj.attributes.get('username')
