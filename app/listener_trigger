@@ -37,6 +37,7 @@ from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_T
 
 Context = get_ox_integration_class('SOAP', 'Context')
 User = get_ox_integration_class('SOAP', 'User')
+Resource = get_ox_integration_class('SOAP', 'Resource')
 
 # oxmail/oxcontext
 # ================
@@ -70,10 +71,10 @@ def modify_context(obj):
 	print('Modifying', obj)
 	if obj.old_attributes:
 		context = context_from_attributes(obj.old_attributes)
+		update_context(context, obj.attributes)
 	else:
 		print(obj, 'has no old data. Resync?')
 		context = context_from_attributes(obj.attributes)
-	update_context(context, obj.attributes)
 	context.modify()
 
 def delete_context(obj):
@@ -84,9 +85,68 @@ def delete_context(obj):
 	context = context_from_attributes(obj.old_attributes)
 	context.remove()
 
+# oxresources/oxresources
+# ================
+def resource_from_attributes(attributes, resource_id=None):
+	context_id = attributes.get('oxContextIDNum', DEFAULT_CONTEXT)
+	resource = Resource(id=resource_id, context_id=context_id)
+	update_resource(resource, attributes)
+	return resource
+
+def update_resource(resource, attributes):
+	resource.name = attributes.get('name')
+	resource.description = attributes.get('description')
+	resource.display_name = attributes.get('displayname')
+	resource.email = attributes.get('resourceMailAddress')
+
+def get_resource_id(obj):
+	if obj.old_attributes is not None:
+		# before delete
+		context_id = obj.old_attributes.get('oxContextIDNum', DEFAULT_CONTEXT)
+		name = obj.old_attributes.get('name')
+	else:
+		# before create
+		context_id = obj.attributes.get('oxContextIDNum', DEFAULT_CONTEXT)
+		name = obj.attributes.get('name')
+	resources = Resource.list(context_id, pattern=name)
+	if not resources:
+		return None
+	assert len(resources) == 1
+	return resources[0].id
+
+def create_resource(obj):
+	print('Creating', obj)
+	if get_resource_id(obj):
+		print(obj, 'exists. Modifying instead...')
+		return modify_resource(obj)
+	resource = resource_from_attributes(obj.attributes)
+	resource.create()
+
+def modify_resource(obj):
+	print('Modifying', obj)
+	resource_id = get_resource_id(obj)
+	if not resource_id:
+		print(obj, 'does not yet exist. Creating instead...')
+		return create_resource(obj)
+	if obj.old_attributes:
+		resource = resource_from_attributes(obj.old_attributes, resource_id)
+		update_resource(resource, obj.attributes)
+	else:
+		print(obj, 'has no old data. Resync?')
+		resource = resource_from_attributes(obj.attributes, resource_id)
+	resource.modify()
+
+def delete_resource(obj):
+	print('Deleting', obj)
+	resource_id = get_resource_id(obj)
+	if not resource_id:
+		print(obj, 'does not exist. Doing nothing...')
+		return
+	resource = resource_from_attributes(obj.old_attributes, resource_id)
+	resource.remove()
+
 # users/user
 # ==========
-
 def user_from_attributes(attributes, user_id=None):
 	context_id = attributes.get('oxContextUser', DEFAULT_CONTEXT)
 	user = User(id=user_id, context_id=context_id)
@@ -279,10 +339,10 @@ def modify_user(obj):
 		if obj.old_attributes.get('isOxUser', 'Not') == 'Not':
 			print(obj, 'was no OX user before... that should not be the case. Modifying anyway...')
 		user = user_from_attributes(obj.old_attributes, user_id)
+		update_user(user, obj.attributes)
 	else:
 		print(obj, 'has no old data. Resync?')
 		user = user_from_attributes(obj.attributes, user_id)
-	update_user(user, obj.attributes)
 	user.modify()
 
 def delete_user(obj):
@@ -432,6 +492,13 @@ def run(obj):
 			modify_user(obj)
 		elif obj.was_deleted():
 			delete_user(obj)
+	if obj.object_type == 'oxresources/oxresources':
+		if obj.was_added():
+			create_resource(obj)
+		elif obj.was_modified():
+			modify_resource(obj)
+		elif obj.was_deleted():
+			delete_resource(obj)
 
 
 objs = objects_from_files(delete_files=False, move_files=True)
