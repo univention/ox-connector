@@ -37,7 +37,6 @@ from univention.config_registry import ConfigRegistry
 import univention.admin.modules
 import univention.admin.config
 import univention.admin.uldap
-from univention.ox.listener_tools import default_context
 
 class Converter(object):
 	def __init__(self):
@@ -49,7 +48,7 @@ class Converter(object):
 		self.position = None
 		self.ret = 0
 
-		self.contextId = default_context
+		self.contextId = int(self.ucr.get('ox/context/id', 10))
 
 	def main(self):
 		self.parse_cmdline()

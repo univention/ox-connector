@@ -58,8 +58,6 @@ main () {
 
 	create_container "$@"
 	convert_mail_domains "$@"
-	server_install "$@"
-	create_missing_domains "$@"
 
 	setup_umc "$@"
 
@@ -69,8 +67,8 @@ main () {
 setup_vars () {
 	eval "$(univention-config-registry shell)"
 
-	OXTIMEZONE="ox_timezone"
-	OXLANG="ox_lang"
+	OXTIMEZONE="$(ox_timezone)"
+	OXLANG="$(ox_language)"
 	CONTEXTDOMAIN="$domainname"
 
 	PACKAGE_NAME="univention-ox"
@@ -236,9 +234,8 @@ create_container () {
 
 convert_mail_domains () {
 	echo "Converting UDM mail modules to oxmail modules..."
-	# FIXME
-	#/usr/share/univention-ox/convert-mail-to-oxmail.py "$@" ||
-	#	die "Failed to convert old mail/domain objects to oxmail/oxdomain objects"
+	/var/lib/univention-appcenter/apps/ox-connector/data/resources/convert-mail-to-oxmail.py "$@" ||
+		die "Failed to convert old mail/domain objects to oxmail/oxdomain objects"
 }
 
 setup_umc () {
