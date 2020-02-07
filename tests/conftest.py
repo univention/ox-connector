@@ -8,12 +8,21 @@ import pytest
 def _wait_for_listener():
 	time.sleep(10)
 
-@pytest.fixture
-def new_context_id(cache):
+def _new_context_id(cache):
 	value = cache.get('contexts/id', 100)
 	value += 1
 	cache.set('contexts/id', value)
 	return str(value)
+
+@pytest.fixture
+def new_context_id(cache):
+	return _new_context_id(cache)
+
+@pytest.fixture
+def new_context_id_generator(cache):
+	def f():
+		return _new_context_id(cache)
+	return f
 
 @pytest.fixture
 def new_resource_name(cache):
@@ -33,6 +42,11 @@ def domainname():
 @pytest.fixture
 def ldap_base():
 	return os.environ['LDAP_BASE']
+
+@pytest.fixture
+def ox_admin_udm_user(udm):
+	for obj in udm.search('users/user', 'uid=oxadmin'):
+		return obj.open()
 
 @pytest.fixture
 def udm_uri():
@@ -104,13 +118,23 @@ class UDMTest(object):
 			_wait_for_listener()
 		return dn
 
+	def search(self, module, search_filter):
+		return self.client.get(module).search(search_filter)
+
 @pytest.fixture
 def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
 	_udm = UDMTest(udm_uri, ldap_base, udm_admin_username, udm_admin_password)
 	yield _udm
 	if _udm.new_objs:
 		print('Test done. Now removing newly added DNs...')
+		# we need to remove contexts last. we cannot delete resources
+		# afterwards, as the context does not exist anymore, leading
+		# to errors in the listener_trigger (auth failed)
 		for module, dns in _udm.new_objs.items():
+			if module == 'oxmail/oxcontext':
+				continue
 			for dn in dns:
 				_udm.remove(module, dn, wait_for_listener=False)
+		for dn in _udm.new_objs.get('oxmail/oxcontext', []):
+			_udm.remove('oxmail/oxcontext', dn, wait_for_listener=False)
 		_wait_for_listener()

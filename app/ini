@@ -12,6 +12,6 @@ DockerScriptUpdatePackages =
 DockerScriptUpdateAppVersion = 
 DockerScriptUpdateRelease = 
 DockerScriptSetup = 
-ListenerUDMModules = oxmail/oxcontext
+ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources
 DockerShellCommand = /bin/ash
 DockerImage = docker-test-upload.software-univention.de/ox-connector:1.0.0
