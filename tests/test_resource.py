@@ -24,12 +24,20 @@ def create_resource(udm, name, domainname, context_id, ox_admin):
 	})
 	return dn
 
+def find_context(context_id, resource_name, assert_empty=False):
+	Resource = get_ox_integration_class('SOAP', 'Resource')
+	objs = Resource.list(context_id, pattern=resource_name)
+	if assert_empty:
+		assert len(objs) == 0
+	else:
+		assert len(objs) == 1
+		obj = objs[0]
+		print('Found', obj)
+		return obj
+
 def test_add_resource_in_default_context(default_ox_context, new_resource_name, udm, domainname, ox_admin_udm_user):
 	create_resource(udm, new_resource_name, domainname, None, ox_admin_udm_user)
-	Resource = get_ox_integration_class('SOAP', 'Resource')
-	cs = Resource.list(default_ox_context, pattern=new_resource_name)
-	assert len(cs) == 1
-	c = cs[0]
+	c = find_context(default_ox_context, new_resource_name)
 	assert c.display_name == new_resource_name.upper()
 	assert c.description == 'A description for {}'.format(new_resource_name)
 	assert c.email == '{}@{}'.format(new_resource_name, domainname)
@@ -37,10 +45,7 @@ def test_add_resource_in_default_context(default_ox_context, new_resource_name, 
 def test_add_resource(new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user):
 	create_context(udm, ox_host, new_context_id)
 	create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
-	Resource = get_ox_integration_class('SOAP', 'Resource')
-	cs = Resource.list(new_context_id, pattern=new_resource_name)
-	assert len(cs) == 1
-	c = cs[0]
+	c = find_context(new_context_id, new_resource_name)
 	assert c.display_name == new_resource_name.upper()
 	assert c.description == 'A description for {}'.format(new_resource_name)
 	assert c.email == '{}@{}'.format(new_resource_name, domainname)
@@ -50,10 +55,7 @@ def test_modify_resource(new_context_id, new_resource_name, udm, ox_host, domain
 	create_context(udm, ox_host, new_context_id)
 	dn = create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
 	udm.modify('oxresources/oxresources', dn, {'description': None, 'displayname': 'New Display', 'resourceMailAddress': new_mail_address})
-	Resource = get_ox_integration_class('SOAP', 'Resource')
-	cs = Resource.list(new_context_id, pattern=new_resource_name)
-	assert len(cs) == 1
-	c = cs[0]
+	c = find_context(new_context_id, new_resource_name)
 	assert c.display_name == 'New Display'
 	assert c.email == new_mail_address
 	assert c.description is None  # FIXME: fails...
@@ -62,6 +64,20 @@ def test_remove_resource(new_context_id, new_resource_name, udm, ox_host, domain
 	create_context(udm, ox_host, new_context_id)
 	dn = create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
 	udm.remove('oxresources/oxresources', dn)
-	Resource = get_ox_integration_class('SOAP', 'Resource')
-	cs = Resource.list(new_context_id, pattern=new_resource_name)
-	assert len(cs) == 0
+	find_context(new_context_id, new_resource_name, assert_empty=True)
+
+def test_change_context_resource(new_context_id_generator, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user):
+	'''Special case: If a resource changes its context, the object is
+	deleted from the old and newly created in the other context. Attributes
+	stay, though.'''
+	new_context_id = new_context_id_generator()
+	create_context(udm, ox_host, new_context_id)
+	dn = create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
+	new_context_id2 = new_context_id_generator()
+	create_context(udm, ox_host, new_context_id2)
+	udm.modify('oxresources/oxresources', dn, {'description': 'Soon in a new context'})
+	udm.modify('oxresources/oxresources', dn, {'oxContext': new_context_id2, 'displayname': 'New Object in new Context'})
+	find_context(new_context_id, new_resource_name, assert_empty=True)
+	c = find_context(new_context_id2, new_resource_name)
+	assert c.display_name == 'New Object in new Context'
+	assert c.description == 'Soon in a new context'

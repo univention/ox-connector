@@ -129,6 +129,11 @@ def modify_resource(obj):
 		print(obj, 'does not yet exist. Creating instead...')
 		return create_resource(obj)
 	if obj.old_attributes:
+		old_context = obj.old_attributes.get('oxContext', DEFAULT_CONTEXT)
+		new_context = obj.attributes.get('oxContext', DEFAULT_CONTEXT)
+		if old_context != new_context:
+			delete_resource(obj)
+			return create_resource(obj)
 		resource = resource_from_attributes(obj.old_attributes, resource_id)
 		update_resource(resource, obj.attributes)
 	else:
