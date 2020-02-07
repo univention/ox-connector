@@ -13,7 +13,7 @@ def create_context(udm, ox_host, context_id):
 	}, wait_for_listener=False)
 	return dn
 
-def create_resource(udm, name, domainname, context_id, ox_admin):
+def create_obj(udm, name, domainname, context_id, ox_admin):
 	dn = udm.create('oxresources/oxresources', 'cn=oxresources,cn=open-xchange', {
 		'name': name,
 		'displayname': name.upper(),
@@ -24,7 +24,7 @@ def create_resource(udm, name, domainname, context_id, ox_admin):
 	})
 	return dn
 
-def find_context(context_id, resource_name, assert_empty=False):
+def find_obj(context_id, resource_name, assert_empty=False):
 	Resource = get_ox_integration_class('SOAP', 'Resource')
 	objs = Resource.list(context_id, pattern=resource_name)
 	if assert_empty:
@@ -36,35 +36,35 @@ def find_context(context_id, resource_name, assert_empty=False):
 		return obj
 
 def test_add_resource_in_default_context(default_ox_context, new_resource_name, udm, domainname, ox_admin_udm_user):
-	create_resource(udm, new_resource_name, domainname, None, ox_admin_udm_user)
-	c = find_context(default_ox_context, new_resource_name)
-	assert c.display_name == new_resource_name.upper()
-	assert c.description == 'A description for {}'.format(new_resource_name)
-	assert c.email == '{}@{}'.format(new_resource_name, domainname)
+	create_obj(udm, new_resource_name, domainname, None, ox_admin_udm_user)
+	obj = find_obj(default_ox_context, new_resource_name)
+	assert obj.display_name == new_resource_name.upper()
+	assert obj.description == 'A description for {}'.format(new_resource_name)
+	assert obj.email == '{}@{}'.format(new_resource_name, domainname)
 
 def test_add_resource(new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user):
 	create_context(udm, ox_host, new_context_id)
-	create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
-	c = find_context(new_context_id, new_resource_name)
-	assert c.display_name == new_resource_name.upper()
-	assert c.description == 'A description for {}'.format(new_resource_name)
-	assert c.email == '{}@{}'.format(new_resource_name, domainname)
+	create_obj(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
+	obj = find_obj(new_context_id, new_resource_name)
+	assert obj.display_name == new_resource_name.upper()
+	assert obj.description == 'A description for {}'.format(new_resource_name)
+	assert obj.email == '{}@{}'.format(new_resource_name, domainname)
 
 def test_modify_resource(new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user):
 	new_mail_address = '{}2@{}'.format(new_resource_name, domainname)
 	create_context(udm, ox_host, new_context_id)
-	dn = create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
+	dn = create_obj(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
 	udm.modify('oxresources/oxresources', dn, {'description': None, 'displayname': 'New Display', 'resourceMailAddress': new_mail_address})
-	c = find_context(new_context_id, new_resource_name)
-	assert c.display_name == 'New Display'
-	assert c.email == new_mail_address
-	assert c.description is None  # FIXME: fails...
+	obj = find_obj(new_context_id, new_resource_name)
+	assert obj.display_name == 'New Display'
+	assert obj.email == new_mail_address
+	assert obj.description is None  # FIXME: fails...
 
 def test_remove_resource(new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user):
 	create_context(udm, ox_host, new_context_id)
-	dn = create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
+	dn = create_obj(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
 	udm.remove('oxresources/oxresources', dn)
-	find_context(new_context_id, new_resource_name, assert_empty=True)
+	find_obj(new_context_id, new_resource_name, assert_empty=True)
 
 def test_change_context_resource(new_context_id_generator, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user):
 	'''Special case: If a resource changes its context, the object is
@@ -72,12 +72,12 @@ def test_change_context_resource(new_context_id_generator, new_resource_name, ud
 	stay, though.'''
 	new_context_id = new_context_id_generator()
 	create_context(udm, ox_host, new_context_id)
-	dn = create_resource(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
+	dn = create_obj(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
 	new_context_id2 = new_context_id_generator()
 	create_context(udm, ox_host, new_context_id2)
 	udm.modify('oxresources/oxresources', dn, {'description': 'Soon in a new context'})
 	udm.modify('oxresources/oxresources', dn, {'oxContext': new_context_id2, 'displayname': 'New Object in new Context'})
-	find_context(new_context_id, new_resource_name, assert_empty=True)
-	c = find_context(new_context_id2, new_resource_name)
-	assert c.display_name == 'New Object in new Context'
-	assert c.description == 'Soon in a new context'
+	find_obj(new_context_id, new_resource_name, assert_empty=True)
+	obj = find_obj(new_context_id2, new_resource_name)
+	assert obj.display_name == 'New Object in new Context'
+	assert obj.description == 'Soon in a new context'

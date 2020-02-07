@@ -8,28 +8,31 @@ import pytest
 def _wait_for_listener():
 	time.sleep(10)
 
-def _new_context_id(cache):
-	value = cache.get('contexts/id', 100)
+def _new_id(cache):
+	value = cache.get('newobjects/id', 100)
 	value += 1
-	cache.set('contexts/id', value)
+	cache.set('newobjects/id', value)
 	return str(value)
 
 @pytest.fixture
 def new_context_id(cache):
-	return _new_context_id(cache)
+	return _new_id(cache)
 
 @pytest.fixture
 def new_context_id_generator(cache):
 	def f():
-		return _new_context_id(cache)
+		return _new_id(cache)
 	return f
 
 @pytest.fixture
 def new_resource_name(cache):
-	value = cache.get('resources/id', 100)
-	value += 1
-	cache.set('resources/id', value)
+	value = _new_id(cache)
 	return 'room{}'.format(value)
+
+@pytest.fixture
+def new_user_name(cache):
+	value = _new_id(cache)
+	return 'user{}'.format(value)
 
 @pytest.fixture
 def default_ox_context():
