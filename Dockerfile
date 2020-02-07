@@ -37,6 +37,9 @@ RUN pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
 	rm -rf /tmp/*
 
 COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
+COPY appsuite/univention-ox/udm/ /usr/local/share/ox-connector/resources/udm
+COPY appsuite/univention-ox/umc/ /usr/local/share/ox-connector/resources/umc
+COPY appsuite/univention-ox/ldap/ /usr/local/share/ox-connector/resources/ldap
 
 #
 # comment below out for final image

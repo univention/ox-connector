@@ -153,9 +153,11 @@ def delete_resource(obj):
 # users/user
 # ==========
 def user_from_attributes(attributes, user_id=None):
-	context_id = attributes.get('oxContextUser', DEFAULT_CONTEXT)
-	user = User(id=user_id, context_id=context_id)
-	update_user(user, attributes)
+	user = User(id=user_id)
+	if attributes:
+		context_id = attributes.get('oxContextUser', DEFAULT_CONTEXT)
+		user.context_id = context_id
+		update_user(user, attributes)
 	return user
 
 def update_user(user, attributes):
