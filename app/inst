@@ -89,16 +89,16 @@ register_ldap () {
 			die "Failed to register LDAP extensions."
 
 	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
-	register_ldap_extension "$@" -- "$PREFIX"/ldap/*.acl "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax/*.py "$PREFIX"/udm/hooks/*.py
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxcontext.py         "$PREFIX"/udm/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxdomain.py          "$PREFIX"/udm/hooks/*.mo       "$PREFIX"/umc/icons/*/udm-oxmail-oxdomain.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxfetchmailmulti.py  "$PREFIX"/udm/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfetchmailmulti.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxfetchmailsingle.py "$PREFIX"/udm/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfetchmailsingle.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxfolder.py          "$PREFIX"/udm/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfolder.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxlists.py           "$PREFIX"/udm/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxlists.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxmail/oxmail.py            "$PREFIX"/udm/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxmail.* \
+	register_ldap_extension "$@" -- "$PREFIX"/ldap/*.acl "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py         "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxdomain.py          "$PREFIX"/udm/hooks.d/*.mo       "$PREFIX"/umc/icons/*/udm-oxmail-oxdomain.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxfetchmailmulti.py  "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfetchmailmulti.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxfetchmailsingle.py "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfetchmailsingle.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxfolder.py          "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfolder.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxlists.py           "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxlists.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxmail.py            "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxmail.* \
 		"$PREFIX"/umc/ox-common.xml
-	register_ldap_extension "$@" -- "$PREFIX"/udm/oxresources/oxresources.py  "$PREFIX"/udm/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py  "$PREFIX"/udm/hanlders/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.*
 
 	univention-directory-manager policies/registry create "$@" \
 		--ignore_exists \
