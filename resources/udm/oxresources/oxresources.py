@@ -3,7 +3,7 @@
 # Univention Admin Modules
 #  admin module for resources objects
 #
-# Copyright (C) 2004-2019 Univention GmbH
+# Copyright (C) 2004-2020 Univention GmbH
 #
 # http://www.univention.de/
 #

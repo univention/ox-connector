@@ -88,7 +88,7 @@ def delete_context(obj):
 # oxresources/oxresources
 # ================
 def resource_from_attributes(attributes, resource_id=None):
-	context_id = attributes.get('oxContextIDNum', DEFAULT_CONTEXT)
+	context_id = attributes.get('oxContext', DEFAULT_CONTEXT)
 	resource = Resource(id=resource_id, context_id=context_id)
 	update_resource(resource, attributes)
 	return resource
@@ -102,11 +102,11 @@ def update_resource(resource, attributes):
 def get_resource_id(obj):
 	if obj.old_attributes is not None:
 		# before delete
-		context_id = obj.old_attributes.get('oxContextIDNum', DEFAULT_CONTEXT)
+		context_id = obj.old_attributes.get('oxContext', DEFAULT_CONTEXT)
 		name = obj.old_attributes.get('name')
 	else:
 		# before create
-		context_id = obj.attributes.get('oxContextIDNum', DEFAULT_CONTEXT)
+		context_id = obj.attributes.get('oxContext', DEFAULT_CONTEXT)
 		name = obj.attributes.get('name')
 	resources = Resource.list(context_id, pattern=name)
 	if not resources:

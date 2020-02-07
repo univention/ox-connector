@@ -20,7 +20,7 @@ def create_resource(udm, name, domainname, context_id, ox_admin):
 		'description': 'A description for {}'.format(name),
 		'resourceMailAddress': '{}@{}'.format(name, domainname),
 		'resourceadmin': str(ox_admin.properties['uidNumber']),
-		'oxContextIDNum': context_id,
+		'oxContext': context_id,
 	})
 	return dn
 
