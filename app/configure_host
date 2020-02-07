@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ "$1" = "install" ]; then
+	default_context="$(univention-app configure ox-connector --list | grep DEFAULT_CONTEXT: | awk '{ print $2 }')"
+	ucr set ox/context/id="$default_context"
+fi
