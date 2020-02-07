@@ -42,6 +42,7 @@ set -e
 
 . /usr/share/univention-lib/all.sh || exit 1
 . /usr/share/univention-join/joinscripthelper.lib || exit 1
+. /var/lib/univention-appcenter/apps/ox-connector/data/resources/ox-lib.sh || exit 1
 
 main () {
 	joinscript_init

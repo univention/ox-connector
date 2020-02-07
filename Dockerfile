@@ -36,7 +36,7 @@ RUN pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
 	python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
 	rm -rf /tmp/*
 
-COPY resources /usr/local/share/ox-connector/resources
+COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
 
 #
 # comment below out for final image
