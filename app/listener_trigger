@@ -32,6 +32,7 @@
 Entry point for listener_trigger script.
 """
 
+from copy import deepcopy
 import dbm.gnu
 
 from univention.ox.backend_base import get_ox_integration_class
@@ -369,6 +370,32 @@ def delete_user(obj):
 
 # groups/group
 # ==========
+def get_group_objs(obj):
+	users = []
+	if obj.old_attributes:
+		users.extend(obj.old_attributes.get('users'))
+	if obj.attributes:
+		users.extend(obj.attributes.get('users'))
+	contexts = []
+	for user in users:
+		path_to_old_user = mapping.get(user)
+		if not path_to_old_user:
+			print('Group wants {} as member. But the user is unknown. Ignoring...'.format(user))
+			continue
+		path_to_old_user = Path(path_to_old_user.decode('utf-8'))
+		user_obj = object_from_path(path_to_old_user)
+		context = user_obj.attributes.get('oxContext', DEFAULT_CONTEXT)
+		if context not in contexts:
+			contexts.append(context)
+	for context in contexts:
+		new_obj = deepcopy(obj)
+		if new_obj.old_attributes:
+			new_obj.old_attributes['oxContext'] = context
+		if new_obj.attributes:
+			new_obj.attributes['oxContext'] = context
+		print(obj, 'will be processed with context', context)
+		yield new_obj
+
 def group_from_attributes(attributes, group_id=None):
 	group = Group(id=group_id)
 	if attributes:
@@ -388,10 +415,10 @@ def update_group(group, attributes):
 		attributes['oxContext'] = attributes.get('oxContext', DEFAULT_CONTEXT)
 		attributes['username'] = username
 		user_obj = TriggerObject(None, None, None, attributes, None)
-		print('Searching {}...', username)
+		print('Searching {}...'.format(username))
 		user_id = get_user_id(user_obj)
 		if user_id:
-			print('... found {}', user_id)
+			print('... found', user_id)
 			members.append(user_id)
 	group.members = members
 
@@ -556,6 +583,16 @@ class DNMapping(object):
 
 mapping = DNMapping()
 
+def object_from_path(path):
+	content = load_from_json_file(path)
+	entry_uuid = content['id']
+	object_type = content['udm_object_type']
+	dn = content['dn']
+	attributes = content['object']
+	options = content['options']
+	obj = TriggerObject(entry_uuid, object_type, dn, attributes, options)
+	return obj
+
 def objects_from_files(delete_files=True, move_files=False):
 	'''Iterates over all JSON files and yields a TriggerObject. After the
 	caller is done with it, it can delete or move the file. If it moves the
@@ -563,13 +600,7 @@ def objects_from_files(delete_files=True, move_files=False):
 	reload it (useful if you need to act on various changes in
 	attributes)'''
 	for path in sorted(NEW_FILES_DIR.glob('*.json')):
-		content = load_from_json_file(path)
-		entry_uuid = content['id']
-		object_type = content['udm_object_type']
-		dn = content['dn']
-		attributes = content['object']
-		options = content['options']
-		obj = TriggerObject(entry_uuid, object_type, dn, attributes, options)
+		obj = object_from_path(path)
 		if move_files:
 			obj.load_old()
 		if obj.attributes is None and obj.old_attributes is None:
@@ -626,12 +657,13 @@ def run(obj):
 		elif obj.was_deleted():
 			delete_user(obj)
 	if obj.object_type == 'groups/group':
-		if obj.was_added():
-			create_group(obj)
-		elif obj.was_modified():
-			modify_group(obj)
-		elif obj.was_deleted():
-			delete_group(obj)
+		for new_obj in get_group_objs(obj):
+			if new_obj.was_added():
+				create_group(new_obj)
+			elif new_obj.was_modified():
+				modify_group(new_obj)
+			elif new_obj.was_deleted():
+				delete_group(new_obj)
 	if obj.object_type == 'oxresources/oxresources':
 		if obj.was_added():
 			create_resource(obj)
