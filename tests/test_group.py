@@ -68,18 +68,18 @@ def test_add_group_with_multiple_users_and_contexts(new_context_id_generator, ne
 	assert obj2.name == new_group_name
 	assert len(obj2.members) == 2
 
-def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
-	new_mail_address = '{}2@{}'.format(new_user_name, domainname)
-	create_context(udm, ox_host, new_context_id)
-	dn = create_obj(udm, new_user_name, domainname, new_context_id)
-	udm.modify('users/user', dn, {'lastname': 'Newman', 'mailPrimaryAddress': new_mail_address, 'oxCommercialRegister': 'A register'})
-	obj = find_obj(new_context_id, new_user_name)
-	assert obj.email1 == new_mail_address
-	assert obj.commercial_register == 'A register'
-	assert obj.sur_name == 'Newman'
+def test_modify_group(default_ox_context, new_user_name, new_group_name, udm, domainname):
+	user_dn = create_user(udm, new_user_name, domainname, None)
+	dn = create_obj(udm, new_group_name, [user_dn])
+	udm.modify('groups/group', dn, {'name': 'x' + new_group_name + 'x'})
+	obj = find_obj(default_ox_context, 'x' + new_group_name + 'x')
+	assert obj.name == 'x' + new_group_name + 'x'
+	assert len(obj.members) == 1
 
-def test_remove_user(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_remove_group(new_context_id, new_group_name, new_user_name, udm, ox_host, domainname):
 	create_context(udm, ox_host, new_context_id)
-	dn = create_obj(udm, new_user_name, domainname, new_context_id)
-	udm.remove('users/user', dn)
-	find_obj(new_context_id, new_user_name, assert_empty=True)
+	user_dn = create_user(udm, new_user_name, domainname, new_context_id)
+	dn = create_obj(udm, new_group_name, [user_dn])
+	find_obj(new_context_id, new_group_name)
+	udm.remove('groups/group', dn)
+	find_obj(new_context_id, new_group_name, assert_empty=True)

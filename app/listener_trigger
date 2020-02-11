@@ -418,6 +418,10 @@ def group_from_attributes(attributes, group_id=None):
 def update_group(group, attributes):
 	group.name = attributes.get('name')
 	group.display_name = group.name
+	if attributes.get('isOxGroup', 'Not') == 'Not':
+		# no need to search anything...
+		# specifically skip "Domain Users"... this would be expensive
+		return
 	members = []
 	print('Retrieving members...')
 	for user in attributes.get('users'):
