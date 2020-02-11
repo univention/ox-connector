@@ -31,6 +31,7 @@
 ## joinscript api: bindpwdfile
 
 VERSION=1
+APP_ID="ox-connector"
 SERVICE="ox"
 
 . /usr/share/univention-lib/base.sh
@@ -89,6 +90,6 @@ if ucs_isServiceUnused "${SERVICE}" "$@"; then
 	stop_udm_cli_server
 fi
 
-joinscript_remove_script_from_status_file ox-connector
+joinscript_remove_script_from_status_file "$APP_ID"
 
 exit 0

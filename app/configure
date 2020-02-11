@@ -1,6 +1,8 @@
 #!/bin/sh
 
+APP_ID="ox-connector"
+
 if [ "$1" = "install" ]; then
-	[ -e /var/lib/univention-appcenter/apps/ox-connector/data/resources ] && rm -r /var/lib/univention-appcenter/apps/ox-connector/data/resources
-	cp -r /usr/local/share/ox-connector/resources/ /var/lib/univention-appcenter/apps/ox-connector/data/resources
+	[ -e "/var/lib/univention-appcenter/apps/$APP_ID/data/resources" ] && rm -r "/var/lib/univention-appcenter/apps/$APP_ID/data/resources"
+	cp -r "/usr/local/share/$APP_ID/resources/" "/var/lib/univention-appcenter/apps/$APP_ID/data/resources"
 fi

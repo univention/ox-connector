@@ -36,13 +36,14 @@
 ## joinscript api: bindpwdfile
 
 VERSION=1
+APP_ID="ox-connector"
 SERVICE='ox'
 
 set -e
 
 . /usr/share/univention-lib/all.sh || exit 1
 . /usr/share/univention-join/joinscripthelper.lib || exit 1
-. /var/lib/univention-appcenter/apps/ox-connector/data/resources/ox-lib.sh || exit 1
+. "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/ox-lib.sh" || exit 1
 
 main () {
 	joinscript_init
@@ -80,7 +81,7 @@ setup_vars () {
 
 register_ldap () {
 	export UNIVENTION_APP_IDENTIFIER='oxseforucs_7.10.2-ucs1'  # Version in meta-inf/*/oxseforucs_*.ini
-	local PREFIX='/var/lib/univention-appcenter/apps/ox-connector/data/resources/'
+	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
 		-h "$ldap_master" -p "$ldap_master_port" \
@@ -164,7 +165,7 @@ create_eas () {
 		--set description="Select OX context objects"
 
 	# create all default extended attributes
-	python /var/lib/univention-appcenter/apps/ox-connector/data/resources/createextattr.py "$@"  || die
+	python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
 	stop_udm_cli_server
 }
@@ -237,7 +238,7 @@ create_container () {
 
 convert_mail_domains () {
 	echo "Converting UDM mail modules to oxmail modules..."
-	/var/lib/univention-appcenter/apps/ox-connector/data/resources/convert-mail-to-oxmail.py "$@" ||
+	"/var/lib/univention-appcenter/apps/$APP_ID/data/resources/convert-mail-to-oxmail.py" "$@" ||
 		die "Failed to convert old mail/domain objects to oxmail/oxdomain objects"
 }
 
@@ -278,8 +279,8 @@ restart_listener_services() {
 	# the join script added a lot of modules, extended attributes, etc.
 	# they were not known when the ox-connector initially started
 	# maybe the service already processed some files? better resync
-	service univention-appcenter-listener-converter@ox-connector restart
-	univention-directory-listener-ctrl resync ox-connector
+	service "univention-appcenter-listener-converter@$APP_ID" restart
+	univention-directory-listener-ctrl resync "$APP_ID"
 }
 
 main "$@"

@@ -1,6 +1,8 @@
 #!/bin/sh
 
+APP_ID="ox-connector"
+
 if [ "$1" = "install" ]; then
-	default_context="$(univention-app configure ox-connector --list | grep DEFAULT_CONTEXT: | awk '{ print $2 }')"
+	default_context="$(univention-app configure "$APP_ID" --list | grep DEFAULT_CONTEXT: | awk '{ print $2 }')"
 	ucr set ox/context/id="$default_context"
 fi
