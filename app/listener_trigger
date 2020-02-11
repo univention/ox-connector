@@ -37,6 +37,7 @@ from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_T
 
 Context = get_ox_integration_class('SOAP', 'Context')
 User = get_ox_integration_class('SOAP', 'User')
+Group = get_ox_integration_class('SOAP', 'Group')
 Resource = get_ox_integration_class('SOAP', 'Resource')
 
 # oxmail/oxcontext
@@ -361,6 +362,101 @@ def delete_user(obj):
 	user = user_from_attributes(obj.old_attributes, user_id)
 	user.remove()
 
+# groups/group
+# ==========
+def group_from_attributes(attributes, group_id=None):
+	group = Group(id=group_id)
+	if attributes:
+		context_id = attributes.get('oxContext', DEFAULT_CONTEXT)
+		group.context_id = context_id
+		update_group(group, attributes)
+	return group
+
+def update_group(group, attributes):
+	group.name = attributes.get('name')
+	group.display_name = group.name
+	members = []
+	print('Retrieving members...')
+	for user in attributes.get('users'):
+		username = user[4:].split(',')[0]  # TODO: make this more elegant
+		attributes = {}
+		attributes['oxContext'] = attributes.get('oxContext', DEFAULT_CONTEXT)
+		attributes['username'] = username
+		user_obj = TriggerObject(None, None, None, attributes, None)
+		print('Searching {}...', username)
+		user_id = get_user_id(user_obj)
+		if user_id:
+			print('... found {}', user_id)
+			members.append(user_id)
+	group.members = members
+
+def get_group_id(obj):
+	if obj.old_attributes is not None:
+		# before delete
+		context_id = obj.old_attributes.get('oxContext', DEFAULT_CONTEXT)
+		groupname = obj.old_attributes.get('name')
+	else:
+		# before create
+		context_id = obj.attributes.get('oxContext', DEFAULT_CONTEXT)
+		groupname = obj.attributes.get('name')
+	# ignore groups with name "users" (Bug #35821)
+	if groupname.lower() == "users":
+		print('Ignoring group "{}".'.format(groupname))
+		return None
+	groups = Group.list(context_id, pattern=groupname)
+	if not groups:
+		return None
+	assert len(groups) == 1
+	return groups[0].id
+
+def create_group(obj):
+	print('Creating', obj)
+	if obj.attributes.get('isOxGroup', 'Not') == 'Not':
+		print(obj, 'is no OX group. Deleting instead...')
+		return delete_group(obj)
+	if get_group_id(obj):
+		print(obj, 'exists. Modifying instead...')
+		return modify_group(obj)
+	group = group_from_attributes(obj.attributes)
+	if not group.members:
+		print(obj, 'is empty. Deleting instead...')
+		return delete_group(obj)
+	# ignore groups with name "users" (Bug #35821)
+	if group.name == "users":
+		return
+	group.create()
+
+def modify_group(obj):
+	print('Modifying', obj)
+	if obj.attributes.get('isOxGroup', 'Not') == 'Not':
+		print(obj, 'is no OX group. Deleting instead...')
+		return delete_group(obj)
+	group_id = get_group_id(obj)
+	if not group_id:
+		print(obj, 'does not yet exist. Creating instead...')
+		return create_group(obj)
+	if obj.old_attributes:
+		if obj.old_attributes.get('isOxGroup', 'Not') == 'Not':
+			print(obj, 'was no OX group before... that should not be the case. Modifying anyway...')
+		group = group_from_attributes(obj.old_attributes, group_id)
+		update_group(group, obj.attributes)
+	else:
+		print(obj, 'has no old data. Resync?')
+		group = group_from_attributes(obj.attributes, group_id)
+	if not group.members:
+		print(obj, 'is empty. Deleting instead...')
+		return delete_group(obj)
+	group.modify()
+
+def delete_group(obj):
+	print('Deleting', obj)
+	group_id = get_group_id(obj)
+	if not group_id:
+		print(obj, 'does not exist. Doing nothing...')
+		return
+	group = group_from_attributes(obj.old_attributes, group_id)
+	group.remove()
+
 ##############################
 ### end ox listener lib ######
 ### begin listener skeleton ##
@@ -499,6 +595,13 @@ def run(obj):
 			modify_user(obj)
 		elif obj.was_deleted():
 			delete_user(obj)
+	if obj.object_type == 'groups/group':
+		if obj.was_added():
+			create_group(obj)
+		elif obj.was_modified():
+			modify_group(obj)
+		elif obj.was_deleted():
+			delete_group(obj)
 	if obj.object_type == 'oxresources/oxresources':
 		if obj.was_added():
 			create_resource(obj)
