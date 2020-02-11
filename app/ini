@@ -15,3 +15,4 @@ DockerScriptSetup =
 ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources, users/user
 DockerShellCommand = /bin/ash
 DockerImage = docker-test.software-univention.de/ox-connector:1.0.0
+DockerScriptConfigure = /tmp/ox-connector.configure
