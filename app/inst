@@ -63,8 +63,6 @@ main () {
 
 	setup_umc "$@"
 
-	restart_listener_services
-
 	joinscript_save_current_version
 }
 
@@ -268,15 +266,6 @@ setup_umc () {
 	univention-directory-manager container/dc modify "$@" \
 		--dn "$ldap_base" \
 		--policy-reference "cn=default-udm-self,cn=UMC,cn=policies,$ldap_base"
-}
-
-restart_listener_services() {
-	##  service univention-directory-manager-rest restart
-	# the join script added a lot of modules, extended attributes, etc.
-	# they were not known when the ox-connector initially started
-	# maybe the service already processed some files? better resync
-	service "univention-appcenter-listener-converter@$APP_ID" restart
-	univention-directory-listener-ctrl resync "$APP_ID"
 }
 
 main "$@"
