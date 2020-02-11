@@ -1,0 +1,7 @@
+#!/bin/sh
+
+APP_ID="ox-connector"
+
+if [ ! -d "/var/lib/univention-appcenter/apps/$APP_ID/data/secrets/" ]; then
+	mkdir -pv "/var/lib/univention-appcenter/apps/$APP_ID/data/secrets"
+fi
