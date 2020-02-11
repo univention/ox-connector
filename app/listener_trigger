@@ -32,6 +32,8 @@
 Entry point for listener_trigger script.
 """
 
+import dbm.gnu
+
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_TIMEZONE
 
@@ -85,6 +87,7 @@ def delete_context(obj):
 		return
 	context = context_from_attributes(obj.old_attributes)
 	context.remove()
+	obj.attributes = None  # make obj.was_deleted() return True
 
 # oxresources/oxresources
 # ================
@@ -150,6 +153,7 @@ def delete_resource(obj):
 		return
 	resource = resource_from_attributes(obj.old_attributes, resource_id)
 	resource.remove()
+	obj.attributes = None  # make obj.was_deleted() return True
 
 # users/user
 # ==========
@@ -361,6 +365,7 @@ def delete_user(obj):
 		return
 	user = user_from_attributes(obj.old_attributes, user_id)
 	user.remove()
+	obj.attributes = None  # make obj.was_deleted() return True
 
 # groups/group
 # ==========
@@ -456,6 +461,7 @@ def delete_group(obj):
 		return
 	group = group_from_attributes(obj.old_attributes, group_id)
 	group.remove()
+	obj.attributes = None  # make obj.was_deleted() return True
 
 ##############################
 ### end ox listener lib ######
@@ -532,6 +538,24 @@ class TriggerObject(object):
 	def __repr__(self):
 		return 'Object({!r}, {!r})'.format(self.object_type, self.dn)
 
+class DNMapping(object):
+	def __init__(self):
+		self.db = dbm.gnu.open(str(NEW_FILES_DIR / 'old.db'), 'cs')
+
+	def set(self, dn, path):
+		if dn is None:
+			return
+		if path is None:
+			if dn in self.db:
+				del self.db[dn]
+		else:
+			self.db[dn] = str(path)
+
+	def get(self, dn):
+		return self.db.get(dn)
+
+mapping = DNMapping()
+
 def objects_from_files(delete_files=True, move_files=False):
 	'''Iterates over all JSON files and yields a TriggerObject. After the
 	caller is done with it, it can delete or move the file. If it moves the
@@ -555,12 +579,15 @@ def objects_from_files(delete_files=True, move_files=False):
 		else:
 			yield obj
 		if move_files:
+			mapping.set(obj.old_dn, None)
 			if obj.was_deleted():
 				path.unlink()
+				mapping.set(obj.dn, None)
 			else:
 				old_file_path = obj.get_old_file_path()
 				old_file_path.parent.mkdir(parents=True, exist_ok=True)
 				path.rename(old_file_path)
+				mapping.set(obj.dn, old_file_path)
 		elif delete_files:
 			path.unlink()
 
