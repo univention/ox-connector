@@ -355,6 +355,9 @@ def create_user(obj):
 
 def modify_user(obj):
 	print('Modifying', obj)
+	if obj.attributes.get('isOxUser', 'Not') == 'Not':
+		print(obj, 'is no OX user. Deleting instead...')
+		return delete_user(obj)
 	user_id = get_user_id(obj)
 	if not user_id:
 		print(obj, 'does not yet exist. Creating instead...')

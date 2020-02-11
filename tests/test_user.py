@@ -13,14 +13,14 @@ def create_context(udm, ox_host, context_id):
 	}, wait_for_listener=False)
 	return dn
 
-def create_obj(udm, name, domainname, context_id):
+def create_obj(udm, name, domainname, context_id, ox_user=True):
 	dn = udm.create('users/user', 'cn=users', {
 		'username': name,
 		'firstname': 'Emil',
 		'lastname': name.title(),
 		'password': 'univention',
 		'mailPrimaryAddress': '{}@{}'.format(name, domainname),
-		'isOxUser': True,
+		'isOxUser': ox_user,
 		'oxAccess': 'premium',
 		'oxContext': context_id,
 	})
@@ -36,6 +36,10 @@ def find_obj(context_id, name, assert_empty=False):
 		obj = objs[0]
 		print('Found', obj)
 		return obj
+
+def test_ignore_user(default_ox_context, new_user_name, udm, domainname):
+	create_obj(udm, new_user_name, domainname, None, ox_user=False)
+	find_obj(default_ox_context, new_user_name, assert_empty=True)
 
 def test_add_user_in_default_context(default_ox_context, new_user_name, udm, domainname):
 	create_obj(udm, new_user_name, domainname, None)
@@ -64,4 +68,11 @@ def test_remove_user(new_context_id, new_user_name, udm, ox_host, domainname):
 	create_context(udm, ox_host, new_context_id)
 	dn = create_obj(udm, new_user_name, domainname, new_context_id)
 	udm.remove('users/user', dn)
+	find_obj(new_context_id, new_user_name, assert_empty=True)
+
+def test_remove_inactive_user(new_context_id, new_user_name, udm, ox_host, domainname):
+	create_context(udm, ox_host, new_context_id)
+	dn = create_obj(udm, new_user_name, domainname, new_context_id)
+	find_obj(new_context_id, new_user_name)
+	udm.modify('users/user', dn, {'isOxUser': False})
 	find_obj(new_context_id, new_user_name, assert_empty=True)
