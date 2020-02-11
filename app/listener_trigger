@@ -38,6 +38,16 @@ import dbm.gnu
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_TIMEZONE
 
+import logging
+import sys
+logger = logging.getLogger('univention.ox')
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(name)s: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+
 Context = get_ox_integration_class('SOAP', 'Context')
 User = get_ox_integration_class('SOAP', 'User')
 Group = get_ox_integration_class('SOAP', 'Group')
