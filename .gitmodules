@@ -1,4 +1,4 @@
 [submodule "appsuite"]
 	path = appsuite
 	url = https://git.knut.univention.de/univention/open-xchange/appsuite.git
-	branch = 4.4
+	branch = dwiesent/ox-provisioning-app
