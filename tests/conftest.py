@@ -35,6 +35,18 @@ def new_user_name(cache):
 	return 'user{}'.format(value)
 
 @pytest.fixture
+def new_user_name_generator(cache):
+	def f():
+		value = _new_id(cache)
+		return 'user{}'.format(value)
+	return f
+
+@pytest.fixture
+def new_group_name(cache):
+	value = _new_id(cache)
+	return 'group{}'.format(value)
+
+@pytest.fixture
 def default_ox_context():
 	return os.environ['DEFAULT_CONTEXT']
 

@@ -325,6 +325,7 @@ def get_user_id(obj):
 		# before create
 		context_id = obj.attributes.get('oxContext', DEFAULT_CONTEXT)
 		username = obj.attributes.get('username')
+	print('Searching for {} in context {}'.format(username, context_id))
 	users = User.list(context_id, pattern=username)
 	if not users:
 		return None
@@ -566,6 +567,10 @@ class TriggerObject(object):
 		return 'Object({!r}, {!r})'.format(self.object_type, self.dn)
 
 class DNMapping(object):
+	'''Simple Mapping from DN -> JSON file
+	(the one that is used to load the old information)
+	Stored by objects_from_files automatically, not used internally
+	'''
 	def __init__(self):
 		self.db = dbm.gnu.open(str(NEW_FILES_DIR / 'old.db'), 'cs')
 
@@ -584,6 +589,7 @@ class DNMapping(object):
 mapping = DNMapping()
 
 def object_from_path(path):
+	'''Extract object information from JSON file'''
 	content = load_from_json_file(path)
 	entry_uuid = content['id']
 	object_type = content['udm_object_type']

@@ -24,9 +24,9 @@ def create_obj(udm, name, domainname, context_id, ox_admin):
 	})
 	return dn
 
-def find_obj(context_id, resource_name, assert_empty=False):
+def find_obj(context_id, name, assert_empty=False):
 	Resource = get_ox_integration_class('SOAP', 'Resource')
-	objs = Resource.list(context_id, pattern=resource_name)
+	objs = Resource.list(context_id, pattern=name)
 	if assert_empty:
 		assert len(objs) == 0
 	else:

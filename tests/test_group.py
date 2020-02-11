@@ -13,7 +13,7 @@ def create_context(udm, ox_host, context_id):
 	}, wait_for_listener=False)
 	return dn
 
-def create_obj(udm, name, domainname, context_id):
+def create_user(udm, name, domainname, context_id):
 	dn = udm.create('users/user', 'cn=users', {
 		'username': name,
 		'firstname': 'Emil',
@@ -23,12 +23,20 @@ def create_obj(udm, name, domainname, context_id):
 		'isOxUser': True,
 		'oxAccess': 'premium',
 		'oxContext': context_id,
+	}, wait_for_listener=False)
+	return dn
+
+def create_obj(udm, name, members):
+	dn = udm.create('groups/group', 'cn=groups', {
+		'name': name,
+		'users': members,
+		'isOxGroup': True,
 	})
 	return dn
 
 def find_obj(context_id, name, assert_empty=False):
-	User = get_ox_integration_class('SOAP', 'User')
-	objs = User.list(context_id, pattern=name)
+	Group = get_ox_integration_class('SOAP', 'Group')
+	objs = Group.list(context_id, pattern=name)
 	if assert_empty:
 		assert len(objs) == 0
 	else:
@@ -37,18 +45,26 @@ def find_obj(context_id, name, assert_empty=False):
 		print('Found', obj)
 		return obj
 
-def test_add_user_in_default_context(default_ox_context, new_user_name, udm, domainname):
-	create_obj(udm, new_user_name, domainname, None)
-	obj = find_obj(default_ox_context, new_user_name)
-	assert obj.name == new_user_name
-	assert obj.email1 == '{}@{}'.format(new_user_name, domainname)
+def test_add_group_with_one_user(default_ox_context, new_user_name, new_group_name, udm, domainname):
+	user_dn = create_user(udm, new_user_name, domainname, None)
+	create_obj(udm, new_group_name, [user_dn])
+	obj = find_obj(default_ox_context, new_group_name)
+	assert obj.name == new_group_name
+	assert len(obj.members) == 1
 
-def test_add_user(new_context_id, new_user_name, udm, ox_host, domainname):
-	create_context(udm, ox_host, new_context_id)
-	create_obj(udm, new_user_name, domainname, new_context_id)
-	obj = find_obj(new_context_id, new_user_name)
-	assert obj.name == new_user_name
-	assert obj.email1 == '{}@{}'.format(new_user_name, domainname)
+def test_add_group_with_multiple_users_and_contexts(new_context_id_generator, new_user_name_generator, new_group_name, udm, domainname):
+	new_context_id = new_context_id_generator()
+	user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
+	new_context_id2 = new_context_id_generator()
+	user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id2)
+	user_dn3 = create_user(udm, new_user_name_generator(), domainname, new_context_id2)
+	create_obj(udm, new_group_name, [user_dn1, user_dn2, user_dn3])
+	obj = find_obj(new_context_id, new_group_name)
+	assert obj.name == new_group_name
+	assert len(obj.members) == 1
+	obj2 = find_obj(new_context_id2, new_group_name)
+	assert obj2.name == new_group_name
+	assert len(obj2.members) == 2
 
 def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
 	new_mail_address = '{}2@{}'.format(new_user_name, domainname)
