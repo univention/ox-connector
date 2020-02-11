@@ -26,11 +26,11 @@ def create_user(udm, name, domainname, context_id):
 	}, wait_for_listener=False)
 	return dn
 
-def create_obj(udm, name, members):
+def create_obj(udm, name, members, enabled=True):
 	dn = udm.create('groups/group', 'cn=groups', {
 		'name': name,
 		'users': members,
-		'isOxGroup': True,
+		'isOxGroup': enabled,
 	})
 	return dn
 
@@ -44,6 +44,11 @@ def find_obj(context_id, name, assert_empty=False):
 		obj = objs[0]
 		print('Found', obj)
 		return obj
+
+def test_ignore_group(default_ox_context, new_user_name, new_group_name, udm, domainname):
+	user_dn = create_user(udm, new_user_name, domainname, None)
+	create_obj(udm, new_group_name, [user_dn], enabled=False)
+	find_obj(default_ox_context, new_user_name, assert_empty=True)
 
 def test_add_group_with_one_user(default_ox_context, new_user_name, new_group_name, udm, domainname):
 	user_dn = create_user(udm, new_user_name, domainname, None)

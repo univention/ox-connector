@@ -13,14 +13,14 @@ def create_context(udm, ox_host, context_id):
 	}, wait_for_listener=False)
 	return dn
 
-def create_obj(udm, name, domainname, context_id, ox_user=True):
+def create_obj(udm, name, domainname, context_id, enabled=True):
 	dn = udm.create('users/user', 'cn=users', {
 		'username': name,
 		'firstname': 'Emil',
 		'lastname': name.title(),
 		'password': 'univention',
 		'mailPrimaryAddress': '{}@{}'.format(name, domainname),
-		'isOxUser': ox_user,
+		'isOxUser': enabled,
 		'oxAccess': 'premium',
 		'oxContext': context_id,
 	})
@@ -38,7 +38,7 @@ def find_obj(context_id, name, assert_empty=False):
 		return obj
 
 def test_ignore_user(default_ox_context, new_user_name, udm, domainname):
-	create_obj(udm, new_user_name, domainname, None, ox_user=False)
+	create_obj(udm, new_user_name, domainname, None, enabled=False)
 	find_obj(default_ox_context, new_user_name, assert_empty=True)
 
 def test_add_user_in_default_context(default_ox_context, new_user_name, udm, domainname):
