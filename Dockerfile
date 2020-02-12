@@ -32,8 +32,15 @@ RUN pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api 
 	rm -rf /tmp/*
 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
-RUN pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
-	python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
+# 1st linting, then installation
+RUN apk add --no-cache gcc python3-dev musl-dev && \
+	python3 -m venv /tmp/venv && \
+	/oxp/venv/bin/pip3 install --no-cache-dir --compile black flake8 isort pip && \
+	cd /tmp/univention-ox-provisioning && \
+	make lint &&
+	/usr/bin/pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
+	/usr/bin/python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
+	apk del --no-cache gcc python3-dev musl-dev && \
 	rm -rf /tmp/*
 
 COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
@@ -53,8 +60,6 @@ RUN apk add --no-cache py3-multidict py3-yarl && \
 	python3 -c "import openapi_client_udm; openapi_client_udm.OxmailOxcontext.dn"
 
 COPY univention-ox-provisioning/requirements_tests.txt tests/ /oxp/tests/
-RUN pip3 install --no-cache-dir --compile --index-url https://test.pypi.org/simple/ openapi-client-udm-ox && \
-	pip3 install --no-cache-dir --compile udm-rest-client && \
-	pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt && \
+RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt && \
 	python3 -m pytest --collect-only /oxp/tests && \
 	rm -rf /oxp/.pytest_cache /oxp/tests/requirements_tests.txt
