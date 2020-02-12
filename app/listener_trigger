@@ -34,12 +34,12 @@ Entry point for listener_trigger script.
 
 from copy import deepcopy
 import dbm.gnu
-
-from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_TIMEZONE
-
 import logging
 import sys
+
+from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.config import DEFAULT_CONTEXT, DEFAULT_LANGUAGE, LOCAL_TIMEZONE, DEFAULT_IMAP_SERVER, DEFAULT_SMTP_SERVER
+
 logger = logging.getLogger('univention.ox')
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
@@ -204,6 +204,7 @@ def update_user(user, attributes):
 	user.department = attributes.get('oxDepartment')
 	user.email1 = attributes.get('mailPrimaryAddress')
 	user.primary_email = user.email1
+	user.imap_login = user.email1
 	user.email2 = attributes.get('oxEmail2')
 	user.email3 = attributes.get('oxEmail3')
 	#user.categories = attributes.get('employeeType')  # TODO: or employee_type?
@@ -215,12 +216,7 @@ def update_user(user, attributes):
 	#user.filestore_name = attributes.get()
 	#user.folder_tree = attributes.get()
 	#user.gui_preferences_for_soap = attributes.get()
-	user.gui_spam_filter_enabled = True  # TODO: ???
-	#user.imap_login = attributes.get()
-	#user.imap_port = attributes.get()
-	#user.imap_schema = attributes.get()
-	#user.imap_server = attributes.get()
-	#user.imap_server_string = attributes.get()
+	user.gui_spam_filter_enabled = True
 	#user.info = attributes.get()
 	user.instant_messenger1 = attributes.get('oxInstantMessenger1')
 	user.instant_messenger2 = attributes.get('oxInstantMessenger2')
@@ -242,16 +238,12 @@ def update_user(user, attributes):
 	#user.password_mech = attributes.get()
 	#user.password_expired = attributes.get()
 	user.position = attributes.get('oxPosition')
-	user.postal_code_business = attributes.get('postcode')  # ???
+	user.postal_code_business = attributes.get('postcode')
 	user.postal_code_home = attributes.get('oxPostalCodeHome')
 	user.postal_code_other = attributes.get('oxPostalCodeOther')
 	user.profession = attributes.get('oxProfession')
 	user.room_number = attributes.get('roomNumber')
 	user.sales_volume = attributes.get('oxSalesVolume')
-	#user.smtp_port = attributes.get()
-	#user.smtp_schema = attributes.get()
-	#user.smtp_server = attributes.get()
-	#user.smtp_server_string = attributes.get()
 	user.spouse_name = attributes.get('oxSpouseName')
 	user.state_business = attributes.get('oxStateBusiness')
 	user.state_home = attributes.get('oxStateHome')
@@ -325,6 +317,16 @@ def update_user(user, attributes):
 		user.mail_enabled = True
 	else:
 		user.mail_enabled = False
+	imap_url = urlparse(DEFAULT_IMAP_SERVER)
+	user.imap_port = imap_url.port  # 143
+	user.imap_schema = imap_url.scheme + '://' # 'imap://'
+	user.imap_server = attributes.get('mailHomeServer', imap_url.hostname)
+	#user.imap_server_string = attributes.get()
+	smtp_url = urlparse(DEFAULT_SMTP_SERVER)
+	user.smtp_port = smtp_url.port  # 587
+	user.smtp_schema = smtp_url.scheme + '://' # 'smtp://'
+	user.smtp_server = attributes.get('mailHomeServer', smtp_url.hostname)
+	#user.smtp_server_string = attributes.get()
 
 def get_user_id(obj):
 	if obj.old_attributes is not None:
