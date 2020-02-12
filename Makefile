@@ -28,7 +28,7 @@ BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 PY_MODULES := tests univention-ox-provisioning
 PY_PATHS := $(PY_MODULES)
-PY_FILES := $(shell find $(PY_PATHS) -name '*.py')
+PY_FILES := $(shell find $(PY_PATHS) -name '*.py') app/listener_trigger
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
@@ -54,17 +54,17 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 format: ## format source code
-	isort --apply --multi-line=3 --trailing-comma --force-grid-wrap=0 --combine-as --line-width 88 --recursive --project udm_rest_client --project univention $(PY_PATHS)
-	black --target-version py38 $(PY_PATHS)
+	isort --apply --multi-line=3 --trailing-comma --force-grid-wrap=0 --combine-as --line-width 88 --recursive --project udm_rest_client --project univention $(PY_PATHS) app/listener_trigger
+	black --target-version py38 $(PY_PATHS) app/listener_trigger
 
 lint-isort:
-	isort --check-only --multi-line=3 --trailing-comma --force-grid-wrap=0 --combine-as --line-width 88 --recursive --project udm_rest_client --project univention $(PY_PATHS)
+	isort --check-only --multi-line=3 --trailing-comma --force-grid-wrap=0 --combine-as --line-width 88 --recursive --project udm_rest_client --project univention $(PY_PATHS) app/listener_trigger
 
 lint-black:
-	black --check --target-version py38 $(PY_PATHS)
+	black --check --target-version py38 $(PY_PATHS) app/listener_trigger
 
 lint-flake8:
-	flake8 --max-line-length=105 --ignore=W503 $(PY_PATHS)
+	flake8 --max-line-length=105 --ignore=W503 $(PY_PATHS) app/listener_trigger
 
 lint-coverage: .coverage
 	coverage report --show-missing --fail-under=33
