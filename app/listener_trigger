@@ -497,14 +497,15 @@ def get_group_objs(obj):
     if obj.old_attributes:
         users.extend(obj.old_attributes.get("users"))
         if obj.old_attributes.get('isOxGroup', 'Not') != 'Not':
+            print("Group {} was OX Group".format(obj.old_attributes.get('name')))
             ignored_group = False
     if obj.attributes:
         users.extend(obj.attributes.get("users"))
         if obj.attributes.get('isOxGroup', 'Not') != 'Not':
+            print("Group {} will be OX Group".format(obj.attributes.get('name')))
             ignored_group = False
     if ignored_group:
-        print("Group was no and won't be OX group. Ignoring...")
-        raise StopIteration()
+        return
     contexts = []
     for user in users:
         path_to_old_user = mapping.get(user)
@@ -676,6 +677,16 @@ class TriggerObject(object):
         self.old_options = None
         self._old_loaded = False
 
+
+    def ordering(self, other):
+        '''Sort incoming objects if needed. Return True whenever self should be
+        placed BEFORE other. So return False would be the default.'''
+        sorted_object_types = ['oxmail/oxcontext', 'users/user', 'groups/group', 'oxresources/oxresources']
+        lidx = sorted_object_types.index(self.object_type)
+        ridx = sorted_object_types.index(other.object_type)
+        return lidx < ridx
+
+
     def get_old_file_path(self):
         """
         Name of the old file. May or may not be present. Is used by
@@ -767,6 +778,7 @@ def objects_from_files(delete_files=True, move_files=False):
     reload it (useful if you need to act on various changes in
     attributes)
     """
+    objs = []
     for path in sorted(NEW_FILES_DIR.glob("*.json")):
         obj = object_from_path(path)
         if move_files:
@@ -774,9 +786,17 @@ def objects_from_files(delete_files=True, move_files=False):
         if obj.attributes is None and obj.old_attributes is None:
             # happens when creation and deletion happens within one
             # "listener cycle" => nothing happened
-            pass
+            path.unlink()
         else:
-            yield obj
+            idx = 0
+            for _obj, _ in objs:
+                if obj.ordering(_obj):
+                    break
+                idx += 1
+            objs.insert(idx, (obj, path))
+
+    for obj, path in objs:
+        yield obj
         if move_files:
             mapping.set(obj.old_dn, None)
             if obj.was_deleted():

@@ -162,7 +162,6 @@ def test_rename_user(
     udm.modify("users/user", user_dn, {"username": "new" + new_user_name})
     obj = find_obj(default_ox_context, new_group_name)
     assert old_members == obj.members
-    assert obj.members == None
 
 
 def test_remove_user(
