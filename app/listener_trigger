@@ -32,6 +32,7 @@
 Entry point for listener_trigger script.
 """
 
+import datetime
 import dbm.gnu
 import json
 import logging
@@ -190,6 +191,19 @@ def delete_resource(obj):
 
 # users/user
 # ==========
+def str2isodate(text):  # type: (str) -> str
+    try:
+        the_date = datetime.datetime.strptime(text, "%Y-%m-%d")
+        return '{:%Y-%m-%d}'.format(the_date)
+    except (TypeError, ValueError) as exc1:
+        pass
+    try:
+        the_date = datetime.datetime.strptime(text, "%d.%m.%Y")
+        return '{:%Y-%m-%d}'.format(the_date)
+    except (TypeError, ValueError) as exc2:
+        pass
+    raise ValueError('Value {!r} in unknown date format or year before 1900 ({} {}).'.format(text, exc1, exc2))
+
 def user_from_attributes(attributes, user_id=None):
     user = User(id=user_id)
     if attributes:
@@ -207,9 +221,7 @@ def update_user(user, attributes):
     user.given_name = attributes.get("firstname")
     user.sur_name = attributes.get("lastname")
     user.default_sender_address = attributes.get("mailPrimaryAddress")  # TODO: ???
-    # user.anniversary = attributes.get('oxAnniversary')  # FIXME: date traceback on None
     # user.assistant_name = attributes.get()
-    # user.birthday = attributes.get('oxBirthday')  # FIXME: date traceback on None
     user.branches = attributes.get("oxBranches")
     # user.business_category = attributes.get()
     user.cellular_telephone1 = attributes.get("oxMobileBusiness")
@@ -318,6 +330,14 @@ def update_user(user, attributes):
     user.userfield20 = attributes.get("oxUserfield20")
     # user.primary_account_name = attributes.get()
     # user.convert_drive_user_folders = attributes.get()
+    if attributes.get('oxAnniversary'):
+        user.anniversary = str2isodate(attributes.get('oxAnniversary'))
+    else:
+        user.anniversary = None
+    if attributes.get('oxBirthday'):
+        user.birthday = str2isodate(attributes.get('oxBirthday'))
+    else:
+        user.birthday = None
     if attributes.get("phone") and len(attributes.get("phone")) >= 1:
         user.telephone_business1 = attributes.get("phone")[0]
     else:
