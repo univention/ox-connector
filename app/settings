@@ -6,6 +6,22 @@ Type = String
 Required = True
 InitialValue = @%@hostname@%@.@%@domainname@%@
 
+[OX_IMAP_SERVER]
+Description = Default IMAP server for new users (if not set explicitely there)
+Description[de] = Standard-IMAP-Server für neue Benutzer (falls nicht dort explizit gesetzt)
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = imap://@%@hostname@%@.@%@domainname@%@:143
+
+[OX_SMTP_SERVER]
+Description = Default SMTP server for new users (if not set explicitely there)
+Description[de] = Standard-SMTP-Server für neue Benutzer (falls nicht dort explizit gesetzt)
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = smtp://@%@hostname@%@.@%@domainname@%@:587
+
 [DEFAULT_CONTEXT]
 Description = Default context for users
 Show = Install, Settings
