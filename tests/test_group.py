@@ -151,6 +151,35 @@ def test_modify_group(
     assert len(obj.members) == 1
 
 
+def test_rename_user(
+    default_ox_context, new_user_name, new_group_name, udm, domainname
+):
+    user_dn = create_user(udm, new_user_name, domainname, None)
+    create_obj(udm, new_group_name, [user_dn])
+    obj = find_obj(default_ox_context, new_group_name)
+    old_members = obj.members
+    print(old_members)
+    udm.modify("users/user", user_dn, {"username": "new" + new_user_name})
+    obj = find_obj(default_ox_context, new_group_name)
+    assert old_members == obj.members
+    assert obj.members == None
+
+
+def test_remove_user(
+    default_ox_context, new_user_name_generator, new_group_name, udm, domainname
+):
+    user_dn1 = create_user(udm, new_user_name_generator(), domainname, None)
+    user_dn2 = create_user(udm, new_user_name_generator(), domainname, None)
+    create_obj(udm, new_group_name, [user_dn1, user_dn2])
+    obj = find_obj(default_ox_context, new_group_name)
+    assert len(obj.members) == 2
+    udm.remove("users/user", user_dn1)
+    obj = find_obj(default_ox_context, new_group_name)
+    assert len(obj.members) == 1
+    udm.remove("users/user", user_dn2)
+    find_obj(default_ox_context, new_group_name, assert_empty=True)
+
+
 def test_remove_group(
     new_context_id, new_group_name, new_user_name, udm, ox_host, domainname
 ):
