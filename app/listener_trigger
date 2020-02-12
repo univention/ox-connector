@@ -493,10 +493,18 @@ def delete_user(obj):
 # ==========
 def get_group_objs(obj):
     users = []
+    ignored_group = True
     if obj.old_attributes:
         users.extend(obj.old_attributes.get("users"))
+        if obj.old_attributes.get('isOxGroup', 'Not') != 'Not':
+            ignored_group = False
     if obj.attributes:
         users.extend(obj.attributes.get("users"))
+        if obj.attributes.get('isOxGroup', 'Not') != 'Not':
+            ignored_group = False
+    if ignored_group:
+        print("Group was no and won't be OX group. Ignoring...")
+        raise StopIteration()
     contexts = []
     for user in users:
         path_to_old_user = mapping.get(user)

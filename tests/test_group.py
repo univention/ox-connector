@@ -104,6 +104,18 @@ def test_add_group_with_one_user(
     assert len(obj.members) == 1
 
 
+def test_rename_group(
+    default_ox_context, new_user_name, new_group_name, udm, domainname
+):
+    user_dn = create_user(udm, new_user_name, domainname, None)
+    dn = create_obj(udm, new_group_name, [user_dn])
+    obj = find_obj(default_ox_context, new_group_name)
+    old_id = obj.id
+    udm.modify("groups/group", dn, {"name": "new" + new_group_name})
+    obj = find_obj(default_ox_context, "new" + new_group_name)
+    assert obj.id == old_id
+
+
 def test_add_group_with_multiple_users_and_contexts(
     new_context_id_generator,
     new_user_name_generator,
