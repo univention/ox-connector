@@ -64,6 +64,23 @@ def test_add_user_in_default_context(
     assert obj.email1 == "{}@{}".format(new_user_name, domainname)
 
 
+def test_rename_user(
+    default_ox_context, new_user_name, udm, domainname
+):
+    dn = create_obj(udm, new_user_name, domainname, None)
+    obj = find_obj(default_ox_context, new_user_name)
+    old_id = obj.id
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "username": "new" + new_user_name,
+        },
+    )
+    obj = find_obj(default_ox_context, "new" + new_user_name)
+    assert old_id == obj.id
+
+
 def test_add_user(new_context_id, new_user_name, udm, ox_host, domainname):
     create_context(udm, ox_host, new_context_id)
     create_obj(udm, new_user_name, domainname, new_context_id)
