@@ -39,6 +39,7 @@ import sys
 import traceback
 from copy import deepcopy
 from pathlib import Path
+from urllib.parse import urlparse
 
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.soap.config import (
@@ -335,10 +336,11 @@ def update_user(user, attributes):
         user.telephone_home2 = None
     aliases = [user.email1] + attributes.get("mailAlternativeAddress", [])
     user.aliases = aliases
-    if attributes.get("oxAccess"):
+    if attributes.get("oxAccess", 'none') != 'none':
         user.mail_enabled = True
     else:
         user.mail_enabled = False
+
     imap_url = urlparse(DEFAULT_IMAP_SERVER)
     user.imap_port = imap_url.port  # 143
     user.imap_schema = imap_url.scheme + "://"  # 'imap://'
@@ -349,6 +351,57 @@ def update_user(user, attributes):
     user.smtp_schema = smtp_url.scheme + "://"  # 'smtp://'
     user.smtp_server = attributes.get("mailHomeServer", smtp_url.hostname)
     # user.smtp_server_string = attributes.get()
+
+
+def set_user_rights(user, obj):
+    access_rights = dict((access, False) for access in [
+        'OLOX20',
+        'USM',
+        'activeSync',
+        'calendar',
+        'collectEmailAddresses',
+        'contacts',
+        'delegateTask',
+        'deniedPortal',
+        'editGroup',
+        'editPassword',
+        'editPublicFolders',
+        'editResource',
+        'globalAddressBookDisabled',
+        'ical',
+        'infostore',
+        'multipleMailAccounts',
+        'publicFolderEditable',
+        'publication',
+        'readCreateSharedFolders',
+        'subscription',
+        'syncml',
+        'tasks',
+        'vcard',
+        'webdav',
+        'webdavXml',
+        'webmail',
+    ])
+
+    attributes = obj.attributes
+    if attributes.get("oxAccess", 'none') != 'none':
+        if attributes.get('oxAccess') == 'webmail':
+            access = 'contacts webmail collectEmailAddresses multipleMailAccounts subscription publication'
+        if attributes.get('oxAccess') == 'pim':
+            access = 'calendar contacts delegateTask tasks webmail collectEmailAddresses multipleMailAccounts subscription publication'
+        if attributes.get('oxAccess') == 'groupware':
+            access = 'calendar contacts delegateTask editPublicFolders infostore readCreateSharedFolders tasks webmail collectEmailAddresses multipleMailAccounts subscription publication'
+        if attributes.get('oxAccess') == 'premium':
+            access = 'calendar contacts delegateTask editPublicFolders ical infostore readCreateSharedFolders tasks vcard webdav webdavXml webmail collectEmailAddresses multipleMailAccounts subscription publication USM OLOX20'
+        if attributes.get('oxAccessUSM', 'Not') == 'OK':
+            access += ' USM activeSync'
+        if attributes.get('oxDrive', '1') == '1':
+            access += ' infostore'
+        for acc in access.split():
+            access_rights[acc] = True
+    access_rights['syncml'] = bool(attributes.get('oxAccessSyncMl'))
+    access_rights['editResource'] = bool(attributes.get('oxAccessResources'))
+    user.service(user.context_id).change_by_module_access({'id': user.id}, access_rights)
 
 
 def get_user_id(obj):
@@ -378,6 +431,7 @@ def create_user(obj):
         return modify_user(obj)
     user = user_from_attributes(obj.attributes)
     user.create()
+    set_user_rights(user, obj)
 
 
 def modify_user(obj):
@@ -401,6 +455,7 @@ def modify_user(obj):
         print(obj, "has no old data. Resync?")
         user = user_from_attributes(obj.attributes, user_id)
     user.modify()
+    set_user_rights(user, obj)
 
 
 def delete_user(obj):
