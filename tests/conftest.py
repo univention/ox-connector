@@ -73,6 +73,11 @@ def ldap_base():
 
 
 @pytest.fixture
+def default_imap_server():
+    return os.environ["OX_IMAP_SERVER"]
+
+
+@pytest.fixture
 def ox_admin_udm_user(udm):
     for obj in udm.search("users/user", "uid=oxadmin"):
         return obj.open()

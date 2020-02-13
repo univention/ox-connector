@@ -50,6 +50,13 @@ def find_obj(context_id, name, assert_empty=False):
         return obj
 
 
+def delete_obj(context_id, name):
+    obj = find_obj(context_id, name)
+    print("Removing", obj.id, "directly in OX")
+    obj.remove()
+    find_obj(context_id, name, assert_empty=True)
+
+
 def test_ignore_user(default_ox_context, new_user_name, udm, domainname):
     """
     isOxUser = Not should not create a user
@@ -115,6 +122,47 @@ def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
     assert obj.sur_name == "Newman"
+
+
+def test_modify_user_without_ox_obj(new_context_id, new_user_name, udm, ox_host, domainname):
+    '''
+    Changing UDM object without a OX pendant should just create it
+    '''
+    new_mail_address = "{}2@{}".format(new_user_name, domainname)
+    create_context(udm, ox_host, new_context_id)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    delete_obj(new_context_id, new_user_name)
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "lastname": "Newman",
+            "mailPrimaryAddress": new_mail_address,
+            "oxCommercialRegister": "A register",
+        },
+    )
+    obj = find_obj(new_context_id, new_user_name)
+    assert obj.email1 == new_mail_address
+    assert obj.commercial_register == "A register"
+    assert obj.sur_name == "Newman"
+
+
+def test_modify_mailserver(default_imap_server, new_context_id, new_user_name, udm, ox_host, domainname):
+    udm.create('computers/memberserver', 'cn=memberserver,cn=computers', {'name': 'test-member', 'password': 'univention', 'service': ['IMAP']}, wait_for_listener=False)
+    create_context(udm, ox_host, new_context_id)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    obj = find_obj(new_context_id, new_user_name)
+    assert obj.imap_server_string == default_imap_server
+    mail_home_server = 'test-member.{}'.format(domainname)
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "mailHomeServer": mail_home_server,
+        },
+    )
+    obj = find_obj(new_context_id, new_user_name)
+    assert obj.imap_server_string == 'imap://' + mail_home_server + ':143'
 
 
 def test_remove_user(new_context_id, new_user_name, udm, ox_host, domainname):
