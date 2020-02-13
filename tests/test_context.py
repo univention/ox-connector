@@ -20,6 +20,9 @@ def create_context(udm, ox_host, context_id):
 
 
 def test_add_context(new_context_id, udm, ox_host):
+    '''
+    Creating a UDM context object should create one in OX
+    '''
     create_context(udm, ox_host, new_context_id)
     Context = get_ox_integration_class("SOAP", "Context")
     cs = Context.list(pattern=new_context_id)
@@ -30,6 +33,10 @@ def test_add_context(new_context_id, udm, ox_host):
 
 
 def test_modify_context(new_context_id, udm, ox_host):
+    '''
+    Modification of the attributes should be reflected
+    (currently only holds for quota)
+    '''
     dn = create_context(udm, ox_host, new_context_id)
     udm.modify("oxmail/oxcontext", dn, {"oxQuota": 2000})
     Context = get_ox_integration_class("SOAP", "Context")
@@ -41,6 +48,9 @@ def test_modify_context(new_context_id, udm, ox_host):
 
 
 def test_remove_context(new_context_id, udm, ox_host):
+    '''
+    Deleting a UDM context object should delete it in OX
+    '''
     dn = create_context(udm, ox_host, new_context_id)
     udm.remove("oxmail/oxcontext", dn)
     Context = get_ox_integration_class("SOAP", "Context")
