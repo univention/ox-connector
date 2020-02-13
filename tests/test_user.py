@@ -84,7 +84,7 @@ def test_rename_user(default_ox_context, new_user_name, udm, domainname):
     obj = find_obj(default_ox_context, new_user_name)
     old_id = obj.id
     udm.modify(
-        "users/user", dn, {"username": "new" + new_user_name,},
+        "users/user", dn, {"username": "new" + new_user_name},
     )
     obj = find_obj(default_ox_context, "new" + new_user_name)
     assert old_id == obj.id
@@ -276,7 +276,7 @@ def test_modify_mailserver(
     assert obj.imap_server_string == default_imap_server
     mail_home_server = "test-member.{}".format(domainname)
     udm.modify(
-        "users/user", dn, {"mailHomeServer": mail_home_server,},
+        "users/user", dn, {"mailHomeServer": mail_home_server},
     )
     obj = find_obj(new_context_id, new_user_name)
     # would fail if default_imap_server has a different port...

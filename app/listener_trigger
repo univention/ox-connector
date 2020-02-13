@@ -64,6 +64,7 @@ User = get_ox_integration_class("SOAP", "User")
 Group = get_ox_integration_class("SOAP", "Group")
 Resource = get_ox_integration_class("SOAP", "Resource")
 
+
 # oxmail/oxcontext
 # ================
 def context_from_attributes(attributes):
@@ -417,13 +418,13 @@ def set_user_rights(user, obj):
     attributes = obj.attributes
     if attributes.get("oxAccess", "none") != "none":
         if attributes.get("oxAccess") == "webmail":
-            access = "contacts webmail collectEmailAddresses multipleMailAccounts subscription publication"
+            access = "contacts webmail collectEmailAddresses multipleMailAccounts subscription publication"  # noqa
         if attributes.get("oxAccess") == "pim":
-            access = "calendar contacts delegateTask tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"
+            access = "calendar contacts delegateTask tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"  # noqa
         if attributes.get("oxAccess") == "groupware":
-            access = "calendar contacts delegateTask editPublicFolders infostore readCreateSharedFolders tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"
+            access = "calendar contacts delegateTask editPublicFolders infostore readCreateSharedFolders tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"  # noqa
         if attributes.get("oxAccess") == "premium":
-            access = "calendar contacts delegateTask editPublicFolders ical infostore readCreateSharedFolders tasks vcard webdav webdavXml webmail collectEmailAddresses multipleMailAccounts subscription publication USM OLOX20"
+            access = "calendar contacts delegateTask editPublicFolders ical infostore readCreateSharedFolders tasks vcard webdav webdavXml webmail collectEmailAddresses multipleMailAccounts subscription publication USM OLOX20"  # noqa
         if attributes.get("oxAccessUSM", "Not") == "OK":
             access += " USM activeSync"
         if attributes.get("oxDrive", "1") == "1":
@@ -650,9 +651,9 @@ def delete_group(obj):
     obj.attributes = None  # make obj.was_deleted() return True
 
 
-##############################
-### end ox listener lib ######
-### begin listener skeleton ##
+# ## ## ## ## ## ## ## ## #
+# end ox listener lib #####
+# begin listener skeleton #
 
 
 APP = "ox-connector"
