@@ -32,15 +32,20 @@ RUN pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api 
 	rm -rf /tmp/*
 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
+COPY Makefile /tmp
+COPY app/listener_trigger /tmp/app/
+COPY tests /tmp/tests
 # 1st linting, then installation
-RUN apk add --no-cache gcc python3-dev musl-dev && \
-	python3 -m venv /tmp/venv && \
-	pip3 install --no-cache-dir --compile black flake8 isort pip && \
-	cd /tmp/univention-ox-provisioning && \
+RUN apk add --no-cache gcc python3-dev make musl-dev && \
+	python3 -m venv --system-site-packages /tmp/venv && \
+	. /tmp/venv/bin/activate && \
+	pip3 install --no-cache-dir --compile -U pip && \
+	pip3 install --no-cache-dir --compile black flake8 isort && \
+	cd /tmp && \
 	make lint && \
-	pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
+	/usr/bin/pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
 	/usr/bin/python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
-	apk del --no-cache gcc python3-dev musl-dev && \
+	apk del --no-cache gcc python3-dev make musl-dev && \
 	rm -rf /tmp/*
 
 COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
