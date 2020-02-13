@@ -682,6 +682,12 @@ class TriggerObject(object):
         '''Sort incoming objects if needed. Return True whenever self should be
         placed BEFORE other. So return False would be the default.'''
         sorted_object_types = ['oxmail/oxcontext', 'users/user', 'groups/group', 'oxresources/oxresources']
+        if self.object_type == 'oxmail/oxcontext' and self.attributes is None:
+            # deleting a context should always come last
+            return False
+        if other.object_type == 'oxmail/oxcontext' and other.attributes is None:
+            # deleting a context should always come last
+            return True
         lidx = sorted_object_types.index(self.object_type)
         ridx = sorted_object_types.index(other.object_type)
         return lidx < ridx

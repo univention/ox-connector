@@ -162,14 +162,7 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
     yield _udm
     if _udm.new_objs:
         print("Test done. Now removing newly added DNs...")
-        # we need to remove contexts last. we cannot delete resources
-        # afterwards, as the context does not exist anymore, leading
-        # to errors in the listener_trigger (auth failed)
         for module, dns in _udm.new_objs.items():
-            if module == "oxmail/oxcontext":
-                continue
             for dn in dns:
                 _udm.remove(module, dn, wait_for_listener=False)
-        for dn in _udm.new_objs.get("oxmail/oxcontext", []):
-            _udm.remove("oxmail/oxcontext", dn, wait_for_listener=False)
         _wait_for_listener()
