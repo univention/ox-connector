@@ -63,9 +63,9 @@ def find_obj(context_id, name, assert_empty=False):
 def test_ignore_group(
     default_ox_context, new_user_name, new_group_name, udm, domainname
 ):
-    '''
+    """
     isOxGroup = Not should not create a group
-    '''
+    """
     user_dn = create_user(udm, new_user_name, domainname, None)
     create_obj(udm, new_group_name, [user_dn], enabled=False)
     find_obj(default_ox_context, new_user_name, assert_empty=True)
@@ -79,10 +79,10 @@ def test_enable_and_disable_group(
     udm,
     domainname,
 ):
-    '''
+    """
     Changing isOxGroup from Not to OK should create a group
     Changing isOxGroup from OK to Not should delete a group
-    '''
+    """
     new_context_id = new_context_id_generator()
     create_context(udm, ox_host, new_context_id)
     user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
@@ -104,10 +104,10 @@ def test_enable_and_disable_group(
 def test_add_group_with_one_user(
     default_ox_context, new_user_name, new_group_name, udm, domainname
 ):
-    '''
+    """
     isOxGroup = OK should create a group
     UDM attributes should be reflected in OX
-    '''
+    """
     user_dn = create_user(udm, new_user_name, domainname, None)
     create_obj(udm, new_group_name, [user_dn])
     obj = find_obj(default_ox_context, new_group_name)
@@ -118,9 +118,9 @@ def test_add_group_with_one_user(
 def test_rename_group(
     default_ox_context, new_user_name, new_group_name, udm, domainname
 ):
-    '''
+    """
     Renaming a group should keep ID
-    '''
+    """
     user_dn = create_user(udm, new_user_name, domainname, None)
     dn = create_obj(udm, new_group_name, [user_dn])
     obj = find_obj(default_ox_context, new_group_name)
@@ -138,10 +138,10 @@ def test_add_group_with_multiple_users_and_contexts(
     udm,
     domainname,
 ):
-    '''
+    """
     Adding users from different OX contexts to a group should add the group to
     each of those contexts with the correct members
-    '''
+    """
     new_context_id = new_context_id_generator()
     create_context(udm, ox_host, new_context_id)
     user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
@@ -161,9 +161,9 @@ def test_add_group_with_multiple_users_and_contexts(
 def test_modify_group(
     default_ox_context, new_user_name, new_group_name, udm, domainname
 ):
-    '''
+    """
     Modifications in UDM should be reflected in OX
-    '''
+    """
     user_dn = create_user(udm, new_user_name, domainname, None)
     dn = create_obj(udm, new_group_name, [user_dn])
     obj = find_obj(default_ox_context, "x" + new_group_name + "x")
@@ -177,9 +177,9 @@ def test_modify_group(
 def test_rename_user(
     default_ox_context, new_user_name, new_group_name, udm, domainname
 ):
-    '''
+    """
     Renaming user should keep User ID in groups member list
-    '''
+    """
     user_dn = create_user(udm, new_user_name, domainname, None)
     create_obj(udm, new_group_name, [user_dn])
     obj = find_obj(default_ox_context, new_group_name)
@@ -192,10 +192,10 @@ def test_rename_user(
 def test_remove_user(
     default_ox_context, new_user_name_generator, new_group_name, udm, domainname
 ):
-    '''
+    """
     Deleting one user from group should remove him from groups member list
     Deleting last user from group should delete group
-    '''
+    """
     user_dn1 = create_user(udm, new_user_name_generator(), domainname, None)
     user_dn2 = create_user(udm, new_user_name_generator(), domainname, None)
     create_obj(udm, new_group_name, [user_dn1, user_dn2])
@@ -209,11 +209,17 @@ def test_remove_user(
 
 
 def test_remove_group(
-    default_ox_context, new_context_id, new_group_name, new_user_name_generator, udm, ox_host, domainname
+    default_ox_context,
+    new_context_id,
+    new_group_name,
+    new_user_name_generator,
+    udm,
+    ox_host,
+    domainname,
 ):
-    '''
+    """
     Deleting a group should delete it from all contexts
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     user_dn1 = create_user(udm, new_user_name_generator(), domainname, None)
     user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id)

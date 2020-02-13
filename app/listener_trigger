@@ -194,15 +194,20 @@ def delete_resource(obj):
 def str2isodate(text):  # type: (str) -> str
     try:
         the_date = datetime.datetime.strptime(text, "%Y-%m-%d")
-        return '{:%Y-%m-%d}'.format(the_date)
+        return "{:%Y-%m-%d}".format(the_date)
     except (TypeError, ValueError) as exc1:
         pass
     try:
         the_date = datetime.datetime.strptime(text, "%d.%m.%Y")
-        return '{:%Y-%m-%d}'.format(the_date)
+        return "{:%Y-%m-%d}".format(the_date)
     except (TypeError, ValueError) as exc2:
         pass
-    raise ValueError('Value {!r} in unknown date format or year before 1900 ({} {}).'.format(text, exc1, exc2))
+    raise ValueError(
+        "Value {!r} in unknown date format or year before 1900 ({} {}).".format(
+            text, exc1, exc2
+        )
+    )
+
 
 def user_from_attributes(attributes, user_id=None):
     user = User(id=user_id)
@@ -330,12 +335,12 @@ def update_user(user, attributes):
     user.userfield20 = attributes.get("oxUserfield20")
     # user.primary_account_name = attributes.get()
     # user.convert_drive_user_folders = attributes.get()
-    if attributes.get('oxAnniversary'):
-        user.anniversary = str2isodate(attributes.get('oxAnniversary'))
+    if attributes.get("oxAnniversary"):
+        user.anniversary = str2isodate(attributes.get("oxAnniversary"))
     else:
         user.anniversary = None
-    if attributes.get('oxBirthday'):
-        user.birthday = str2isodate(attributes.get('oxBirthday'))
+    if attributes.get("oxBirthday"):
+        user.birthday = str2isodate(attributes.get("oxBirthday"))
     else:
         user.birthday = None
     if attributes.get("phone") and len(attributes.get("phone")) >= 1:
@@ -356,7 +361,7 @@ def update_user(user, attributes):
         user.telephone_home2 = None
     aliases = [user.email1] + attributes.get("mailAlternativeAddress", [])
     user.aliases = aliases
-    if attributes.get("oxAccess", 'none') != 'none':
+    if attributes.get("oxAccess", "none") != "none":
         user.mail_enabled = True
     else:
         user.mail_enabled = False
@@ -374,54 +379,59 @@ def update_user(user, attributes):
 
 
 def set_user_rights(user, obj):
-    access_rights = dict((access, False) for access in [
-        'OLOX20',
-        'USM',
-        'activeSync',
-        'calendar',
-        'collectEmailAddresses',
-        'contacts',
-        'delegateTask',
-        'deniedPortal',
-        'editGroup',
-        'editPassword',
-        'editPublicFolders',
-        'editResource',
-        'globalAddressBookDisabled',
-        'ical',
-        'infostore',
-        'multipleMailAccounts',
-        'publicFolderEditable',
-        'publication',
-        'readCreateSharedFolders',
-        'subscription',
-        'syncml',
-        'tasks',
-        'vcard',
-        'webdav',
-        'webdavXml',
-        'webmail',
-    ])
+    access_rights = dict(
+        (access, False)
+        for access in [
+            "OLOX20",
+            "USM",
+            "activeSync",
+            "calendar",
+            "collectEmailAddresses",
+            "contacts",
+            "delegateTask",
+            "deniedPortal",
+            "editGroup",
+            "editPassword",
+            "editPublicFolders",
+            "editResource",
+            "globalAddressBookDisabled",
+            "ical",
+            "infostore",
+            "multipleMailAccounts",
+            "publicFolderEditable",
+            "publication",
+            "readCreateSharedFolders",
+            "subscription",
+            "syncml",
+            "tasks",
+            "vcard",
+            "webdav",
+            "webdavXml",
+            "webmail",
+        ]
+    )
 
     attributes = obj.attributes
-    if attributes.get("oxAccess", 'none') != 'none':
-        if attributes.get('oxAccess') == 'webmail':
-            access = 'contacts webmail collectEmailAddresses multipleMailAccounts subscription publication'
-        if attributes.get('oxAccess') == 'pim':
-            access = 'calendar contacts delegateTask tasks webmail collectEmailAddresses multipleMailAccounts subscription publication'
-        if attributes.get('oxAccess') == 'groupware':
-            access = 'calendar contacts delegateTask editPublicFolders infostore readCreateSharedFolders tasks webmail collectEmailAddresses multipleMailAccounts subscription publication'
-        if attributes.get('oxAccess') == 'premium':
-            access = 'calendar contacts delegateTask editPublicFolders ical infostore readCreateSharedFolders tasks vcard webdav webdavXml webmail collectEmailAddresses multipleMailAccounts subscription publication USM OLOX20'
-        if attributes.get('oxAccessUSM', 'Not') == 'OK':
-            access += ' USM activeSync'
-        if attributes.get('oxDrive', '1') == '1':
-            access += ' infostore'
+    if attributes.get("oxAccess", "none") != "none":
+        if attributes.get("oxAccess") == "webmail":
+            access = "contacts webmail collectEmailAddresses multipleMailAccounts subscription publication"
+        if attributes.get("oxAccess") == "pim":
+            access = "calendar contacts delegateTask tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"
+        if attributes.get("oxAccess") == "groupware":
+            access = "calendar contacts delegateTask editPublicFolders infostore readCreateSharedFolders tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"
+        if attributes.get("oxAccess") == "premium":
+            access = "calendar contacts delegateTask editPublicFolders ical infostore readCreateSharedFolders tasks vcard webdav webdavXml webmail collectEmailAddresses multipleMailAccounts subscription publication USM OLOX20"
+        if attributes.get("oxAccessUSM", "Not") == "OK":
+            access += " USM activeSync"
+        if attributes.get("oxDrive", "1") == "1":
+            access += " infostore"
         for acc in access.split():
             access_rights[acc] = True
-    access_rights['syncml'] = bool(attributes.get('oxAccessSyncMl'))
-    access_rights['editResource'] = bool(attributes.get('oxAccessResources'))
-    user.service(user.context_id).change_by_module_access({'id': user.id}, access_rights)
+    access_rights["syncml"] = bool(attributes.get("oxAccessSyncMl"))
+    access_rights["editResource"] = bool(attributes.get("oxAccessResources"))
+    user.service(user.context_id).change_by_module_access(
+        {"id": user.id}, access_rights
+    )
 
 
 def get_user_id(obj):
@@ -491,18 +501,18 @@ def delete_user(obj):
 
 # groups/group
 # ==========
-def get_group_objs(obj):
+def get_group_objs(obj):  # noqa: C901
     users = []
     ignored_group = True
     if obj.old_attributes:
         users.extend(obj.old_attributes.get("users"))
-        if obj.old_attributes.get('isOxGroup', 'Not') != 'Not':
-            print("Group {} was OX Group".format(obj.old_attributes.get('name')))
+        if obj.old_attributes.get("isOxGroup", "Not") != "Not":
+            print("Group {} was OX Group".format(obj.old_attributes.get("name")))
             ignored_group = False
     if obj.attributes:
         users.extend(obj.attributes.get("users"))
-        if obj.attributes.get('isOxGroup', 'Not') != 'Not':
-            print("Group {} will be OX Group".format(obj.attributes.get('name')))
+        if obj.attributes.get("isOxGroup", "Not") != "Not":
+            print("Group {} will be OX Group".format(obj.attributes.get("name")))
             ignored_group = False
     if ignored_group:
         return
@@ -677,21 +687,24 @@ class TriggerObject(object):
         self.old_options = None
         self._old_loaded = False
 
-
     def ordering(self, other):
-        '''Sort incoming objects if needed. Return True whenever self should be
-        placed BEFORE other. So return False would be the default.'''
-        sorted_object_types = ['oxmail/oxcontext', 'users/user', 'groups/group', 'oxresources/oxresources']
-        if self.object_type == 'oxmail/oxcontext' and self.attributes is None:
+        """Sort incoming objects if needed. Return True whenever self should be
+        placed BEFORE other. So return False would be the default."""
+        sorted_object_types = [
+            "oxmail/oxcontext",
+            "users/user",
+            "groups/group",
+            "oxresources/oxresources",
+        ]
+        if self.object_type == "oxmail/oxcontext" and self.attributes is None:
             # deleting a context should always come last
             return False
-        if other.object_type == 'oxmail/oxcontext' and other.attributes is None:
+        if other.object_type == "oxmail/oxcontext" and other.attributes is None:
             # deleting a context should always come last
             return True
         lidx = sorted_object_types.index(self.object_type)
         ridx = sorted_object_types.index(other.object_type)
         return lidx < ridx
-
 
     def get_old_file_path(self):
         """
@@ -835,7 +848,7 @@ def run_on_files(objs, f, stop_at_first_error=True):
     return ret
 
 
-def run(obj):
+def run(obj):  # noqa: C901
     """This is your main function. Implement all your logic here"""
     if obj.object_type == "oxmail/oxcontext":
         if obj.was_added():

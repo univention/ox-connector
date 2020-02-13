@@ -51,9 +51,9 @@ def find_obj(context_id, name, assert_empty=False):
 def test_add_resource_in_default_context(
     default_ox_context, new_resource_name, udm, domainname, ox_admin_udm_user
 ):
-    '''
+    """
     Creating a resource without a context should create it in OX' default context
-    '''
+    """
     create_obj(udm, new_resource_name, domainname, None, ox_admin_udm_user)
     obj = find_obj(default_ox_context, new_resource_name)
     assert obj.display_name == new_resource_name.upper()
@@ -64,9 +64,9 @@ def test_add_resource_in_default_context(
 def test_add_resource(
     new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user
 ):
-    '''
+    """
     Creating a resource should create it in OX
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     create_obj(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
     obj = find_obj(new_context_id, new_resource_name)
@@ -78,9 +78,9 @@ def test_add_resource(
 def test_modify_resource(
     new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user
 ):
-    '''
+    """
     Modification of attributes are reflected in OX
-    '''
+    """
     new_mail_address = "{}2@{}".format(new_resource_name, domainname)
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(
@@ -104,9 +104,9 @@ def test_modify_resource(
 def test_remove_resource(
     new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user
 ):
-    '''
+    """
     Deleting a resource should delete it from OX
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(
         udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user

@@ -51,9 +51,9 @@ def find_obj(context_id, name, assert_empty=False):
 
 
 def test_ignore_user(default_ox_context, new_user_name, udm, domainname):
-    '''
+    """
     isOxUser = Not should not create a user
-    '''
+    """
     create_obj(udm, new_user_name, domainname, None, enabled=False)
     find_obj(default_ox_context, new_user_name, assert_empty=True)
 
@@ -61,39 +61,33 @@ def test_ignore_user(default_ox_context, new_user_name, udm, domainname):
 def test_add_user_in_default_context(
     default_ox_context, new_user_name, udm, domainname
 ):
-    '''
+    """
     Creating a user without a context should add it in the default context
-    '''
+    """
     create_obj(udm, new_user_name, domainname, None)
     obj = find_obj(default_ox_context, new_user_name)
     assert obj.name == new_user_name
     assert obj.email1 == "{}@{}".format(new_user_name, domainname)
 
 
-def test_rename_user(
-    default_ox_context, new_user_name, udm, domainname
-):
-    '''
+def test_rename_user(default_ox_context, new_user_name, udm, domainname):
+    """
     Renaming a user should keep its ID
-    '''
+    """
     dn = create_obj(udm, new_user_name, domainname, None)
     obj = find_obj(default_ox_context, new_user_name)
     old_id = obj.id
     udm.modify(
-        "users/user",
-        dn,
-        {
-            "username": "new" + new_user_name,
-        },
+        "users/user", dn, {"username": "new" + new_user_name,},
     )
     obj = find_obj(default_ox_context, "new" + new_user_name)
     assert old_id == obj.id
 
 
 def test_add_user(new_context_id, new_user_name, udm, ox_host, domainname):
-    '''
+    """
     isOxUser = OK should create a user
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     create_obj(udm, new_user_name, domainname, new_context_id)
     obj = find_obj(new_context_id, new_user_name)
@@ -102,9 +96,9 @@ def test_add_user(new_context_id, new_user_name, udm, ox_host, domainname):
 
 
 def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
-    '''
+    """
     Changing UDM object should be reflected in OX
-    '''
+    """
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
@@ -124,21 +118,23 @@ def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
 
 
 def test_remove_user(new_context_id, new_user_name, udm, ox_host, domainname):
-    '''
+    """
     Removing a user in UDM should remove the user in OX
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     udm.remove("users/user", dn)
     find_obj(new_context_id, new_user_name, assert_empty=True)
 
 
-def test_enable_and_disable_user(new_context_id, new_user_name, udm, ox_host, domainname):
-    '''
+def test_enable_and_disable_user(
+    new_context_id, new_user_name, udm, ox_host, domainname
+):
+    """
     Add a new UDM user (not yet active in OX)
     Setting isOxUser = OK should create the user
     Setting isOxUser = Not should delete the user
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id, enabled=False)
     udm.modify("users/user", dn, {"isOxUser": True})
@@ -148,9 +144,9 @@ def test_enable_and_disable_user(new_context_id, new_user_name, udm, ox_host, do
 
 
 def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
-    '''
+    """
     Changing mailPrimaryAddress and email1 leads to appropriate aliases
-    '''
+    """
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     mail_addresses = [
@@ -159,19 +155,40 @@ def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
         "test3-{}@{}".format(new_user_name, domainname),
         "test4-{}@{}".format(new_user_name, domainname),
     ]
-    udm.modify("users/user", dn, {"mailPrimaryAddress": mail_addresses[0], "mailAlternativeAddress": mail_addresses[1:]})
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "mailPrimaryAddress": mail_addresses[0],
+            "mailAlternativeAddress": mail_addresses[1:],
+        },
+    )
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)
     mail_addresses = [
         "test5-{}@{}".format(new_user_name, domainname),
     ]
-    udm.modify("users/user", dn, {"mailPrimaryAddress": mail_addresses[0], "mailAlternativeAddress": mail_addresses[1:]})
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "mailPrimaryAddress": mail_addresses[0],
+            "mailAlternativeAddress": mail_addresses[1:],
+        },
+    )
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)
     mail_addresses = [
         "test6-{}@{}".format(new_user_name, domainname),
         "test7-{}@{}".format(new_user_name, domainname),
     ]
-    udm.modify("users/user", dn, {"mailPrimaryAddress": mail_addresses[0], "mailAlternativeAddress": mail_addresses[1:]})
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "mailPrimaryAddress": mail_addresses[0],
+            "mailAlternativeAddress": mail_addresses[1:],
+        },
+    )
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)
