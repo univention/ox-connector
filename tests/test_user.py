@@ -20,11 +20,8 @@ def create_context(udm, ox_host, context_id):
     return dn
 
 
-def create_obj(udm, name, domainname, context_id, enabled=True):
-    dn = udm.create(
-        "users/user",
-        "cn=users",
-        {
+def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True):
+    _attrs = {
             "username": name,
             "firstname": "Emil",
             "lastname": name.title(),
@@ -33,7 +30,13 @@ def create_obj(udm, name, domainname, context_id, enabled=True):
             "isOxUser": enabled,
             "oxAccess": "premium",
             "oxContext": context_id,
-        },
+    }
+    if attrs:
+        _attrs.update(attrs)
+    dn = udm.create(
+        "users/user",
+        "cn=users",
+        _attrs,
     )
     return dn
 
@@ -122,6 +125,108 @@ def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
     assert obj.sur_name == "Newman"
+
+
+def test_full_blown_user(new_context_id, new_user_name, udm, ox_host, domainname):
+    create_context(udm, ox_host, new_context_id)
+    attrs = {
+        'city': 'gesch. Stadt',
+        'country': 'AF',
+        'departmentNumber': ['DEMOSCHOOL', 'gesch. Abteilungsnummer'],
+        'displayName': 'Demo Student',
+        'e-mail': ['demo_student@{}'.format(domainname), 'demo_student22@{}'.format(domainname)],
+        'firstname': 'Demo',
+        'gecos': 'Demo Student',
+        'homePostalAddress': [
+            {'street': 'privat Straße1', 'zipcode': 'privat Postleitzahl1', 'city': 'privat Stadt1'},
+            {'street': 'privat Straße2', 'zipcode': 'privat Postleitzahl2', 'city': 'privat Stadt2'},
+        ],
+        'homeTelephoneNumber': ['030 / 123456', '789'],
+        'homedrive': 'I:',
+        'lastname': 'Student',
+        'mailForwardCopyToSelf': '0',
+        'mailPrimaryAddress': 'demo_student@{}'.format(domainname),
+        'mobileTelephoneNumber': ['123-345', '00 987'],
+        'oxAccess': 'premium',
+        'oxAnniversary': '11.11.1911',
+        'oxBirthday': '12.12.1912',
+        'oxBranches': 'Branchen',
+        'oxCityHome': 'Stadt privat',
+        'oxCityOther': 'Stadt weitere',
+        'oxCommercialRegister': 'Handelsregister',
+        'oxCountryBusiness': 'Land Firma',
+        'oxCountryHome': 'Land privat',
+        'oxCountryOther': 'Land weiteres',
+        'oxDepartment': 'Abteilung',
+        'oxDisplayName': 'Demo Student',
+        'oxEmail2': 'privat@gmx.de',
+        'oxEmail3': 'weitere@gmx.de',
+        'oxFaxBusiness': 'Fax geschäftlich',
+        'oxFaxHome': 'Fax privat',
+        'oxFaxOther': 'Fax weiteres',
+        'oxInstantMessenger1': 'IM Firma',
+        'oxInstantMessenger2': 'IM privat',
+        'oxLanguage': 'de_DE',
+        'oxManagerName': 'Manager',
+        'oxMarialStatus': 'Familienstand',
+        'oxMiddleName': 'gesch. Zweiter Vorname',
+        'oxMobileBusiness': 'Mobiltelefon geschäftlich',
+        'oxNickName': 'gesch. Spitzname',
+        'oxNote': 'Bemerkungengesch. ',
+        'oxNumOfChildren': 'Kinder',
+        'oxPosition': 'Position',
+        'oxPostalCodeHome': 'PLZ privat',
+        'oxPostalCodeOther': 'Postleitzahl weitere',
+        'oxProfession': 'Beruf',
+        'oxSalesVolume': 'Umsatz',
+        'oxSpouseName': 'Name des Ehegatten',
+        'oxStateBusiness': 'Bundesland Firma',
+        'oxStateHome': 'Bundesland privat',
+        'oxStateOther': 'Bundesland weiteres',
+        'oxStreetHome': 'Straße privat',
+        'oxStreetOther': 'Straße weitere',
+        'oxSuffix': 'gesch. Namenssuffix',
+        'oxTaxId': 'Steuernummer',
+        'oxTelephoneAssistant': 'Assistent',
+        'oxTelephoneCar': 'Autotelefon',
+        'oxTelephoneCompany': 'Telefon Zentrale',
+        'oxTelephoneIp': 'VoIP',
+        'oxTelephoneOther': 'Telefon weiteres',
+        'oxTelephoneTelex': 'Telex',
+        'oxTelephoneTtydd': 'Texttelefon',
+        'oxTimeZone': 'Europe/Berlin',
+        'oxUrl': 'URL',
+        'oxUserfield01': 'Optional 1',
+        'oxUserfield02': 'Optional 2',
+        'oxUserfield03': 'Optional 3',
+        'oxUserfield04': 'Optional 4',
+        'oxUserfield05': 'Optional 5',
+        'oxUserfield06': 'Optional 6',
+        'oxUserfield07': 'Optional 7',
+        'oxUserfield08': 'Optional 8',
+        'oxUserfield09': 'Optional 9',
+        'oxUserfield10': 'Optional 10',
+        'oxUserfield11': 'Optional 11',
+        'oxUserfield12': 'Optional 12',
+        'oxUserfield13': 'Optional 13',
+        'oxUserfield14': 'Optional 14',
+        'oxUserfield15': 'Optional 15',
+        'oxUserfield16': 'Optional 16',
+        'oxUserfield17': 'Optional 17',
+        'oxUserfield18': 'Optional 18',
+        'oxUserfield19': 'Optional 19',
+        'oxUserfield20': 'Optional 20',
+        'pagerTelephoneNumber': ['112', '456-789'],
+        'phone': ['0421 / 123456789', '0800 1234'],
+        'postcode': 'gesch. Postleitzahl',
+        'roomNumber': ['120', '110'],
+        'shell': '/bin/bash',
+        'street': 'gesch. Straße',
+    }
+    create_obj(udm, new_user_name, domainname, new_context_id, attrs=attrs)
+    obj = find_obj(new_context_id, new_user_name)
+    assert obj.room_number == '120'
+    assert obj.telephone_pager == '112'
 
 
 def test_modify_user_without_ox_obj(new_context_id, new_user_name, udm, ox_host, domainname):

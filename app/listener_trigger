@@ -73,7 +73,7 @@ def context_from_attributes(attributes):
 
 
 def update_context(context, attributes):
-    context.max_quota = attributes["oxQuota"]
+    context.max_quota = attributes.get("oxQuota")
     context.name = attributes["name"]
 
 
@@ -282,7 +282,6 @@ def update_user(user, attributes):
     user.postal_code_home = attributes.get("oxPostalCodeHome")
     user.postal_code_other = attributes.get("oxPostalCodeOther")
     user.profession = attributes.get("oxProfession")
-    user.room_number = attributes.get("roomNumber")
     user.sales_volume = attributes.get("oxSalesVolume")
     user.spouse_name = attributes.get("oxSpouseName")
     user.state_business = attributes.get("oxStateBusiness")
@@ -300,7 +299,6 @@ def update_user(user, attributes):
     user.telephone_ip = attributes.get("oxTelephoneIp")
     # user.telephone_isdn = attributes.get()
     user.telephone_other = attributes.get("oxTelephoneOther")
-    user.telephone_pager = attributes.get("pagerTelephoneNumber")
     # user.telephone_primary = attributes.get()
     # user.telephone_radio = attributes.get()
     user.telephone_telex = attributes.get("oxTelephoneTelex")
@@ -335,6 +333,10 @@ def update_user(user, attributes):
     user.userfield20 = attributes.get("oxUserfield20")
     # user.primary_account_name = attributes.get()
     # user.convert_drive_user_folders = attributes.get()
+    if attributes.get("roomNumber"):
+        user.room_number = attributes.get("roomNumber")[0]
+    if attributes.get("pagerTelephoneNumber"):
+        user.telephone_pager = attributes.get("pagerTelephoneNumber")
     if attributes.get("oxAnniversary"):
         user.anniversary = str2isodate(attributes.get("oxAnniversary"))
     else:
@@ -343,20 +345,20 @@ def update_user(user, attributes):
         user.birthday = str2isodate(attributes.get("oxBirthday"))
     else:
         user.birthday = None
-    if attributes.get("phone") and len(attributes.get("phone")) >= 1:
+    if len(attributes.get("phone", [])) >= 1:
         user.telephone_business1 = attributes.get("phone")[0]
     else:
         user.telephone_business1 = None
-    if attributes.get("phone") and len(attributes.get("phone")) >= 2:
+    if len(attributes.get("phone", [])) >= 2:
         user.telephone_business2 = attributes.get("phone")[1]
     else:
         user.telephone_business2 = None
-    if attributes.get("homePhone") and len(attributes.get("homePhone")) >= 1:
-        user.telephone_home1 = attributes.get("homePhone")[0]
+    if len(attributes.get("homeTelephoneNumber", [])) >= 1:
+        user.telephone_home1 = attributes.get("homeTelephoneNumber")[0]
     else:
         user.telephone_home1 = None
-    if attributes.get("homePhone") and len(attributes.get("homePhone")) >= 2:
-        user.telephone_home2 = attributes.get("homePhone")[1]
+    if len(attributes.get("homeTelephoneNumber", [])) >= 2:
+        user.telephone_home2 = attributes.get("homeTelephoneNumber")[1]
     else:
         user.telephone_home2 = None
     aliases = [user.email1] + attributes.get("mailAlternativeAddress", [])
