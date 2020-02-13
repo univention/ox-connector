@@ -166,13 +166,10 @@ def test_modify_group(
     """
     user_dn = create_user(udm, new_user_name, domainname, None)
     dn = create_obj(udm, new_group_name, [user_dn])
-    obj = find_obj(default_ox_context, "x" + new_group_name + "x")
-    old_id = obj.id
     udm.modify("groups/group", dn, {"name": "x" + new_group_name + "x"})
     obj = find_obj(default_ox_context, "x" + new_group_name + "x")
     assert obj.name == "x" + new_group_name + "x"
     assert len(obj.members) == 1
-    assert old_id == obj.id
 
 
 def test_rename_user(
