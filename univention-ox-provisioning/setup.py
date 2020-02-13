@@ -10,10 +10,9 @@ import sys
 
 import setuptools
 
-from constants import __version__
-
 dir_here = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(dir_here, "univention", "ox", "provisioning"))
+from constants import __version__
 
 
 with open(os.path.join(dir_here, "requirements.txt")) as fp:
