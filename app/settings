@@ -54,8 +54,7 @@ InitialValue = oxadminmaster
 Description = OX Admin password
 Show = Install, Settings
 Type = Password
-Required = True
-InitialValue = 
+Required = False
 
 [OX_CONTEXT_DEFAULT_QUOTA]
 Description = Default quota for new contexts (MB)
