@@ -192,16 +192,17 @@ def delete_resource(obj):
 # users/user
 # ==========
 def str2isodate(text):  # type: (str) -> str
+    exc1 = exc2 = None
     try:
         the_date = datetime.datetime.strptime(text, "%Y-%m-%d")
         return "{:%Y-%m-%d}".format(the_date)
-    except (TypeError, ValueError) as exc1:
-        pass
+    except (TypeError, ValueError) as exc:
+        exc1 = exc
     try:
         the_date = datetime.datetime.strptime(text, "%d.%m.%Y")
         return "{:%Y-%m-%d}".format(the_date)
-    except (TypeError, ValueError) as exc2:
-        pass
+    except (TypeError, ValueError) as exc:
+        exc2 = exc
     raise ValueError(
         "Value {!r} in unknown date format or year before 1900 ({} {}).".format(
             text, exc1, exc2

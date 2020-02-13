@@ -172,6 +172,7 @@ def test_modify_group(
     obj = find_obj(default_ox_context, "x" + new_group_name + "x")
     assert obj.name == "x" + new_group_name + "x"
     assert len(obj.members) == 1
+    assert old_id == obj.id
 
 
 def test_rename_user(
