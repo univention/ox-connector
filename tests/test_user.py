@@ -162,6 +162,7 @@ def test_modify_mailserver(default_imap_server, new_context_id, new_user_name, u
         },
     )
     obj = find_obj(new_context_id, new_user_name)
+    # would fail if default_imap_server has a different port...
     assert obj.imap_server_string == 'imap://' + mail_home_server + ':143'
 
 
