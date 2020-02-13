@@ -102,6 +102,9 @@ def test_add_user(new_context_id, new_user_name, udm, ox_host, domainname):
 
 
 def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
+    '''
+    Changing UDM object should be reflected in OX
+    '''
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
@@ -121,15 +124,24 @@ def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
 
 
 def test_remove_user(new_context_id, new_user_name, udm, ox_host, domainname):
+    '''
+    Removing a user in UDM should remove the user in OX
+    '''
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     udm.remove("users/user", dn)
     find_obj(new_context_id, new_user_name, assert_empty=True)
 
 
-def test_remove_inactive_user(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_enable_and_disable_user(new_context_id, new_user_name, udm, ox_host, domainname):
+    '''
+    Add a new UDM user (not yet active in OX)
+    Setting isOxUser = OK should create the user
+    Setting isOxUser = Not should delete the user
+    '''
     create_context(udm, ox_host, new_context_id)
-    dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id, enabled=False)
+    udm.modify("users/user", dn, {"isOxUser": True})
     find_obj(new_context_id, new_user_name)
     udm.modify("users/user", dn, {"isOxUser": False})
     find_obj(new_context_id, new_user_name, assert_empty=True)
