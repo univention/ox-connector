@@ -33,6 +33,7 @@ Entry point for listener_trigger script.
 """
 
 import datetime
+import time
 import dbm.gnu
 import json
 import logging
@@ -49,6 +50,7 @@ from univention.ox.soap.config import (
     DEFAULT_LANGUAGE,
     DEFAULT_SMTP_SERVER,
     LOCAL_TIMEZONE,
+    NoContextAdminPassword,
 )
 
 logger = logging.getLogger("univention.ox")
@@ -684,7 +686,7 @@ class TriggerObject(object):
     (needs a second, backup file for that)
     """
 
-    def __init__(self, entry_uuid, object_type, dn, attributes, options):
+    def __init__(self, entry_uuid, object_type, dn, attributes, options, path=None):
         self.entry_uuid = entry_uuid
         self.object_type = object_type
         self.dn = dn
@@ -693,6 +695,7 @@ class TriggerObject(object):
         self.old_dn = None
         self.old_attributes = None
         self.old_options = None
+        self.path = path  # file where it originates from
         self._old_loaded = False
 
     def ordering(self, other):
@@ -759,6 +762,22 @@ class TriggerObject(object):
         return "Object({!r}, {!r})".format(self.object_type, self.dn)
 
 
+class Metadata(object):
+    """
+    Database about meta information on this listener.
+    Particularly the number of consecutive errors.
+    """
+
+    def __init__(self):
+        self.db = dbm.gnu.open(str(NEW_FILES_DIR / "meta.db"), "cs")
+
+    def set(self, key, value):
+        self.db[key] = value
+
+    def get(self, key):
+        return self.db.get(key)
+
+
 class DNMapping(object):
     """
     Simple Mapping from DN -> JSON file
@@ -782,6 +801,7 @@ class DNMapping(object):
         return self.db.get(dn)
 
 
+meta = Metadata()
 mapping = DNMapping()
 
 
@@ -793,7 +813,7 @@ def object_from_path(path):
     dn = content["dn"]
     attributes = content["object"]
     options = content["options"]
-    obj = TriggerObject(entry_uuid, object_type, dn, attributes, options)
+    obj = TriggerObject(entry_uuid, object_type, dn, attributes, options, path)
     return obj
 
 
@@ -838,7 +858,7 @@ def objects_from_files(delete_files=True, move_files=False):
             path.unlink()
 
 
-def run_on_files(objs, f, stop_at_first_error=True):
+def run_on_files(objs, f, stop_at_first_error=True, pause_after_errors_num=0, pause_after_errors_length=0):
     """
     Iterate over objects (returned by objects_from_files) and runs a
     function f on this object. May continue to do so even if one iteration
@@ -849,10 +869,22 @@ def run_on_files(objs, f, stop_at_first_error=True):
         try:
             f(obj)
         except Exception:
+            print('Error while processing {}'.format(obj.path), file=sys.stderr)
             traceback.print_exc()
             ret = 1
+            errors = meta.get('errors')
+            if errors is None:
+                errors = 1
+            else:
+                errors = int(errors) + 1
+            meta.set('errors', str(errors))
             if stop_at_first_error:
+                if 0 < pause_after_errors_num <= errors:
+                    print('This is consecutive error #{}. Sleeping for {} sec'.format(errors, pause_after_errors_length), file=sys.stderr)
+                    time.sleep(pause_after_errors_length)
                 break
+        else:
+            meta.set('errors', '0')
     return ret
 
 
@@ -865,32 +897,35 @@ def run(obj):  # noqa: C901
             modify_context(obj)
         elif obj.was_deleted():
             delete_context(obj)
-    if obj.object_type == "users/user":
-        if obj.attributes and obj.attributes.get("username") == "oxadmin":
-            # FIXME
-            return
-        if obj.was_added():
-            create_user(obj)
-        elif obj.was_modified():
-            modify_user(obj)
-        elif obj.was_deleted():
-            delete_user(obj)
-    if obj.object_type == "groups/group":
-        for new_obj in get_group_objs(obj):
-            if new_obj.was_added():
-                create_group(new_obj)
-            elif new_obj.was_modified():
-                modify_group(new_obj)
-            elif new_obj.was_deleted():
-                delete_group(new_obj)
-    if obj.object_type == "oxresources/oxresources":
-        if obj.was_added():
-            create_resource(obj)
-        elif obj.was_modified():
-            modify_resource(obj)
-        elif obj.was_deleted():
-            delete_resource(obj)
+    try:
+        if obj.object_type == "users/user":
+            if obj.attributes and obj.attributes.get("username") == "oxadmin":
+                # FIXME
+                return
+                if obj.was_added():
+                    create_user(obj)
+                elif obj.was_modified():
+                    modify_user(obj)
+                elif obj.was_deleted():
+                    delete_user(obj)
+        if obj.object_type == "groups/group":
+            for new_obj in get_group_objs(obj):
+                if new_obj.was_added():
+                    create_group(new_obj)
+                elif new_obj.was_modified():
+                    modify_group(new_obj)
+                elif new_obj.was_deleted():
+                    delete_group(new_obj)
+        if obj.object_type == "oxresources/oxresources":
+            if obj.was_added():
+                create_resource(obj)
+            elif obj.was_modified():
+                modify_resource(obj)
+            elif obj.was_deleted():
+                delete_resource(obj)
+    except NoContextAdminPassword as exc:
+        print('Could not find admin password for context {}. Ignoring this task.'.format(exc.args[0]), file=sys.stderr)
 
 
 objs = objects_from_files(delete_files=False, move_files=True)
-sys.exit(run_on_files(objs, run))
+sys.exit(run_on_files(objs, run, pause_after_errors_num=3, pause_after_errors_length=60))
