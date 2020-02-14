@@ -35,7 +35,7 @@ univention-app install ox-connector --set \
   OX_MASTER_PASSWORD=""  `# the password of the ox admin` \
   OX_CONTEXT_DEFAULT_QUOTA="1048576"  `# default quota for new contexts in MB` \
   LOCAL_TIMEZONE="Europe/Berlin"  `# default timezone for new users` \
-  OX_LANGUAGE="Europe/Berlin"  `# default language for for new users` \
+  OX_LANGUAGE="de_DE"  `# default language for for new users` \
   DEFAULT_CONTEXT="10"  `# default context for users` \
   OX_SMTP_SERVER="smtp://my-smtp-server.mydomain.de:587"  `# default smtp server` \
   OX_IMAP_SERVER="imap://my-imap-server.mydomain.de:143"  `# default imap server` \
