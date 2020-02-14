@@ -59,7 +59,6 @@ main () {
 	update_user_template "$@"
 
 	create_container "$@"
-	convert_mail_domains "$@"
 
 	setup_umc "$@"
 
@@ -72,13 +71,14 @@ setup_vars () {
 	OXTIMEZONE="$(ox_timezone)"
 	OXLANG="$(ox_language)"
 	CONTEXTDOMAIN="$domainname"
+	DEFAULT_CONTEXT="$ox_context_id"
 
 	PACKAGE_NAME="univention-ox"
 	PACKAGE_VERSION="11.0.0-32A~4.4.0.201911191756"  # FIXME: Need to get from ox branch? Or is it okay as it is?
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='oxseforucs_7.10.2-ucs1'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.0.1'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
@@ -92,9 +92,6 @@ register_ldap () {
 	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
 	register_ldap_extension "$@" -- "$PREFIX"/ldap/*.acl "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py         "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxdomain.py          "$PREFIX"/udm/hooks.d/*.mo       "$PREFIX"/umc/icons/*/udm-oxmail-oxdomain.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxmail.py            "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxmail.* \
-		"$PREFIX"/umc/ox-common.xml
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py  "$PREFIX"/udm/hanlders/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.*
 
 	univention-directory-manager policies/registry create "$@" \
@@ -167,6 +164,12 @@ create_eas () {
 update_ea_defaults () {
 	echo "Setting defaults..."
 	univention-directory-manager settings/extended_attribute modify "$@" \
+		--dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
+		--set default="$DEFAULT_CONTEXT" || :
+	univention-directory-manager settings/extended_attribute modify "$@" \
+		--dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
+		--set default="$DEFAULT_CONTEXT" || :
+	univention-directory-manager settings/extended_attribute modify "$@" \
 		--dn "cn=oxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
 		--set default="$OXLANG" || :
 	univention-directory-manager settings/extended_attribute modify "$@" \
@@ -224,21 +227,11 @@ create_container () {
 	univention-directory-manager container/cn create "$@" \
 		--ignore_exists --position "cn=open-xchange,$ldap_base" \
 		--set name=oxresources
-	univention-directory-manager container/cn create "$@" \
-		--ignore_exists --position "cn=mail,$ldap_base" \
-		--set name=fetchmail \
-		--set mailPath=1
-}
-
-convert_mail_domains () {
-	echo "Converting UDM mail modules to oxmail modules..."
-	"/var/lib/univention-appcenter/apps/$APP_ID/data/resources/convert-mail-to-oxmail.py" "$@" ||
-		die "Failed to convert old mail/domain objects to oxmail/oxdomain objects"
 }
 
 setup_umc () {
 	umc_init
-	umc_operation_create "udm-oxmail" "UDM - OXMAIL" "oxmail/oxmail" \
+	umc_operation_create "udm-oxcontext" "UDM - OXCONTEXT" "oxmail/oxcontext" \
 		"udm/*:objectType=oxmail/*" \
 		"udm/properties:objectType=policies/*" \
 		"udm/layout:objectType=policies/*" \
