@@ -13,7 +13,6 @@ def create_context(udm, ox_host, context_id):
             "contextid": context_id,
             "name": "context{}".format(context_id),
         },
-        wait_for_listener=False,
     )
     return dn
 
@@ -54,58 +53,72 @@ def delete_obj(context_id, name):
     find_obj(context_id, name, assert_empty=True)
 
 
-def test_ignore_user(default_ox_context, new_user_name, udm, domainname):
+def test_ignore_user(
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+):
     """
     isOxUser = Not should not create a user
     """
-    create_obj(udm, new_user_name, domainname, None, enabled=False)
+    dn = create_obj(udm, new_user_name, domainname, None, enabled=False)
+    wait_for_listener(dn)
     find_obj(default_ox_context, new_user_name, assert_empty=True)
 
 
 def test_add_user_in_default_context(
-    default_ox_context, new_user_name, udm, domainname
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Creating a user without a context should add it in the default context
     """
-    create_obj(udm, new_user_name, domainname, None)
+    dn = create_obj(udm, new_user_name, domainname, None)
+    wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     assert obj.name == new_user_name
     assert obj.email1 == "{}@{}".format(new_user_name, domainname)
 
 
-def test_rename_user(default_ox_context, new_user_name, udm, domainname):
+def test_rename_user(
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+):
     """
     Renaming a user should keep its ID
     """
     dn = create_obj(udm, new_user_name, domainname, None)
+    wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     old_id = obj.id
     udm.modify(
         "users/user", dn, {"username": "new" + new_user_name},
     )
+    wait_for_listener(dn)
     obj = find_obj(default_ox_context, "new" + new_user_name)
     assert old_id == obj.id
 
 
-def test_add_user(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_add_user(
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+):
     """
     isOxUser = OK should create a user
     """
     create_context(udm, ox_host, new_context_id)
-    create_obj(udm, new_user_name, domainname, new_context_id)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert obj.name == new_user_name
     assert obj.email1 == "{}@{}".format(new_user_name, domainname)
 
 
-def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_modify_user(
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+):
     """
     Changing UDM object should be reflected in OX
     """
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    wait_for_listener(dn)  # make sure we wait for the modify step below
     udm.modify(
         "users/user",
         dn,
@@ -115,13 +128,16 @@ def test_modify_user(new_context_id, new_user_name, udm, ox_host, domainname):
             "oxCommercialRegister": "A register",
         },
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
     assert obj.sur_name == "Newman"
 
 
-def test_full_blown_user(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_full_blown_user(
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+):
     create_context(udm, ox_host, new_context_id)
     attrs = {
         "city": "gesch. Stadt",
@@ -228,14 +244,15 @@ def test_full_blown_user(new_context_id, new_user_name, udm, ox_host, domainname
         "shell": "/bin/bash",
         "street": "gesch. Straße",
     }
-    create_obj(udm, new_user_name, domainname, new_context_id, attrs=attrs)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id, attrs=attrs)
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert obj.room_number == "120"
     assert obj.telephone_pager == "112"
 
 
 def test_modify_user_without_ox_obj(
-    new_context_id, new_user_name, udm, ox_host, domainname
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
 ):
     """
     Changing UDM object without a OX pendant should just create it
@@ -243,6 +260,7 @@ def test_modify_user_without_ox_obj(
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    wait_for_listener(dn)  # make sure we wait for the modify step below
     delete_obj(new_context_id, new_user_name)
     udm.modify(
         "users/user",
@@ -253,6 +271,7 @@ def test_modify_user_without_ox_obj(
             "oxCommercialRegister": "A register",
         },
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
@@ -260,39 +279,49 @@ def test_modify_user_without_ox_obj(
 
 
 def test_modify_mailserver(
-    default_imap_server, new_context_id, new_user_name, udm, ox_host, domainname
+    default_imap_server,
+    new_context_id,
+    new_user_name,
+    udm,
+    ox_host,
+    domainname,
+    wait_for_listener,
 ):
     udm.create(
         "computers/memberserver",
         "cn=memberserver,cn=computers",
         {"name": "test-member", "password": "univention", "service": ["IMAP"]},
-        wait_for_listener=False,
     )
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    wait_for_listener(dn)  # make sure we wait for the modify step below
     obj = find_obj(new_context_id, new_user_name)
     assert obj.imap_server_string == default_imap_server
     mail_home_server = "test-member.{}".format(domainname)
     udm.modify(
         "users/user", dn, {"mailHomeServer": mail_home_server},
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     # would fail if default_imap_server has a different port...
     assert obj.imap_server_string == "imap://" + mail_home_server + ":143"
 
 
-def test_remove_user(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_remove_user(
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+):
     """
     Removing a user in UDM should remove the user in OX
     """
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     udm.remove("users/user", dn)
+    wait_for_listener(dn)
     find_obj(new_context_id, new_user_name, assert_empty=True)
 
 
 def test_enable_and_disable_user(
-    new_context_id, new_user_name, udm, ox_host, domainname
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
 ):
     """
     Add a new UDM user (not yet active in OX)
@@ -301,13 +330,18 @@ def test_enable_and_disable_user(
     """
     create_context(udm, ox_host, new_context_id)
     dn = create_obj(udm, new_user_name, domainname, new_context_id, enabled=False)
+    wait_for_listener(dn)  # make sure we wait for the modify step below
     udm.modify("users/user", dn, {"isOxUser": True})
+    wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)
     udm.modify("users/user", dn, {"isOxUser": False})
+    wait_for_listener(dn)
     find_obj(new_context_id, new_user_name, assert_empty=True)
 
 
-def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
+def test_alias(
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+):
     """
     Changing mailPrimaryAddress and email1 leads to appropriate aliases
     """
@@ -319,6 +353,7 @@ def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
         "test3-{}@{}".format(new_user_name, domainname),
         "test4-{}@{}".format(new_user_name, domainname),
     ]
+    wait_for_listener(dn)  # make sure we wait for the modify step below
     udm.modify(
         "users/user",
         dn,
@@ -327,6 +362,7 @@ def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
             "mailAlternativeAddress": mail_addresses[1:],
         },
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)
     mail_addresses = [
@@ -340,6 +376,7 @@ def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
             "mailAlternativeAddress": mail_addresses[1:],
         },
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)
     mail_addresses = [
@@ -354,5 +391,6 @@ def test_alias(new_context_id, new_user_name, udm, ox_host, domainname):
             "mailAlternativeAddress": mail_addresses[1:],
         },
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)

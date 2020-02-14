@@ -13,7 +13,6 @@ def create_context(udm, ox_host, context_id):
             "contextid": context_id,
             "name": "context{}".format(context_id),
         },
-        wait_for_listener=False,
     )
     return dn
 
@@ -60,13 +59,22 @@ def test_add_resource_in_default_context(
 
 
 def test_add_resource(
-    new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user
+    new_context_id,
+    new_resource_name,
+    udm,
+    ox_host,
+    domainname,
+    ox_admin_udm_user,
+    wait_for_listener,
 ):
     """
     Creating a resource should create it in OX
     """
     create_context(udm, ox_host, new_context_id)
-    create_obj(udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user)
+    dn = create_obj(
+        udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user
+    )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_resource_name)
     assert obj.display_name == new_resource_name.upper()
     assert obj.description == "A description for {}".format(new_resource_name)
@@ -74,7 +82,13 @@ def test_add_resource(
 
 
 def test_modify_resource(
-    new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user
+    new_context_id,
+    new_resource_name,
+    udm,
+    ox_host,
+    domainname,
+    ox_admin_udm_user,
+    wait_for_listener,
 ):
     """
     Modification of attributes are reflected in OX
@@ -93,6 +107,7 @@ def test_modify_resource(
             "resourceMailAddress": new_mail_address,
         },
     )
+    wait_for_listener(dn)
     obj = find_obj(new_context_id, new_resource_name)
     assert obj.display_name == "New Display"
     assert obj.email == new_mail_address
@@ -100,7 +115,13 @@ def test_modify_resource(
 
 
 def test_remove_resource(
-    new_context_id, new_resource_name, udm, ox_host, domainname, ox_admin_udm_user
+    new_context_id,
+    new_resource_name,
+    udm,
+    ox_host,
+    domainname,
+    ox_admin_udm_user,
+    wait_for_listener,
 ):
     """
     Deleting a resource should delete it from OX
@@ -110,6 +131,7 @@ def test_remove_resource(
         udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user
     )
     udm.remove("oxresources/oxresources", dn)
+    wait_for_listener(dn)
     find_obj(new_context_id, new_resource_name, assert_empty=True)
 
 
@@ -120,6 +142,7 @@ def test_change_context_resource(
     ox_host,
     domainname,
     ox_admin_udm_user,
+    wait_for_listener,
 ):
     """
     Special case: If a resource changes its context, the object is
@@ -139,6 +162,7 @@ def test_change_context_resource(
         dn,
         {"oxContext": new_context_id2, "displayname": "New Object in new Context"},
     )
+    wait_for_listener(dn)
     find_obj(new_context_id, new_resource_name, assert_empty=True)
     obj = find_obj(new_context_id2, new_resource_name)
     assert obj.display_name == "New Object in new Context"

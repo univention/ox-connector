@@ -1,13 +1,54 @@
 import os
 import time
+from pathlib import Path
 
 import pytest
 
 from udm_rest import UDM
 
+TEST_LOG_FILE = Path("/tmp/test.log")
 
-def _wait_for_listener():
-    time.sleep(10)
+
+@pytest.fixture(scope="session")
+def truncate_wait_for_listener_log():
+    def _func():
+        with TEST_LOG_FILE.open("w"):
+            pass
+
+    yield _func
+
+    TEST_LOG_FILE.unlink(missing_ok=True)
+
+
+@pytest.fixture
+def wait_for_listener(truncate_wait_for_listener_log):
+    truncate_wait_for_listener_log()  # truncate before starting the test
+
+    def _wait_for_dn(dn: str, timeout=10.0) -> None:
+        start_time = time.time()
+        with TEST_LOG_FILE.open("r") as fp:
+            pos = fp.tell()
+            while True:
+                txt = fp.read()
+                time_passed = time.time() - start_time
+                if dn in txt:
+                    print(
+                        f"Listener_trigger finished handling {dn} after {time_passed:.1f} seconds."
+                    )
+                    # truncate, so this function can be used multiple times in the same test
+                    truncate_wait_for_listener_log()
+                    break
+                if time_passed >= timeout:
+                    print(
+                        f"Listener_trigger did NOT handle {dn} for {timeout:.1f} seconds."
+                    )
+                    break
+                pos_new = fp.tell()
+                if pos == pos_new:
+                    time.sleep(0.1)
+                pos = pos_new
+
+    return _wait_for_dn
 
 
 def _new_id(cache):
@@ -110,7 +151,7 @@ class UDMTest(object):
         self.ldap_base = ldap_base
         self.new_objs = {}
 
-    def create(self, module, position, attrs, wait_for_listener=True):
+    def create(self, module, position, attrs):
         print("Adding {} object in {}".format(module, position))
         mod = self.client.get(module)
         obj = mod.new(position="{},{}".format(position, self.ldap_base))
@@ -121,11 +162,9 @@ class UDMTest(object):
         dns = self.new_objs.get(module, [])
         dns.append(dn)
         self.new_objs[module] = dns
-        if wait_for_listener:
-            _wait_for_listener()
         return dn
 
-    def modify(self, module, dn, attrs, wait_for_listener=True):
+    def modify(self, module, dn, attrs):
         print("Modifying {} object {}".format(module, dn))
         obj = self.client.get(module).get(dn)
         obj.properties.update(attrs)
@@ -140,11 +179,9 @@ class UDMTest(object):
                 pass
             dns.append(new_dn)
             self.new_objs[module] = dns
-        if wait_for_listener:
-            _wait_for_listener()
         return new_dn
 
-    def remove(self, module, dn, wait_for_listener=True):
+    def remove(self, module, dn):
         print("Removing {} from {}".format(dn, module))
         obj = self.client.get(module).get(dn)
         obj.delete()
@@ -153,8 +190,6 @@ class UDMTest(object):
             dns.remove(dn)
         except ValueError:
             pass
-        if wait_for_listener:
-            _wait_for_listener()
         return dn
 
     def search(self, module, search_filter):
@@ -169,5 +204,4 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
         print("Test done. Now removing newly added DNs...")
         for module, dns in _udm.new_objs.items():
             for dn in dns:
-                _udm.remove(module, dn, wait_for_listener=False)
-        _wait_for_listener()
+                _udm.remove(module, dn)

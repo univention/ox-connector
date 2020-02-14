@@ -66,6 +66,7 @@ User = get_ox_integration_class("SOAP", "User")
 Group = get_ox_integration_class("SOAP", "Group")
 Resource = get_ox_integration_class("SOAP", "Resource")
 
+TEST_LOG_FILE = Path("/tmp/test.log")
 
 # oxmail/oxcontext
 # ================
@@ -939,6 +940,11 @@ def run(obj):  # noqa: C901
                 exc.args[0]
             )
         )
+
+    # logging for tests
+    if TEST_LOG_FILE.exists():
+        with TEST_LOG_FILE.open("a") as fp:
+            fp.write(f"{obj.dn}\n")
 
 
 objs = objects_from_files(delete_files=False, move_files=True)
