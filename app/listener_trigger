@@ -33,11 +33,11 @@ Entry point for listener_trigger script.
 """
 
 import datetime
-import time
 import dbm.gnu
 import json
 import logging
 import sys
+import time
 import traceback
 from copy import deepcopy
 from pathlib import Path
@@ -858,7 +858,13 @@ def objects_from_files(delete_files=True, move_files=False):
             path.unlink()
 
 
-def run_on_files(objs, f, stop_at_first_error=True, pause_after_errors_num=0, pause_after_errors_length=0):
+def run_on_files(
+    objs,
+    f,
+    stop_at_first_error=True,
+    pause_after_errors_num=0,
+    pause_after_errors_length=0,
+):
     """
     Iterate over objects (returned by objects_from_files) and runs a
     function f on this object. May continue to do so even if one iteration
@@ -869,22 +875,26 @@ def run_on_files(objs, f, stop_at_first_error=True, pause_after_errors_num=0, pa
         try:
             f(obj)
         except Exception:
-            logger.warn('Error while processing {}'.format(obj.path))
+            logger.warn("Error while processing {}".format(obj.path))
             traceback.print_exc()
             ret = 1
-            errors = meta.get('errors')
+            errors = meta.get("errors")
             if errors is None:
                 errors = 1
             else:
                 errors = int(errors) + 1
-            meta.set('errors', str(errors))
+            meta.set("errors", str(errors))
             if stop_at_first_error:
                 if 0 < pause_after_errors_num <= errors:
-                    logger.warn('This is consecutive error #{}. Sleeping for {} sec'.format(errors, pause_after_errors_length))
+                    logger.warn(
+                        "This is consecutive error #{}. Sleeping for {} sec".format(
+                            errors, pause_after_errors_length
+                        )
+                    )
                     time.sleep(pause_after_errors_length)
                 break
         else:
-            meta.set('errors', '0')
+            meta.set("errors", "0")
     return ret
 
 
@@ -924,8 +934,14 @@ def run(obj):  # noqa: C901
             elif obj.was_deleted():
                 delete_resource(obj)
     except NoContextAdminPassword as exc:
-        logger.warn('Could not find admin password for context {}. Ignoring this task.'.format(exc.args[0]))
+        logger.warn(
+            "Could not find admin password for context {}. Ignoring this task.".format(
+                exc.args[0]
+            )
+        )
 
 
 objs = objects_from_files(delete_files=False, move_files=True)
-sys.exit(run_on_files(objs, run, pause_after_errors_num=3, pause_after_errors_length=60))
+sys.exit(
+    run_on_files(objs, run, pause_after_errors_num=3, pause_after_errors_length=60)
+)
