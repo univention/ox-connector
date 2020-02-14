@@ -30,7 +30,7 @@ To install the App, do the following:
 univention-install univention-appcenter-dev
 univention-app dev-use-test-appcenter
 
-univention-app install ox-connector --set \
+univention-app install ox-connector=1.0.0 --set \
   OX_MASTER_ADMIN="oxadminmaster"  `# the name of the "root" user in OX itself` \
   OX_MASTER_PASSWORD=""  `# the password of the ox admin` \
   OX_CONTEXT_DEFAULT_QUOTA="1048576"  `# default quota for new contexts in MB` \
