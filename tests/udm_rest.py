@@ -53,6 +53,7 @@ import time
 import requests
 import six
 import uritemplate
+from urllib3.exceptions import InsecureRequestWarning
 
 if sys.version_info.major > 2:
     import http.client
@@ -62,6 +63,8 @@ else:
     import httplib
 
     httplib._MAXHEADERS = 1000
+
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 class HTTPError(Exception):
@@ -143,9 +146,10 @@ class Session(object):
         }
         self.session = self.create_session()
 
-    def create_session(self):
+    def create_session(self) -> requests.Session:
         sess = requests.session()
         sess.auth = (self.credentials.username, self.credentials.password)
+        sess.verify = False
         if not self.enable_caching:
             return sess
         try:

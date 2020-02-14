@@ -86,7 +86,7 @@ def ox_admin_udm_user(udm):
 @pytest.fixture
 def udm_uri():
     # cannot verify https in the container at the moment
-    return "http://{}/univention/udm/".format(os.environ["LDAP_MASTER"])
+    return "https://{}/univention/udm/".format(os.environ["LDAP_MASTER"])
 
 
 @pytest.fixture
