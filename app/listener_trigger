@@ -342,7 +342,7 @@ def update_user(user, attributes):
     if attributes.get("pagerTelephoneNumber"):
         user.telephone_pager = attributes.get("pagerTelephoneNumber")[0]
     else:
-        user.room_number = None
+        user.telephone_pager = None
     if attributes.get("oxAnniversary"):
         user.anniversary = str2isodate(attributes.get("oxAnniversary"))
     else:
