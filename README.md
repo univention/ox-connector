@@ -123,7 +123,7 @@ There shall be a lot of tests. These can be executed like this:
 
 ```
 univention-app shell ox-connector
-py.test tests
+python3 -m pytest -l -v tests
 ```
 
 ## Release

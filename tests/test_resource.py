@@ -1,5 +1,3 @@
-#!/usr/bin/py.test
-
 from univention.ox.backend_base import get_ox_integration_class
 
 

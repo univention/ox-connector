@@ -72,7 +72,7 @@ lint-coverage: .coverage
 lint: lint-isort lint-black lint-flake8 ## check source code style
 
 test: ## run tests (with the current active Python interpreter)
-	python -m pytest -l -v -c univention-ox-provisioning/setup.cfg tests
+	python3 -m pytest -l -v -c univention-ox-provisioning/setup.cfg tests
 
 .coverage: $(PY_FILES)
 	coverage run --source tests,ucsschool -m pytest tests
