@@ -1,7 +1,7 @@
 [Application]
 ID = ox-connector
 Code = 31
-Version = 1.0.0
+Version = 1.0.1
 Name = OX Connector
 Vendor = Univention
 DockerScriptRestoreDataAfterSetup = 
@@ -14,5 +14,5 @@ DockerScriptUpdateRelease =
 DockerScriptSetup = 
 ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources, users/user, groups/group
 DockerShellCommand = /bin/ash
-DockerImage = docker-test.software-univention.de/ox-connector:1.0.0
+DockerImage = docker-test.software-univention.de/ox-connector:1.0.1
 DockerScriptConfigure = /tmp/ox-connector.configure
