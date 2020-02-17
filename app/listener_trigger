@@ -896,9 +896,8 @@ def run_on_files(
             meta.set("errors", str(errors))
             if stop_at_first_error:
                 if 0 < pause_after_errors_num <= errors:
-                    logger.warn(
-                        f"This is consecutive error #{errors}. Sleeping for {pause_after_errors_length} sec"
-                    )
+                    logger.warn(f"This is consecutive error #{errors}")
+                    logger.warn(f"Sleeping for {pause_after_errors_length} sec")
                     time.sleep(pause_after_errors_length)
                 break
         else:
