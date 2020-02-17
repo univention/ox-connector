@@ -497,7 +497,7 @@ def modify_user(obj):
         return create_user(obj)
     if obj.old_attributes:
         if obj.old_attributes.get("isOxUser", "Not") == "Not":
-            logger.warn(
+            logger.warning(
                 f"{obj} was no OX user before... that should not be the case. Modifying anyway..."
             )
         user = user_from_attributes(obj.old_attributes, user_id)
@@ -885,7 +885,7 @@ def run_on_files(
         try:
             f(obj)
         except Exception:
-            logger.warn(f"Error while processing {obj.path}")
+            logger.warning(f"Error while processing {obj.path}")
             traceback.print_exc()
             ret = 1
             errors = meta.get("errors")
@@ -896,8 +896,8 @@ def run_on_files(
             meta.set("errors", str(errors))
             if stop_at_first_error:
                 if 0 < pause_after_errors_num <= errors:
-                    logger.warn(f"This is consecutive error #{errors}")
-                    logger.warn(f"Sleeping for {pause_after_errors_length} sec")
+                    logger.warning(f"This is consecutive error #{errors}")
+                    logger.warning(f"Sleeping for {pause_after_errors_length} sec")
                     time.sleep(pause_after_errors_length)
                 break
         else:
@@ -941,7 +941,7 @@ def run(obj):  # noqa: C901
             elif obj.was_deleted():
                 delete_resource(obj)
     except NoContextAdminPassword as exc:
-        logger.warn(
+        logger.warning(
             f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
         )
 
