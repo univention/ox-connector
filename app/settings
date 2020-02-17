@@ -4,7 +4,7 @@ Description[de] = Der Server, auf dem Open-Xchange installiert ist
 Show = Install, Settings
 Type = String
 Required = True
-InitialValue = @%@hostname@%@.@%@domainname@%@
+InitialValue = https://@%@hostname@%@.@%@domainname@%@
 
 [OX_IMAP_SERVER]
 Description = Default IMAP server for new users (if not set explicitely there)

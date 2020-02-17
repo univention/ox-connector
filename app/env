@@ -1,1 +1,2 @@
 OX_SECRETS_DIR=/var/lib/univention-appcenter/apps/ox-connector/data/secrets/
+REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
