@@ -60,6 +60,16 @@ formatter = logging.Formatter("%(name)s: %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+# import http.client as http_client
+# http_client.HTTPConnection.debuglevel = 1
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
+# handler = logging.StreamHandler(sys.stdout)
+# formatter = logging.Formatter("%(name)s: %(message)s")
+# handler.setFormatter(formatter)
+# requests_log.addHandler(handler)
+
 
 Context = get_ox_integration_class("SOAP", "Context")
 User = get_ox_integration_class("SOAP", "User")
@@ -67,6 +77,7 @@ Group = get_ox_integration_class("SOAP", "Group")
 Resource = get_ox_integration_class("SOAP", "Resource")
 
 TEST_LOG_FILE = Path("/tmp/test.log")
+
 
 # oxmail/oxcontext
 # ================
