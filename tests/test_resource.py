@@ -19,7 +19,7 @@ def create_context(udm, ox_host, context_id):
 
 def create_obj(udm, name, domainname, context_id, ox_admin):
     dn = udm.create(
-        "oxresources/oxresources",
+        "ox/resource",
         "cn=oxresources,cn=open-xchange",
         {
             "name": name,
@@ -99,7 +99,7 @@ def test_modify_resource(
         udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user
     )
     udm.modify(
-        "oxresources/oxresources",
+        "ox/resource",
         dn,
         {
             "description": None,
@@ -130,7 +130,7 @@ def test_remove_resource(
     dn = create_obj(
         udm, new_resource_name, domainname, new_context_id, ox_admin_udm_user
     )
-    udm.remove("oxresources/oxresources", dn)
+    udm.remove("ox/resource", dn)
     wait_for_listener(dn)
     find_obj(new_context_id, new_resource_name, assert_empty=True)
 
@@ -156,9 +156,9 @@ def test_change_context_resource(
     )
     new_context_id2 = new_context_id_generator()
     create_context(udm, ox_host, new_context_id2)
-    udm.modify("oxresources/oxresources", dn, {"description": "Soon in a new context"})
+    udm.modify("ox/resource", dn, {"description": "Soon in a new context"})
     udm.modify(
-        "oxresources/oxresources",
+        "ox/resource",
         dn,
         {"oxContext": new_context_id2, "displayname": "New Object in new Context"},
     )

@@ -11,7 +11,7 @@ More specifically, the script runs whenever something changed in the following U
 * oxmail/oxcontext
 * users/user
 * groups/group
-* oxresources/oxresource
+* ox/resource
 
 # Setup
 

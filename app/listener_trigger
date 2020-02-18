@@ -132,7 +132,7 @@ def delete_context(obj):
     obj.attributes = None  # make obj.was_deleted() return True
 
 
-# oxresources/oxresources
+# ox/resource
 # ================
 def resource_from_attributes(attributes, resource_id=None):
     context_id = attributes.get("oxContext", DEFAULT_CONTEXT)
@@ -715,7 +715,7 @@ class TriggerObject(object):
             "oxmail/oxcontext",
             "users/user",
             "groups/group",
-            "oxresources/oxresources",
+            "ox/resource",
         ]
         if self.object_type == "oxmail/oxcontext" and self.attributes is None:
             # deleting a context should always come last
@@ -933,7 +933,7 @@ def run(obj):  # noqa: C901
                     modify_group(new_obj)
                 elif new_obj.was_deleted():
                     delete_group(new_obj)
-        if obj.object_type == "oxresources/oxresources":
+        if obj.object_type == "ox/resource":
             if obj.was_added():
                 create_resource(obj)
             elif obj.was_modified():
