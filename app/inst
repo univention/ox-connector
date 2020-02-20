@@ -91,7 +91,7 @@ register_ldap () {
 
 	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
 	register_ldap_extension "$@" -- "$PREFIX"/ldap/*.acl "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/ox/context.py   "$PREFIX"/udm/handlers/ox/*.mo "$PREFIX"/umc/icons/*/udm-ox-context.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py         "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/ox/resource.py  "$PREFIX"/udm/handlers/ox/*.mo "$PREFIX"/umc/icons/*/udm-ox-resource.*
 
 	univention-directory-manager policies/registry create "$@" \
@@ -231,7 +231,12 @@ create_container () {
 
 setup_umc () {
 	umc_init
-	umc_operation_create "udm-ox" "UDM - OX" "ox/context" \
+	umc_operation_create "udm-oxcontext" "UDM - OXCONTEXT" "oxmail/oxcontext" \
+		"udm/*:objectType=oxmail/*" \
+		"udm/properties:objectType=policies/*" \
+		"udm/layout:objectType=policies/*" \
+		"udm/query:objectType=policies/*"
+	umc_operation_create "udm-oxresources" "UDM - OX" "ox/resource" \
 		"udm/*:objectType=ox/*" \
 		"udm/properties:objectType=policies/*" \
 		"udm/layout:objectType=policies/*" \
