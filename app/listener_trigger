@@ -929,12 +929,12 @@ def run(obj):  # noqa: C901
             if obj.attributes and obj.attributes.get("username") == "oxadmin":
                 # FIXME
                 return
-                if obj.was_added():
-                    create_user(obj)
-                elif obj.was_modified():
-                    modify_user(obj)
-                elif obj.was_deleted():
-                    delete_user(obj)
+            if obj.was_added():
+                create_user(obj)
+            elif obj.was_modified():
+                modify_user(obj)
+            elif obj.was_deleted():
+                delete_user(obj)
         if obj.object_type == "groups/group":
             for new_obj in get_group_objs(obj):
                 if new_obj.was_added():
