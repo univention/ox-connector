@@ -45,7 +45,6 @@ from urllib.parse import urlparse
 
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.soap.config import (
-    DEFAULT_CONTEXT,
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
     DEFAULT_SMTP_SERVER,
@@ -77,6 +76,17 @@ Group = get_ox_integration_class("SOAP", "Group")
 Resource = get_ox_integration_class("SOAP", "Resource")
 
 TEST_LOG_FILE = Path("/tmp/test.log")
+
+
+class Skip(Exception):
+    '''Raise anywhere if you want to skip the processing of this object'''
+    pass
+
+
+def get_context_id(attributes):
+    context_id = attributes.get('oxContext')
+    if context_id is None:
+        raise Skip('Object has no oxContext attribute!')
 
 
 # oxmail/oxcontext
@@ -135,7 +145,7 @@ def delete_context(obj):
 # oxresources/oxresources
 # ================
 def resource_from_attributes(attributes, resource_id=None):
-    context_id = attributes.get("oxContext", DEFAULT_CONTEXT)
+    context_id = get_context_id(attributes)
     resource = Resource(id=resource_id, context_id=context_id)
     update_resource(resource, attributes)
     return resource
@@ -151,11 +161,11 @@ def update_resource(resource, attributes):
 def get_resource_id(obj):
     if obj.old_attributes is not None:
         # before delete
-        context_id = obj.old_attributes.get("oxContext", DEFAULT_CONTEXT)
+        context_id = get_context_id(obj.old_attributes)
         name = obj.old_attributes.get("name")
     else:
         # before create
-        context_id = obj.attributes.get("oxContext", DEFAULT_CONTEXT)
+        context_id = get_context_id(obj.attributes)
         name = obj.attributes.get("name")
     resources = Resource.list(context_id, pattern=name)
     if not resources:
@@ -180,8 +190,8 @@ def modify_resource(obj):
         logger.info(f"{obj} does not yet exist. Creating instead...")
         return create_resource(obj)
     if obj.old_attributes:
-        old_context = obj.old_attributes.get("oxContext", DEFAULT_CONTEXT)
-        new_context = obj.attributes.get("oxContext", DEFAULT_CONTEXT)
+        old_context = get_context_id(obj.old_attributes)
+        new_context = get_context_id(obj.attributes)
         if old_context != new_context:
             delete_resource(obj)
             return create_resource(obj)
@@ -228,7 +238,7 @@ def str2isodate(text):  # type: (str) -> str
 def user_from_attributes(attributes, user_id=None):
     user = User(id=user_id)
     if attributes:
-        context_id = attributes.get("oxContext", DEFAULT_CONTEXT)
+        context_id = get_context_id(attributes)
         user.context_id = context_id
         update_user(user, attributes)
     return user
@@ -459,11 +469,11 @@ def set_user_rights(user, obj):
 def get_user_id(obj):
     if obj.old_attributes is not None:
         # before delete
-        context_id = obj.old_attributes.get("oxContext", DEFAULT_CONTEXT)
+        context_id = get_context_id(obj.old_attributes)
         username = obj.old_attributes.get("username")
     else:
         # before create
-        context_id = obj.attributes.get("oxContext", DEFAULT_CONTEXT)
+        context_id = get_context_id(obj.attributes)
         username = obj.attributes.get("username")
     logger.info(f"Searching for {username} in context {context_id}")
     users = User.list(context_id, pattern=username)
@@ -549,7 +559,7 @@ def get_group_objs(obj):  # noqa: C901
             continue
         path_to_old_user = Path(path_to_old_user.decode("utf-8"))
         user_obj = object_from_path(path_to_old_user)
-        context = user_obj.attributes.get("oxContext", DEFAULT_CONTEXT)
+        context = get_context_id(user_obj.attributes)
         if context not in contexts:
             contexts.append(context)
     for context in contexts:
@@ -583,7 +593,7 @@ def update_group(group, attributes):
     for user in attributes.get("users"):
         username = user[4:].split(",")[0]  # TODO: make this more elegant
         user_attributes = {}
-        user_attributes["oxContext"] = attributes.get("oxContext", DEFAULT_CONTEXT)
+        user_attributes['oxContext'] = get_context_id(attributes)
         user_attributes["username"] = username
         user_obj = TriggerObject(None, None, None, user_attributes, None)
         user_id = get_user_id(user_obj)
@@ -940,6 +950,8 @@ def run(obj):  # noqa: C901
                 modify_resource(obj)
             elif obj.was_deleted():
                 delete_resource(obj)
+    except Skip as exc:
+        logger.warning(f"Skipping: {exc}")
     except NoContextAdminPassword as exc:
         logger.warning(
             f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
