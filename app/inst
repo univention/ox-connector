@@ -165,9 +165,11 @@ update_ea_defaults () {
 	echo "Setting defaults..."
 	univention-directory-manager settings/extended_attribute modify "$@" \
 		--dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
+		--set required=1 \
 		--set default="$DEFAULT_CONTEXT" || :
 	univention-directory-manager settings/extended_attribute modify "$@" \
 		--dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
+		--set required=1 \
 		--set default="$DEFAULT_CONTEXT" || :
 	univention-directory-manager settings/extended_attribute modify "$@" \
 		--dn "cn=oxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
