@@ -79,14 +79,15 @@ TEST_LOG_FILE = Path("/tmp/test.log")
 
 
 class Skip(Exception):
-    '''Raise anywhere if you want to skip the processing of this object'''
+    """Raise anywhere if you want to skip the processing of this object"""
+
     pass
 
 
 def get_context_id(attributes):
-    context_id = attributes.get('oxContext')
+    context_id = attributes.get("oxContext")
     if context_id is None:
-        raise Skip('Object has no oxContext attribute!')
+        raise Skip("Object has no oxContext attribute!")
 
 
 # oxmail/oxcontext
@@ -598,7 +599,7 @@ def update_group(group, attributes):
     for user in attributes.get("users"):
         username = user[4:].split(",")[0]  # TODO: make this more elegant
         user_attributes = {}
-        user_attributes['oxContext'] = get_context_id(attributes)
+        user_attributes["oxContext"] = get_context_id(attributes)
         user_attributes["username"] = username
         user_obj = TriggerObject(None, None, None, user_attributes, None)
         user_id = get_user_id(user_obj)
