@@ -926,9 +926,6 @@ def run(obj):  # noqa: C901
             delete_context(obj)
     try:
         if obj.object_type == "users/user":
-            if obj.attributes and obj.attributes.get("username") == "oxadmin":
-                # FIXME
-                return
             if obj.was_added():
                 create_user(obj)
             elif obj.was_modified():
