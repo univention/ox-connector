@@ -150,7 +150,7 @@ create_eas () {
 		--set filter="objectClass=oxContext" \
 		--set viewonly='FALSE' \
 		--set name="oxContextSelect" \
-		--set addEmptyValue="TRUE" \
+		--set addEmptyValue="FALSE" \
 		--set ldapvalue="oxContextIDNum" \
 		--set ldapattribute="cn" \
 		--set description="Select OX context objects"
