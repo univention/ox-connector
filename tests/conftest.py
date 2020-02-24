@@ -119,12 +119,6 @@ def default_imap_server():
 
 
 @pytest.fixture
-def ox_admin_udm_user(udm):
-    for obj in udm.search("users/user", "uid=oxadmin"):
-        return obj.open()
-
-
-@pytest.fixture
 def udm_uri():
     # cannot verify https in the container at the moment
     return "https://{}/univention/udm/".format(os.environ["LDAP_MASTER"])
@@ -202,6 +196,17 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
     yield _udm
     if _udm.new_objs:
         print("Test done. Now removing newly added DNs...")
-        for module, dns in _udm.new_objs.items():
+        modules = list(_udm.new_objs.keys())
+        for module_name in [
+            "oxresources/oxresources",
+            "groups/group",
+            "users/user",
+            "oxmail/oxcontext",
+        ]:
+            if module_name in modules:
+                modules.remove(module_name)
+                modules.append(module_name)
+        for module in modules:
+            dns = _udm.new_objs[module]
             for dn in dns:
                 _udm.remove(module, dn)
