@@ -516,12 +516,13 @@ def modify_user(obj):
         old_context = get_context_id(obj.old_attributes)
         new_context = get_context_id(obj.attributes)
         if old_context != new_context:
+            logging.info(f"Changing context: {old_context} -> {new_context}")
             already_existing_user_id = get_user_id(obj.attributes)
             if already_existing_user_id:
                 logger.warning(
                     f"{obj} was found in context {old_context} with ID {user_id} and in {new_context} with {already_existing_user_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
                 )
-                delete_user(obj)
+                delete_user(deepcopy(obj))
             else:
                 create_user(obj)
                 return delete_user(obj)
@@ -545,6 +546,11 @@ def delete_user(obj):
         return
     user = user_from_attributes(obj.old_attributes, user_id)
     user.remove()
+    # for group in user.groups:
+    #    group_obj = group_from_attributes(obj.attributes, group_id)
+    #    if not group_obj.members:
+    #        logger.info(f"{obj} is now empty. Deleting...")
+    #        delete_group(group_obj)
     obj.attributes = None  # make obj.was_deleted() return True
 
 
@@ -569,11 +575,7 @@ def get_group_objs(obj):  # noqa: C901
     for user in users:
         path_to_old_user = mapping.get(user)
         if not path_to_old_user:
-            logger.info(
-                "Group wants {} as member. But the user is unknown. Ignoring...".format(
-                    user
-                )
-            )
+            logger.info(f"Group wants {user} as member. But the user is unknown. Ignoring...")
             continue
         path_to_old_user = Path(path_to_old_user.decode("utf-8"))
         user_obj = object_from_path(path_to_old_user)
