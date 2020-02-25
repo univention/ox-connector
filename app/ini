@@ -16,3 +16,10 @@ ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources, users/user, grou
 DockerShellCommand = /bin/ash
 DockerImage = docker-test.software-univention.de/ox-connector:1.0.1
 DockerScriptConfigure = /tmp/ox-connector.configure
+Description = Synchronize UCS Users and Groups to Open-Xchange
+SupportedUcsVersions = 4.4-3
+UMCOptionsAttributes = isOxUser:oxUser
+
+[de]
+Description = UCS-Benutzer nach Open-Xchange synchronisieren
+
