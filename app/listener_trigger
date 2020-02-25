@@ -546,12 +546,14 @@ def delete_user(obj):
         return
     user = user_from_attributes(obj.old_attributes, user_id)
     group_service = Group.service(user.context_id)
-    soap_groups = group_service.list_groups_for_user({'id': user.id})
+    soap_groups = group_service.list_groups_for_user({"id": user.id})
     user.remove()
     obj.attributes = None  # make obj.was_deleted() return True
     logger.info("User was deleted, searching for now empty groups")
     for soap_group in soap_groups:
-        logger.info(f"Found group {soap_group.name} with {len(soap_group.members)} members")
+        logger.info(
+            f"Found group {soap_group.name} with {len(soap_group.members)} members"
+        )
         if len(soap_group.members) <= 1:
             logger.info(f"Thus, deleting group {soap_group.id} in {user.context_id}...")
             group_service.delete(soap_group)
@@ -578,7 +580,9 @@ def get_group_objs(obj):  # noqa: C901
     for user in users:
         path_to_old_user = mapping.get(user)
         if not path_to_old_user:
-            logger.info(f"Group wants {user} as member. But the user is unknown. Ignoring...")
+            logger.info(
+                f"Group wants {user} as member. But the user is unknown. Ignoring..."
+            )
             continue
         path_to_old_user = Path(path_to_old_user.decode("utf-8"))
         user_obj = object_from_path(path_to_old_user)
