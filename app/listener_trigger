@@ -545,13 +545,16 @@ def delete_user(obj):
         logger.info(f"{obj} does not exist. Doing nothing...")
         return
     user = user_from_attributes(obj.old_attributes, user_id)
+    group_service = Group.service(user.context_id)
+    soap_groups = group_service.list_groups_for_user({'id': user.id})
     user.remove()
-    # for group in user.groups:
-    #    group_obj = group_from_attributes(obj.attributes, group_id)
-    #    if not group_obj.members:
-    #        logger.info(f"{obj} is now empty. Deleting...")
-    #        delete_group(group_obj)
     obj.attributes = None  # make obj.was_deleted() return True
+    logger.info("User was deleted, searching for now empty groups")
+    for soap_group in soap_groups:
+        logger.info(f"Found group {soap_group.name} with {len(soap_group.members)} members")
+        if len(soap_group.members) <= 1:
+            logger.info(f"Thus, deleting group {soap_group.id} in {user.context_id}...")
+            group_service.delete(soap_group)
 
 
 # groups/group
