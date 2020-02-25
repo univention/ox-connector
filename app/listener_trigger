@@ -514,15 +514,16 @@ def modify_user(obj):
             )
         old_context = get_context_id(obj.old_attributes)
         new_context = get_context_id(obj.attributes)
-        old_user_id = get_user_id(obj.old_attributes)
-        if old_user_id:
-            logger.warning(
-                f"{obj} was found in context {old_context} with ID {old_user_id} and in {new_context} with {user_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
-            )
-            delete_user(obj)
-        elif old_context != new_context:
-            create_user(obj)
-            return delete_user(obj)
+        if old_context != new_context:
+            old_user_id = get_user_id(obj.old_attributes)
+            if old_user_id:
+                logger.warning(
+                    f"{obj} was found in context {old_context} with ID {old_user_id} and in {new_context} with {user_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
+                )
+                delete_user(obj)
+            else:
+                create_user(obj)
+                return delete_user(obj)
         user = user_from_attributes(obj.old_attributes, user_id)
         update_user(user, obj.attributes)
     else:
