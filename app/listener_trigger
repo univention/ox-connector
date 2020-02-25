@@ -556,7 +556,7 @@ def get_group_objs(obj):  # noqa: C901
     if obj.attributes:
         users.extend(obj.attributes.get("users"))
         if obj.attributes.get("isOxGroup", "Not") != "Not":
-            logger.info(f"Group {obj.old_attributes['name']} will be OX Group")
+            logger.info(f"Group {obj.attributes['name']} will be OX Group")
             ignored_group = False
     if ignored_group:
         return
