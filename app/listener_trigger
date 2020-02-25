@@ -534,6 +534,9 @@ def modify_user(obj):
 
 def delete_user(obj):
     logger.info(f"Deleting {obj}")
+    if obj.old_attributes is None:
+        logger.info("No attributes to work with. Doing nothing...")
+        return
     user_id = get_user_id(obj.old_attributes)
     if not user_id:
         logger.info(f"{obj} does not exist. Doing nothing...")
