@@ -587,7 +587,10 @@ def get_group_objs(obj):  # noqa: C901
             continue
         path_to_old_user = Path(path_to_old_user.decode("utf-8"))
         user_obj = object_from_path(path_to_old_user)
-        context = get_context_id(user_obj.attributes)
+        try:
+            context = get_context_id(user_obj.attributes)
+        except Skip:
+            continue
         if context not in contexts:
             contexts.append(context)
     for context in contexts:

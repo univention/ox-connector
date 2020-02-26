@@ -14,7 +14,7 @@ def create_context(udm, ox_host, context_id):
     return dn
 
 
-def create_user(udm, name, domainname, context_id):
+def create_user(udm, name, domainname, context_id, enabled=True):
     dn = udm.create(
         "users/user",
         "cn=users",
@@ -24,7 +24,7 @@ def create_user(udm, name, domainname, context_id):
             "lastname": name.title(),
             "password": "univention",
             "mailPrimaryAddress": "{}@{}".format(name, domainname),
-            "isOxUser": True,
+            "isOxUser": enabled,
             "oxAccess": "premium",
             "oxContext": context_id,
         },
@@ -120,6 +120,29 @@ def test_add_group_with_one_user(
     group_dn = create_obj(udm, new_group_name, [user_dn])
     wait_for_listener(group_dn)
     obj = find_obj(default_ox_context, new_group_name)
+    assert obj.name == new_group_name
+    assert len(obj.members) == 1
+
+
+def test_add_group_with_one_enabled_user_and_one_disabled(
+    new_context_id,
+    ox_host,
+    new_user_name_generator,
+    new_group_name,
+    udm,
+    domainname,
+    wait_for_listener,
+):
+    """
+    isOxGroup = OK should create a group
+    UDM attributes should be reflected in OX
+    """
+    create_context(udm, ox_host, new_context_id)
+    user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
+    user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id, enabled=False)
+    group_dn = create_obj(udm, new_group_name, [user_dn1, user_dn2])
+    wait_for_listener(group_dn)
+    obj = find_obj(new_context_id, new_group_name)
     assert obj.name == new_group_name
     assert len(obj.members) == 1
 
