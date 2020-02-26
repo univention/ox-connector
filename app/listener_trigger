@@ -884,14 +884,19 @@ def objects_from_files(delete_files=True, move_files=False):
         if move_files:
             mapping.set(obj.old_dn, None)
             if obj.was_deleted():
+                logger.info(f"Object was deleted. Deleting {path}")
                 path.unlink()
                 mapping.set(obj.dn, None)
             else:
                 old_file_path = obj.get_old_file_path()
+                logger.info(f"mv {path} -> {old_file_path}")
                 old_file_path.parent.mkdir(parents=True, exist_ok=True)
-                path.rename(old_file_path)
+                if old_file_path.exists():
+                    old_file_path.unlink()
+                path.replace(old_file_path)
                 mapping.set(obj.dn, old_file_path)
         elif delete_files:
+            logger.info(f"Deleting {path}")
             path.unlink()
 
 
