@@ -336,6 +336,33 @@ def test_enable_and_disable_user(
     find_obj(new_context_id, new_user_name, assert_empty=True)
 
 
+def test_change_context(new_context_id_generator, new_user_name, udm, ox_host, domainname, wait_for_listener):
+    """
+    Special case: Change context:
+    * Delete user in old context
+    * Create "same" user in new context
+    Test twice, just to be sure
+    """
+    old_context_id = new_context_id_generator()
+    create_context(udm, ox_host, old_context_id)
+    dn = create_obj(udm, new_user_name, domainname, old_context_id)
+    wait_for_listener(dn)
+    find_obj(old_context_id, new_user_name)
+    new_context_id = new_context_id_generator()
+    create_context(udm, ox_host, new_context_id)
+    udm.modify("users/user", dn, {"oxContext": new_context_id})
+    wait_for_listener(dn)
+    find_obj(old_context_id, new_user_name, assert_empty=True)
+    find_obj(new_context_id, new_user_name)
+    new_context_id2 = new_context_id_generator()
+    create_context(udm, ox_host, new_context_id2)
+    udm.modify("users/user", dn, {"oxContext": new_context_id2})
+    wait_for_listener(dn)
+    find_obj(old_context_id, new_user_name, assert_empty=True)
+    find_obj(new_context_id, new_user_name, assert_empty=True)
+    find_obj(new_context_id2, new_user_name)
+
+
 def test_alias(
     new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
 ):
