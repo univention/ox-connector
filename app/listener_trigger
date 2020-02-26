@@ -42,6 +42,7 @@ import traceback
 from copy import deepcopy
 from pathlib import Path
 from urllib.parse import urlparse
+from contextlib import contextmanager
 
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.soap.config import (
@@ -808,47 +809,37 @@ class TriggerObject(object):
         return "Object({!r}, {!r})".format(self.object_type, self.dn)
 
 
-class Metadata(object):
+class KeyValueStore(object):
     """
     Database about meta information on this listener.
     Particularly the number of consecutive errors.
     """
 
-    def __init__(self):
-        self.db = dbm.gnu.open(str(NEW_FILES_DIR / "meta.db"), "cs")
+    def __init__(self, name):
+        self.db_fname = str(NEW_FILES_DIR / name)
 
-    def set(self, key, value):
-        self.db[key] = value
-
-    def get(self, key):
-        return self.db.get(key)
-
-
-class DNMapping(object):
-    """
-    Simple Mapping from DN -> JSON file
-    (the one that is used to load the old information)
-    Stored by objects_from_files automatically, not used internally
-    """
-
-    def __init__(self):
-        self.db = dbm.gnu.open(str(NEW_FILES_DIR / "old.db"), "cs")
+    @contextmanager
+    def open(self):
+        with dbm.gnu.open(self.db_fname, "cs") as db:
+            yield db
 
     def set(self, dn, path):
         if dn is None:
             return
-        if path is None:
-            if dn in self.db:
-                del self.db[dn]
-        else:
-            self.db[dn] = str(path)
+        with self.open() as db:
+            if path is None:
+                if dn in db:
+                    del db[dn]
+            else:
+                db[dn] = str(path)
 
-    def get(self, dn):
-        return self.db.get(dn)
+    def get(self, key):
+        with self.open() as db:
+            return db.get(key)
 
 
-meta = Metadata()
-mapping = DNMapping()
+meta = KeyValueStore("meta.db")  # arbitrary data, at the moment only stores consecutive errors
+mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
 
 def object_from_path(path):
