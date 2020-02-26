@@ -73,9 +73,6 @@ purge_domains () {
 			rm -f /var/univention-join/univention-ox
 	fi
 	return $?  # return here to skip executing the following code:
-# 	univention-directory-manager oxmail/oxdomain list "$@" |
-# 		sed -ne 's/^DN: //p' |
-# 		xargs -r -d '\n' -n 1 univention-directory-manager oxmail/oxdomain remove "$@" --dn
 }
 purge_umc () {
 	univention-directory-manager settings/umc_operationset remove "$@" \

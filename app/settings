@@ -23,7 +23,8 @@ Required = True
 InitialValue = smtp://@%@hostname@%@.@%@domainname@%@:587
 
 [DEFAULT_CONTEXT]
-Description = Default context for users
+Description = Default context for users (has to exist)
+Description[de] = Standard-Kontext für Benutzer (muss bereits existieren)
 Show = Install, Settings
 Type = Int
 Required = True
@@ -31,6 +32,7 @@ InitialValue = 10
 
 [OX_LANGUAGE]
 Description = Default language for new users
+Description[de] = Standardsprache für neue Benutzer
 Show = Install, Settings
 Type = String
 Required = True
@@ -38,13 +40,15 @@ InitialValue = de_DE
 
 [LOCAL_TIMEZONE]
 Description = Default timezone for new users
+Description[de] = Standardzeitzone für neue Benutzer
 Show = Install, Settings
 Type = String
 Required = True
 InitialValue = Europe/Berlin
 
 [OX_MASTER_ADMIN]
-Description = OX Admin username
+Description = OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+Description[de] = OX Admin-Benutzername (ein OX Admin kann Kontexte anlegen, modifizieren, löschen; muss bereits existieren)
 Show = Install, Settings
 Type = String
 Required = True
@@ -52,12 +56,14 @@ InitialValue = oxadminmaster
 
 [OX_MASTER_PASSWORD]
 Description = OX Admin password
+Description[de] = OX Admin-Passwort
 Show = Install, Settings
 Type = Password
 Required = False
 
 [OX_CONTEXT_DEFAULT_QUOTA]
 Description = Default quota for new contexts (MB)
+Description[de] = Standard-Quota für neue Kontexte (MB)
 Show = Install, Settings
 Type = Int
 Required = True
