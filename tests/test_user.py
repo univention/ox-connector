@@ -6,10 +6,7 @@ def create_context(udm, ox_host, context_id):
         "oxmail/oxcontext",
         "cn=open-xchange",
         {
-            "hostname": ox_host,
             "oxQuota": 1000,
-            "oxDBServer": ox_host,
-            "oxintegrationversion": "11.0.0-32A~4.4.0.201911191756",
             "contextid": context_id,
             "name": "context{}".format(context_id),
         },
