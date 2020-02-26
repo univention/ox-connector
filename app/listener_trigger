@@ -198,10 +198,10 @@ def modify_resource(obj):
         new_context = get_context_id(obj.attributes)
         if old_context != new_context:
             logging.info(f"Changing context: {old_context} -> {new_context}")
-            already_existing_user_id = get_resource_id(obj.attributes)
-            if already_existing_user_id:
+            already_existing_resource_id = get_resource_id(obj.attributes)
+            if already_existing_resource_id:
                 logger.warning(
-                    f"{obj} was found in context {old_context} with ID {user_id} and in {new_context} with {already_existing_user_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
+                    f"{obj} was found in context {old_context} with ID {resource_id} and in {new_context} with {already_existing_resource_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
                 )
                 delete_resource(deepcopy(obj))
             else:
