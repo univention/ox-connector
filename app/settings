@@ -60,11 +60,3 @@ Description[de] = OX Admin-Passwort
 Show = Install, Settings
 Type = Password
 Required = False
-
-[OX_CONTEXT_DEFAULT_QUOTA]
-Description = Default quota for new contexts (MB)
-Description[de] = Standard-Quota für neue Kontexte (MB)
-Show = Install, Settings
-Type = Int
-Required = True
-InitialValue = 1048576
