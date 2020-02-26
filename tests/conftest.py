@@ -175,16 +175,17 @@ class UDMTest(object):
             self.new_objs[module] = dns
         return new_dn
 
-    def remove(self, module, dn):
+    def remove(self, module, dn, remove_from_new_objs=True):
         print("Removing {} from {}".format(dn, module))
         obj = self.client.get(module).get(dn)
         obj.delete()
-        dns = self.new_objs.get(module, [])
-        try:
-            dns.remove(dn)
-        except ValueError:
-            pass
-        return dn
+        if remove_from_new_objs:
+            dns = self.new_objs.get(module, [])
+            try:
+                dns.remove(dn)
+            except ValueError:
+                pass
+            return dn
 
     def search(self, module, search_filter):
         return self.client.get(module).search(search_filter)
@@ -209,4 +210,4 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
         for module in modules:
             dns = _udm.new_objs[module]
             for dn in dns:
-                _udm.remove(module, dn)
+                _udm.remove(module, dn, remove_from_new_objs=False)
