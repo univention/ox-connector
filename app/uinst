@@ -45,9 +45,6 @@ eval "$(univention-config-registry shell)"
 purge_ox () {
 	purge_ea "$@"
 	purge_user_template "$@"
-	purge_domains "$@"
-	[ -n "$ox_purge_all" ] || return
-	purge_resources "$@"
 	purge_umc "$@"
 }
 purge_ea () {
@@ -61,22 +58,9 @@ purge_user_template () {
 	univention-directory-manager settings/usertemplate remove "$@" \
 		--dn "cn=open-xchange groupware account,cn=templates,cn=univention,$ldap_base"
 }
-purge_resources () {
-	univention-directory-manager container/cn remove "$@" \
-		--recursive \
-		--dn "cn=open-xchange,$ldap_base"
-}
-purge_domains () {
-	if [ -x /var/univention-join/univention-ox ]
-	then
-		/var/univention-join/univention-ox "$@" --ox2ucs &&
-			rm -f /var/univention-join/univention-ox
-	fi
-	return $?  # return here to skip executing the following code:
-}
 purge_umc () {
 	univention-directory-manager settings/umc_operationset remove "$@" \
-		--dn "cn=udm-oxmail,cn=operations,cn=UMC,cn=univention,$ldap_base"
+		--dn "cn=udm-oxcontext,cn=operations,cn=UMC,cn=univention,$ldap_base"
 	univention-directory-manager settings/umc_operationset remove "$@" \
 		--dn "cn=udm-oxmresources,cn=operations,cn=UMC,cn=univention,$ldap_base"
 }
