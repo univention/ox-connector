@@ -96,10 +96,6 @@ Groups will be automatically added to those contexts where its members are membe
 
 Setting `isOxGroup=Not` will remove the group from OX.
 
-## What does not work at the moment?
-
-* Unsetting attributes. You can only set them during creation or modify them to another value
-
 ## Caveats
 
 * Installing the OX Provisioning App alongside Open Xchange in the same UCS domain may cause problems and/or confusion due to UDM modules being double registered
