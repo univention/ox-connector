@@ -82,7 +82,7 @@ echo "Local Docker images:"
 docker images "$APP_IMG_NO_VERSION"
 
 if [ "$PUSH_DEV" = 1 ]; then
-  if [ -n "$PUSH_YES" ]; then
+  if [ -z "$PUSH_YES" ]; then
     read -p "Push 'Y' if you are sure you want to push '$APP_IMG' to the docker registry. " -n 1 -r
   else
     REPLY="y"
