@@ -70,7 +70,10 @@ echo "Collecting all Python dependencies..." # to minimize Docker image by insta
 find $OUR_PYTHON_PACKAGES -name 'requirements.txt' -exec cat {} + | egrep -v 'univention' | sort | uniq > requirements_all.txt
 
 echo "Building docker image..."
-docker build $PROXY_ARGS --build-arg version="$APP_VERSION" -t "$APP_IMG" .
+if [ "$RELEASE" = 1 ]; then
+  BUILD_ARGS="--no-cache"
+fi
+docker build $PROXY_ARGS $BUILD_ARGS --build-arg version="$APP_VERSION" -t "$APP_IMG" .
 
 echo "Local Docker images:"
 docker images "$APP_IMG_NO_VERSION"

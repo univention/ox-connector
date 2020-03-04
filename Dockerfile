@@ -43,8 +43,12 @@ RUN apk add --no-cache gcc python3-dev make musl-dev && \
 	pip3 install --no-cache-dir --compile black flake8 isort && \
 	cd /tmp && \
 	make lint && \
-	/usr/bin/pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
-	/usr/bin/python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
+	echo "Linting OK." && \
+	# deactivate() is not installed in 'ash' shell, manually deactivate virtualenv:
+	export PATH="${_OLD_VIRTUAL_PATH:-}" && \
+	export PS1="${_OLD_VIRTUAL_PS1:-}" && \
+	pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
+	python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
 	apk del --no-cache gcc python3-dev make musl-dev && \
 	rm -rf /tmp/*
 
