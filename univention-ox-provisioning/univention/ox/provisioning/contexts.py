@@ -63,7 +63,9 @@ def create_context(obj):
     if context_exists(obj):
         if obj.old_attributes is None:
             obj.old_attributes = deepcopy(obj.attributes)
-            logger.warning("Found in DB but had no old attributes. Using new ones as old...")
+            logger.warning(
+                "Found in DB but had no old attributes. Using new ones as old..."
+            )
         logger.info(f"{obj} exists. Modifying instead...")
         return modify_context(obj)
     context = context_from_attributes(obj.attributes)

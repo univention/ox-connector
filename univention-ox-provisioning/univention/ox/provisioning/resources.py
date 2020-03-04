@@ -67,7 +67,9 @@ def create_resource(obj):
     if get_resource_id(obj.attributes):
         if obj.old_attributes is None:
             obj.old_attributes = deepcopy(obj.attributes)
-            logger.warning("Found in DB but had no old attributes. Using new ones as old...")
+            logger.warning(
+                "Found in DB but had no old attributes. Using new ones as old..."
+            )
         logger.info(f"{obj} exists. Modifying instead...")
         return modify_resource(obj)
     resource = resource_from_attributes(obj.attributes)

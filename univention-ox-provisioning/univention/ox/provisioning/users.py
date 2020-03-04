@@ -40,6 +40,7 @@ from univention.ox.soap.config import (
     DEFAULT_SMTP_SERVER,
     LOCAL_TIMEZONE,
 )
+
 from .helpers import get_context_id
 
 User = get_ox_integration_class("SOAP", "User")
@@ -319,7 +320,9 @@ def create_user(obj):
     if get_user_id(obj.attributes):
         if obj.old_attributes is None:
             obj.old_attributes = deepcopy(obj.attributes)
-            logger.warning("Found in DB but had no old attributes. Using new ones as old...")
+            logger.warning(
+                "Found in DB but had no old attributes. Using new ones as old..."
+            )
         logger.info(f"{obj} exists. Modifying instead...")
         return modify_user(obj)
     user = user_from_attributes(obj.attributes)
