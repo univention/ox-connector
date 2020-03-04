@@ -1,33 +1,52 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Univention GmbH
+#
+# http://www.univention.de/
+#
+# All rights reserved.
+#
+# The source code of this program is made available
+# under the terms of the GNU Affero General Public License version 3
+# (GNU AGPL V3) as published by the Free Software Foundation.
+#
+# Binary versions of this program provided by Univention to you as
+# well as other copyrighted, protected or trademarked materials like
+# Logos, graphics, fonts, specific documentations and configurations,
+# cryptographic keys etc. are subject to a license agreement between
+# you and Univention and not subject to the GNU AGPL V3.
+#
+# In the case you use this program under the terms of the GNU AGPL V3,
+# the program is provided in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License with the Debian GNU/Linux or Univention distribution in file
+# /usr/share/common-licenses/AGPL-3; if not, see
+# <http://www.gnu.org/licenses/>.
+
+
 import logging
 from copy import deepcopy
 from pathlib import Path
 
 from univention.ox.soap.config import NoContextAdminPassword
 
+from .helpers import Skip, get_context_id
+from .users import create_user, modify_user, delete_user
+from .groups import create_group, modify_group, delete_group
+from .resources import create_resource, modify_resource, delete_resource
+from .contexts import create_context, modify_context, delete_context
+
+
 logger = logging.getLogger("listener")
 TEST_LOG_FILE = Path("/tmp/test.log")
 
 
-class Skip(Exception):
-    """Raise anywhere if you want to skip the processing of this object"""
-
-    pass
-
-
-def get_context_id(attributes):
-    context_id = attributes.get("oxContext")
-    if context_id is None:
-        raise Skip("Object has no oxContext attribute!")
-    return context_id
-
-
 def run(get_old_user_obj, obj):  # noqa: C901
     """This is your main function. Implement all your logic here"""
-    from .users import create_user, modify_user, delete_user
-    from .groups import create_group, modify_group, delete_group
-    from .resources import create_resource, modify_resource, delete_resource
-    from .contexts import create_context, modify_context, delete_context
-
     if obj.object_type == "oxmail/oxcontext":
         if obj.was_added():
             create_context(obj)
