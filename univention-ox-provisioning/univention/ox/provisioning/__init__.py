@@ -37,7 +37,7 @@ from univention.ox.provisioning.contexts import (
     delete_context,
     modify_context,
 )
-from univention.ox.provisioning.groups import create_group, modify_group, delete_group
+from univention.ox.provisioning.groups import create_group, delete_group, modify_group
 from univention.ox.provisioning.helpers import Skip, get_context_id
 from univention.ox.provisioning.resources import (
     create_resource,
@@ -46,7 +46,6 @@ from univention.ox.provisioning.resources import (
 )
 from univention.ox.provisioning.users import create_user, delete_user, modify_user
 from univention.ox.soap.config import NoContextAdminPassword
-
 
 logger = logging.getLogger("listener")
 TEST_LOG_FILE = Path("/tmp/test.log")
