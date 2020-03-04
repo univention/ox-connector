@@ -1,9 +1,8 @@
-from copy import deepcopy
 import logging
+from copy import deepcopy
 
-from univention.ox.provisioning import get_context_id
 from univention.ox.backend_base import get_ox_integration_class
-
+from univention.ox.provisioning import get_context_id
 
 Resource = get_ox_integration_class("SOAP", "Resource")
 logger = logging.getLogger("listener")

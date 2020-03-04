@@ -4,7 +4,6 @@ from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.provisioning import get_context_id
 from univention.ox.provisioning.users import get_user_id
 
-
 Group = get_ox_integration_class("SOAP", "Group")
 logger = logging.getLogger("listener")
 

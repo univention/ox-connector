@@ -1,8 +1,6 @@
-__version__ = "1.0.1"
-
 import logging
-from pathlib import Path
 from copy import deepcopy
+from pathlib import Path
 
 from univention.ox.soap.config import NoContextAdminPassword
 
