@@ -32,9 +32,8 @@ import logging
 from copy import deepcopy
 
 from univention.ox.backend_base import get_ox_integration_class
-
-from .helpers import get_context_id
-from .users import get_user_id
+from univention.ox.provisioning.helpers import get_context_id
+from univention.ox.provisioning.users import get_user_id
 
 Group = get_ox_integration_class("SOAP", "Group")
 logger = logging.getLogger("listener")

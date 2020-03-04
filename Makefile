@@ -58,7 +58,7 @@ format: ## format source code
 	black --target-version py38 $(PY_PATHS) app/listener_trigger
 
 lint-isort:
-	isort --check-only --multi-line=3 --trailing-comma --force-grid-wrap=0 --combine-as --line-width 88 --recursive --thirdparty pytest --project udm_rest --project udm_rest_client --project univention $(PY_PATHS) app/listener_trigger
+	isort --check-only --diff --multi-line=3 --trailing-comma --force-grid-wrap=0 --combine-as --line-width 88 --recursive --thirdparty pytest --project udm_rest --project udm_rest_client --project univention $(PY_PATHS) app/listener_trigger
 
 lint-black:
 	black --check --target-version py38 $(PY_PATHS) app/listener_trigger

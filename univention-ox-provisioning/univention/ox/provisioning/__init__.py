@@ -34,11 +34,19 @@ from pathlib import Path
 
 from univention.ox.soap.config import NoContextAdminPassword
 
-from .helpers import Skip, get_context_id
-from .users import create_user, modify_user, delete_user
-from .groups import create_group, modify_group, delete_group
-from .resources import create_resource, modify_resource, delete_resource
-from .contexts import create_context, modify_context, delete_context
+from univention.ox.provisioning.helpers import Skip, get_context_id
+from univention.ox.provisioning.users import create_user, modify_user, delete_user
+from univention.ox.provisioning.groups import create_group, modify_group, delete_group
+from univention.ox.provisioning.resources import (
+    create_resource,
+    modify_resource,
+    delete_resource,
+)
+from univention.ox.provisioning.contexts import (
+    create_context,
+    modify_context,
+    delete_context,
+)
 
 
 logger = logging.getLogger("listener")

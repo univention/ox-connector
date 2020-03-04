@@ -34,14 +34,13 @@ from copy import deepcopy
 from urllib.parse import urlparse
 
 from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.provisioning.helpers import get_context_id
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
     DEFAULT_SMTP_SERVER,
     LOCAL_TIMEZONE,
 )
-
-from .helpers import get_context_id
 
 User = get_ox_integration_class("SOAP", "User")
 Group = get_ox_integration_class("SOAP", "Group")
