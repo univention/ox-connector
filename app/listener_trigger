@@ -39,10 +39,10 @@ import logging
 import sys
 import time
 import traceback
+from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
 from urllib.parse import urlparse
-from contextlib import contextmanager
 
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.soap.config import (
@@ -285,7 +285,7 @@ def update_user(user, attributes):
     user.imap_login = user.email1
     user.email2 = attributes.get("oxEmail2")
     user.email3 = attributes.get("oxEmail3")
-    user.employee_type = attributes.get('employeeType')
+    user.employee_type = attributes.get("employeeType")
     user.fax_business = attributes.get("oxFaxBusiness")
     user.fax_home = attributes.get("oxFaxHome")
     user.fax_other = attributes.get("oxFaxOther")
@@ -374,7 +374,7 @@ def update_user(user, attributes):
         user.room_number = attributes.get("roomNumber")[0]
     else:
         user.room_number = None
-    if attributes.get('mobileTelephoneNumber'):
+    if attributes.get("mobileTelephoneNumber"):
         user.cellular_telephone2 = attributes.get("mobileTelephoneNumber")[0]
     else:
         user.cellular_telephone2 = None
@@ -846,7 +846,9 @@ class KeyValueStore(object):
             return db.get(key)
 
 
-meta = KeyValueStore("meta.db")  # arbitrary data, at the moment only stores consecutive errors
+meta = KeyValueStore(
+    "meta.db"
+)  # arbitrary data, at the moment only stores consecutive errors
 mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
 
