@@ -172,7 +172,6 @@ def test_change_context_for_group_user(
     create_context(udm, ox_host, new_context_id)
     udm.modify("users/user", user_dn, {"oxContext": new_context_id})
     wait_for_listener(group_dn)
-    find_obj(new_context_id, new_group_name)
     find_obj(context_id, new_group_name, assert_empty=True)
     find_obj(new_context_id, new_group_name)
 
