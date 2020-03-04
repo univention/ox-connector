@@ -20,13 +20,16 @@ GIT_REPO_URI="https://git.knut.univention.de/univention/open-xchange/appsuite.gi
 OUR_PYTHON_PACKAGES="appsuite/univention-ox appsuite/univention-ox-soap-api univention-ox-provisioning"
 
 
-if [ "$1" = "--release" ]; then
+if [ "$1" = "--release" ] || [ "$2" = "--release" ] || [ "$3" = "--release" ]; then
   RELEASE=1
 fi
 
 PUSH_DEV=0
-if [ "$1" = "--push" ] || [ "$2" = "--push" ]; then
+if [ "$1" = "--push" ] || [ "$2" = "--push" ] || [ "$3" = "--push" ]; then
   PUSH_DEV=1
+fi
+if [ "$1" = "--yes" ] || [ "$2" = "--yes" ] || [ "$3" = "--yes" ]; then
+  PUSH_YES=1
 fi
 if [ "$PUSH_DEV" = 1 ] && [ "$(hostname -f)" != "$DOCKER_REGISTRY_SERVER" ]; then
   echo "Pushing image to docker registry only possible on $DOCKER_REGISTRY_SERVER."
@@ -79,7 +82,10 @@ echo "Local Docker images:"
 docker images "$APP_IMG_NO_VERSION"
 
 if [ "$PUSH_DEV" = 1 ]; then
-  read -p "Push 'Y' if you are sure you want to push '$APP_IMG' to the docker registry. " -n 1 -r
+  if [ -n "$PUSH_YES" ]; then
+    read -p "Push 'Y' if you are sure you want to push '$APP_IMG' to the docker registry. " -n 1 -r
+  else
+    REPLY="y"
   echo
   if [[ $REPLY =~ ^[yY]$ ]]; then
     echo "Pushing image to docker registry..."
