@@ -267,8 +267,8 @@ def update_user(user, attributes):
     # user.assistant_name = attributes.get()
     user.branches = attributes.get("oxBranches")
     # user.business_category = attributes.get()
+    # user.categories = attributes.get()
     user.cellular_telephone1 = attributes.get("oxMobileBusiness")
-    user.cellular_telephone2 = attributes.get("mobile")
     user.city_business = attributes.get("city")
     user.city_home = attributes.get("oxCityHome")
     user.city_other = attributes.get("oxCityOther")
@@ -285,8 +285,7 @@ def update_user(user, attributes):
     user.imap_login = user.email1
     user.email2 = attributes.get("oxEmail2")
     user.email3 = attributes.get("oxEmail3")
-    # user.categories = attributes.get('employeeType')  # TODO: or employee_type?
-    # user.employee_type = attributes.get('employeeType')  # TODO: or categories?
+    user.employee_type = attributes.get('employeeType')
     user.fax_business = attributes.get("oxFaxBusiness")
     user.fax_home = attributes.get("oxFaxHome")
     user.fax_other = attributes.get("oxFaxOther")
@@ -375,6 +374,10 @@ def update_user(user, attributes):
         user.room_number = attributes.get("roomNumber")[0]
     else:
         user.room_number = None
+    if attributes.get('mobileTelephoneNumber'):
+        user.cellular_telephone2 = attributes.get("mobileTelephoneNumber")[0]
+    else:
+        user.cellular_telephone2 = None
     if attributes.get("pagerTelephoneNumber"):
         user.telephone_pager = attributes.get("pagerTelephoneNumber")[0]
     else:

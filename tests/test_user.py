@@ -1,4 +1,9 @@
+import uuid
+from collections import namedtuple
+
 from univention.ox.backend_base import get_ox_integration_class
+
+import pytest
 
 
 def create_context(udm, ox_host, context_id):
@@ -31,7 +36,7 @@ def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True):
     return dn
 
 
-def find_obj(context_id, name, assert_empty=False):
+def find_obj(context_id, name, assert_empty=False, print_obj=True):
     User = get_ox_integration_class("SOAP", "User")
     objs = User.list(context_id, pattern=name)
     if assert_empty:
@@ -39,7 +44,8 @@ def find_obj(context_id, name, assert_empty=False):
     else:
         assert len(objs) == 1
         obj = objs[0]
-        print("Found", obj)
+        if print_obj:
+            print("Found", obj)
         return obj
 
 
@@ -67,7 +73,7 @@ def test_add_user_in_default_context(
     """
     Creating a user without a context should add it in the default context
     """
-    dn = create_obj(udm, new_user_name, domainname, None)
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context)
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     assert obj.name == new_user_name
@@ -80,7 +86,7 @@ def test_rename_user(
     """
     Renaming a user should keep its ID
     """
-    dn = create_obj(udm, new_user_name, domainname, None)
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context)
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     old_id = obj.id
@@ -130,6 +136,176 @@ def test_modify_user(
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
     assert obj.sur_name == "Newman"
+
+
+def no_none():
+    return NotImplemented
+
+
+def none():
+    return None
+
+
+def empty():
+    return []
+
+
+def random_string():
+    return str(uuid.uuid4())
+
+
+def ident(x):
+    return x
+
+
+def take_first(x):
+    if len(x) > 0:
+        return x[0]
+
+
+def take_second(x):
+    if len(x) > 1:
+        return x[1]
+
+
+def random_mail_address():
+    import os
+    domainname = os.environ["DOMAINNAME"]
+    return f"{random_string()}@{domainname}"
+
+
+def random_list_of_string():
+    return [random_string()]
+
+
+def random_list_of_strings():
+    return ['xxx', random_string()]
+
+
+def random_language():
+    return 'fr_FR'  # very random
+
+
+def random_timezone():
+    return 'Australia/Sydney'  # very random
+
+
+def user_attributes():
+    attrs = []
+    UserAttributeTest = namedtuple('UserAttributeTest', ['soap_name', 'udm_name', 'none_generator', 'random_value_generator', 'soap_value_from_udm_value'], defaults=[none, random_string, ident])
+    attrs.append(UserAttributeTest('branches', 'oxBranches'))
+    attrs.append(UserAttributeTest('cellular_telephone1', 'oxMobileBusiness'))
+    attrs.append(UserAttributeTest('cellular_telephone2', 'mobileTelephoneNumber', random_value_generator=random_list_of_string, none_generator=empty, soap_value_from_udm_value=take_first))
+    attrs.append(UserAttributeTest('city_business', 'city'))
+    attrs.append(UserAttributeTest('city_home', 'oxCityHome'))
+    attrs.append(UserAttributeTest('city_other', 'oxCityOther'))
+    attrs.append(UserAttributeTest('commercial_register', 'oxCommercialRegister'))
+    attrs.append(UserAttributeTest('company', 'organisation'))
+    attrs.append(UserAttributeTest('country_business', 'oxCountryBusiness'))
+    attrs.append(UserAttributeTest('country_home', 'oxCountryHome'))
+    attrs.append(UserAttributeTest('country_other', 'oxCountryOther'))
+    attrs.append(UserAttributeTest('department', 'oxDepartment'))
+    attrs.append(UserAttributeTest('display_name', 'oxDisplayName', none_generator=no_none))
+    attrs.append(UserAttributeTest('email1', 'mailPrimaryAddress', random_value_generator=random_mail_address, none_generator=no_none))
+    attrs.append(UserAttributeTest('email2', 'oxEmail2', random_value_generator=random_mail_address))
+    attrs.append(UserAttributeTest('email3', 'oxEmail3', random_value_generator=random_mail_address))
+    attrs.append(UserAttributeTest('fax_business', 'oxFaxBusiness'))
+    attrs.append(UserAttributeTest('fax_home', 'oxFaxHome'))
+    attrs.append(UserAttributeTest('fax_other', 'oxFaxOther'))
+    attrs.append(UserAttributeTest('given_name', 'firstname', none_generator=no_none))
+    attrs.append(UserAttributeTest('imap_login', 'mailPrimaryAddress', random_value_generator=random_mail_address, none_generator=no_none))
+    attrs.append(UserAttributeTest('instant_messenger1', 'oxInstantMessenger1'))
+    attrs.append(UserAttributeTest('instant_messenger2', 'oxInstantMessenger2'))
+    attrs.append(UserAttributeTest('language', 'oxLanguage', random_value_generator=random_language, none_generator=no_none))
+    attrs.append(UserAttributeTest('manager_name', 'oxManagerName'))
+    attrs.append(UserAttributeTest('marital_status', 'oxMarialStatus'))
+    attrs.append(UserAttributeTest('middle_name', 'oxMiddleName'))
+    attrs.append(UserAttributeTest('nickname', 'oxNickName'))
+    attrs.append(UserAttributeTest('note', 'oxNote'))
+    attrs.append(UserAttributeTest('number_of_children', 'oxNumOfChildren'))
+    attrs.append(UserAttributeTest('number_of_employee', 'employeeNumber'))
+    attrs.append(UserAttributeTest('position', 'oxPosition'))
+    attrs.append(UserAttributeTest('postal_code_business', 'postcode'))
+    attrs.append(UserAttributeTest('postal_code_home', 'oxPostalCodeHome'))
+    attrs.append(UserAttributeTest('postal_code_other', 'oxPostalCodeOther'))
+    attrs.append(UserAttributeTest('primary_email', 'mailPrimaryAddress', random_value_generator=random_mail_address, none_generator=no_none))
+    attrs.append(UserAttributeTest('profession', 'oxProfession'))
+    attrs.append(UserAttributeTest('room_number', 'roomNumber', random_value_generator=random_list_of_string, none_generator=empty, soap_value_from_udm_value=take_first))
+    attrs.append(UserAttributeTest('sales_volume', 'oxSalesVolume'))
+    attrs.append(UserAttributeTest('spouse_name', 'oxSpouseName'))
+    attrs.append(UserAttributeTest('state_business', 'oxStateBusiness'))
+    attrs.append(UserAttributeTest('state_home', 'oxStateHome'))
+    attrs.append(UserAttributeTest('state_other', 'oxStateOther'))
+    attrs.append(UserAttributeTest('street_business', 'street'))
+    attrs.append(UserAttributeTest('street_home', 'oxStreetHome'))
+    attrs.append(UserAttributeTest('street_other', 'oxStreetOther'))
+    attrs.append(UserAttributeTest('suffix', 'oxSuffix'))
+    attrs.append(UserAttributeTest('sur_name', 'lastname', none_generator=no_none))
+    attrs.append(UserAttributeTest('tax_id', 'oxTaxId'))
+    attrs.append(UserAttributeTest('telephone_assistant', 'oxTelephoneAssistant'))
+    attrs.append(UserAttributeTest('telephone_business1', 'phone', random_value_generator=random_list_of_string, none_generator=empty, soap_value_from_udm_value=take_first))
+    attrs.append(UserAttributeTest('telephone_business2', 'phone', random_value_generator=random_list_of_strings, none_generator=empty, soap_value_from_udm_value=take_second))
+    attrs.append(UserAttributeTest('telephone_car', 'oxTelephoneCar'))
+    attrs.append(UserAttributeTest('telephone_company', 'oxTelephoneCompany'))
+    attrs.append(UserAttributeTest('telephone_home1', 'homeTelephoneNumber', random_value_generator=random_list_of_string, none_generator=empty, soap_value_from_udm_value=take_first))
+    attrs.append(UserAttributeTest('telephone_home2', 'homeTelephoneNumber', random_value_generator=random_list_of_strings, none_generator=empty, soap_value_from_udm_value=take_second))
+    attrs.append(UserAttributeTest('telephone_ip', 'oxTelephoneIp'))
+    attrs.append(UserAttributeTest('telephone_other', 'oxTelephoneOther'))
+    attrs.append(UserAttributeTest('telephone_pager', 'pagerTelephoneNumber', random_value_generator=random_list_of_string, none_generator=empty, soap_value_from_udm_value=take_first))
+    attrs.append(UserAttributeTest('telephone_telex', 'oxTelephoneTelex'))
+    attrs.append(UserAttributeTest('telephone_ttytdd', 'oxTelephoneTtydd'))
+    attrs.append(UserAttributeTest('timezone', 'oxTimeZone', random_value_generator=random_timezone, none_generator=no_none))
+    attrs.append(UserAttributeTest('title', 'title'))
+    attrs.append(UserAttributeTest('url', 'oxUrl'))
+    attrs.append(UserAttributeTest('userfield01', 'oxUserfield01'))
+    attrs.append(UserAttributeTest('userfield02', 'oxUserfield02'))
+    attrs.append(UserAttributeTest('userfield03', 'oxUserfield03'))
+    attrs.append(UserAttributeTest('userfield04', 'oxUserfield04'))
+    attrs.append(UserAttributeTest('userfield05', 'oxUserfield05'))
+    attrs.append(UserAttributeTest('userfield06', 'oxUserfield06'))
+    attrs.append(UserAttributeTest('userfield07', 'oxUserfield07'))
+    attrs.append(UserAttributeTest('userfield08', 'oxUserfield08'))
+    attrs.append(UserAttributeTest('userfield09', 'oxUserfield09'))
+    attrs.append(UserAttributeTest('userfield10', 'oxUserfield10'))
+    attrs.append(UserAttributeTest('userfield11', 'oxUserfield11'))
+    attrs.append(UserAttributeTest('userfield12', 'oxUserfield12'))
+    attrs.append(UserAttributeTest('userfield13', 'oxUserfield13'))
+    attrs.append(UserAttributeTest('userfield14', 'oxUserfield14'))
+    attrs.append(UserAttributeTest('userfield15', 'oxUserfield15'))
+    attrs.append(UserAttributeTest('userfield16', 'oxUserfield16'))
+    attrs.append(UserAttributeTest('userfield17', 'oxUserfield17'))
+    attrs.append(UserAttributeTest('userfield18', 'oxUserfield18'))
+    attrs.append(UserAttributeTest('userfield19', 'oxUserfield19'))
+    attrs.append(UserAttributeTest('userfield20', 'oxUserfield20'))
+    return attrs
+
+
+@pytest.mark.parametrize("user_test", user_attributes())
+def test_modify_user_set_and_unset_string_attributes(
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener, user_test
+):
+    """
+    Changing UDM object should be reflected in OX
+    """
+    create_context(udm, ox_host, new_context_id)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    wait_for_listener(dn)  # make sure we wait for the modify step below
+    values = [user_test.random_value_generator(), user_test.none_generator(), user_test.random_value_generator()]
+    for value in values:
+        if value is NotImplemented:
+            continue
+        udm.modify(
+            "users/user",
+            dn,
+            {
+                user_test.udm_name: value
+            },
+        )
+        wait_for_listener(dn)
+        obj = find_obj(new_context_id, new_user_name, print_obj=False)
+        soap_value = getattr(obj, user_test.soap_name)
+        value = user_test.soap_value_from_udm_value(value)
+        assert soap_value == value
 
 
 def test_full_blown_user(

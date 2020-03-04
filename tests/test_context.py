@@ -1,5 +1,4 @@
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.soap.config import QUOTA
 
 
 def create_context(udm, ox_host, context_id, max_quota=1000):
@@ -40,7 +39,7 @@ def test_add_context_without_quota(new_context_id, udm, ox_host, wait_for_listen
     assert len(cs) == 1
     c = cs[0]
     assert c.name == "context{}".format(new_context_id)
-    assert c.max_quota == int(QUOTA)
+    assert c.max_quota is None
 
 
 def test_modify_context(new_context_id, udm, ox_host, wait_for_listener):
