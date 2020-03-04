@@ -149,6 +149,34 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     assert len(obj.members) == 1
 
 
+def test_change_context_for_group_user(
+    new_context_id_generator,
+    ox_host,
+    new_user_name,
+    new_group_name,
+    udm,
+    domainname,
+    wait_for_listener,
+):
+    """
+    If a user changes the oxContext, the group should be removed from the old
+    context and created in the new context
+    """
+    context_id = new_context_id_generator()
+    create_context(udm, ox_host, context_id)
+    user_dn = create_user(udm, new_user_name, domainname, context_id)
+    group_dn = create_obj(udm, new_group_name, [user_dn])
+    wait_for_listener(group_dn)
+    find_obj(context_id, new_group_name)
+    new_context_id = new_context_id_generator()
+    create_context(udm, ox_host, new_context_id)
+    udm.modify("users/user", user_dn, {"oxContext": new_context_id})
+    wait_for_listener(group_dn)
+    find_obj(new_context_id, new_group_name)
+    find_obj(context_id, new_group_name, assert_empty=True)
+    find_obj(new_context_id, new_group_name)
+
+
 def test_rename_group(
     default_ox_context,
     new_user_name,
