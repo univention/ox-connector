@@ -39,11 +39,10 @@ import sys
 import time
 import traceback
 from contextlib import contextmanager
-from pathlib import Path
 from functools import partial
+from pathlib import Path
 
 from univention.ox.provisioning import run
-
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -66,11 +65,11 @@ logger.addHandler(handler)
 
 
 def _get_old_object(dn):
-        path_to_old_user = mapping.get(dn)
-        if not path_to_old_user:
-            return None
-        path_to_old_user = Path(path_to_old_user.decode("utf-8"))
-        return object_from_path(path_to_old_user)
+    path_to_old_user = mapping.get(dn)
+    if not path_to_old_user:
+        return None
+    path_to_old_user = Path(path_to_old_user.decode("utf-8"))
+    return object_from_path(path_to_old_user)
 
 
 run = partial(run, _get_old_object)
