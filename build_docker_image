@@ -4,7 +4,7 @@ set -e
 
 
 APP_ID="ox-connector"
-APP_VERSION="$(cd univention-ox-provisioning; python3 -B -c 'import univention.ox.provisioning.constants; print(univention.ox.provisioning.__version__)')"
+APP_VERSION="$(grep -E '^Version' app/ini | cut -f 3 -d ' ')"
 DOCKERFILE="$(basename "$(readlink -f Dockerfile)")"
 DOCKERFILE_TEST="$DOCKERFILE-test"
 BASE_IMG="$(egrep ^FROM "$DOCKERFILE" | cut -d ' ' -f 2-)"

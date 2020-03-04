@@ -47,8 +47,10 @@ RUN apk add --no-cache gcc python3-dev make musl-dev && \
 	# deactivate() is not installed in 'ash' shell, manually deactivate virtualenv:
 	export PATH="${_OLD_VIRTUAL_PATH:-}" && \
 	export PS1="${_OLD_VIRTUAL_PS1:-}" && \
+	# setup.py will read app version from environment
+	export OX_PROVISIONING_VERSION="$version" && \
 	pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
-	python3 -c "from univention.ox.provisioning.listener_trigger import load_from_json_file" && \
+	python3 -c "from univention.ox.provisioning import run" && \
 	apk del --no-cache gcc python3-dev make musl-dev && \
 	rm -rf /tmp/*
 
