@@ -1,7 +1,7 @@
 import random
 import string
 import uuid
-from collections import namedtuple
+import typing
 
 import pytest
 
@@ -193,19 +193,16 @@ def random_timezone():
     return "Australia/Sydney"  # very random
 
 
+class UserAttributeTest(typing.NamedTuple):
+    soap_name: str
+    udm_name: str
+    none_generator: str = none
+    random_value_generator: str = random_string
+    soap_value_from_udm_value: str = ident
+
+
 def user_attributes():
     attrs = []
-    UserAttributeTest = namedtuple(
-        "UserAttributeTest",
-        [
-            "soap_name",
-            "udm_name",
-            "none_generator",
-            "random_value_generator",
-            "soap_value_from_udm_value",
-        ],
-        defaults=[none, random_string, ident],
-    )
     attrs.append(UserAttributeTest("branches", "oxBranches"))
     attrs.append(UserAttributeTest("cellular_telephone1", "oxMobileBusiness"))
     attrs.append(
