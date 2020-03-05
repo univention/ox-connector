@@ -200,7 +200,7 @@ class UserAttributeTest(typing.NamedTuple):
     soap_value_from_udm_value: str = ident
 
 
-user_attributes: typing.Iterable[UserAttributeTest] = (
+user_attributes: typing.Iterable[UserAttributeTest] = [
     UserAttributeTest("branches", "oxBranches"),
     UserAttributeTest("cellular_telephone1", "oxMobileBusiness"),
     UserAttributeTest(
@@ -356,7 +356,8 @@ user_attributes: typing.Iterable[UserAttributeTest] = (
     UserAttributeTest("userfield18", "oxUserfield18"),
     UserAttributeTest("userfield19", "oxUserfield19"),
     UserAttributeTest("userfield20", "oxUserfield20"),
-)
+]
+random.shuffle(user_attributes)
 
 
 udm_prop2soap_prop: typing.Dict[str, str] = dict(
