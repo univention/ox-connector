@@ -622,7 +622,9 @@ def test_enable_and_disable_user(
     # BUG: some hook seems to remove the ox specific attributes when enabling the user
     # BUG: so we have to do it in two steps: Bug #50469
     udm.modify("users/user", dn, {"isOxUser": True})
-    udm.modify("users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name})
+    udm.modify(
+        "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name}
+    )
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)
     udm.modify("users/user", dn, {"isOxUser": False})
