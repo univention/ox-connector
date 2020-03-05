@@ -360,7 +360,11 @@ user_attributes: typing.Iterable[UserAttributeTest] = (
 )
 
 
-@pytest.mark.parametrize("user_test", user_attributes())
+def attr_id(value: UserAttributeTest) -> str:
+    return value.udm_name
+
+
+@pytest.mark.parametrize("user_test", user_attributes, ids=attr_id)
 def test_modify_user_set_and_unset_string_attributes(
     new_context_id,
     new_user_name,
