@@ -33,6 +33,7 @@ import logging
 from copy import deepcopy
 from urllib.parse import urlparse
 
+import univention.ox.provisioning.helpers
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_context_id
 from univention.ox.soap.config import (
@@ -329,8 +330,18 @@ def create_user(obj):
     set_user_rights(user, obj)
     logger.info("Looking for groups of this user to be created in the context id")
     for group in obj.attributes.get("groups", []):
-        groupname = group[3:].split(",")[0]  # TODO: make this more elegant
-        if not Group.list(user.context_id, pattern=groupname):
+        group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
+        if group_obj is None or group_obj.attributes is None:
+            logger.warning(
+                f"Dont know anything about {group}. Does it exist? Is it to be deleted? Skipping..."
+            )
+            continue
+        if group_obj.attributes.get("isOxGroup", "Not") == "Not":
+            logger.warning(f"{group} is no OX group. Skipping...")
+            continue
+        groupname = group_obj.attributes.get("name")
+        groups = Group.list(user.context_id, pattern=groupname)
+        if not groups:
             logger.info(
                 f"Group {groupname} does not yet exist in {user.context_id}. Creating..."
             )
@@ -341,6 +352,12 @@ def create_user(obj):
                 members=[user.id],
             )
             group.create()
+        else:
+            group = groups[0]
+            logger.info(f"Adding {user.id} to the members of {groupname}")
+            if user.id not in group.members:
+                group.members.append(user.id)
+                group.modify()
 
 
 def modify_user(obj):
@@ -398,6 +415,12 @@ def delete_user(obj):
         logger.info(
             f"Found group {soap_group.name} with {len(soap_group.members)} members"
         )
-        if len(soap_group.members) <= 1:
+        soap_group.members.remove(user.id)
+        if soap_group.members:
+            logger.info(
+                f"Thus, removing member {user.id} from group {soap_group.name}..."
+            )
+            group_service.change(soap_group)
+        else:
             logger.info(f"Thus, deleting group {soap_group.id} in {user.context_id}...")
             group_service.delete(soap_group)

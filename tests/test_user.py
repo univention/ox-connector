@@ -1,7 +1,7 @@
 import os
 import random
-import uuid
 import typing
+import uuid
 
 import pytest
 
@@ -229,12 +229,8 @@ user_attributes: typing.List[UserAttributeTest] = [
         random_value_generator=random_mail_address,
         none_generator=no_none,
     ),
-    UserAttributeTest(
-        "email2", "oxEmail2", random_value_generator=random_mail_address
-    ),
-    UserAttributeTest(
-        "email3", "oxEmail3", random_value_generator=random_mail_address
-    ),
+    UserAttributeTest("email2", "oxEmail2", random_value_generator=random_mail_address),
+    UserAttributeTest("email3", "oxEmail3", random_value_generator=random_mail_address),
     UserAttributeTest("fax_business", "oxFaxBusiness"),
     UserAttributeTest("fax_home", "oxFaxHome"),
     UserAttributeTest("fax_other", "oxFaxOther"),
@@ -523,7 +519,9 @@ def test_full_blown_user(
             continue  # handle separately
         soap_prop = udm_prop2soap_prop[k]
         obj_item = getattr(obj, soap_prop)
-        error_msg = f"Expected for k={k!r}({soap_prop!r}) v={v!r} but found {obj_item!r}."
+        error_msg = (
+            f"Expected for k={k!r}({soap_prop!r}) v={v!r} but found {obj_item!r}."
+        )
         if isinstance(v, list):
             assert set(v) == set(obj_item), error_msg
         else:
@@ -532,12 +530,14 @@ def test_full_blown_user(
     #     homeTelephoneNumber -> telephone_home1, telephone_home2
     #     phone               -> telephone_business1, telephone_business2
     for k, soap_props in (
-            ("homeTelephoneNumber", ("telephone_home1", "telephone_home2")),
-            ("phone", ("telephone_business1", "telephone_business2")),
+        ("homeTelephoneNumber", ("telephone_home1", "telephone_home2")),
+        ("phone", ("telephone_business1", "telephone_business2")),
     ):
         v = set(attrs[k])
         obj_items = {getattr(obj, soap_prop) for soap_prop in soap_props}
-        error_msg = f"Expected for k={k!r}({soap_props!r}) v={v!r} but found {obj_items!r}."
+        error_msg = (
+            f"Expected for k={k!r}({soap_props!r}) v={v!r} but found {obj_items!r}."
+        )
         assert v == obj_items, error_msg
 
 

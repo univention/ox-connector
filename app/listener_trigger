@@ -39,9 +39,9 @@ import sys
 import time
 import traceback
 from contextlib import contextmanager
-from functools import partial
 from pathlib import Path
 
+import univention.ox.provisioning.helpers as helpers
 from univention.ox.provisioning import run
 
 APP = "ox-connector"
@@ -72,7 +72,7 @@ def _get_old_object(dn):
     return object_from_path(path_to_old_user)
 
 
-run = partial(run, _get_old_object)
+helpers.get_old_obj = _get_old_object
 
 
 def load_from_json_file(path):

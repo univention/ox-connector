@@ -149,6 +149,35 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     assert len(obj.members) == 1
 
 
+def test_change_context_for_group_multi_user(
+    new_context_id_generator,
+    ox_host,
+    new_user_name_generator,
+    new_group_name,
+    udm,
+    domainname,
+    wait_for_listener,
+):
+    """
+    If a user changes the oxContext, the group needs to update its members
+    in the old and in the new context
+    """
+    context_id = new_context_id_generator()
+    create_context(udm, ox_host, context_id)
+    new_context_id = new_context_id_generator()
+    create_context(udm, ox_host, new_context_id)
+    user_dn = create_user(udm, new_user_name_generator(), domainname, context_id)
+    user_dn1 = create_user(udm, new_user_name_generator(), domainname, context_id)
+    user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
+    group_dn = create_obj(udm, new_group_name, [user_dn, user_dn1, user_dn2])
+    wait_for_listener(group_dn)
+    find_obj(context_id, new_group_name)
+    udm.modify("users/user", user_dn, {"oxContext": new_context_id})
+    wait_for_listener(group_dn)
+    assert len(find_obj(context_id, new_group_name).members) == 1
+    assert len(find_obj(new_context_id, new_group_name).members) == 2
+
+
 def test_change_context_for_group_user(
     new_context_id_generator,
     ox_host,

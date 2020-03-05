@@ -39,6 +39,7 @@ from univention.ox.provisioning.contexts import (
 )
 from univention.ox.provisioning.groups import create_group, delete_group, modify_group
 from univention.ox.provisioning.helpers import Skip, get_context_id
+import univention.ox.provisioning.helpers
 from univention.ox.provisioning.resources import (
     create_resource,
     delete_resource,
@@ -51,7 +52,7 @@ logger = logging.getLogger("listener")
 TEST_LOG_FILE = Path("/tmp/test.log")
 
 
-def run(get_old_user_obj, obj):  # noqa: C901
+def run(obj):  # noqa: C901
     """This is your main function. Implement all your logic here"""
     if obj.object_type == "oxmail/oxcontext":
         if obj.was_added():
@@ -69,7 +70,7 @@ def run(get_old_user_obj, obj):  # noqa: C901
             elif obj.was_deleted():
                 delete_user(obj)
         if obj.object_type == "groups/group":
-            for new_obj in get_group_objs(obj, get_old_user_obj):
+            for new_obj in get_group_objs(obj):
                 if new_obj.was_added():
                     create_group(new_obj)
                 elif new_obj.was_modified():
@@ -96,7 +97,7 @@ def run(get_old_user_obj, obj):  # noqa: C901
             fp.write(f"{obj.dn}\n")
 
 
-def get_group_objs(obj, get_old_user_obj):  # noqa: C901
+def get_group_objs(obj):  # noqa: C901
     users = []
     ignored_group = True
     if obj.old_attributes:
@@ -113,7 +114,7 @@ def get_group_objs(obj, get_old_user_obj):  # noqa: C901
         return
     contexts = []
     for user in users:
-        user_obj = get_old_user_obj(user)
+        user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if user_obj is None:
             logger.info(
                 f"Group wants {user} as member. But the user is unknown. Ignoring..."

@@ -39,3 +39,7 @@ def get_context_id(attributes):
     if context_id is None:
         raise Skip("Object has no oxContext attribute!")
     return context_id
+
+
+def get_old_obj(dn):
+    raise NotImplementedError("Needs to be overwritten by another function")
