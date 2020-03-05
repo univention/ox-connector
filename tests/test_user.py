@@ -1,3 +1,4 @@
+import os
 import random
 import uuid
 import typing
@@ -5,9 +6,13 @@ import typing
 import pytest
 
 from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.backend_base import User
 
 
-def create_context(udm, ox_host, context_id):
+T = typing.TypeVar('T')
+
+
+def create_context(udm, ox_host, context_id) -> str:
     dn = udm.create(
         "oxmail/oxcontext",
         "cn=open-xchange",
@@ -20,7 +25,7 @@ def create_context(udm, ox_host, context_id):
     return dn
 
 
-def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True):
+def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True) -> str:
     _attrs = {
         "username": name,
         "firstname": "Emil",
@@ -37,7 +42,7 @@ def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True):
     return dn
 
 
-def find_obj(context_id, name, assert_empty=False, print_obj=True):
+def find_obj(context_id, name, assert_empty=False, print_obj=True) -> User:
     User = get_ox_integration_class("SOAP", "User")
     objs = User.list(context_id, pattern=name)
     if assert_empty:
@@ -50,7 +55,7 @@ def find_obj(context_id, name, assert_empty=False, print_obj=True):
         return obj
 
 
-def delete_obj(context_id, name):
+def delete_obj(context_id, name) -> None:
     obj = find_obj(context_id, name)
     print("Removing", obj.id, "directly in OX")
     obj.remove()
@@ -143,35 +148,33 @@ def no_none():
     return NotImplemented
 
 
-def none():
+def none() -> None:
     return None
 
 
-def empty():
+def empty() -> typing.List[typing.Any]:
     return []
 
 
-def random_string():
+def random_string() -> str:
     return str(uuid.uuid4())
 
 
-def ident(x):
+def ident(x: T) -> T:
     return x
 
 
-def take_first(x):
+def take_first(x: typing.List[T]) -> typing.Optional[T]:
     if len(x) > 0:
         return x[0]
 
 
-def take_second(x):
+def take_second(x: typing.List[T]) -> typing.Optional[T]:
     if len(x) > 1:
         return x[1]
 
 
-def random_mail_address():
-    import os
-
+def random_mail_address() -> str:
     domainname = os.environ["DOMAINNAME"]
     return f"{random_string()}@{domainname}"
 
@@ -195,12 +198,12 @@ def random_timezone():
 class UserAttributeTest(typing.NamedTuple):
     soap_name: str
     udm_name: str
-    none_generator: str = none
-    random_value_generator: str = random_string
-    soap_value_from_udm_value: str = ident
+    none_generator: typing.Callable[[], None] = none
+    random_value_generator: typing.Callable[[], str] = random_string
+    soap_value_from_udm_value: typing.Callable[[T], T] = ident
 
 
-user_attributes: typing.Iterable[UserAttributeTest] = [
+user_attributes: typing.List[UserAttributeTest] = [
     UserAttributeTest("branches", "oxBranches"),
     UserAttributeTest("cellular_telephone1", "oxMobileBusiness"),
     UserAttributeTest(
