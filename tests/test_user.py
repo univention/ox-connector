@@ -1,5 +1,4 @@
 import random
-import string
 import uuid
 import typing
 
@@ -360,6 +359,12 @@ user_attributes: typing.Iterable[UserAttributeTest] = (
 )
 
 
+udm_prop2soap_prop: typing.Dict[str, str] = dict(
+    (user_attribute.udm_name, user_attribute.soap_name)
+    for user_attribute in user_attributes
+)
+
+
 def attr_id(value: UserAttributeTest) -> str:
     return value.udm_name
 
@@ -410,40 +415,18 @@ def test_full_blown_user(
     create_context(udm, ox_host, new_context_id)
     attrs = {
         "city": new_user_name_generator(),
-        "country": random.choice(("AF", "CZ", "DE", "FR", "US")),
-        "departmentNumber": [new_user_name_generator(), new_user_name_generator()],
-        "displayName": new_user_name_generator(),
-        "e-mail": [
-            "{}@{}".format(new_user_name_generator(), domainname),
-            "{}@{}".format(new_user_name_generator(), domainname),
-        ],
         "firstname": new_user_name_generator(),
-        "gecos": new_user_name_generator(),
-        "homePostalAddress": [
-            {
-                "street": new_user_name_generator(),
-                "zipcode": new_user_name_generator(),
-                "city": new_user_name_generator(),
-            },
-            {
-                "street": new_user_name_generator(),
-                "zipcode": new_user_name_generator(),
-                "city": new_user_name_generator(),
-            },
-        ],
-        "homeTelephoneNumber": [new_user_name_generator(), new_user_name_generator()],
-        "homedrive": "{}:".format(random.choice(string.uppercase)),
         "lastname": new_user_name_generator(),
-        "mailForwardCopyToSelf": "0",
+        "homeTelephoneNumber": [new_user_name_generator(), new_user_name_generator()],
         "mailPrimaryAddress": "{}@{}".format(new_user_name_generator(), domainname),
-        "mobileTelephoneNumber": [new_user_name_generator(), new_user_name_generator()],
         "oxAccess": "premium",
-        "oxAnniversary": "{}.{}.19{}".format(
-            random.randint(1, 27), random.randint(1, 12), random.randint(11, 99)
-        ),
-        "oxBirthday": "{}.{}.19{}".format(
-            random.randint(1, 27), random.randint(1, 12), random.randint(11, 99)
-        ),
+        # TODO:
+        # "oxAnniversary": "{}.{}.19{}".format(
+        #     random.randint(1, 27), random.randint(1, 12), random.randint(11, 99)
+        # ),
+        # "oxBirthday": "{}.{}.19{}".format(
+        #     random.randint(1, 27), random.randint(1, 12), random.randint(11, 99)
+        # ),
         "oxBranches": new_user_name_generator(),
         "oxCityHome": new_user_name_generator(),
         "oxCityOther": new_user_name_generator(),
@@ -514,23 +497,40 @@ def test_full_blown_user(
         "oxUserfield18": new_user_name_generator(),
         "oxUserfield19": new_user_name_generator(),
         "oxUserfield20": new_user_name_generator(),
-        "pagerTelephoneNumber": [new_user_name_generator(), new_user_name_generator()],
+        "pagerTelephoneNumber": [new_user_name_generator()],
         "phone": [new_user_name_generator(), new_user_name_generator()],
         "postcode": new_user_name_generator(),
-        "roomNumber": [new_user_name_generator(), new_user_name_generator()],
-        "shell": "/bin/{}".format(new_user_name_generator()),
+        "roomNumber": [new_user_name_generator()],
         "street": new_user_name_generator(),
     }
     dn = create_obj(udm, new_user_name, domainname, new_context_id, attrs=attrs)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     for k, v in attrs.items():
-        obj_item = getattr(obj, k)
-        error_msg = "Expected for k={!r} v={!r} but found {!r}.".format(k, v, obj_item)
+        if k == "oxAccess":
+            continue
+        elif k in ("pagerTelephoneNumber", "roomNumber"):
+            v = v[0]  # OX supports only one value, not a list
+        elif k in ("phone", "homeTelephoneNumber"):
+            continue  # handle separately
+        soap_prop = udm_prop2soap_prop[k]
+        obj_item = getattr(obj, soap_prop)
+        error_msg = f"Expected for k={k!r}({soap_prop!r}) v={v!r} but found {obj_item!r}."
         if isinstance(v, list):
             assert set(v) == set(obj_item), error_msg
         else:
             assert v == obj_item, error_msg
+    # handle phone and homeTelephoneNumber
+    #     homeTelephoneNumber -> telephone_home1, telephone_home2
+    #     phone               -> telephone_business1, telephone_business2
+    for k, soap_props in (
+            ("homeTelephoneNumber", ("telephone_home1", "telephone_home2")),
+            ("phone", ("telephone_business1", "telephone_business2")),
+    ):
+        v = set(attrs[k])
+        obj_items = {getattr(obj, soap_prop) for soap_prop in soap_props}
+        error_msg = f"Expected for k={k!r}({soap_props!r}) v={v!r} but found {obj_items!r}."
+        assert v == obj_items, error_msg
 
 
 def test_modify_user_without_ox_obj(
