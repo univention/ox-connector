@@ -617,9 +617,12 @@ def test_enable_and_disable_user(
     Setting isOxUser = Not should delete the user
     """
     create_context(udm, ox_host, new_context_id)
-    dn = create_obj(udm, new_user_name, domainname, new_context_id, enabled=False)
+    dn = create_obj(udm, new_user_name, domainname, None, enabled=False)
     wait_for_listener(dn)  # make sure we wait for the modify step below
+    # BUG: some hook seems to remove the ox specific attributes when enabling the user
+    # BUG: so we have to do it in two steps: Bug #50469
     udm.modify("users/user", dn, {"isOxUser": True})
+    udm.modify("users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name})
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)
     udm.modify("users/user", dn, {"isOxUser": False})
