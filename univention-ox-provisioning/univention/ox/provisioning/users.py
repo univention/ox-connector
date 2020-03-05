@@ -328,11 +328,18 @@ def create_user(obj):
     user.create()
     set_user_rights(user, obj)
     logger.info("Looking for groups of this user to be created in the context id")
-    for group in obj.attributes.get('groups', []):
+    for group in obj.attributes.get("groups", []):
         groupname = group[3:].split(",")[0]  # TODO: make this more elegant
         if not Group.list(user.context_id, pattern=groupname):
-            logger.info(f"Group {groupname} does not yet exist in {user.context_id}. Creating...")
-            group = Group(context_id=user.context_id, name=groupname, display_name=groupname, members=[user.id])
+            logger.info(
+                f"Group {groupname} does not yet exist in {user.context_id}. Creating..."
+            )
+            group = Group(
+                context_id=user.context_id,
+                name=groupname,
+                display_name=groupname,
+                members=[user.id],
+            )
             group.create()
 
 
