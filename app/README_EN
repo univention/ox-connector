@@ -1,0 +1,41 @@
+<p>
+The OX Provisioning App was successfully installed on your system.
+</p>
+
+<p>
+The following UDM objects will be synchronized to the configured OX system:
+
+<ul>
+    <li><a href="#module=udm:users/user:0:">Users</a></li>
+    <li><a href="#module=udm:groups/group:0:">Groups</a></li>
+    <li><a href="#module=udm:oxmail/oxcontext:0:">OX Contexts</a></li>
+    <li><a href="#module=udm:oxresources/oxresources:0:">OX Resources</a></li>
+</ul>
+
+Users and groups need to be explicitly enabled, otherwise they will not be synchronized. Users need a context in which they are put; users of the same context may see each other. Groups are implicitly in the contexts of their users. They are removed from a context as soon as they do not have any members in that context any longer.
+
+</p>
+
+<p>
+
+The OX Provisioning App expects to manage the OX Contexts. Contexts that were already in place before the OX Connector took over, this needs to be done for every context: The context admin has to be named "oxadmin-context<em>$id</em>" and the password has be written into <em>/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context<em>$id</em></em>. One exception is the default context, where the context admin name is "oxadmin". This is what the App would do and what the App expects.
+
+</p>
+
+<p>
+
+A default context can be configured in the App Settings, used for new users and new resources. The App does not create that context automatically, though.
+
+</p>
+
+<p>
+
+A user template is added that can (and should) be used for new users that shall be in OX. This template also holds the information about the default context. Should you need to change it, you would want change it in the template, too.
+
+</p>
+
+<p>
+
+The log file <em></em> should contain every information you need, should the provisioning stop working. The data files on which the App works are located here: <em>/var/lib/univention-appcenter/apps/ox-connector/data/listener/</em>.
+
+</p>

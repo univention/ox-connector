@@ -19,6 +19,7 @@ DockerScriptConfigure = /tmp/ox-connector.configure
 Description = Synchronize UCS Users and Groups to Open-Xchange
 SupportedUcsVersions = 4.4-3
 UMCOptionsAttributes = isOxUser:oxUser
+LongDescription = <p>The OX Provisioning App synchronizes selected users and groups to a remote OX installation via OX' SOAP API<p><p>In order to use the App, you need a remote Open-Xchange groupware installation. Typically, this remote server is not a UCS as the <strong>Open-Xchange version in the App Center does not work well with this App</strong>: It brings its own integration that may interfere with the one of the Provisioning App. If you seek for a out-of-the-box integration for OX, you may want to just install the corresponding App from the App Center and not install this App.</p><p>There are two prerequisites for this App to work: The remote OX installation needs to allow access to <em>/webservices</em> and you probably want to make sure that HTTPS connections from the App's container (it is a Docker based App) to the remote OX system works.</p><p>That set up, the OX Provisioning App manages users, groups, resources (conference rooms, etc) and contexts. UCS' Identity management should be considered the leading system.</p>
 
 [de]
 Description = UCS-Benutzer nach Open-Xchange synchronisieren
