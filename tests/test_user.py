@@ -5,11 +5,9 @@ import uuid
 
 import pytest
 
-from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.backend_base import User
+from univention.ox.backend_base import User, get_ox_integration_class
 
-
-T = typing.TypeVar('T')
+T = typing.TypeVar("T")
 
 
 def create_context(udm, ox_host, context_id) -> str:

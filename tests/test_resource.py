@@ -119,20 +119,17 @@ def test_modify_resource(
     create_context(udm, ox_host, new_context_id)
     user = create_user(udm, new_user_name, domainname, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
-    udm.modify(
-        "oxresources/oxresources",
-        dn,
-        {
-            "description": None,
-            "displayname": "New Display",
-            "resourceMailAddress": new_mail_address,
-        },
-    )
+    new_attrs = {
+        "description": f"foo {new_resource_name} bar",
+        "displayname": "New Display",
+        "resourceMailAddress": new_mail_address,
+    }
+    udm.modify("oxresources/oxresources", dn, new_attrs)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_resource_name)
-    assert obj.display_name == "New Display"
-    assert obj.email == new_mail_address
-    assert obj.description is None  # FIXME: fails...
+    assert obj.display_name == new_attrs["displayname"]
+    assert obj.email == new_attrs["resourceMailAddress"]
+    assert obj.description == new_attrs["description"]
 
 
 def test_remove_resource(
