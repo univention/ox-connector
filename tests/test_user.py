@@ -369,8 +369,12 @@ udm_prop2soap_prop: typing.Dict[str, str] = dict(
 )
 
 
-def attr_id(value: UserAttributeTest) -> str:
-    return value.udm_name
+def attr_id(value: UserAttributeTest, index=[]) -> str:
+    try:
+        index[0] += 1
+    except IndexError:
+        index.append(1)
+    return f"{value.udm_name} ({index[0]}/{len(user_attributes)})"
 
 
 @pytest.mark.parametrize("user_test", user_attributes, ids=attr_id)
