@@ -674,18 +674,23 @@ def test_existing_user_in_different_context(
     context_dn = create_context(udm, ox_host, new_context_id)
     wait_for_listener(context_dn)
     mail_address = "{}@{}".format(new_user_name, domainname)
-    legacy_user = User(context_id=new_context_id, name=new_user_name, display_name=new_user_name, given_name="Leon", password="dummy", sur_name=new_user_name, primary_email=mail_address, email1=mail_address)
+    legacy_user = User(
+        context_id=new_context_id,
+        name=new_user_name,
+        display_name=new_user_name,
+        given_name="Leon",
+        password="dummy",
+        sur_name=new_user_name,
+        primary_email=mail_address,
+        email1=mail_address,
+    )
     legacy_user.create()
     new_context_id2 = new_context_id_generator()
     create_context(udm, ox_host, new_context_id2)
     dn = create_obj(udm, new_user_name, domainname, new_context_id2)
     wait_for_listener(dn)
     udm.modify(
-        "users/user",
-        dn,
-        {
-            "oxContext": new_context_id,
-        },
+        "users/user", dn, {"oxContext": new_context_id,},
     )
     wait_for_listener(dn)
     find_obj(new_context_id2, new_user_name, assert_empty=True)
