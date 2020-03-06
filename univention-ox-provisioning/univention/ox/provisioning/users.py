@@ -206,8 +206,8 @@ def update_user(user, attributes):
         user.anniversary = str2isodate(attributes.get("oxAnniversary"))
     else:
         user.anniversary = None
-    if attributes.get("oxBirthday"):
-        user.birthday = str2isodate(attributes.get("oxBirthday"))
+    if attributes.get("birthday"):
+        user.birthday = str2isodate(attributes.get("birthday"))
     else:
         user.birthday = None
     if len(attributes.get("phone", [])) >= 1:

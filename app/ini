@@ -19,8 +19,38 @@ DockerScriptConfigure = /tmp/ox-connector.configure
 Description = Synchronize UCS Users and Groups to Open-Xchange
 SupportedUcsVersions = 4.4-3
 UMCOptionsAttributes = isOxUser:oxUser
-LongDescription = <p>The OX Provisioning App synchronizes selected users and groups to a remote OX installation via OX' SOAP API<p><p>In order to use the App, you need a remote Open-Xchange groupware installation. Typically, this remote server is not a UCS as the <strong>Open-Xchange version in the App Center does not work well with this App</strong>: It brings its own integration that may interfere with the one of the Provisioning App. If you seek for a out-of-the-box integration for OX, you may want to just install the corresponding App from the App Center and not install this App.</p><p>There are two prerequisites for this App to work: The remote OX installation needs to allow access to <em>/webservices</em> and you probably want to make sure that HTTPS connections from the App's container (it is a Docker based App) to the remote OX system works.</p><p>That set up, the OX Provisioning App manages users, groups, resources (conference rooms, etc) and contexts. UCS' Identity management should be considered the leading system.</p>
+LongDescription = <p>
+		The OX Provisioning App synchronizes selected users and groups to a remote OX installation via OX' SOAP API
+	</p>
+	<p>
+	</p>
+	<p>
+		In order to use the App, you need a remote Open-Xchange groupware installation. Typically, this remote server is not a UCS system as the <b>Open-Xchange version in the App Center does not work well with this App</b>: It brings its own integration that may interfere with the one of the Provisioning App. If you seek for a out-of-the-box integration for OX, you may want to just install the corresponding App from the App Center and not install this App.
+	</p>
+	<p>
+		There are two prerequisites for this App to work: The remote OX installation needs to allow access to <i>/webservices</i> and you probably want to make sure that HTTPS connections from the App's container (it is a Docker based App) to the remote OX system works, i.e. you need a valid SSL certificate.
+		<br>
+	</p>
+	<p>
+		That set up, the OX Provisioning App manages users, groups, resources (conference rooms, etc.) and contexts. UCS' Identity management should be considered the leading IDM system.
+	</p>
+	
+Logo = logo.svg
 
 [de]
 Description = UCS-Benutzer nach Open-Xchange synchronisieren
-
+LongDescription = <p>
+		Die OX Provisioning App synchronisiert ausgewählte Benutzer und Gruppen zu einem entfernten OX-System über die SOAP-API von OX.
+	</p>
+	<p>
+	</p>
+	<p>
+		Um diese App zu nutzen, brauchen Sie eine entfernte Open-Xchange-Installation. Typischerweise wird dies kein UCS-System sein, denn die Version von <b>Open-Xchange im App Center funktioniert nicht einwandfrei mit dieser App</b>: Da sie ihre eigene Integration mitbringt, kann es zu unerwünschten Überschneidungen mit der Provisioning App kommen. Falls Sie eine out-of-the-box-Intrgration für OX suchen, werden Sie eher Open-Xchange aus dem App Center installieren wollen, nicht diese App.
+	</p>
+	<p>
+		Es gibt zwei Voraussetzungen, damit die App funktionieren kann: Die entfernte OX-Installation muss Zugriff auf <i>/webservices</i> erlauben und eine HTTPS-Verbindung vom Container, den diese Docker-App mitbringt, zum entfernten System muss aufgebaut werden können (d.h. es braucht ein valides SSL-Zertifikat).
+		<br>
+	</p>
+	<p>
+		Sobald die Installation erfolgreich war, übernimmt die OX Provisioning App das Management von Benutzern, Gruppen,  Resourcen (z.B. Konferenzräume) und Kontexten. Das Identity Management von UCS sollte ab diesem Zeitpunkt das führende IDM-System sein.
+	</p>

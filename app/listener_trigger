@@ -276,6 +276,7 @@ def run_on_files(
     """
     ret = 0
     for obj in objs:
+        logger.info(f"Handling {obj.path!r}")
         try:
             f(obj)
         except Exception:
