@@ -59,9 +59,15 @@ This variable describes where to look for the OX server from within the Docker c
 This is the ID of the "default context", i.e. the context id when adding ''new'' users to OX. This setting is still explicit, though: It is saved on the LDAP object and will not change, should you ever change the default context. In fact, to do that, it is not sufficient to change the App Setting in the App: You need to change three UDM objects, too:
 
 ```shell
-udm settings/extended_attribute modify --dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" --set default=...
-udm settings/extended_attribute modify --dn "cn=oxContextResourcer,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" --set default=...
-udm settings/usertemplate modify --dn "cn=open-xchange groupware account,cn=templates,cn=univention,$(ucr get ldap/base)" --set oxContext=...
+udm settings/extended_attribute modify \
+  --dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" \
+  --set default=...
+udm settings/extended_attribute modify \
+  --dn "cn=oxContextResourcer,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" \
+  --set default=...
+udm settings/usertemplate modify \
+  --dn "cn=open-xchange groupware account,cn=templates,cn=univention,$(ucr get ldap/base)" \
+  --set oxContext=...
 ```
 
 The Default Context is not created by the App automatically. You may add the context (see below).
@@ -116,7 +122,7 @@ As a last resort, you can just delete the flawed file. Its name is in the log fi
 
 ## Queue Tooling
 
-The connector works with as described above. It saves the changed objects in JSON files. These files are queued in a directory: `/var/lib/univention-appcenter/apps/ox-connector/data/listener/`. The queue is processed by the App software inside a Docker container. As the data is transferred from UCS to the OX Connector via JSON, you can in fact manipulate the queue. There are no convenient tools for that, but as the files are rather simple, it is still possbile to...
+The connector works with as described above. It saves the changed objects in JSON files. These files are queued in a directory: `/var/lib/univention-appcenter/apps/ox-connector/data/listener/`. The queue is processed by the App software inside a Docker container. As the data is transferred from UCS to the OX Connector via JSON, you can in fact manipulate the queue. There are no convenient tools for that, but as the files are rather simple, it is still possible to...
 
 ### Delete an item from the queue
 
