@@ -45,12 +45,12 @@ LongDescription = <p>
 	<p>
 	</p>
 	<p>
-		Um diese App zu nutzen, brauchen Sie eine entfernte Open-Xchange-Installation. Typischerweise wird dies kein UCS-System sein, denn die Version von <b>Open-Xchange im App Center funktioniert nicht einwandfrei mit dieser App</b>: Da sie ihre eigene Integration mitbringt, kann es zu unerwünschten Überschneidungen mit der Provisioning App kommen. Falls Sie eine out-of-the-box-Intrgration für OX suchen, werden Sie eher Open-Xchange aus dem App Center installieren wollen, nicht diese App.
+		Um diese App zu nutzen, brauchen Sie eine entfernte Open-Xchange-Installation. Typischerweise wird dies kein UCS-System sein, denn die Version von <b>Open-Xchange im App Center funktioniert nicht einwandfrei mit dieser App</b>: Da sie ihre eigene Integration mitbringt, kann es zu unerwünschten Überschneidungen mit der Provisioning App kommen. Falls Sie eine out-of-the-box-Integration für OX suchen, werden Sie eher Open-Xchange aus dem App Center installieren wollen, nicht diese App.
 	</p>
 	<p>
 		Es gibt zwei Voraussetzungen, damit die App funktionieren kann: Die entfernte OX-Installation muss Zugriff auf <i>/webservices</i> erlauben und eine HTTPS-Verbindung vom Container, den diese Docker-App mitbringt, zum entfernten System muss aufgebaut werden können (d.h. es braucht ein valides SSL-Zertifikat).
 		<br>
 	</p>
 	<p>
-		Sobald die Installation erfolgreich war, übernimmt die OX Provisioning App das Management von Benutzern, Gruppen,  Resourcen (z.B. Konferenzräume) und Kontexten. Das Identity Management von UCS sollte ab diesem Zeitpunkt das führende IDM-System sein.
+		Sobald die Installation erfolgreich war, übernimmt die OX Provisioning App das Management von Benutzern, Gruppen,  Ressourcen (z.B. Konferenzräume) und Kontexten. Das Identity Management von UCS sollte ab diesem Zeitpunkt das führende IDM-System sein.
 	</p>

@@ -27,14 +27,9 @@ You need to have set up an admin user in OX (one that can create contexts). Name
 To install the App, do the following:
 
 ```shell
-# this is done because it is a preview version of the app, not yet released for the public
-univention-install univention-appcenter-dev
-univention-app dev-use-test-appcenter
-
 univention-app install ox-connector=1.0.1 --set \
   OX_MASTER_ADMIN="oxadminmaster"  `# the name of the "root" user in OX itself` \
   OX_MASTER_PASSWORD=""  `# the password of the ox admin` \
-  OX_CONTEXT_DEFAULT_QUOTA="1048576"  `# default quota for new contexts in MB` \
   LOCAL_TIMEZONE="Europe/Berlin"  `# default timezone for new users` \
   OX_LANGUAGE="de_DE"  `# default language for for new users` \
   DEFAULT_CONTEXT="10"  `# default context for users` \
