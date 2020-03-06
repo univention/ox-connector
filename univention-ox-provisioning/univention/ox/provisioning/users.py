@@ -388,6 +388,7 @@ def modify_user(obj):
                 create_user(obj)
                 return delete_user(deepcopy(obj))
         user = user_from_attributes(obj.old_attributes, user_id)
+        user.context_id = new_context
         update_user(user, obj.attributes)
     else:
         logger.info(f"{obj} has no old data. Resync?")

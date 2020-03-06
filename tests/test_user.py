@@ -661,6 +661,38 @@ def test_change_context(
     find_obj(new_context_id2, new_user_name)
 
 
+def test_existing_user_in_different_context(
+    new_context_id_generator, new_user_name, udm, ox_host, domainname, wait_for_listener
+):
+    """
+    User already exists in OX DB (legacy data?) and a new
+    user with the same name is created in UDM. First a another
+    context; then the user is moved to the original context
+    """
+    User = get_ox_integration_class("SOAP", "User")
+    new_context_id = new_context_id_generator()
+    context_dn = create_context(udm, ox_host, new_context_id)
+    wait_for_listener(context_dn)
+    mail_address = "{}@{}".format(new_user_name, domainname)
+    legacy_user = User(context_id=new_context_id, name=new_user_name, display_name=new_user_name, given_name="Leon", password="dummy", sur_name=new_user_name, primary_email=mail_address, email1=mail_address)
+    legacy_user.create()
+    new_context_id2 = new_context_id_generator()
+    create_context(udm, ox_host, new_context_id2)
+    dn = create_obj(udm, new_user_name, domainname, new_context_id2)
+    wait_for_listener(dn)
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "oxContext": new_context_id,
+        },
+    )
+    wait_for_listener(dn)
+    find_obj(new_context_id2, new_user_name, assert_empty=True)
+    obj = find_obj(new_context_id, new_user_name)
+    assert obj.given_name == "Emil"
+
+
 def test_alias(
     new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
 ):

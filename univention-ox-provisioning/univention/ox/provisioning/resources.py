@@ -97,6 +97,7 @@ def modify_resource(obj):
                 create_resource(obj)
                 return delete_resource(deepcopy(obj))
         resource = resource_from_attributes(obj.old_attributes, resource_id)
+        resource.context_id = new_context
         update_resource(resource, obj.attributes)
     else:
         logger.info(f"{obj} has no old data. Resync?")
