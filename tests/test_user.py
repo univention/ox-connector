@@ -690,7 +690,7 @@ def test_existing_user_in_different_context(
     dn = create_obj(udm, new_user_name, domainname, new_context_id2)
     wait_for_listener(dn)
     udm.modify(
-        "users/user", dn, {"oxContext": new_context_id,},
+        "users/user", dn, {"oxContext": new_context_id},
     )
     wait_for_listener(dn)
     find_obj(new_context_id2, new_user_name, assert_empty=True)
