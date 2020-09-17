@@ -36,7 +36,11 @@ def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True) -> s
     }
     if attrs:
         _attrs.update(attrs)
-    dn = udm.create("users/user", "cn=users", _attrs,)
+    dn = udm.create(
+        "users/user",
+        "cn=users",
+        _attrs,
+    )
     return dn
 
 
@@ -95,7 +99,9 @@ def test_rename_user(
     obj = find_obj(default_ox_context, new_user_name)
     old_id = obj.id
     udm.modify(
-        "users/user", dn, {"username": "new" + new_user_name},
+        "users/user",
+        dn,
+        {"username": "new" + new_user_name},
     )
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, "new" + new_user_name)
@@ -396,7 +402,9 @@ def test_modify_user_set_and_unset_string_attributes(
         if value is NotImplemented:
             continue
         udm.modify(
-            "users/user", dn, {user_test.udm_name: value},
+            "users/user",
+            dn,
+            {user_test.udm_name: value},
         )
         wait_for_listener(dn)
         obj = find_obj(new_context_id, new_user_name, print_obj=False)
@@ -587,7 +595,9 @@ def test_modify_mailserver(
     assert obj.imap_server_string == default_imap_server
     mail_home_server = "test-member.{}".format(domainname)
     udm.modify(
-        "users/user", dn, {"mailHomeServer": mail_home_server},
+        "users/user",
+        dn,
+        {"mailHomeServer": mail_home_server},
     )
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
@@ -690,7 +700,9 @@ def test_existing_user_in_different_context(
     dn = create_obj(udm, new_user_name, domainname, new_context_id2)
     wait_for_listener(dn)
     udm.modify(
-        "users/user", dn, {"oxContext": new_context_id},
+        "users/user",
+        dn,
+        {"oxContext": new_context_id},
     )
     wait_for_listener(dn)
     find_obj(new_context_id2, new_user_name, assert_empty=True)

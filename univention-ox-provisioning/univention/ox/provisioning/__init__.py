@@ -32,6 +32,11 @@ import logging
 from copy import deepcopy
 from pathlib import Path
 
+from univention.ox.provisioning.accessprofiles import (
+    create_accessprofile,
+    delete_accessprofile,
+    modify_accessprofile,
+)
 import univention.ox.provisioning.helpers
 from univention.ox.provisioning.contexts import (
     create_context,
@@ -61,6 +66,13 @@ def run(obj):  # noqa: C901
             modify_context(obj)
         elif obj.was_deleted():
             delete_context(obj)
+    if obj.object_type == "ox/accessprofile":
+        if obj.was_added():
+            create_accessprofile(obj)
+        elif obj.was_modified():
+            modify_accessprofile(obj)
+        elif obj.was_deleted():
+            delete_accessprofile(obj)
     try:
         if obj.object_type == "users/user":
             if obj.was_added():

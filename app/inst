@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=1
+VERSION=2
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -50,6 +50,7 @@ main () {
 
 	setup_vars
 
+	remember_user_access_profiles "$@"
 	register_ldap "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
@@ -59,6 +60,9 @@ main () {
 	update_user_template "$@"
 
 	create_container "$@"
+
+	create_accessprofiles "$@"
+	apply_user_access_profiles "$@"
 
 	setup_umc "$@"
 
@@ -78,7 +82,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.0.1'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.1.0'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
@@ -90,8 +94,9 @@ register_ldap () {
 			die "Failed to register LDAP extensions."
 
 	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
-	register_ldap_extension "$@" -- "$PREFIX"/ldap/*.acl "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
+	register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py         "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/ox/accessprofile.py         "$PREFIX"/udm/handlers/ox/*.mo          "$PREFIX"/umc/icons/*/udm-ox-accessprofile.*
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py  "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
 
 	univention-directory-manager policies/registry create "$@" \
@@ -227,6 +232,121 @@ create_container () {
 	univention-directory-manager container/cn create "$@" \
 		--ignore_exists --position "cn=open-xchange,$ldap_base" \
 		--set name=oxresources
+	univention-directory-manager container/cn create "$@" \
+		--ignore_exists --position "cn=open-xchange,$ldap_base" \
+		--set name=accessprofiles
+}
+
+create_accessprofiles () {
+	echo "Creating OX access profiles..."
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=none \
+		--set displayName="Login disabled"
+
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=webmail \
+		--set displayName=Webmail \
+		--set contacts=TRUE \
+		--set webmail=TRUE \
+		--set collectemailaddresses=TRUE \
+		--set multiplemailaccounts=TRUE \
+		--set subscription=TRUE \
+		--set publication=TRUE
+
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=webmail_drive \
+		--set displayName="Webmail, Drive" \
+		--set contacts=TRUE \
+		--set infostore=TRUE \
+		--set webmail=TRUE \
+		--set collectemailaddresses=TRUE \
+		--set multiplemailaccounts=TRUE \
+		--set subscription=TRUE \
+		--set publication=TRUE
+
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=pim \
+		--set displayName="Webmail, PIM" \
+		--set calendar=TRUE \
+		--set contacts=TRUE \
+		--set delegatetask=TRUE \
+		--set tasks=TRUE \
+		--set webmail=TRUE \
+		--set collectemailaddresses=TRUE \
+		--set multiplemailaccounts=TRUE \
+		--set subscription=TRUE \
+		--set publication=TRUE
+
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=pim_drive \
+		--set displayName="Webmail, PIM, Drive" \
+		--set calendar=TRUE \
+		--set contacts=TRUE \
+		--set delegatetask=TRUE \
+		--set infostore=TRUE \
+		--set tasks=TRUE \
+		--set webmail=TRUE \
+		--set collectemailaddresses=TRUE \
+		--set multiplemailaccounts=TRUE \
+		--set subscription=TRUE \
+		--set publication=TRUE
+
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=groupware \
+		--set displayName="Webmail, PIM, Groupware" \
+		--set calendar=TRUE \
+		--set contacts=TRUE \
+		--set delegatetask=TRUE \
+		--set editpublicfolders=TRUE \
+		--set infostore=TRUE \
+		--set readcreatesharedfolders=TRUE \
+		--set tasks=TRUE \
+		--set webmail=TRUE \
+		--set collectemailaddresses=TRUE \
+		--set multiplemailaccounts=TRUE \
+		--set subscription=TRUE \
+		--set publication=TRUE
+
+	univention-directory-manager ox/accessprofile create "$@" \
+		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+		--set name=premium \
+		--set displayName="Webmail, PIM, Groupware, WebDAV" \
+		--set calendar=TRUE \
+		--set contacts=TRUE \
+		--set delegatetask=TRUE \
+		--set editpublicfolders=TRUE \
+		--set ical=TRUE \
+		--set infostore=TRUE \
+		--set readcreatesharedfolders=TRUE \
+		--set tasks=TRUE \
+		--set vcard=TRUE \
+		--set webdav=TRUE \
+		--set webdavxml=TRUE \
+		--set webmail=TRUE \
+		--set collectemailaddresses=TRUE \
+		--set multiplemailaccounts=TRUE \
+		--set subscription=TRUE \
+		--set publication=TRUE \
+		--set usm=TRUE \
+		--set olox20=TRUE
+}
+
+remember_user_access_profiles() {
+	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
+		python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
+	fi
+}
+
+apply_user_access_profiles() {
+	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
+		python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
+	fi
 }
 
 setup_umc () {

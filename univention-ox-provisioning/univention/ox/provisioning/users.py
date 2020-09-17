@@ -28,6 +28,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
+import re
 import datetime
 import logging
 from copy import deepcopy
@@ -36,6 +37,10 @@ from urllib.parse import urlparse
 import univention.ox.provisioning.helpers
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_context_id
+from univention.ox.provisioning.accessprofiles import (
+    get_access_profile,
+    empty_rights_profile,
+)
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
@@ -235,67 +240,34 @@ def update_user(user, attributes):
 
     imap_url = urlparse(DEFAULT_IMAP_SERVER)
     user.imap_port = imap_url.port  # 143
-    user.imap_schema = imap_url.scheme + "://"  # 'imap://'
+    user.imap_schema = imap_url.scheme + "://"  # "imap://"
     user.imap_server = attributes.get("mailHomeServer", imap_url.hostname)
     # user.imap_server_string = attributes.get()
     smtp_url = urlparse(DEFAULT_SMTP_SERVER)
     user.smtp_port = smtp_url.port  # 587
-    user.smtp_schema = smtp_url.scheme + "://"  # 'smtp://'
+    user.smtp_schema = smtp_url.scheme + "://"  # "smtp://"
     user.smtp_server = attributes.get("mailHomeServer", smtp_url.hostname)
     # user.smtp_server_string = attributes.get()
 
 
 def set_user_rights(user, obj):
-    access_rights = dict(
-        (access, False)
-        for access in [
-            "OLOX20",
-            "USM",
-            "activeSync",
-            "calendar",
-            "collectEmailAddresses",
-            "contacts",
-            "delegateTask",
-            "deniedPortal",
-            "editGroup",
-            "editPassword",
-            "editPublicFolders",
-            "editResource",
-            "globalAddressBookDisabled",
-            "ical",
-            "infostore",
-            "multipleMailAccounts",
-            "publicFolderEditable",
-            "publication",
-            "readCreateSharedFolders",
-            "subscription",
-            "syncml",
-            "tasks",
-            "vcard",
-            "webdav",
-            "webdavXml",
-            "webmail",
-        ]
-    )
+    access_rights = empty_rights_profile()
 
-    attributes = obj.attributes
-    if attributes.get("oxAccess", "none") != "none":
-        if attributes.get("oxAccess") == "webmail":
-            access = "contacts webmail collectEmailAddresses multipleMailAccounts subscription publication"  # noqa
-        if attributes.get("oxAccess") == "pim":
-            access = "calendar contacts delegateTask tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"  # noqa
-        if attributes.get("oxAccess") == "groupware":
-            access = "calendar contacts delegateTask editPublicFolders infostore readCreateSharedFolders tasks webmail collectEmailAddresses multipleMailAccounts subscription publication"  # noqa
-        if attributes.get("oxAccess") == "premium":
-            access = "calendar contacts delegateTask editPublicFolders ical infostore readCreateSharedFolders tasks vcard webdav webdavXml webmail collectEmailAddresses multipleMailAccounts subscription publication USM OLOX20"  # noqa
-        if attributes.get("oxAccessUSM", "Not") == "OK":
-            access += " USM activeSync"
-        if attributes.get("oxDrive", "1") == "1":
-            access += " infostore"
-        for acc in access.split():
-            access_rights[acc] = True
-    access_rights["syncml"] = bool(attributes.get("oxAccessSyncMl"))
-    access_rights["editResource"] = bool(attributes.get("oxAccessResources"))
+    user_access = obj.attributes.get("oxAccess")
+
+    if user_access:
+        access_profile = get_access_profile(user_access)
+        if access_profile is None:
+            logger.warn(
+                f"Cannot find access profile {user_access!r}. Leaving access rights untouched!"
+            )
+            return
+    else:
+        access_profile = []
+    for access_right in access_profile:
+        if access_right in access_rights:
+            access_rights[access_right] = True
+    logger.info(f"Changing {user.id} to profile {user_access}: {access_rights}")
     user.service(user.context_id).change_by_module_access(
         {"id": user.id}, access_rights
     )

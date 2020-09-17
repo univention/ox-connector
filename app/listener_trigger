@@ -120,6 +120,12 @@ class TriggerObject(object):
         if other.object_type == "oxmail/oxcontext" and other.attributes is None:
             # deleting a context should always come last
             return True
+        if (
+            self.object_type == "ox/accessprofile"
+            or other.object_type == "ox/accessprofile"
+        ):
+            # do not change order in accessprofiles
+            return False
         lidx = sorted_object_types.index(self.object_type)
         ridx = sorted_object_types.index(other.object_type)
         return lidx < ridx
@@ -301,6 +307,4 @@ def run_on_files(
 
 
 objs = objects_from_files(delete_files=False, move_files=True)
-sys.exit(
-    run_on_files(objs, run, pause_after_errors_num=3, pause_after_errors_length=60)
-)
+sys.exit(run_on_files(objs, run, pause_after_errors_num=3, pause_after_errors_length=0))

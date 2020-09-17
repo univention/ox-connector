@@ -1,7 +1,7 @@
 # OX Provisioning App
 
-**APP VERSION 1.0.1**
-**OX VERSION 7.10.2**
+**APP VERSION 1.1.0**
+**OX VERSION 7.10.3**
 
 This App connects to UCS' Identity Management with OX' database.
 
@@ -27,7 +27,7 @@ You need to have set up an admin user in OX (one that can create contexts). Name
 To install the App, do the following:
 
 ```shell
-univention-app install ox-connector=1.0.1 --set \
+univention-app install ox-connector=1.1.0 --set \
   OX_MASTER_ADMIN="oxadminmaster"  `# the name of the "root" user in OX itself` \
   OX_MASTER_PASSWORD=""  `# the password of the ox admin` \
   LOCAL_TIMEZONE="Europe/Berlin"  `# default timezone for new users` \
