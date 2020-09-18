@@ -30,7 +30,6 @@
 
 import datetime
 import logging
-import re
 from copy import deepcopy
 from urllib.parse import urlparse
 
