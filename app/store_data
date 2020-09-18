@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rm -r /var/lib/univention-appcenter/apps/ox-connector/data/resources/
