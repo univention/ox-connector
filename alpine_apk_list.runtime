@@ -3,3 +3,5 @@ libxslt
 python3
 tzdata
 ca-certificates
+py3-pip
+py3-requests

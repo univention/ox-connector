@@ -52,8 +52,9 @@ import time
 
 import requests
 import six
-import uritemplate
 from urllib3.exceptions import InsecureRequestWarning
+
+import uritemplate
 
 if sys.version_info.major > 2:
     import http.client
