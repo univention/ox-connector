@@ -28,11 +28,11 @@
 # <http://www.gnu.org/licenses/>.
 
 
-from pathlib import Path
 import logging
 import re
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 
 logger = logging.getLogger("listener")
 
