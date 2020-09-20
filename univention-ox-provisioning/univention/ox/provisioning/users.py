@@ -266,7 +266,7 @@ def set_user_rights(user, obj):
     for access_right in access_profile:
         if access_right in access_rights:
             access_rights[access_right] = True
-    logger.info(f"Changing {user.id} to profile {user_access}: {access_rights}")
+    logger.info(f"Changing user {user.id} to profile {user_access}")
     user.service(user.context_id).change_by_module_access(
         {"id": user.id}, access_rights
     )

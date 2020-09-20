@@ -1,7 +1,7 @@
 # OX Provisioning App
 
 **APP VERSION 1.1.0**
-**OX VERSION 7.10.3**
+**OX VERSION 7.10.4**
 
 This App connects to UCS' Identity Management with OX' database.
 
@@ -13,6 +13,7 @@ More specifically, the script runs whenever something changed in the following U
 * users/user
 * groups/group
 * oxresources/oxresources
+* ox/accessprofile (does not hit the SOAP API, only rewrites a local file)
 
 # Setup
 
@@ -97,6 +98,13 @@ Groups need to be activated in UDM:
 Groups will be automatically added to those contexts where its members are members in. If the last member of the group leaves her context, the group is deleted.
 
 Setting `isOxGroup=Not` will remove the group from OX.
+
+## Access profiles
+
+OX knows access rights that can be granted to each user individually. The App supports these through a file called
+`ModuleAccessDefinitions.properties`
+
+It works like the file of the OX installation with the same name but it is only evaluated locally and does not need to be in sync with any file on the OX server. The file is recreated each time a UDM object of the module `ox/accessprofile` is modified. Users will be granted the rights according to their attribute `oxAccess`.
 
 ## Caveats
 

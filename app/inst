@@ -238,6 +238,10 @@ create_container () {
 }
 
 create_accessprofiles () {
+	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
+		# new listener filter
+		service univention-directory-listener restart
+	fi
 	echo "Creating OX access profiles..."
 	univention-directory-manager ox/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \

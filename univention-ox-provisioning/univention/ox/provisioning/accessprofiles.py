@@ -88,7 +88,7 @@ capability_map = {
     "calendar": "calendar",
     "collectemailaddresses": "collectEmailAddresses",
     "contacts": "contacts",
-    "deletegatetask": "delegateTask",
+    "delegatetask": "delegateTask",
     "deniedportal": "deniedPortal",  # TODO: double check
     "editgroup": "editGroup",
     "editpassword": "editPassword",
