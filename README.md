@@ -63,6 +63,12 @@ The whole point is to decouple OX and the integration. Yet, we want to run again
 ```
 #ucr set ox/joinscript/skip=yes  # we provide a join script. but we need some setup steps nonetheless (creation of the ox master admin)
 ucr set ox/listener/enabled=false  # we provide the listener
+# OX uses LDAP (settings) of the UCS server with the connector app:
+ucr set \
+    ox/cfg/authplugin.properties/com.openexchange.authentication.ucs.baseDn=dc=ucs,dc=local \
+    ox/cfg/authplugin.properties/com.openexchange.authentication.ucs.bindDn=cn=testvm,cn=dc,cn=computers,dc=ucs,dc=local \
+    ox/cfg/authplugin.properties/com.openexchange.authentication.ucs.ldapUrl=ldaps://testvm.ucs.local:7636 \
+    ox/cfg/authplugin.properties/com.openexchange.authentication.ucs.bindPassword=s3cr3t
 univention-app install oxseforucs
 ```
 
