@@ -87,6 +87,36 @@ The SOAP endpoints are not avaiable by default. You need to modify `/etc/apache2
 </Location>
 ```
 
+### Setup OX connector
+
+On the system where the OX connector app should be installed, install the UCS mail server app first::
+
+    univention-app install mailserver
+
+Then install the OX connector app::
+
+    univention-app install ox-connector --set \
+      OX_MASTER_ADMIN="oxadminmaster" \
+      OX_MASTER_PASSWORD="s3cr3t" \
+      LOCAL_TIMEZONE="Europe/Berlin" \
+      OX_LANGUAGE="de_DE" \
+      DEFAULT_CONTEXT="10" \
+      OX_SMTP_SERVER="smtp://$(hostname -f):587" \
+      OX_IMAP_SERVER="imap://$(hostname -f):143" \
+      OX_SOAP_SERVER="https://my-ox-server.mydomain.de"
+
+* The password for `OX_MASTER_PASSWORD` is the content of `/etc/ox-secrets/master.secret` on OX server.
+* The mail server for `OX_SMTP_SERVER` and `OX_IMAP_SERVER` has just been installed on this host.
+* The value for `OX_SOAP_SERVER` is the FQDN of the server where OX is installed.
+
+When the app was installed, the SSL CA certificate of the OX server must be imported into the apps Docker container::
+
+    root@m151:~# univention-app shell ox-connector
+    /oxp # wget --no-check-certificate https://my-ox-server.mydomain.de/ucs-root-ca.crt -O /usr/local/share/ca-certificates/soap-server.crt
+    /oxp # update-ca-certificates
+
+Now when users are created on the host with the OX connector app, they will have a mailbox on it, and
+OX will use it.
 
 ### Build
 
