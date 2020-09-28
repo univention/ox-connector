@@ -114,6 +114,7 @@ When the app was installed, the SSL CA certificate of the OX server must be impo
     root@m151:~# univention-app shell ox-connector
     /oxp # wget --no-check-certificate https://my-ox-server.mydomain.de/ucs-root-ca.crt -O /usr/local/share/ca-certificates/soap-server.crt
     /oxp # update-ca-certificates
+    # ignore "WARNING: ca-certificates.crt does not contain exactly one certificate or CRL: skipping"
 
 Now when users are created on the host with the OX connector app, they will have a mailbox on it, and
 OX will use it.
