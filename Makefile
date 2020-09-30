@@ -75,7 +75,7 @@ test: ## run tests (with the current active Python interpreter)
 	python3 -m pytest -l -v -c univention-ox-provisioning/setup.cfg tests
 
 .coverage: $(PY_FILES)
-	coverage run --source tests,ucsschool -m pytest tests
+	coverage run --source tests -m pytest tests
 
 coverage: .coverage ## check code coverage with the current Python interpreter
 	coverage report --show-missing $(MY_COVERAGE_REPORT_ARGS)

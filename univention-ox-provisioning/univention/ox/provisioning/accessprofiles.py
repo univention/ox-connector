@@ -82,24 +82,22 @@ def save_accessprofiles(profiles):
 
 
 capability_map = {
-    "olox20": "OLOX20",
     "usm": "USM",
     "activesync": "activeSync",
     "calendar": "calendar",
     "collectemailaddresses": "collectEmailAddresses",
     "contacts": "contacts",
     "delegatetask": "delegateTask",
-    "deniedportal": "deniedPortal",  # TODO: double check
+    "deniedportal": "deniedPortal",
     "editgroup": "editGroup",
     "editpassword": "editPassword",
     "editpublicfolders": "editPublicFolders",
     "editresource": "editResource",
-    "globaladdressbookdisabled": "globalAddressBookDisabled",  # TODO: double check
+    "globaladdressbookdisabled": "globalAddressBookDisabled",
     "ical": "ical",
     "infostore": "infostore",
     "multiplemailaccounts": "multipleMailAccounts",
     # "": "publicFolderEditable",  # context admin right
-    "publication": "publication",
     "readcreatesharedfolders": "readCreateSharedFolders",
     "subscription": "subscription",
     "syncml": "syncml",

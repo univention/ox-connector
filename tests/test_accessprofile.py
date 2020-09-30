@@ -50,7 +50,6 @@ def find_access(context_id, name, assert_empty=False, print_obj=True):
 @pytest.mark.parametrize(
     "right,right_soap",
     [
-        ("olox20", "OLOX20"),
         ("usm", "USM"),
         ("activesync", "activeSync"),
         ("calendar", "calendar"),
@@ -66,7 +65,6 @@ def find_access(context_id, name, assert_empty=False, print_obj=True):
         ("ical", "ical"),
         ("infostore", "infostore"),
         ("multiplemailaccounts", "multipleMailAccounts"),
-        ("publication", "publication"),
         ("readcreatesharedfolders", "readCreateSharedFolders"),
         ("subscription", "subscription"),
         ("syncml", "syncml"),

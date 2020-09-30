@@ -256,8 +256,7 @@ create_accessprofiles () {
 		--set webmail=TRUE \
 		--set collectemailaddresses=TRUE \
 		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE \
-		--set publication=TRUE
+		--set subscription=TRUE
 
 	univention-directory-manager ox/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
@@ -268,8 +267,7 @@ create_accessprofiles () {
 		--set webmail=TRUE \
 		--set collectemailaddresses=TRUE \
 		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE \
-		--set publication=TRUE
+		--set subscription=TRUE
 
 	univention-directory-manager ox/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
@@ -282,8 +280,7 @@ create_accessprofiles () {
 		--set webmail=TRUE \
 		--set collectemailaddresses=TRUE \
 		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE \
-		--set publication=TRUE
+		--set subscription=TRUE
 
 	univention-directory-manager ox/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
@@ -297,8 +294,7 @@ create_accessprofiles () {
 		--set webmail=TRUE \
 		--set collectemailaddresses=TRUE \
 		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE \
-		--set publication=TRUE
+		--set subscription=TRUE
 
 	univention-directory-manager ox/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
@@ -314,8 +310,7 @@ create_accessprofiles () {
 		--set webmail=TRUE \
 		--set collectemailaddresses=TRUE \
 		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE \
-		--set publication=TRUE
+		--set subscription=TRUE
 
 	univention-directory-manager ox/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
@@ -336,9 +331,7 @@ create_accessprofiles () {
 		--set collectemailaddresses=TRUE \
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE \
-		--set publication=TRUE \
-		--set usm=TRUE \
-		--set olox20=TRUE
+		--set usm=TRUE
 }
 
 remember_user_access_profiles() {

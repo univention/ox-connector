@@ -34,7 +34,7 @@ RUN pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
 COPY Makefile /tmp
 COPY app/listener_trigger /tmp/app/
-COPY tests /tmp/tests
+
 # 1st linting, then installation
 RUN apk add --no-cache gcc python3-dev make musl-dev && \
 	python3 -m venv --system-site-packages /tmp/venv && \
