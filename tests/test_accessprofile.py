@@ -103,7 +103,7 @@ def test_every_one_right_access_profile(
     access = find_access(default_ox_context, new_user_name)
     assert access[right_soap] is True
     for _right in access:
-        if _right == 'OLOX20' or _right == 'publication': # deprecated rights
+        if _right == "OLOX20" or _right == "publication":  # deprecated rights
             continue
         if _right != right_soap:
             assert access[_right] is False
