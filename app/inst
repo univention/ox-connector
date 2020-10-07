@@ -78,7 +78,7 @@ setup_vars () {
 	DEFAULT_CONTEXT="$ox_context_id"
 
 	PACKAGE_NAME="univention-ox"
-	PACKAGE_VERSION="11.0.0-32A~4.4.0.201911191756"  # FIXME: Need to get from ox branch? Or is it okay as it is?
+	PACKAGE_VERSION="11.0.0-67.1A~4.4.0.202009111232"  # FIXME: Need to get from ox branch? Or is it okay as it is?
 }
 
 register_ldap () {
