@@ -121,8 +121,8 @@ class TriggerObject(object):
             # deleting a context should always come last
             return True
         if (
-            self.object_type == "ox/accessprofile"
-            or other.object_type == "ox/accessprofile"
+            self.object_type == "oxmail/accessprofile"
+            or other.object_type == "oxmail/accessprofile"
         ):
             # do not change order in accessprofiles
             return False

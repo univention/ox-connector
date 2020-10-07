@@ -96,7 +96,7 @@ register_ldap () {
 	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
 	register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py         "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/ox/accessprofile.py         "$PREFIX"/udm/handlers/ox/*.mo          "$PREFIX"/umc/icons/*/udm-ox-accessprofile.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py     "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py  "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
 
 	univention-directory-manager policies/registry create "$@" \
@@ -243,12 +243,12 @@ create_accessprofiles () {
 		service univention-directory-listener restart
 	fi
 	echo "Creating OX access profiles..."
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=none \
 		--set displayName="Login disabled"
 
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=webmail \
 		--set displayName=Webmail \
@@ -258,7 +258,7 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE
 
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=webmail_drive \
 		--set displayName="Webmail, Drive" \
@@ -269,7 +269,7 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE
 
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=pim \
 		--set displayName="Webmail, PIM" \
@@ -282,7 +282,7 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE
 
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=pim_drive \
 		--set displayName="Webmail, PIM, Drive" \
@@ -296,7 +296,7 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE
 
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=groupware \
 		--set displayName="Webmail, PIM, Groupware" \
@@ -312,7 +312,7 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE
 
-	univention-directory-manager ox/accessprofile create "$@" \
+	univention-directory-manager oxmail/accessprofile create "$@" \
 		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
 		--set name=premium \
 		--set displayName="Webmail, PIM, Groupware, WebDAV" \

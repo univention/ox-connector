@@ -13,7 +13,7 @@ More specifically, the script runs whenever something changed in the following U
 * users/user
 * groups/group
 * oxresources/oxresources
-* ox/accessprofile (does not hit the SOAP API, only rewrites a local file)
+* oxmail/accessprofile (does not hit the SOAP API, only rewrites a local file)
 
 # Setup
 
@@ -104,7 +104,7 @@ Setting `isOxGroup=Not` will remove the group from OX.
 OX knows access rights that can be granted to each user individually. The App supports these through a file called
 `ModuleAccessDefinitions.properties`
 
-It works like the file of the OX installation with the same name but it is only evaluated locally and does not need to be in sync with any file on the OX server. The file is recreated each time a UDM object of the module `ox/accessprofile` is modified. Users will be granted the rights according to their attribute `oxAccess`.
+It works like the file of the OX installation with the same name but it is only evaluated locally and does not need to be in sync with any file on the OX server. The file is recreated each time a UDM object of the module `oxmail/accessprofile` is modified. Users will be granted the rights according to their attribute `oxAccess`.
 
 ## Caveats
 

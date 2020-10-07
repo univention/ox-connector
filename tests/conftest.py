@@ -203,7 +203,7 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
             "groups/group",
             "users/user",
             "oxmail/oxcontext",
-            "ox/accessprofile",
+            "oxmail/accessprofile",
         ]:
             if module_name in modules:
                 modules.remove(module_name)

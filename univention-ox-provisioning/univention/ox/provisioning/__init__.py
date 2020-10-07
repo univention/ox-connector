@@ -66,7 +66,7 @@ def run(obj):  # noqa: C901
             modify_context(obj)
         elif obj.was_deleted():
             delete_context(obj)
-    if obj.object_type == "ox/accessprofile":
+    if obj.object_type == "oxmail/accessprofile":
         if obj.was_added():
             create_accessprofile(obj)
         elif obj.was_modified():

@@ -27,7 +27,7 @@ def create_user(udm, name, domainname, context_id, ox_access):
 
 def create_obj(udm, name, right):
     dn = udm.create(
-        "ox/accessprofile",
+        "oxmail/accessprofile",
         "cn=accessprofiles,cn=open-xchange",
         {"name": name, "displayName": name.replace("_", " ").title(), right: True},
     )
@@ -103,10 +103,13 @@ def test_every_one_right_access_profile(
     access = find_access(default_ox_context, new_user_name)
     assert access[right_soap] is True
     for _right in access:
+        if _right == 'OLOX20' or _right == 'publication': # deprecated rights
+            continue
         if _right != right_soap:
             assert access[_right] is False
 
-    udm.remove("ox/accessprofile", dn)
+    udm.remove("users/user", user_dn)  # needs to be removed before accessprofile
+    udm.remove("oxmail/accessprofile", dn)
     wait_for_listener(dn)
     get_access_profiles(force_reload=True)
     assert get_access_profile(ox_access) is None
