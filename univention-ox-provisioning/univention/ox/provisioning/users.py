@@ -39,12 +39,13 @@ from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
     get_access_profile,
 )
-from univention.ox.provisioning.helpers import get_context_id
+from univention.ox.provisioning.helpers import get_context_id, Skip
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
     DEFAULT_SMTP_SERVER,
     LOCAL_TIMEZONE,
+    get_context_admin_user,
 )
 
 User = get_ox_integration_class("SOAP", "User")
@@ -275,6 +276,8 @@ def set_user_rights(user, obj):
 def get_user_id(attributes):
     context_id = get_context_id(attributes)
     username = attributes.get("username")
+    if username == get_context_admin_user(context_id):
+        raise Skip(f"Not touching {username} in context {context_id}: Is context admin!")
     logger.info(f"Searching for {username} in context {context_id}")
     users = User.list(context_id, pattern=username)
     if not users:
