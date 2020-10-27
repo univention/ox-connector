@@ -160,6 +160,10 @@ create_eas () {
 		--set ldapattribute="cn" \
 		--set description="Select OX context objects"
 
+	# update makes oxDrive unnecessary. But update could be from OX? So we cannot use JS_EXEC_VERSION 1?
+	univention-directory-manager settings/extended_attribute remove "$@" \
+		--dn "cn=oxDrive,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
 	# create all default extended attributes
 	python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
