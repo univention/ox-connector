@@ -126,7 +126,9 @@ def get_access_profiles(force_reload):
                             capability_map.get(cap, cap) for cap in capabilities
                         ]
         except EnvironmentError:
-            pass
+            logger.warn(
+                "Could not read %s. Working will empty set...", access_definitions_file
+            )
     return deepcopy(_profiles)
 
 

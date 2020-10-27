@@ -62,7 +62,7 @@ main () {
 	create_container "$@"
 
 	create_accessprofiles "$@"
-	apply_user_access_profiles "$@"
+	migrate_user_access_profiles "$@"
 
 	setup_umc "$@"
 
@@ -334,15 +334,9 @@ create_accessprofiles () {
 		--set usm=TRUE
 }
 
-remember_user_access_profiles() {
+migrate_user_access_profiles() {
 	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
-		python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
-	fi
-}
-
-apply_user_access_profiles() {
-	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
-		python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
+		python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
 	fi
 }
 
