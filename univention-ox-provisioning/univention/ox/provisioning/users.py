@@ -39,7 +39,7 @@ from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
     get_access_profile,
 )
-from univention.ox.provisioning.helpers import get_context_id, Skip
+from univention.ox.provisioning.helpers import Skip, get_context_id
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
