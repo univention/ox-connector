@@ -50,7 +50,6 @@ main () {
 
 	setup_vars
 
-	remember_user_access_profiles "$@"
 	register_ldap "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
