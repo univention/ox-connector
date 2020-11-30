@@ -341,7 +341,11 @@ def modify_user(obj):
     if obj.attributes.get("isOxUser", "Not") == "Not":
         logger.info(f"{obj} is no OX user. Deleting instead...")
         return delete_user(obj)
-    user_id = get_user_id(obj.old_attributes)
+    try:
+        user_id = get_user_id(obj.old_attributes)
+    except Skip:
+        logger.info("%s has no context ID. Creating instead...", obj)
+        return create_user(obj)
     if not user_id:
         logger.info(f"{obj} does not yet exist. Creating instead...")
         return create_user(obj)
