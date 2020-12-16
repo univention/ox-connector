@@ -101,10 +101,38 @@ Setting `isOxGroup=Not` will remove the group from OX.
 
 ## Access profiles
 
+*NEW IN 1.1.0*
+
 OX knows access rights that can be granted to each user individually. The App supports these through a file called
 `ModuleAccessDefinitions.properties`
 
 It works like the file of the OX installation with the same name but it is only evaluated locally and does not need to be in sync with any file on the OX server. The file is recreated each time a UDM object of the module `oxmail/accessprofile` is modified. Users will be granted the rights according to their attribute `oxAccess`.
+
+**ATTENTION**: The App does not evaluate if the permissions you chose are sane in that OX may reject them! Not all access rights can be combined. Check your OX documentation on this topic.
+
+### Update from 1.0.x
+
+During the update of the App from 1.0 to 1.1, we will migrate all users after creating some default permission sets. These are *none*, *webmail*, *pim*, *groupware*, *premium* (similar to the old, static choices) as well as *webmail_drive* and *pim_drive* which add OX Drive access to the former profiles.
+
+Consequently, the user's property oxDrive has been removed.
+
+All users that had *webmail* as their oxAccess plus oxDrive will now be changed in LDAP as they now get *webmail_drive*. This may lead to a lot of tasks for the App without really changing anything.
+
+You can work around this auto update by doing the following
+
+```
+DIR=/var/lib/univention-appcenter/apps/ox-connector/data/resources
+touch $DIR/migrate-user-access-profiles-results
+# UPDATE APP - the auto migration will be disabled
+python $DIR/migrate-user-access-profiles.py \
+  --write \
+  --file $DIR/migrate-user-access-profiles-results
+less $DIR/migrate-user-access-profiles-results
+```
+
+You may actually change this file. Maybe after you set your `oxmail/accessprofile` objects correctly.
+
+If you feel confident with the results, run the `python` command above again. This time without `--write` but with `--apply`.
 
 ## Caveats
 
