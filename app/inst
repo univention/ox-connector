@@ -81,7 +81,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.1.0'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.1.1'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
