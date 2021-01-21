@@ -33,8 +33,7 @@ RUN pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api 
 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
 COPY Makefile /tmp
-COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
-COPY LICENSE /usr/local/share/ox-connector/LICENSE
+COPY app/listener_trigger /tmp/app/
 COPY tests /tmp/tests
 
 # 1st linting, then installation
@@ -55,6 +54,9 @@ RUN apk add --no-cache gcc python3-dev make musl-dev && \
 	python3 -c "from univention.ox.provisioning import run" && \
 	apk del --no-cache gcc python3-dev make musl-dev && \
 	rm -rf /tmp/*
+
+COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
+COPY LICENSE /usr/local/share/ox-connector/LICENSE
 
 COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
 COPY appsuite/univention-ox/udm/ /usr/local/share/ox-connector/resources/udm
