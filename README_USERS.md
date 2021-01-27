@@ -83,7 +83,24 @@ Add a new context like this:
 
 `udm oxmail/oxcontext create --position cn=open-xchange --set oxQuota=... --set contextid=... --set name=...`
 
-For each context that is created by UDM, the App automatically creates a context admin and names it `oxadmin-context$id` (except for the `DEFAULT_CONTEXT`, where it is just `oxadmin`). It stores the password here: `/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context$id`.
+For each context that is created by UDM, the App automatically creates a context admin and names it `oxadmin-context$id` (except for the `DEFAULT_CONTEXT`, where it is just `oxadmin`). It stores the password here: `/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`.
+
+Unlike all other objects, adding a context requires the Master Password for OX. If you do not intend to create contexts via this App, you do not need to specify those credentials.
+
+In that case, you need to create the contexts in OX itself and provide the credentials of these contexts in the file `/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`. The entry for context 10 looks like:
+
+```json
+{
+  "10": {
+    "adminpass": "s3cr3t",
+    "adminuser": "oxadmin"
+  }
+}
+```
+
+*NEW IN 1.1.1*
+
+This file was added in version 1.1.1 of the App. Prior to this version, passwords where stored in separate files within the same folder as `contexts.json`. A migration happens automatically upon App upgrade.
 
 ## Users
 

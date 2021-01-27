@@ -278,9 +278,11 @@ def run_on_files(
     """
     Iterate over objects (returned by objects_from_files) and runs a
     function f on this object. May continue to do so even if one iteration
-    failed. Returns a reasonable exit code
+    failed. Returns the number of objects that were successfully processed OR
+    an error code (in this case, the number is negative)
     """
     ret = 0
+    seen = 0
     for obj in objs:
         logger.info(f"Handling {obj.path!r}")
         try:
@@ -288,7 +290,7 @@ def run_on_files(
         except Exception:
             logger.warning(f"Error while processing {obj.path}")
             traceback.print_exc()
-            ret = 1
+            ret = -1
             errors = meta.get("errors")
             if errors is None:
                 errors = 1
@@ -303,8 +305,17 @@ def run_on_files(
                 break
         else:
             meta.set("errors", "0")
-    return ret
+            seen += 1
+    logger.info(f"Successfully processed {seen} files during this run")
+    if ret == -1:
+        return ret
+    return seen
 
 
-objs = objects_from_files(delete_files=False, move_files=True)
-sys.exit(run_on_files(objs, run, pause_after_errors_num=3, pause_after_errors_length=0))
+while True:
+    objs = objects_from_files(delete_files=False, move_files=True)
+    files_seen = run_on_files(
+        objs, run, pause_after_errors_num=3, pause_after_errors_length=0
+    )
+    if files_seen <= 0:
+        sys.exit(-files_seen)
