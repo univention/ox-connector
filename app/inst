@@ -118,6 +118,8 @@ register_ldap_extension () {
 	done
 	args+=(--packagename "$PACKAGE_NAME")
 	args+=(--packageversion "$PACKAGE_VERSION")
+	args+=(--ucsversionstart "4.4-3")
+	args+=(--ucsversionend "5.99-0")
 	shift
 	while [ $# -ge 1 ]
 	do
