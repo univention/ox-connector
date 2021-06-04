@@ -64,7 +64,7 @@ udm settings/extended_attribute modify \
   --dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" \
   --set default=...
 udm settings/extended_attribute modify \
-  --dn "cn=oxContextResourcer,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" \
+  --dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" \
   --set default=...
 udm settings/usertemplate modify \
   --dn "cn=open-xchange groupware account,cn=templates,cn=univention,$(ucr get ldap/base)" \
