@@ -43,3 +43,9 @@ def get_context_id(attributes):
 
 def get_old_obj(dn):
     raise NotImplementedError("Needs to be overwritten by another function")
+
+
+def get_db_id(dn):
+    obj = get_old_obj(dn)
+    if obj:
+        return obj.attributes.get("oxDbId")

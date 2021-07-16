@@ -62,6 +62,7 @@ COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
 COPY appsuite/univention-ox/udm/ /usr/local/share/ox-connector/resources/udm
 COPY appsuite/univention-ox/umc/ /usr/local/share/ox-connector/resources/umc
 COPY appsuite/univention-ox/ldap/ /usr/local/share/ox-connector/resources/ldap
+COPY bin/* /usr/local/bin/
 
 #
 # comment below out for final image

@@ -1,0 +1,171 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright 2021 Univention GmbH
+#
+# http://www.univention.de/
+#
+# All rights reserved.
+#
+# The source code of this program is made available
+# under the terms of the GNU Affero General Public License version 3
+# (GNU AGPL V3) as published by the Free Software Foundation.
+#
+# Binary versions of this program provided by Univention to you as
+# well as other copyrighted, protected or trademarked materials like
+# Logos, graphics, fonts, specific documentations and configurations,
+# cryptographic keys etc. are subject to a license agreement between
+# you and Univention and not subject to the GNU AGPL V3.
+#
+# In the case you use this program under the terms of the GNU AGPL V3,
+# the program is provided in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License with the Debian GNU/Linux or Univention distribution in file
+# /usr/share/common-licenses/AGPL-3; if not, see
+# <http://www.gnu.org/licenses/>.
+
+
+import json
+import logging
+import sys
+from argparse import ArgumentParser
+from pathlib import Path
+
+from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.config import NoContextAdminPassword
+
+logger = logging.getLogger("univention.ox")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter("%(name)s: %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger = logging.getLogger("listener")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter("%(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+User = get_ox_integration_class("SOAP", "User")
+PATH = Path("/var/lib/univention-appcenter/apps/ox-connector/data/")
+CACHE = {}
+
+
+def find_db_id(ox_context, username, build_cache, build_cache_size):
+    if build_cache and ox_context not in CACHE:
+        logger.info(f"Building cache for {ox_context}")
+        users = {}
+        try:
+            empty_objs = User.service(ox_context).list_all()
+        except NoContextAdminPassword:
+            logger.warning(f"... no password configured for context!")
+        else:
+            logger.info(f"Retrieved {len(empty_objs)} ids")
+
+            def chunks(objs):
+                return (
+                    objs[pos : pos + build_cache_size]
+                    for pos in range(0, len(objs), build_cache_size)
+                )
+
+            for chunk in chunks(empty_objs):
+                soap_objs = User.service(ox_context).get_multiple_data(chunk)
+                logger.info(f"Loaded {len(soap_objs) + len(users)}")
+                for soap_obj in soap_objs:
+                    users[soap_obj.name] = soap_obj.id
+        logger.info("... built cache")
+        CACHE[ox_context] = users
+    if ox_context in CACHE:
+        return CACHE[ox_context].get(username)
+    try:
+        soap_objs = User.list(ox_context, pattern=username)
+    except NoContextAdminPassword:
+        logger.warning(f"... no password configured for context!")
+        return None
+    if not soap_objs:
+        logger.warning(f"... not found!")
+        return None
+    return soap_objs[0].id
+
+
+def main(args):
+    i = 0
+
+    for json_file in PATH.glob("listener/old/*.json"):
+        i += 1
+    logger.info(f"Found {i} files. Starting...")
+
+    i = 0
+    for json_file in PATH.glob("listener/old/*.json"):
+        i += 1
+        if i % 1000 == 0:
+            logger.info(f"Processing file #{i}")
+        logger.debug(f"Examining {json_file}")
+        with open(json_file) as fd:
+            json_data = json.load(fd)
+        object_type = json_data.get("udm_object_type")
+        dn = json_data.get("dn")
+        obj = json_data.get("object")
+        logger.debug(f"Found {object_type} {dn}")
+        if object_type != "users/user":
+            continue
+        is_ox_user = obj.get("isOxUser") == "OK"
+        ox_context = obj.get("oxContext")
+        username = obj.get("username")
+        db_id = obj.get("oxDbId")
+        if not is_ox_user:
+            logger.debug("... not an OX user")
+            continue
+        if db_id:
+            if args.delete:
+                logger.debug(f"... Removing DB id (ctx {ox_context} id {db_id})")
+                del json_data["object"]["oxDbId"]
+                with open(json_file, "w") as fd:
+                    json.dump(json_data, fd, sort_keys=True, indent=4)
+            else:
+                logger.debug(f"... already in database (ctx {ox_context} id {db_id})")
+            continue
+        if args.delete:
+            continue
+        logger.info(f"Searching in {ox_context} for {username}")
+        db_id = find_db_id(
+            ox_context,
+            username,
+            build_cache=args.build_cache,
+            build_cache_size=args.build_cache_size,
+        )
+        if db_id is None:
+            continue
+        logger.info(f"... found it at {db_id}")
+        json_data["object"]["oxDbId"] = db_id
+        with open(json_file, "w") as fd:
+            json.dump(json_data, fd, sort_keys=True, indent=4)
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser(
+        description="Enrich old JSON files with their database IDs from OX (only users)"
+    )
+    parser.add_argument(
+        "--delete",
+        action="store_true",
+        help="Do not enrich JSON files. Instead, delete their database IDs (useful if you want to rebuild the cache)",
+    )
+    parser.add_argument(
+        "--build-cache",
+        action="store_true",
+        help="Upon first appearance of a context, retrieve all users at once to save future lookups. Caution: May take about 1GB per 10k users!",
+    )
+    parser.add_argument(
+        "--build-cache-size",
+        type=int,
+        default=1000,
+        help="All user ids are retrieved at once. But the full user objects are collected in chunks (to not stress the OX server). Eventually, all users are fully loaded. Default: %(default)s",
+    )
+    args = parser.parse_args()
+    main(args)

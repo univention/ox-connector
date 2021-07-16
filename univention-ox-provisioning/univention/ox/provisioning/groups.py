@@ -32,7 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import get_context_id
+from univention.ox.provisioning.helpers import get_context_id, get_db_id
 from univention.ox.provisioning.users import get_user_id
 
 Group = get_ox_integration_class("SOAP", "Group")
@@ -61,6 +61,7 @@ def update_group(group, attributes):
         username = user[4:].split(",")[0]  # TODO: make this more elegant
         user_attributes = {}
         user_attributes["oxContext"] = get_context_id(attributes)
+        user_attributes["oxDbId"] = get_db_id(user)
         user_attributes["username"] = username
         user_id = get_user_id(user_attributes)
         if user_id:

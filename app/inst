@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=2
+VERSION=3
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -81,7 +81,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.1.2'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.2.0'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \

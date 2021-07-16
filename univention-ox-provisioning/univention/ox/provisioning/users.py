@@ -274,6 +274,8 @@ def set_user_rights(user, obj):
 
 
 def get_user_id(attributes):
+    if attributes.get("oxDbId"):
+        return attributes["oxDbId"]
     context_id = get_context_id(attributes)
     username = attributes.get("username")
     if username == get_context_admin_user(context_id):
@@ -303,6 +305,7 @@ def create_user(obj):
         return modify_user(obj)
     user = user_from_attributes(obj.attributes)
     user.create()
+    obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
     logger.info("Looking for groups of this user to be created in the context id")
     for group in obj.attributes.get("groups", []):
@@ -374,6 +377,7 @@ def modify_user(obj):
         logger.info(f"{obj} has no old data. Resync?")
         user = user_from_attributes(obj.attributes, user_id)
     user.modify()
+    obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
 
 

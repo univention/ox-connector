@@ -104,6 +104,7 @@ class TriggerObject(object):
         self.old_options = None
         self.path = path  # file where it originates from
         self._old_loaded = False
+        self._enriched = {}
 
     def ordering(self, other):
         """Sort incoming objects if needed. Return True whenever self should be
@@ -170,6 +171,29 @@ class TriggerObject(object):
     def was_deleted(self):
         """Whether this object was deleted."""
         return self.attributes is None
+
+    def was_enriched(self):
+        """Whether the obj was modified via set_attr during processing."""
+        return bool(self._enriched)
+
+    def set_attr(self, attr, value):
+        """Enrich an object's attributes. Will be preserved should the
+        old object be kept (i.e. files are moved at the end)"""
+        if self.attributes.get(attr) != value:
+            self.attributes[attr] = value
+            self._enriched[attr] = value
+
+    def dump(self, filename=None):
+        """Save the object into a filename."""
+        content = {
+            "id": self.entry_uuid,
+            "udm_object_type": self.object_type,
+            "dn": self.dn,
+            "object": self.attributes,
+            "options": self.options,
+        }
+        with open(filename or self.path, "w") as fd:
+            json.dump(content, fd, sort_keys=True, indent=4)
 
     def __repr__(self):
         return "Object({!r}, {!r})".format(self.object_type, self.dn)
@@ -262,6 +286,9 @@ def objects_from_files(delete_files=True, move_files=False):
                 if old_file_path.exists():
                     old_file_path.unlink()
                 path.replace(old_file_path)
+                if obj.was_enriched():
+                    logger.info("... not done yet; enriching object by rewriting JSON file...")
+                    obj.dump(old_file_path)
                 mapping.set(obj.dn, old_file_path)
         elif delete_files:
             logger.info(f"Deleting {path}")

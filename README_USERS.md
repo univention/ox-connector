@@ -1,6 +1,6 @@
 # OX Provisioning App
 
-**APP VERSION 1.1.2**
+**APP VERSION 1.2.0**
 **OX VERSION 7.10.4**
 
 This App connects to UCS' Identity Management with OX' database.
@@ -28,7 +28,7 @@ You need to have set up an admin user in OX (one that can create contexts). Name
 To install the App, do the following:
 
 ```shell
-univention-app install ox-connector=1.1.2 --set \
+univention-app install ox-connector=1.2.0 --set \
   OX_MASTER_ADMIN="oxadminmaster"  `# the name of the "root" user in OX itself` \
   OX_MASTER_PASSWORD=""  `# the password of the ox admin` \
   LOCAL_TIMEZONE="Europe/Berlin"  `# default timezone for new users` \
@@ -209,3 +209,23 @@ cat > /var/lib/univention-appcenter/listener/ox-connector/$(date +%Y-%m-%d-%H-%M
 }
 EOF
 ```
+
+## Caches
+
+*NEW IN 1.2.0*
+
+When users are created / modified, they get an internal ID in OX' database. This ID is not present in LDAP.
+
+When modifying a group, the request to OX needs to include the internal IDs of its members. To get these, the connector could ask the database for each of the group's members. In order to speed things up, the JSON files from the Listener are enriched by the App with that internal database ID. You can see them when examining any OX user JSON in `/var/lib/univention-appcenter/apps/ox-connector/data/listener/old/*.json` (the directory, where each successfully processed JSON file is put).
+
+If this cache should get corrupted (e.g., the OX database was restored from a previous backup), you can do the following:
+
+```shell
+univention-app shell ox-connector
+update-ox-db-cache --delete
+update-ox-db-cache
+```
+
+Note that this command may be useful when updating to version 1.2.0. Older versions did not save the internal ID in the JSON files and the App would fall back to the much slower "one database lookup per user" mechanism.
+
+Also note that renewing the cache can take a long time, depending on the amount of users you already have in your database. You can try to speed things up with `update-ox-db-cache --build-cache`. This will not retrieve one user at a time, but get all users of a context at once. Be aware that this may easily take up 1GB RAM per 10k users and may result in a lot of load on your OX server and the App itself.
