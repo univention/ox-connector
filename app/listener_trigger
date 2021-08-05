@@ -49,7 +49,6 @@ DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
 NEW_FILES_DIR = DATA_DIR / "listener"
 OLD_FILES_DIR = NEW_FILES_DIR / "old"
 
-
 logger = logging.getLogger("univention.ox")
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
@@ -287,7 +286,9 @@ def objects_from_files(delete_files=True, move_files=False):
                     old_file_path.unlink()
                 path.replace(old_file_path)
                 if obj.was_enriched():
-                    logger.info("... not done yet; enriching object by rewriting JSON file...")
+                    logger.info(
+                        "... not done yet; enriching object by rewriting JSON file..."
+                    )
                     obj.dump(old_file_path)
                 mapping.set(obj.dn, old_file_path)
         elif delete_files:
