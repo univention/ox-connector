@@ -1,7 +1,7 @@
 import dbm.gnu
+import json
 from contextlib import contextmanager
 from pathlib import Path
-import json
 
 from univention.ox.backend_base import User, get_ox_integration_class
 
