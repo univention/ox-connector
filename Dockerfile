@@ -2,6 +2,8 @@ FROM alpine:3.12
 
 ARG version
 
+SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
+
 WORKDIR /oxp
 
 CMD ["/sbin/init"]
