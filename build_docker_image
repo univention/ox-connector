@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euxo pipefail
 
 
 APP_ID="ox-connector"
@@ -19,16 +19,19 @@ GIT_ARGS="-c http.sslVerify=false"
 GIT_REPO_URI="https://git.knut.univention.de/univention/open-xchange/appsuite.git"
 OUR_PYTHON_PACKAGES="appsuite/univention-ox appsuite/univention-ox-soap-api univention-ox-provisioning"
 
+BUILD_ARGS=""
+PROXY_ARGS=""
+RELEASE=0
 
-if [ "$1" = "--release" ] || [ "$2" = "--release" ] || [ "$3" = "--release" ]; then
+if [ "${1:-}" = "--release" ] || [ "${2:-}" = "--release" ] || [ "${3:-}" = "--release" ]; then
   RELEASE=1
 fi
 
 PUSH_DEV=0
-if [ "$1" = "--push" ] || [ "$2" = "--push" ] || [ "$3" = "--push" ]; then
+if [ "${1:-}" = "--push" ] || [ "${2:-}" = "--push" ] || [ "${3:-}" = "--push" ]; then
   PUSH_DEV=1
 fi
-if [ "$1" = "--yes" ] || [ "$2" = "--yes" ] || [ "$3" = "--yes" ]; then
+if [ "${1:-}" = "--yes" ] || [ "${2:-}" = "--yes" ] || [ "${3:-}" = "--yes" ]; then
   PUSH_YES=1
 fi
 if [ "$PUSH_DEV" = 1 ] && [ "$(hostname -f)" != "$DOCKER_REGISTRY_SERVER" ]; then
@@ -36,7 +39,7 @@ if [ "$PUSH_DEV" = 1 ] && [ "$(hostname -f)" != "$DOCKER_REGISTRY_SERVER" ]; the
   exit 1
 fi
 
-if [ -n "$http_proxy" ]; then
+if [ -n "${http_proxy:-}" ]; then
     PROXY_ARGS="--build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy"
 fi
 
