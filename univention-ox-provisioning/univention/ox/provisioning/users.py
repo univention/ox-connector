@@ -258,7 +258,7 @@ def set_user_rights(user, obj):
     if user_access:
         access_profile = get_access_profile(user_access)
         if access_profile is None:
-            logger.warn(
+            logger.warning(
                 f"Cannot find access profile {user_access!r}. Leaving access rights untouched!"
             )
             return
