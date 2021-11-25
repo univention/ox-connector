@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=3
+VERSION=4
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -81,7 +81,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_1.2.0'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.0.0'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
@@ -94,9 +94,10 @@ register_ldap () {
 
 	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
 	register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py         "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py     "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py  "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py          "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/functional_account.py "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfolder.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py      "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
+	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py   "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
 
 	univention-directory-manager policies/registry create "$@" \
 		--ignore_exists \
@@ -234,6 +235,9 @@ create_container () {
 	univention-directory-manager container/cn create "$@" \
 		--ignore_exists --position "$ldap_base" \
 		--set name=open-xchange
+	univention-directory-manager container/cn create "$@" \
+		--ignore_exists --position "cn=open-xchange,$ldap_base" \
+		--set name=functional_accounts
 	univention-directory-manager container/cn create "$@" \
 		--ignore_exists --position "cn=open-xchange,$ldap_base" \
 		--set name=oxresources

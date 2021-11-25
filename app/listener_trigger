@@ -112,6 +112,7 @@ class TriggerObject(object):
             "oxmail/oxcontext",
             "users/user",
             "groups/group",
+            "oxmail/functional_account",
             "oxresources/oxresources",
         ]
         if self.object_type == "oxmail/oxcontext" and self.attributes is None:

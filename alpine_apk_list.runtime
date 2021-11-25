@@ -4,4 +4,5 @@ python3
 tzdata
 ca-certificates
 py3-pip
+py3-lxml
 py3-requests

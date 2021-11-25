@@ -1,7 +1,7 @@
 # OX Provisioning App
 
-**APP VERSION 1.2.0**
-**OX VERSION 7.10.4**
+**APP VERSION 2.0.0**
+**OX VERSION 7.10.6**
 
 This App connects to UCS' Identity Management with OX' database.
 
@@ -28,7 +28,7 @@ You need to have set up an admin user in OX (one that can create contexts). Name
 To install the App, do the following:
 
 ```shell
-univention-app install ox-connector=1.2.0 --set \
+univention-app install ox-connector=2.0.0 --set \
   OX_MASTER_ADMIN="oxadminmaster"  `# the name of the "root" user in OX itself` \
   OX_MASTER_PASSWORD=""  `# the password of the ox admin` \
   LOCAL_TIMEZONE="Europe/Berlin"  `# default timezone for new users` \
@@ -126,6 +126,12 @@ OX knows access rights that can be granted to each user individually. The App su
 It works like the file of the OX installation with the same name but it is only evaluated locally and does not need to be in sync with any file on the OX server. The file is recreated each time a UDM object of the module `oxmail/accessprofile` is modified. Users will be granted the rights according to their attribute `oxAccess`.
 
 **ATTENTION**: The App does not evaluate if the permissions you chose are sane in that OX may reject them! Not all access rights can be combined. Check your OX documentation on this topic.
+
+## Functional accounts
+
+*NEW IN 2.0.0*
+
+TBD
 
 ### Update from 1.0.x
 
