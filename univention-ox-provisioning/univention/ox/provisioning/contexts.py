@@ -32,6 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 
 Context = get_ox_integration_class("SOAP", "Context")
 logger = logging.getLogger("listener")
@@ -55,7 +56,7 @@ def context_exists(obj):
     else:
         # before create
         context_id = obj.attributes["contextid"]
-    return bool(Context.list(pattern=context_id))
+    return bool(get_obj_by_name_from_ox(Context, context_id, None))
 
 
 def create_context(obj):

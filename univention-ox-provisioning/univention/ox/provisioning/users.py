@@ -39,7 +39,7 @@ from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
     get_access_profile,
 )
-from univention.ox.provisioning.helpers import Skip, get_context_id
+from univention.ox.provisioning.helpers import Skip, get_context_id, get_obj_by_name_from_ox
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
@@ -283,11 +283,9 @@ def get_user_id(attributes):
             f"Not touching {username} in context {context_id}: Is context admin!"
         )
     logger.info(f"Searching for {username} in context {context_id}")
-    users = User.list(context_id, pattern=username)
-    if not users:
-        return None
-    assert len(users) == 1
-    return users[0].id
+    user = get_obj_by_name_from_ox(User, context_id, username)
+    if user:
+        return user.id
 
 
 def create_user(obj):
@@ -319,8 +317,8 @@ def create_user(obj):
             logger.warning(f"{group} is no OX group. Skipping...")
             continue
         groupname = group_obj.attributes.get("name")
-        groups = Group.list(user.context_id, pattern=groupname)
-        if not groups:
+        group = get_obj_by_name_from_ox(Group, user.context_id, groupname)
+        if not group:
             logger.info(
                 f"Group {groupname} does not yet exist in {user.context_id}. Creating..."
             )
@@ -332,7 +330,6 @@ def create_user(obj):
             )
             group.create()
         else:
-            group = groups[0]
             logger.info(f"Adding {user.id} to the members of {groupname}")
             if user.id not in group.members:
                 group.members.append(user.id)

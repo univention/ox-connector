@@ -27,12 +27,26 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
+from zeep.exceptions import Fault
+
 
 class Skip(Exception):
     """Raise anywhere if you want to skip the processing of this object"""
 
     pass
 
+
+def get_obj_by_name_from_ox(klass, context_id, name):
+    try:
+        return klass.from_ox(context_id, name=name)
+    except Fault as exc:
+        if str(exc).startswith(f"No such "):
+            return None
+        if str(exc).startswith(f"Context {context_id} does not exist"):
+            # this is for searching contexts by id.
+            # users in a non-existing context will through a different Fault
+            return None
+        raise
 
 def get_context_id(attributes):
     context_id = attributes.get("oxContext")

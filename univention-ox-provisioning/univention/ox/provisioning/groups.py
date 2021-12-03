@@ -32,7 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import get_context_id, get_db_id
+from univention.ox.provisioning.helpers import get_context_id, get_db_id, get_obj_by_name_from_ox
 from univention.ox.provisioning.users import get_user_id
 
 Group = get_ox_integration_class("SOAP", "Group")
@@ -83,11 +83,9 @@ def get_group_id(obj):
     if groupname.lower() == "users":
         logger.info(f'Ignoring group "{groupname}"')
         return None
-    groups = Group.list(context_id, pattern=groupname)
-    if not groups:
-        return None
-    assert len(groups) == 1
-    return groups[0].id
+    group = get_obj_by_name_from_ox(Group, context_id, groupname)
+    if group:
+        return group.id
 
 
 def create_group(obj):

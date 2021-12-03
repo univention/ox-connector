@@ -32,7 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import get_context_id
+from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox
 
 Resource = get_ox_integration_class("SOAP", "Resource")
 logger = logging.getLogger("listener")
@@ -55,11 +55,9 @@ def update_resource(resource, attributes):
 def get_resource_id(attributes):
     context_id = get_context_id(attributes)
     name = attributes.get("name")
-    resources = Resource.list(context_id, pattern=name)
-    if not resources:
-        return None
-    assert len(resources) == 1
-    return resources[0].id
+    resource = get_obj_by_name_from_ox(Resource, context_id, username)
+    if resource:
+        return resource.id
 
 
 def create_resource(obj):
