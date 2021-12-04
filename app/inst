@@ -151,16 +151,9 @@ create_eas () {
 		--set name="open-xchange" ||
 		die "Failed to create container 'open-xchange' for Extended Attributes."
 
-	univention-directory-manager settings/syntax create "$@" \
-		--ignore_exists \
-		--position "cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
-		--set filter="objectClass=oxContext" \
-		--set viewonly='FALSE' \
-		--set name="oxContextSelect" \
-		--set addEmptyValue="TRUE" \
-		--set ldapvalue="oxContextIDNum" \
-		--set ldapattribute="cn" \
-		--set description="Select OX context objects"
+	univention-directory-manager settings/syntax remove "$@" \
+		--ignore_not_exists \
+		--dn cn="oxContextSelect,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base"
 
 	# update makes oxDrive unnecessary. But update could be from OX? So we cannot use JS_EXEC_VERSION 1?
 	univention-directory-manager settings/extended_attribute remove "$@" \
