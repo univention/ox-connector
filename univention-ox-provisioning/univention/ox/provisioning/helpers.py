@@ -40,6 +40,8 @@ def get_obj_by_name_from_ox(klass, context_id, name):
     try:
         return klass.from_ox(context_id, name=name)
     except Fault as exc:
+        if str(exc).startswith("com.openexchange.admin.rmi.exceptions.NoSuchObjectException"):
+            return None
         if str(exc).startswith(f"No such "):
             return None
         if str(exc).startswith(f"Context {context_id} does not exist"):

@@ -32,6 +32,8 @@ import datetime
 import logging
 from copy import deepcopy
 from urllib.parse import urlparse
+import imghdr
+import base64
 
 import univention.ox.provisioning.helpers
 from univention.ox.backend_base import get_ox_integration_class
@@ -193,6 +195,20 @@ def update_user(user, attributes):
     user.userfield18 = attributes.get("oxUserfield18")
     user.userfield19 = attributes.get("oxUserfield19")
     user.userfield20 = attributes.get("oxUserfield20")
+    if attributes.get("jpegPhoto"):
+        byte_image = base64.b64decode(attributes.get("jpegPhoto").encode('utf8'))
+        content_type = imghdr.what(None, h=byte_image)
+        if content_type == 'jpeg':
+            content_type = 'image/jpeg'
+        else:
+            logger.warn(f"We only support jpeg images. Found {content_type!r}. Ignoring image...")
+            content_type = None
+        if content_type:
+            user.image1 = byte_image
+            user.image1ContentType = content_type
+    else:
+        user.image1 = b""
+        user.image1ContentType = ""
     # user.primary_account_name = attributes.get()
     # user.convert_drive_user_folders = attributes.get()
     if attributes.get("roomNumber"):
