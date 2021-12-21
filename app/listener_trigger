@@ -68,6 +68,7 @@ def _get_old_object(dn):
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user.decode("utf-8"))
+    logger.info(f"Loading old object from {path_to_old_user}")
     return object_from_path(path_to_old_user)
 
 
@@ -141,6 +142,7 @@ class TriggerObject(object):
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
         old_path = self.get_old_file_path()
+        logger.info(f"Looking for old data in {old_path}")
         content = load_from_json_file(old_path)
         if content is not None:
             self.old_dn = content["dn"]
