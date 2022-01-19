@@ -34,26 +34,28 @@ from copy import deepcopy
 from univention.ox.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox, get_db_id
 
-FunctionalAccount = get_ox_integration_class("SOAP", "Account")
+FunctionalAccount = get_ox_integration_class("SOAP", "SecondaryAccount")
 logger = logging.getLogger("listener")
 
 
-def functional_account_from_attributes(attributes):
+def functional_account_from_attributes(attributes, entry_uuid):
     context_id = get_context_id(attributes)
     functional_account = FunctionalAccount(context_id=context_id)
-    update_functional_account(functional_account, attributes)
+    update_functional_account(functional_account, attributes, entry_uuid)
     return functional_account
 
 
-def update_functional_account(functional_account, attributes):
+def update_functional_account(functional_account, attributes, entry_uuid):
     functional_account.name = attributes.get("name")
     functional_account.personal = attributes.get("personal")
     functional_account.email = attributes.get("mailPrimaryAddress")
+    functional_account.login = entry_uuid
+    functional_account.mail_endpoint_source = "primary"
 
 
 def update_functional_account_members(functional_account, attributes):
-    functional_account.users = [db_id for dn in attributes.get("users") if (db_id := get_db_id(dn))]
-    functional_account.groups = [db_id for dn in attributes.get("groups") if (db_id := get_db_id(dn))]
+    functional_account.users = [{"item": {"id": db_id}} for dn in attributes.get("users") if (db_id := get_db_id(dn))]
+    functional_account.groups = [{"item": {"id": db_id}} for dn in attributes.get("groups") if (db_id := get_db_id(dn))]
 
 
 def get_functional_account_id(attributes):
@@ -70,7 +72,7 @@ def create_functional_account(obj):
     if obj.old_attributes is None:
         obj.old_attributes = deepcopy(obj.attributes)
     delete_functional_account(deepcopy(obj))
-    functional_account = functional_account_from_attributes(obj.attributes)
+    functional_account = functional_account_from_attributes(obj.attributes, obj.entry_uuid)
     update_functional_account_members(functional_account, obj.attributes)
     logger.info(f"Got {functional_account!r}")
     functional_account.create()
@@ -84,6 +86,6 @@ def modify_functional_account(obj):
 
 def delete_functional_account(obj):
     logger.info(f"Deleting {obj}")
-    functional_account = functional_account_from_attributes(obj.old_attributes)
+    functional_account = functional_account_from_attributes(obj.old_attributes, obj.entry_uuid)
     functional_account.remove()
     obj.attributes = None  # make obj.was_deleted() return True

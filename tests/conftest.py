@@ -99,6 +99,12 @@ def new_group_name(cache):
 
 
 @pytest.fixture
+def new_functional_account_name(cache):
+    value = _new_id(cache)
+    return "fa{}".format(value)
+
+
+@pytest.fixture
 def default_ox_context():
     return os.environ["DEFAULT_CONTEXT"]
 
@@ -212,3 +218,45 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
             dns = _udm.new_objs[module]
             for dn in dns:
                 _udm.remove(module, dn, remove_from_new_objs=False)
+
+
+@pytest.fixture
+def create_ox_context(udm, new_context_id_generator):
+    def _func(context_id=None):
+        context_id = context_id or new_context_id_generator()
+        dn = udm.create(
+            "oxmail/oxcontext",
+            "cn=open-xchange",
+            {
+                "oxQuota": 1000,
+                "contextid": context_id,
+                "name": "context{}".format(context_id),
+            },
+        )
+        print("Created context", dn, "in UDM")
+        return context_id
+    return _func
+
+
+@pytest.fixture
+def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context):
+    def _func(name=None, context_id=default_ox_context):
+        name = name or new_user_name_generator()
+        dn = udm.create(
+            "users/user",
+            "cn=users",
+            {
+                "username": name,
+                "firstname": "Emil",
+                "lastname": name.title(),
+                "password": "univention",
+                "mailPrimaryAddress": "{}@{}".format(name, domainname),
+                "isOxUser": True,
+                "oxAccess": "premium",
+                "oxContext": context_id,
+            },
+        )
+        print("Created user", dn, "in UDM")
+        for user in udm.search("users/user", "uid={}".format(name)):
+            return user.open()
+    return _func

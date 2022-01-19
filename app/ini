@@ -4,6 +4,7 @@ Code = 31
 Version = 2.0.0
 Name = OX Connector
 Vendor = Univention
+Contact = feedback@univention.de
 DockerScriptRestoreDataAfterSetup = 
 DockerScriptStoreData = 
 DockerScriptUpdateAvailable = 
@@ -17,7 +18,7 @@ DockerShellCommand = /bin/ash
 DockerImage = docker.software-univention.de/ox-connector:2.0.0
 DockerScriptConfigure = /tmp/ox-connector.configure
 Description = Synchronize UCS Users and Groups to Open-Xchange
-SupportedUcsVersions = 4.4-8, 5.0-0
+SupportedUcsVersions = 4.4-8 errata1127, 5.0-0 errata174
 LongDescription = <p>
 		The OX Provisioning App synchronizes selected users and groups to a remote OX installation via OX' SOAP API
 	</p>

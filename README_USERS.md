@@ -17,6 +17,17 @@ More specifically, the script runs whenever something changed in the following U
 
 # Setup
 
+## What to do in your UCS domain
+
+The UCS Primary Node needs to have the refint LDAP module enabled. It provides referential integrity in case a user is deleted, changes the username, etc.
+
+To do that, run the following commands on your UCS Primary Node. Note that this is not necessary if you install the App on said Node, the App will do it for you.
+
+```shell
+ucr set ldap/refint=true
+service slapd restart
+```
+
 ## What to do on your OX server
 
 OX needs to allow SOAP requests. This means that connections from the UCS machine need to be allowed to `/webservices` in the web server configuration.
@@ -160,6 +171,7 @@ If you feel confident with the results, run the `python` command above again. Th
 ## Caveats
 
 * Installing the OX Provisioning App alongside Open Xchange in the same UCS domain may cause problems and/or confusion due to UDM modules being double registered
+* Groups and Functional accounts have an implicit context id. It depends on the users they include. If a user enters or leaves a group or if they change their context, this may have an impact on their groups and accounts. While groups are synced after such a change, Functional accounts are not! In order to correct things after such an event, you would need to resync the account. See the [Queue Tooling](#resync-of-one-specific-udm-object) section. Any manual change on the UDM object also works.
 
 # Troubleshooting
 

@@ -86,14 +86,6 @@ def run(obj):  # noqa: C901
                 modify_user(obj)
             elif obj.was_deleted():
                 delete_user(obj)
-        if obj.object_type == "groups/group":
-            for new_obj in get_group_objs(obj):
-                if new_obj.was_added():
-                    create_group(new_obj)
-                elif new_obj.was_modified():
-                    modify_group(new_obj)
-                elif new_obj.was_deleted():
-                    delete_group(new_obj)
         if obj.object_type == "oxresources/oxresources":
             if obj.was_added():
                 create_resource(obj)
@@ -101,20 +93,42 @@ def run(obj):  # noqa: C901
                 modify_resource(obj)
             elif obj.was_deleted():
                 delete_resource(obj)
-        if obj.object_type == "oxmail/functional_account":
-            for new_obj in get_account_objs(obj):
-                if new_obj.was_added():
-                    create_functional_account(new_obj)
-                elif new_obj.was_modified():
-                    modify_functional_account(new_obj)
-                elif new_obj.was_deleted():
-                    delete_functional_account(new_obj)
     except Skip as exc:
         logger.warning(f"Skipping: {exc}")
     except NoContextAdminPassword as exc:
         logger.warning(
             f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
         )
+    if obj.object_type == "groups/group":
+        for new_obj in get_group_objs(obj):
+            try:
+                if new_obj.was_added():
+                    create_group(new_obj)
+                elif new_obj.was_modified():
+                    modify_group(new_obj)
+                elif new_obj.was_deleted():
+                    delete_group(new_obj)
+            except Skip as exc:
+                logger.warning(f"Skipping: {exc}")
+            except NoContextAdminPassword as exc:
+                logger.warning(
+                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
+                )
+    if obj.object_type == "oxmail/functional_account":
+        for new_obj in get_account_objs(obj):
+            try:
+                if new_obj.was_added():
+                    create_functional_account(new_obj)
+                elif new_obj.was_modified():
+                    modify_functional_account(new_obj)
+                elif new_obj.was_deleted():
+                    delete_functional_account(new_obj)
+            except Skip as exc:
+                logger.warning(f"Skipping: {exc}")
+            except NoContextAdminPassword as exc:
+                logger.warning(
+                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
+                )
 
     # logging for tests
     if TEST_LOG_FILE.exists():
@@ -137,8 +151,8 @@ def get_group_objs(obj):  # noqa: C901
             ignored_group = False
     if ignored_group:
         return
-    contexts = []
-    for user in users:
+    contexts = {}
+    for user in set(users):
         user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if user_obj is None:
             logger.info(
@@ -149,14 +163,17 @@ def get_group_objs(obj):  # noqa: C901
             context = get_context_id(user_obj.attributes)
         except Skip:
             continue
-        if context not in contexts:
-            contexts.append(context)
-    for context in contexts:
+        users_in_context = contexts.get(context, [])
+        users_in_context.append(user)
+        contexts[context] = users_in_context
+    for context, users in contexts.items():
         new_obj = deepcopy(obj)
         if new_obj.old_attributes:
             new_obj.old_attributes["oxContext"] = context
+            new_obj.old_attributes["users"] = sorted(set(users) & set(new_obj.old_attributes.get("users")))
         if new_obj.attributes:
             new_obj.attributes["oxContext"] = context
+            new_obj.attributes["users"] = sorted(set(users) & set(new_obj.attributes.get("users")))
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj
 
@@ -171,8 +188,8 @@ def get_account_objs(obj):  # noqa: C901
     if obj.attributes:
         users.extend(obj.attributes.get("users"))
         groups.extend(obj.attributes.get("groups"))
-    contexts = set()
-    for user in users:
+    contexts = {}
+    for user in set(users):
         user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if user_obj is None:
             logger.info(
@@ -183,8 +200,10 @@ def get_account_objs(obj):  # noqa: C901
             context = get_context_id(user_obj.attributes)
         except Skip:
             continue
-        contexts.add(context)
-    for group in groups:
+        users_in_context, groups_in_context = contexts.get(context, ([], []))
+        users_in_context.append(user)
+        contexts[context] = users_in_context, groups_in_context
+    for group in set(groups):
         group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
         if group_obj is None:
             logger.info(
@@ -192,13 +211,17 @@ def get_account_objs(obj):  # noqa: C901
             )
             continue
         for new_obj in get_group_objs(group_obj):
-            contexts.add(new_obj.attributes.get("oxContext"))
-        contexts.add(context)
-    for context in contexts:
+            context = new_obj.attributes.get("oxContext")
+            users_in_context, groups_in_context = contexts.get(context, ([], []))
+            groups_in_context.append(group)
+            contexts[context] = users_in_context, groups_in_context
+    for context, (users, groups) in contexts.items():
         new_obj = deepcopy(obj)
         if new_obj.old_attributes:
             new_obj.old_attributes["oxContext"] = context
         if new_obj.attributes:
             new_obj.attributes["oxContext"] = context
+            new_obj.attributes["users"] = sorted(set(users) & set(new_obj.attributes.get("users")))
+            new_obj.attributes["groups"] = sorted(set(groups) & set(new_obj.attributes.get("groups")))
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj
