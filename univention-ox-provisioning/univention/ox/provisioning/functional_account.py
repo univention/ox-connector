@@ -54,8 +54,8 @@ def update_functional_account(functional_account, attributes, entry_uuid):
 
 
 def update_functional_account_members(functional_account, attributes):
-    functional_account.users = [{"item": {"id": db_id}} for dn in attributes.get("users") if (db_id := get_db_id(dn))]
-    functional_account.groups = [{"item": {"id": db_id}} for dn in attributes.get("groups") if (db_id := get_db_id(dn))]
+    functional_account.users = [{"id": db_id} for dn in attributes.get("users") if (db_id := get_db_id(dn))]
+    functional_account.groups = [{"id": db_id} for dn in attributes.get("groups") if (db_id := get_db_id(dn))]
 
 
 def get_functional_account_id(attributes):

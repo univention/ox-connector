@@ -6,6 +6,8 @@ import pytest
 
 from udm_rest import UDM
 
+from univention.ox.soap.config import _CREDENTIALS
+
 TEST_LOG_FILE = Path("/tmp/test.log")
 
 
@@ -234,13 +236,14 @@ def create_ox_context(udm, new_context_id_generator):
             },
         )
         print("Created context", dn, "in UDM")
+        _CREDENTIALS.clear()
         return context_id
     return _func
 
 
 @pytest.fixture
-def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context):
-    def _func(name=None, context_id=default_ox_context):
+def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context, wait_for_listener):
+    def _func(name=None, context_id=default_ox_context, wait=True):
         name = name or new_user_name_generator()
         dn = udm.create(
             "users/user",
@@ -257,6 +260,8 @@ def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context)
             },
         )
         print("Created user", dn, "in UDM")
+        if wait:
+            wait_for_listener(dn)
         for user in udm.search("users/user", "uid={}".format(name)):
             return user.open()
     return _func
