@@ -75,6 +75,9 @@ def create_functional_account(obj):
     functional_account = functional_account_from_attributes(obj.attributes, obj.entry_uuid)
     update_functional_account_members(functional_account, obj.attributes)
     logger.info(f"Got {functional_account!r}")
+    if not functional_account.users and not functional_account.groups:
+        logger.info(f"Account is empty! Not creating...")
+        return
     functional_account.create()
 
 

@@ -135,7 +135,7 @@ class TriggerObject(object):
     def get_old_file_path(self):
         """
         Name of the old file. May or may not be present. Is used by
-        objects_from_files to move files if speceified.
+        objects_from_files to move files if specified.
         """
         return OLD_FILES_DIR / "{}.json".format(self.entry_uuid)
 
@@ -194,8 +194,11 @@ class TriggerObject(object):
             "object": self.attributes,
             "options": self.options,
         }
-        with open(filename or self.path, "w") as fd:
+        filename = filename or self.path
+        with open(f"{filename}.tmp", "w") as fd:
+            os.fchmod(fd.fileno(), 0o600)
             json.dump(content, fd, sort_keys=True, indent=4)
+        os.replace(f"{filename}.tmp", filename)
 
     def __repr__(self):
         return "Object({!r}, {!r})".format(self.object_type, self.dn)
@@ -277,16 +280,16 @@ def objects_from_files(delete_files=True, move_files=False):
         yield obj
         if move_files:
             mapping.set(obj.old_dn, None)
+            old_file_path = obj.get_old_file_path()
+            if old_file_path.exists():
+                old_file_path.unlink()
             if obj.was_deleted():
                 logger.info(f"Object was deleted. Deleting {path}")
                 path.unlink()
                 mapping.set(obj.dn, None)
             else:
-                old_file_path = obj.get_old_file_path()
                 logger.info(f"mv {path} -> {old_file_path}")
                 old_file_path.parent.mkdir(parents=True, exist_ok=True)
-                if old_file_path.exists():
-                    old_file_path.unlink()
                 path.replace(old_file_path)
                 if obj.was_enriched():
                     logger.info(
