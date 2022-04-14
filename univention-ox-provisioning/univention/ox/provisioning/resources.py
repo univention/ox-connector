@@ -55,7 +55,7 @@ def update_resource(resource, attributes):
 def get_resource_id(attributes):
     context_id = get_context_id(attributes)
     name = attributes.get("name")
-    resource = get_obj_by_name_from_ox(Resource, context_id, username)
+    resource = get_obj_by_name_from_ox(Resource, context_id, name)
     if resource:
         return resource.id
 
