@@ -142,7 +142,9 @@ It works like the file of the OX installation with the same name but it is only 
 
 *NEW IN 2.0.0*
 
-TBD
+OX added the API to add "secondary accounts" via SOAP API with version 7.10.6. The connector can add those objects via the UDM module `oxmail/function_account`. You can create, modify, delete these objects just like groups. Technically, one secondary account is created per user added to the UDM object. Those users can now use this mail address (i.e., receive and write mails). Use cases would be an address like "helpdesk@...".
+
+**ATTENTION**: This is the reason why you must have version 7.10.6 of OX. Otherwise the connector will not work because of missing API endpoints. If you are still using an older version of OX, you have to install an older version of the connector as well.
 
 ### Update from 1.0.x
 
