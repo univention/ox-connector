@@ -4,3 +4,5 @@
 requirements_all.txt
 univention-appcenter-control
 venv
+*swp
+**_build
