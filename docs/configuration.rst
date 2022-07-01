@@ -1,0 +1,5 @@
+.. _app-configuration:
+
+*************
+Configuration
+*************
