@@ -67,8 +67,14 @@ extensions = [
     "sphinx_last_updated_by_git",
     "sphinxcontrib.inkscapeconverter",
     "sphinx.ext.intersphinx",
+    "sphinxcontrib.bibtex",
     "sphinx_inline_tabs",
 ]
+
+bibtex_bibfiles = ["bibliography.bib"]
+bibtex_encoding = "utf-8"
+bibtex_default_style = "unsrt"
+bibtex_reference_style = "label"
 
 # For more configuration options of Sphinx-copybutton, see the documentation
 # https://sphinx-copybutton.readthedocs.io/en/latest/index.html

@@ -18,4 +18,5 @@ Here comes the introduction to the whole document.
    limitations
    troubleshooting
    changelog
+   bibliography
 
