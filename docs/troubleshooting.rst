@@ -27,12 +27,18 @@ Listener Converter: :file:`/var/log/univention/listener_modules/ox-connector.log
    correct, or the connector can't establish a connection to the :term:`SOAP
    API`.
 
+.. index::
+   single: log file; app center
+
 App Center: :file:`/var/log/univention/appcenter.log`
    Contains log information around activities in the App Center.
 
    The App Center writes OX Connector relevant information to this file, when
    you run app lifecycle tasks like install, update and uninstall or when you
    change the app settings.
+
+.. index::
+   single: log file; domain join
 
 Domain join: :file:`/var/log/univention/join.log`
    Contains log information from the join processes. When the App Center install
@@ -86,6 +92,7 @@ Provisioning stops working
 
 .. index::
    single: provisioning; stopped
+   single: provisioning; faulty item
 
 When the provisioning stopped working, a previous change in |UDM| is a
 probable reason and the OX Connector doesn't know how to proceed. The connector
@@ -103,6 +110,10 @@ reveals the flawed file and its path, see :ref:`queue-delete-one`.
 
 Queuing
 =======
+
+.. index::
+   single: provisioning; queue
+   see: queue; provisioning
 
 The queue for provisioning consists of JSON files. :ref:`app-how-it-works`
 describes the connector's data processing. Administrators can manually intervene

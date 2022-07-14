@@ -16,6 +16,10 @@ Released: 26. April 2022
 Added
 -----
 
+.. index::
+   pair: functional mailbox; changelog
+   single: udm modules; oxmail/functional_account
+
 With OX App Suite 7.10.6 Open-Xchange added *Functional Mailboxes* to OX App
 Suite, see :cite:t:`ox-app-suite-features-7-6-10`. OX App Suite shares
 functional mailboxes among other users in the same context.
@@ -28,6 +32,10 @@ For more information, see :ref:`usage-functional-accounts`.
 
 Added
 -----
+
+.. index::
+   pair: access profiles; changelog
+   single: udm modules; oxmail/accessprofile
 
 OX App Suite knows access and can grant them individually to users. The
 :program:`OX Connector` app supports *access profiles* through the file

@@ -26,7 +26,7 @@ OX App Suite server
 -------------------
 
 .. index::
-   single: prerequisites; ox app suite
+   single: prerequisites; OX App Suite
 
 For the *OX App Suite* server, you must ensure the following prerequisites:
 
@@ -56,6 +56,9 @@ For the *OX App Suite* server, you must ensure the following prerequisites:
 
 UCS domain
 ----------
+
+.. index::
+   single: prerequisites; ucs domain
 
 Another prerequisite needs some steps in the UCS domain. To use the :program:`OX
 Connector` app, the central LDAP directory needs the *referential integrity*
@@ -114,6 +117,9 @@ installation, see :ref:`uv-manual:software-appcenter` in :cite:t:`ucs-manual`.
 With the web browser
 --------------------
 
+.. index::
+   single: installation; with web browser
+
 To install :program:`OX Connector` from the UCS management system, use the
 following steps:
 
@@ -132,6 +138,10 @@ following steps:
 
 .. note::
 
+   .. index::
+      pair: installation; administrator
+      pair: installation; domain admins
+
    To install apps, the user account you choose for login to the UCS management
    system must have domain administration rights, for example the username
    ``Administrator``. User accounts with domain administration rights belong to
@@ -144,6 +154,9 @@ following steps:
 
 With the command-line
 ---------------------
+
+.. index::
+   single: installation; with command-line
 
 .. highlight:: console
 

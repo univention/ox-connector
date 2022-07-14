@@ -27,6 +27,9 @@ Connector.
 OX Connector stops at faulty items
 ==================================
 
+.. index::
+   single: provisioning; faulty item
+
 When the :program:`OX Connector` encounters a faulty queue item that it can't
 process, it stops the provisioning at the item and logs the filename with its
 path in the :term:`Listener Converter` log file, see :ref:`log-files`.
@@ -55,6 +58,11 @@ continues to process the provisioning queue.
 
 No plausibility validation in access profile rights
 ===================================================
+
+.. index::
+   single: access profiles; plausibility
+   single: OX App Suite; permission level
+   see: permission level; OX App Suite
 
 The :program:`OX Connector` app doesn't evaluate permission level for created
 *access profiles* and tries to create any access profile.

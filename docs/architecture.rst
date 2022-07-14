@@ -48,6 +48,10 @@ LDAP directory with relevance to OX App Suite.
       :file:`/var/lib/univention-appcenter/listener/ox-connector/{timestamp}.json`.
       Each change creates one file.
 
+      .. index::
+         pair: listener; JSON
+         see: files; JSON
+
    Listener Converter
       The *Listener Converter* is a services running on |UCS| with the following
       responsibility:
@@ -59,6 +63,10 @@ LDAP directory with relevance to OX App Suite.
 
       The converter writes the results in JSON format to
       :file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/{timestamp}.json`.
+
+      .. index::
+         pair: listener converter; JSON
+         see: files; JSON
 
    OX Connector
       *OX Connector* connects the |UCS| identity management with OX App Suite.
@@ -84,6 +92,7 @@ LDAP directory with relevance to OX App Suite.
       protocol to receive data and run remote procedure calls. The connector uses
       the SOAP API to create, update, or delete object entries in OX App Suite.
 
+.. _app-how-it-works:
 
 How the connector works
 =======================
@@ -92,6 +101,11 @@ How the connector works
    single: udm modules
    single: provisioning
    see:  synchronization; provisioning
+   see: UDM; udm modules
+   single: udm modules; users/user
+   single: udm modules; groups/group
+   single: udm modules; oxmail/oxcontext
+   single: udm modules; oxresources/oxresources
 
 The OX Connector reacts on changes in the LDAP directory in |UCS| and relies on
 modules in the Univention Directory Manager (UDM) modules. |UDM| is a layer on top
@@ -115,6 +129,9 @@ SOAP API in OX App Suite.
 
 Access profiles
 ---------------
+
+.. index::
+   single: udm modules; oxmail/accessprofile
 
 Upon changes in the UDM module ``oxmail/accessprofile``, the connector rewrites
 the local file
