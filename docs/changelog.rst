@@ -11,3 +11,34 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 2.0.0
 =====
 
+Released: 26. April 2022
+
+Added
+-----
+
+With OX App Suite 7.10.6 Open-Xchange added *Functional Mailboxes* to OX App
+Suite, see :cite:t:`ox-app-suite-features-7-6-10`. OX App Suite shares
+functional mailboxes among other users in the same context.
+
+With the |UDM| ``oxmail/functional_account`` administrators can add, update or
+delete objects for functional accounts. OX App Suite users with the same
+functional account share the read status. Emails to addresses of functional
+accounts show up in the OX Mail view for every user where administrators granted
+the permission.
+
+1.1.0
+=====
+
+Added
+-----
+
+OX App Suite knows access and can grant them individually to users. The
+:program:`OX Connector` app supports *access profiles* through the file
+:file:`ModuleAccessDefinitions.propertiers`.
+
+The connector generates the file locally on the UCS system each time an
+administrator modifies objects in the |UDM| module ``oxmail/accessprofile``. It
+doesn't provision the data to OX App Suite directly. The connector uses the
+*access profiles* and sets the attribute ``oxAccess`` during provisioning.
+
+For limitations, see :ref:`limit-access-profiles`.
