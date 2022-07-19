@@ -33,14 +33,10 @@ For the *OX App Suite* server, you must ensure the following prerequisites:
 #. The environment requires an installed OX App Suite instance. This
    documentation assumes that an OX App Suite installation already exists.
 
+   For limitations about the :program:`OX App Suite` app from Univention App
+   Center and the connector, see :ref:`limit-ox-app-suite-app`.
+
    For installation of OX App Suite, see :cite:t:`ox-app-suite-admin-guide`.
-
-   .. caution::
-
-      Univention doesn't support the use of :program:`OX Connector` with
-      :program:`OX App Suite`!
-
-      Both apps use different, incompatible approaches for user provisioning.
 
 #. The OX App Suite instance must allow SOAP requests, so that the UCS system,
    where the :ref:`administrator installs the OX Connector app
