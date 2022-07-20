@@ -66,6 +66,7 @@ improvement.
    :maxdepth: 1
 
    installation
+   usage
    configuration
    architecture
    limitations

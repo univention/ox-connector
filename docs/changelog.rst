@@ -20,11 +20,8 @@ With OX App Suite 7.10.6 Open-Xchange added *Functional Mailboxes* to OX App
 Suite, see :cite:t:`ox-app-suite-features-7-6-10`. OX App Suite shares
 functional mailboxes among other users in the same context.
 
-With the |UDM| ``oxmail/functional_account`` administrators can add, update or
-delete objects for functional accounts. OX App Suite users with the same
-functional account share the read status. Emails to addresses of functional
-accounts show up in the OX Mail view for every user where administrators granted
-the permission.
+For more information, see :ref:`usage-functional-accounts`.
+
 
 1.1.0
 =====

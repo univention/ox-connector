@@ -61,8 +61,3 @@ The :program:`OX Connector` app doesn't evaluate permission level for created
 
 For more information, see `OX App Suite Permission Level
 <https://oxpedia.org/wiki/index.php?title=AppSuite:Permission_Level>`_.
-
-The OX Connector already provides ready-to-use *access profiles* for OX App Suite
-users. Administrators can create custom *access profiles* in UMC in the *LDAP
-directory* module at :menuselection:`Domain --> LDAP directory` at the directory
-location ``open-xchange/accessprofiles/``.
