@@ -34,6 +34,10 @@ LongDescription = <p>
 	<p>
 		That set up, the OX Provisioning App manages users, groups, resources (conference rooms, etc.) and contexts. UCS' Identity management should be considered the leading IDM system.
 	</p>
+
+    <p>
+      For documentation, see <a href="https://docs.software-univention.de/ox-connector-app/2.0.0/" target="_blank">OX Connector app documentation</a>.
+    </p>
 	
 Logo = logo.svg
 
@@ -54,3 +58,6 @@ LongDescription = <p>
 	<p>
 		Sobald die Installation erfolgreich war, übernimmt die OX Provisioning App das Management von Benutzern, Gruppen,  Ressourcen (z.B. Konferenzräume) und Kontexten. Das Identity Management von UCS sollte ab diesem Zeitpunkt das führende IDM-System sein.
 	</p>
+    <p>
+      Für Dokumentation, siehe <a href="https://docs.software-univention.de/ox-connector-app/2.0.0/" target="_blank">OX Connector app documentation</a> (nur in English verfügbar).
+    </p>
