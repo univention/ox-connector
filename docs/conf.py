@@ -78,8 +78,9 @@ bibtex_reference_style = "label"
 
 # For more configuration options of Sphinx-copybutton, see the documentation
 # https://sphinx-copybutton.readthedocs.io/en/latest/index.html
-copybutton_prompt_text = r"\$ |> "
+copybutton_prompt_text = r"\$ |/oxp #"
 copybutton_prompt_is_regexp = True
+copybutton_line_continuation_character = "\\"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -132,6 +133,8 @@ rst_epilog = """
 .. include:: /links.txt
 
 .. include:: /abbreviations.txt
+
+.. include:: /substitutions.txt
 """
 
 intersphinx_mapping = {
@@ -146,3 +149,5 @@ latex_documents = [
 latex_elements = {
     "papersize": "a4paper",
 }
+
+git_untracked_show_sourcelink = True
