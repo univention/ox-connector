@@ -60,6 +60,10 @@ The whole point is to decouple OX and the integration. Yet, we want to run again
 
 ### Setup OX
 
+Install the OX App Suite app on a UCS system in a separate domain. The domains
+for OX App Suite and OX Connector must not be the same. Otherwise, you
+encounter problems regarding LDAP schema and more.
+
 ```
 #ucr set ox/joinscript/skip=yes  # we provide a join script. but we need some setup steps nonetheless (creation of the ox master admin)
 ucr set ox/listener/enabled=false  # we provide the listener
