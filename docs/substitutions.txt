@@ -1,0 +1,2 @@
+.. |UCSPRIMARYDN_e| replace:: *Primary Directory Node*
+.. |UCSPRIMARYDN| replace:: Primary Directory Node

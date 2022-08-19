@@ -1,0 +1,3 @@
+.. |UCS| replace:: :abbr:`UCS (Univention Corporate Server)`
+.. |UDM| replace:: :abbr:`UDM (Univention Directory Manager)`
+

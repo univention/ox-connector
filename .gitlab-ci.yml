@@ -1,0 +1,101 @@
+stages:
+  - build
+  - production
+
+variables:
+  DOCS_DIR: "docs"
+  CI_REGISTRY: docker-registry.knut.univention.de
+  SPHINX_DOC: $CI_REGISTRY/sphinx
+  LANG: "C.UTF-8"
+  DEBIAN_FRONTEND: noninteractive
+  UNIVENTION_BASECONF: /dev/null
+  DOC_TARGET_VERSION: "2.0.0"
+  DOCS_TARGET_NAME: "ox-connector-app"
+
+
+.sphinx-doc:
+  image: $SPHINX_DOC
+  rules:
+    - changes:
+      - "$DOCS_DIR/**/*"
+  artifacts:
+    expire_in: 1 week
+
+linkcheck:
+  extends: .sphinx-doc
+  stage: build
+  script:
+    - make -C "$DOCS_DIR" -e SPHINXOPTS="-W --keep-going" linkcheck
+  artifacts:
+    paths:
+      - $DOCS_DIR/_build/linkcheck
+
+spelling:
+  extends: .sphinx-doc
+  stage: build
+  script:
+    - make -C "$DOCS_DIR" -e SPHINXOPTS="-W --keep-going" spelling
+  artifacts:
+    paths:
+      - $DOCS_DIR/_build/spelling
+
+html:
+  extends: .sphinx-doc
+  stage: build
+  script:
+    - make -C "$DOCS_DIR" html
+    - mkdir -p "$CI_PROJECT_DIR"/out
+    - rsync -av --delete --exclude-from "$DOCS_DIR"/pipeline-rsync-exclude.txt "$DOCS_DIR"/_build/html/ "$CI_PROJECT_DIR"/out
+  artifacts:
+    paths:
+      - $DOCS_DIR/_build/html
+      - out
+
+pdf:
+  extends: .sphinx-doc
+  stage: build
+  script:
+    - make -C "$DOCS_DIR" latexpdf
+    - mkdir -p "$CI_PROJECT_DIR"/out
+    - cp "$DOCS_DIR"/_build/latex/"$DOCS_TARGET_NAME".pdf "$CI_PROJECT_DIR"/out/
+  artifacts:
+    paths:
+      - $DOCS_DIR/_build/latex
+      - out
+
+docs-production:
+  stage: production
+  cache:
+    key: docs-$CI_COMMIT_REF_SLUG
+    paths:
+      - univention-docs
+  interruptible: false
+  variables:
+    GIT_STRATEGY: none
+    GIT_AUTHOR_NAME: $GITLAB_USER_NAME
+    GIT_AUTHOR_EMAIL: $GITLAB_USER_EMAIL
+    GIT_COMMITTER_NAME: $GITLAB_USER_NAME
+    GIT_COMMITTER_EMAIL: $GITLAB_USER_EMAIL
+  resource_group: prod
+  image: $SPHINX_DOC
+  rules:
+    - changes:
+      - "$DOCS_DIR/**/*"
+      if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+  script:
+    - git config --global credential.$CI_SERVER_URL.username ucs-docs-deployment
+    - git config --global credential.$CI_SERVER_URL.helper '!f() { [ "$1" = get ] && echo password="$DOCS_REPO_TOKEN"; }; f'
+    - '[ -d univention-docs ] || git clone --branch master --depth 1 --single-branch $CI_SERVER_URL/univention/docs.univention.de.git univention-docs'
+    - cd univention-docs
+    - git clean --force -d
+    - git fetch --no-tags origin
+    - git reset --hard origin/master
+    - mkdir -p ./"$DOCS_TARGET_NAME"/"$DOC_TARGET_VERSION"
+    - rsync -av --delete "$CI_PROJECT_DIR"/out/ ./"$DOCS_TARGET_NAME"/"$DOC_TARGET_VERSION"/
+    - git add -- .
+    - git commit -m "Automatic doc deployment from $CI_PROJECT_PATH by GitLab commit $CI_COMMIT_SHA"
+    - git push
+  environment:
+    name: production
+    url: http://updates.knut.univention.de/download/docs/"$DOCS_TARGET_NAME"

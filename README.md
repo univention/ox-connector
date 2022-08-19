@@ -60,6 +60,10 @@ The whole point is to decouple OX and the integration. Yet, we want to run again
 
 ### Setup OX
 
+Install the OX App Suite app on a UCS system in a separate domain. The domains
+for OX App Suite and OX Connector must not be the same. Otherwise, you
+encounter problems regarding LDAP schema and more.
+
 ```
 #ucr set ox/joinscript/skip=yes  # we provide a join script. but we need some setup steps nonetheless (creation of the ox master admin)
 ucr set ox/listener/enabled=false  # we provide the listener
@@ -164,6 +168,32 @@ python3 -m pytest -l -v tests
 ```
 
 ## Release
+
+Besides the necessary steps for an app update, make sure to apply the following
+steps **before** release of a new app version for the OX Connect app.
+
+1. [ ] - Update the `DOC_TARGET_VERSION` variable in
+   [.gitlab-ci.yml](.gitlab-ci.yml) to the new app version. The variable makes
+   sure that the new app version has a dedicated documentation.
+
+2. [ ] - Add an appropriate changelog entry to
+   [docs/changelog.rst](docs/changelog.rst) and follow the recommendation at
+   https://keepachangelog.com/en/1.0.0/.
+
+3. [ ] - Update the link to the app documentation in the app description to the
+   appropriate version link.
+
+4. [ ] - Push the updated documentation to the docs.univention.de repository.
+   Manually trigger the *production* in the docs pipeline.
+
+5. [ ] - After running the *production* job for the documentation in the
+   pipeline, update the symlink `latest` the new version in the
+   [ox-connector-app directory of the docs.univention.de
+   repository](https://git.knut.univention.de/univention/docs.univention.de/-/tree/master/ox-connector-app).
+
+6. [ ] - To deploy the documentation, trigger the *deploy* job in the pipeline
+   of the docs.univention.de repository.
+
 
 Build and push the container:
 
