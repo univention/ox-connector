@@ -1,2 +1,3 @@
 .. |UCSPRIMARYDN_e| replace:: *Primary Directory Node*
 .. |UCSPRIMARYDN| replace:: Primary Directory Node
+.. |UCSUCRV| replace:: Univention Configuration Registry variable
