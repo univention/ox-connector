@@ -19,6 +19,7 @@ DockerImage = docker.software-univention.de/ox-connector:2.0.0
 DockerScriptConfigure = /tmp/ox-connector.configure
 Description = Synchronize UCS Users and Groups to Open-Xchange
 SupportedUcsVersions = 4.4-8 errata1127, 5.0-0 errata174
+Website = https://docs.software-univention.de/ox-connector-app/latest/
 LongDescription = <p>
 		The OX Provisioning App synchronizes selected users and groups to a remote OX installation via OX' SOAP API
 	</p>
@@ -34,10 +35,9 @@ LongDescription = <p>
 	<p>
 		That set up, the OX Provisioning App manages users, groups, resources (conference rooms, etc.) and contexts. UCS' Identity management should be considered the leading IDM system.
 	</p>
-
-    <p>
-      For documentation, see <a href="https://docs.software-univention.de/ox-connector-app/2.0.0/" target="_blank">OX Connector app documentation</a>.
-    </p>
+	<p>
+	  For documentation, see <a href="https://docs.software-univention.de/ox-connector-app/2.0.0/" target="_blank">OX Connector app documentation</a>.
+	</p>
 	
 Logo = logo.svg
 
@@ -58,6 +58,6 @@ LongDescription = <p>
 	<p>
 		Sobald die Installation erfolgreich war, übernimmt die OX Provisioning App das Management von Benutzern, Gruppen,  Ressourcen (z.B. Konferenzräume) und Kontexten. Das Identity Management von UCS sollte ab diesem Zeitpunkt das führende IDM-System sein.
 	</p>
-    <p>
-      Für Dokumentation, siehe <a href="https://docs.software-univention.de/ox-connector-app/2.0.0/" target="_blank">OX Connector app documentation</a> (nur in English verfügbar).
-    </p>
+	<p>
+		Für Dokumentation, siehe <a href="https://docs.software-univention.de/ox-connector-app/2.0.0/" target="_blank">OX Connector app documentation</a> (nur in English verfügbar).
+	</p>
