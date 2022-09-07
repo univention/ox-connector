@@ -63,7 +63,7 @@ def update_group(group, attributes):
         user_attributes["oxContext"] = get_context_id(attributes)
         user_attributes["oxDbId"] = get_db_id(user)
         user_attributes["username"] = username
-        user_id = get_user_id(user_attributes)
+        user_id = get_user_id(user_attributes, lookup_ox=False)
         if user_id:
             logger.info(f"... found {user_id}")
             members.append(user_id)
