@@ -16,18 +16,8 @@ class KeyValueStore(object):
 
     @contextmanager
     def open(self):
-        with dbm.gnu.open(self.db_fname, "cs") as db:
+        with dbm.gnu.open(self.db_fname, "r") as db:
             yield db
-
-    def set(self, dn, path):
-        if dn is None:
-            return
-        with self.open() as db:
-            if path is None:
-                if dn in db:
-                    del db[dn]
-            else:
-                db[dn] = str(path)
 
     def get(self, key):
         with self.open() as db:
