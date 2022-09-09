@@ -1,37 +1,6 @@
 from univention.ox.backend_base import get_ox_integration_class
 
 
-def create_context(udm, ox_host, context_id):
-    dn = udm.create(
-        "oxmail/oxcontext",
-        "cn=open-xchange",
-        {
-            "oxQuota": 1000,
-            "contextid": context_id,
-            "name": "context{}".format(context_id),
-        },
-    )
-    return dn
-
-
-def create_user(udm, name, domainname, context_id, enabled=True):
-    dn = udm.create(
-        "users/user",
-        "cn=users",
-        {
-            "username": name,
-            "firstname": "Emil",
-            "lastname": name.title(),
-            "password": "univention",
-            "mailPrimaryAddress": "{}@{}".format(name, domainname),
-            "isOxUser": enabled,
-            "oxAccess": "premium",
-            "oxContext": context_id,
-        },
-    )
-    return dn
-
-
 def create_obj(udm, name, members, enabled=True):
     dn = udm.create(
         "groups/group",
@@ -54,42 +23,38 @@ def find_obj(context_id, name, assert_empty=False):
 
 
 def test_ignore_group(
+    create_ox_user,
     default_ox_context,
-    new_user_name,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     isOxGroup = Not should not create a group
     """
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context)
-    create_obj(udm, new_group_name, [user_dn], enabled=False)
-    wait_for_listener(user_dn)
-    find_obj(default_ox_context, new_user_name, assert_empty=True)
+    user_dn = create_ox_user().dn
+    dn = create_obj(udm, new_group_name, [user_dn], enabled=False)
+    wait_for_listener(dn)
+    find_obj(default_ox_context, new_group_name, assert_empty=True)
 
 
 def test_enable_and_disable_group(
-    new_context_id_generator,
-    new_user_name_generator,
+    create_ox_context,
+    create_ox_user,
     new_group_name,
     ox_host,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     Changing isOxGroup from Not to OK should create a group
     Changing isOxGroup from OK to Not should delete a group
     """
-    new_context_id = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id)
-    user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
-    new_context_id2 = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id2)
-    user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id2)
-    user_dn3 = create_user(udm, new_user_name_generator(), domainname, new_context_id2)
+    new_context_id = create_ox_context()
+    user_dn1 = create_ox_user(context_id=new_context_id).dn
+    new_context_id2 = create_ox_context()
+    user_dn2 = create_ox_user(context_id=new_context_id2).dn
+    user_dn3 = create_ox_user(context_id=new_context_id2).dn
     dn = create_obj(udm, new_group_name, [user_dn1, user_dn2, user_dn3], enabled=False)
     wait_for_listener(dn)
     find_obj(new_context_id, new_group_name, assert_empty=True)
@@ -105,18 +70,18 @@ def test_enable_and_disable_group(
 
 
 def test_add_group_with_one_user(
+    create_ox_user,
     default_ox_context,
     new_user_name,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     isOxGroup = OK should create a group
     UDM attributes should be reflected in OX
     """
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context)
+    user_dn = create_ox_user().dn
     group_dn = create_obj(udm, new_group_name, [user_dn])
     wait_for_listener(group_dn)
     obj = find_obj(default_ox_context, new_group_name)
@@ -125,23 +90,20 @@ def test_add_group_with_one_user(
 
 
 def test_add_group_with_one_enabled_user_and_one_disabled(
-    new_context_id,
+    create_ox_context,
+    create_ox_user,
     ox_host,
-    new_user_name_generator,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     isOxGroup = OK should create a group
     UDM attributes should be reflected in OX
     """
-    create_context(udm, ox_host, new_context_id)
-    user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
-    user_dn2 = create_user(
-        udm, new_user_name_generator(), domainname, None, enabled=False
-    )
+    new_context_id = create_ox_context()
+    user_dn1 = create_ox_user(context_id=new_context_id).dn
+    user_dn2 = create_ox_user(enabled=False).dn
     group_dn = create_obj(udm, new_group_name, [user_dn1, user_dn2])
     wait_for_listener(group_dn)
     obj = find_obj(new_context_id, new_group_name)
@@ -150,25 +112,22 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
 
 
 def test_change_context_for_group_multi_user(
-    new_context_id_generator,
+    create_ox_context,
+    create_ox_user,
     ox_host,
-    new_user_name_generator,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     If a user changes the oxContext, the group needs to update its members
     in the old and in the new context
     """
-    context_id = new_context_id_generator()
-    create_context(udm, ox_host, context_id)
-    new_context_id = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id)
-    user_dn = create_user(udm, new_user_name_generator(), domainname, context_id)
-    user_dn1 = create_user(udm, new_user_name_generator(), domainname, context_id)
-    user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
+    context_id = create_ox_context()
+    new_context_id = create_ox_context()
+    user_dn = create_ox_user(context_id=context_id).dn
+    user_dn1 = create_ox_user(context_id=context_id).dn
+    user_dn2 = create_ox_user(context_id=new_context_id).dn
     group_dn = create_obj(udm, new_group_name, [user_dn, user_dn1, user_dn2])
     wait_for_listener(group_dn)
     find_obj(context_id, new_group_name)
@@ -179,26 +138,24 @@ def test_change_context_for_group_multi_user(
 
 
 def test_change_context_for_group_user(
-    new_context_id_generator,
+    create_ox_context,
+    create_ox_user,
     ox_host,
     new_user_name,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     If a user changes the oxContext, the group should be removed from the old
     context and created in the new context
     """
-    context_id = new_context_id_generator()
-    create_context(udm, ox_host, context_id)
-    user_dn = create_user(udm, new_user_name, domainname, context_id)
+    context_id = create_ox_context()
+    user_dn = create_ox_user(context_id=context_id).dn
     group_dn = create_obj(udm, new_group_name, [user_dn])
     wait_for_listener(group_dn)
     find_obj(context_id, new_group_name)
-    new_context_id = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     udm.modify("users/user", user_dn, {"oxContext": new_context_id})
     wait_for_listener(group_dn)
     find_obj(context_id, new_group_name, assert_empty=True)
@@ -206,17 +163,17 @@ def test_change_context_for_group_user(
 
 
 def test_rename_group(
+    create_ox_user,
     default_ox_context,
     new_user_name,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     Renaming a group should keep ID
     """
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context)
+    user_dn = create_ox_user().dn
     dn = create_obj(udm, new_group_name, [user_dn])
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_group_name)
@@ -228,25 +185,22 @@ def test_rename_group(
 
 
 def test_add_group_with_multiple_users_and_contexts(
-    new_context_id_generator,
-    new_user_name_generator,
+    create_ox_context,
+    create_ox_user,
     new_group_name,
     ox_host,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     Adding users from different OX contexts to a group should add the group to
     each of those contexts with the correct members
     """
-    new_context_id = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id)
-    user_dn1 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
-    new_context_id2 = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id2)
-    user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id2)
-    user_dn3 = create_user(udm, new_user_name_generator(), domainname, new_context_id2)
+    new_context_id = create_ox_context()
+    user_dn1 = create_ox_user(context_id=new_context_id).dn
+    new_context_id2 = create_ox_context()
+    user_dn2 = create_ox_user(context_id=new_context_id2).dn
+    user_dn3 = create_ox_user(context_id=new_context_id2).dn
     group_dn = create_obj(udm, new_group_name, [user_dn1, user_dn2, user_dn3])
     wait_for_listener(group_dn)
     obj = find_obj(new_context_id, new_group_name)
@@ -258,17 +212,17 @@ def test_add_group_with_multiple_users_and_contexts(
 
 
 def test_modify_group(
+    create_ox_user,
     default_ox_context,
     new_user_name,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     Modifications in UDM should be reflected in OX
     """
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context)
+    user_dn = create_ox_user().dn
     dn = create_obj(udm, new_group_name, [user_dn])
     udm.modify("groups/group", dn, {"name": "x" + new_group_name + "x"})
     wait_for_listener(dn)
@@ -278,17 +232,17 @@ def test_modify_group(
 
 
 def test_rename_user(
+    create_ox_user,
     default_ox_context,
     new_user_name,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     Renaming user should keep User ID in groups member list
     """
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context)
+    user_dn = create_ox_user().dn
     group_dn = create_obj(udm, new_group_name, [user_dn])
     wait_for_listener(group_dn)
     obj = find_obj(default_ox_context, new_group_name)
@@ -300,23 +254,18 @@ def test_rename_user(
 
 
 def test_remove_user(
+    create_ox_user,
     default_ox_context,
-    new_user_name_generator,
     new_group_name,
     udm,
-    domainname,
     wait_for_listener,
 ):
     """
     Deleting one user from group should remove him from groups member list
     Deleting last user from group should delete group
     """
-    user_dn1 = create_user(
-        udm, new_user_name_generator(), domainname, default_ox_context
-    )
-    user_dn2 = create_user(
-        udm, new_user_name_generator(), domainname, default_ox_context
-    )
+    user_dn1 = create_ox_user().dn
+    user_dn2 = create_ox_user().dn
     group_dn = create_obj(udm, new_group_name, [user_dn1, user_dn2])
     wait_for_listener(group_dn)
     obj = find_obj(default_ox_context, new_group_name)
@@ -331,23 +280,20 @@ def test_remove_user(
 
 
 def test_remove_group(
+    create_ox_context,
+    create_ox_user,
     default_ox_context,
-    new_context_id,
     new_group_name,
-    new_user_name_generator,
     udm,
     ox_host,
-    domainname,
     wait_for_listener,
 ):
     """
     Deleting a group should delete it from all contexts
     """
-    create_context(udm, ox_host, new_context_id)
-    user_dn1 = create_user(
-        udm, new_user_name_generator(), domainname, default_ox_context
-    )
-    user_dn2 = create_user(udm, new_user_name_generator(), domainname, new_context_id)
+    new_context_id = create_ox_context()
+    user_dn1 = create_ox_user().dn
+    user_dn2 = create_ox_user(context_id=new_context_id).dn
     dn = create_obj(udm, new_group_name, [user_dn1, user_dn2])
     wait_for_listener(dn)
     find_obj(new_context_id, new_group_name)

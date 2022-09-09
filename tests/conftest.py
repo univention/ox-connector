@@ -243,7 +243,7 @@ def create_ox_context(udm, new_context_id_generator):
 
 @pytest.fixture
 def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context, wait_for_listener):
-    def _func(name=None, context_id=default_ox_context, wait=True):
+    def _func(name=None, context_id=default_ox_context, enabled=True, wait=True):
         name = name or new_user_name_generator()
         dn = udm.create(
             "users/user",
@@ -254,7 +254,7 @@ def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context,
                 "lastname": name.title(),
                 "password": "univention",
                 "mailPrimaryAddress": "{}@{}".format(name, domainname),
-                "isOxUser": True,
+                "isOxUser": enabled,
                 "oxAccess": "premium",
                 "oxContext": context_id,
             },
