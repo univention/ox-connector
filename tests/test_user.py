@@ -10,19 +10,6 @@ from univention.ox.backend_base import User, get_ox_integration_class
 T = typing.TypeVar("T")
 
 
-def create_context(udm, ox_host, context_id) -> str:
-    dn = udm.create(
-        "oxmail/oxcontext",
-        "cn=open-xchange",
-        {
-            "oxQuota": 1000,
-            "contextid": context_id,
-            "name": "context{}".format(context_id),
-        },
-    )
-    return dn
-
-
 def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True) -> str:
     _attrs = {
         "username": name,
@@ -109,12 +96,12 @@ def test_rename_user(
 
 
 def test_add_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     isOxUser = OK should create a user
     """
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
@@ -123,13 +110,13 @@ def test_add_user(
 
 
 def test_modify_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Changing UDM object should be reflected in OX
     """
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     wait_for_listener(dn)  # make sure we wait for the modify step below
     udm.modify(
@@ -379,10 +366,9 @@ def attr_id(value: UserAttributeTest, index=[]) -> str:
 
 @pytest.mark.parametrize("user_test", user_attributes, ids=attr_id)
 def test_modify_user_set_and_unset_string_attributes(
-    new_context_id,
+    create_ox_context,
     new_user_name,
     udm,
-    ox_host,
     domainname,
     wait_for_listener,
     user_test,
@@ -390,7 +376,7 @@ def test_modify_user_set_and_unset_string_attributes(
     """
     Changing UDM object should be reflected in OX
     """
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     wait_for_listener(dn)  # make sure we wait for the modify step below
     values = [
@@ -414,15 +400,14 @@ def test_modify_user_set_and_unset_string_attributes(
 
 
 def test_full_blown_user(
-    new_context_id,
+    create_ox_context,
     new_user_name,
     new_user_name_generator,
     udm,
-    ox_host,
     domainname,
     wait_for_listener,
 ):
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     attrs = {
         "city": new_user_name_generator(),
         "firstname": new_user_name_generator(),
@@ -548,13 +533,13 @@ def test_full_blown_user(
 
 
 def test_modify_user_without_ox_obj(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Changing UDM object without a OX pendant should just create it
     """
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     wait_for_listener(dn)  # make sure we wait for the modify step below
     delete_obj(new_context_id, new_user_name)
@@ -576,10 +561,9 @@ def test_modify_user_without_ox_obj(
 
 def test_modify_mailserver(
     default_imap_server,
-    new_context_id,
+    create_ox_context,
     new_user_name,
     udm,
-    ox_host,
     domainname,
     wait_for_listener,
 ):
@@ -588,7 +572,7 @@ def test_modify_mailserver(
         "cn=memberserver,cn=computers",
         {"name": "test-member", "password": "univention", "service": ["IMAP"]},
     )
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     wait_for_listener(dn)  # make sure we wait for the modify step below
     obj = find_obj(new_context_id, new_user_name)
@@ -606,12 +590,12 @@ def test_modify_mailserver(
 
 
 def test_remove_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Removing a user in UDM should remove the user in OX
     """
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     udm.remove("users/user", dn)
     wait_for_listener(dn)
@@ -619,14 +603,14 @@ def test_remove_user(
 
 
 def test_enable_and_disable_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Add a new UDM user (not yet active in OX)
     Setting isOxUser = OK should create the user
     Setting isOxUser = Not should delete the user
     """
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, None, enabled=False)
     wait_for_listener(dn)  # make sure we wait for the modify step below
     # BUG: some hook seems to remove the ox specific attributes when enabling the user
@@ -643,7 +627,7 @@ def test_enable_and_disable_user(
 
 
 def test_change_context(
-    new_context_id_generator, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Special case: Change context:
@@ -651,19 +635,16 @@ def test_change_context(
     * Create "same" user in new context
     Test twice, just to be sure
     """
-    old_context_id = new_context_id_generator()
-    create_context(udm, ox_host, old_context_id)
+    old_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, old_context_id)
     wait_for_listener(dn)
     find_obj(old_context_id, new_user_name)
-    new_context_id = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     udm.modify("users/user", dn, {"oxContext": new_context_id})
     wait_for_listener(dn)
     find_obj(old_context_id, new_user_name, assert_empty=True)
     find_obj(new_context_id, new_user_name)
-    new_context_id2 = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id2)
+    new_context_id2 = create_ox_context()
     udm.modify("users/user", dn, {"oxContext": new_context_id2})
     wait_for_listener(dn)
     find_obj(old_context_id, new_user_name, assert_empty=True)
@@ -672,7 +653,7 @@ def test_change_context(
 
 
 def test_existing_user_in_different_context(
-    new_context_id_generator, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     User already exists in OX DB (legacy data?) and a new
@@ -680,9 +661,7 @@ def test_existing_user_in_different_context(
     context; then the user is moved to the original context
     """
     User = get_ox_integration_class("SOAP", "User")
-    new_context_id = new_context_id_generator()
-    context_dn = create_context(udm, ox_host, new_context_id)
-    wait_for_listener(context_dn)
+    new_context_id = create_ox_context(wait=True)
     mail_address = "{}@{}".format(new_user_name, domainname)
     legacy_user = User(
         context_id=new_context_id,
@@ -695,8 +674,7 @@ def test_existing_user_in_different_context(
         email1=mail_address,
     )
     legacy_user.create()
-    new_context_id2 = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id2)
+    new_context_id2 = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id2)
     wait_for_listener(dn)
     udm.modify(
@@ -711,12 +689,12 @@ def test_existing_user_in_different_context(
 
 
 def test_alias(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Changing mailPrimaryAddress and email1 leads to appropriate aliases
     """
-    create_context(udm, ox_host, new_context_id)
+    new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
     mail_addresses = [
         "test1-{}@{}".format(new_user_name, domainname),

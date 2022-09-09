@@ -223,8 +223,8 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
 
 
 @pytest.fixture
-def create_ox_context(udm, new_context_id_generator):
-    def _func(context_id=None):
+def create_ox_context(udm, new_context_id_generator, wait_for_listener):
+    def _func(context_id=None, wait=False):
         context_id = context_id or new_context_id_generator()
         dn = udm.create(
             "oxmail/oxcontext",
@@ -237,6 +237,8 @@ def create_ox_context(udm, new_context_id_generator):
         )
         print("Created context", dn, "in UDM")
         _CREDENTIALS.clear()
+        if wait:
+            wait_for_listener(dn)
         return context_id
     return _func
 
