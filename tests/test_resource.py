@@ -1,19 +1,6 @@
 from univention.ox.backend_base import get_ox_integration_class
 
 
-def create_context(udm, ox_host, context_id):
-    dn = udm.create(
-        "oxmail/oxcontext",
-        "cn=open-xchange",
-        {
-            "oxQuota": 1000,
-            "contextid": context_id,
-            "name": "context{}".format(context_id),
-        },
-    )
-    return dn
-
-
 def create_obj(udm, name, domainname, context_id, user):
     dn = udm.create(
         "oxresources/oxresources",
@@ -28,25 +15,6 @@ def create_obj(udm, name, domainname, context_id, user):
         },
     )
     return dn
-
-
-def create_user(udm, name, domainname, context_id):
-    udm.create(
-        "users/user",
-        "cn=users",
-        {
-            "username": name,
-            "firstname": "Emil",
-            "lastname": name.title(),
-            "password": "univention",
-            "mailPrimaryAddress": "{}@{}".format(name, domainname),
-            "isOxUser": True,
-            "oxAccess": "premium",
-            "oxContext": context_id,
-        },
-    )
-    for user in udm.search("users/user", "uid={}".format(name)):
-        return user.open()
 
 
 def find_obj(context_id, name, assert_empty=False):
@@ -64,6 +32,7 @@ def find_obj(context_id, name, assert_empty=False):
 def test_add_resource_in_default_context(
     default_ox_context,
     new_resource_name,
+    create_ox_user,
     udm,
     domainname,
     new_user_name,
@@ -72,7 +41,7 @@ def test_add_resource_in_default_context(
     """
     Creating a resource without a context should create it in OX' default context
     """
-    user = create_user(udm, new_user_name, domainname, None)
+    user = create_ox_user(new_user_name)
     dn = create_obj(udm, new_resource_name, domainname, None, user)
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_resource_name)
@@ -85,7 +54,8 @@ def test_add_resource(
     new_context_id,
     new_resource_name,
     udm,
-    ox_host,
+    create_ox_context,
+    create_ox_user,
     domainname,
     new_user_name,
     wait_for_listener,
@@ -93,8 +63,8 @@ def test_add_resource(
     """
     Creating a resource should create it in OX
     """
-    create_context(udm, ox_host, new_context_id)
-    user = create_user(udm, new_user_name, domainname, new_context_id)
+    create_ox_context(new_context_id)
+    user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_resource_name)
@@ -107,7 +77,8 @@ def test_modify_resource(
     new_context_id,
     new_resource_name,
     udm,
-    ox_host,
+    create_ox_context,
+    create_ox_user,
     domainname,
     new_user_name,
     wait_for_listener,
@@ -116,8 +87,8 @@ def test_modify_resource(
     Modification of attributes are reflected in OX
     """
     new_mail_address = "{}2@{}".format(new_resource_name, domainname)
-    create_context(udm, ox_host, new_context_id)
-    user = create_user(udm, new_user_name, domainname, new_context_id)
+    create_ox_context(new_context_id)
+    user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     new_attrs = {
         "description": f"foo {new_resource_name} bar",
@@ -136,7 +107,8 @@ def test_remove_resource(
     new_context_id,
     new_resource_name,
     udm,
-    ox_host,
+    create_ox_context,
+    create_ox_user,
     domainname,
     new_user_name,
     wait_for_listener,
@@ -144,8 +116,8 @@ def test_remove_resource(
     """
     Deleting a resource should delete it from OX
     """
-    create_context(udm, ox_host, new_context_id)
-    user = create_user(udm, new_user_name, domainname, new_context_id)
+    create_ox_context(new_context_id)
+    user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     udm.remove("oxresources/oxresources", dn)
     wait_for_listener(dn)
@@ -156,7 +128,8 @@ def test_change_context_resource(
     new_context_id_generator,
     new_resource_name,
     udm,
-    ox_host,
+    create_ox_context,
+    create_ox_user,
     domainname,
     new_user_name,
     wait_for_listener,
@@ -167,11 +140,11 @@ def test_change_context_resource(
     stay, though.
     """
     new_context_id = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id)
-    user = create_user(udm, new_user_name, domainname, new_context_id)
+    create_ox_context(new_context_id)
+    user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     new_context_id2 = new_context_id_generator()
-    create_context(udm, ox_host, new_context_id2)
+    create_ox_context(new_context_id2)
     udm.modify("oxresources/oxresources", dn, {"description": "Soon in a new context"})
     udm.modify(
         "oxresources/oxresources",

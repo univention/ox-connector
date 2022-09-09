@@ -26,7 +26,7 @@ def truncate_wait_for_listener_log():
 def wait_for_listener(truncate_wait_for_listener_log):
     truncate_wait_for_listener_log()  # truncate before starting the test
 
-    def _wait_for_dn(dn: str, timeout=10.0) -> None:
+    def _wait_for_dn(dn: str, timeout=30.0) -> None:
         start_time = time.time()
         with TEST_LOG_FILE.open("r") as fp:
             pos = fp.tell()
@@ -54,7 +54,7 @@ def wait_for_listener(truncate_wait_for_listener_log):
 
 
 def _new_id(cache):
-    value = cache.get("newobjects/id", 100)
+    value = cache.get("newobjects/id", int(os.environ["DEFAULT_CONTEXT"]) + 100)
     value += 1
     cache.set("newobjects/id", value)
     return str(value)
