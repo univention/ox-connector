@@ -16,11 +16,11 @@ Released: 9. September 2022
 Fixed
 -----
 
-Avoid unnecessary lookups in the OX database when syncing groups: Users that
+Avoid unnecessary look-ups in the OX database when syncing groups: Users that
 appear to not be present in the database will be treated as such instead of
 double checking.
 
-Avoid 500 log messages in OX by guarding user lookups by an `exists` call.
+Avoid 500 log messages in OX by guarding user look-ups by an `exists` call.
 
 2.0.0
 =====
