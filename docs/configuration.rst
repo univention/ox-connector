@@ -7,6 +7,11 @@ Configuration
 The following reference shows the available settings for the :program:`OX
 Connector` app.
 
+.. _settings:
+
+App Settings
+============
+
 .. envvar:: OX_SOAP_SERVER
 
    Defines the server that has OX App Suite installed. Provide the protocol and
@@ -177,3 +182,32 @@ Connector` app.
         - Password
         - N/A
 
+.. _ucr-variables:
+
+|UCSUCRV|\ s
+============
+
+.. envvar:: ox/context/id
+
+   The app setting :envvar:`DEFAULT_CONTEXT` sets the value of the |UCSUCRV|
+   :envvar:`ox/context/id`.
+
+   Upon installation of the app :program:`OX Connector`, the OX Connector
+   creates the extended attribute ``oxContext`` and uses the value from
+   :envvar:`ox/context/id` as initial value for the extended attribute
+   ``oxContext``.
+
+   When an administrator creates a new user account that the OX Connector
+   synchronizes, UDM sets the OX context for the user account to value of the
+   extended attribute ``oxContext``.
+
+   .. caution::
+
+      The UCR variable :envvar:`ox/context/id` **isn't** for manual usage.
+
+      Changing the variable **doesn't** change the OX context on existing user
+      accounts.
+
+      Changing the value of the app setting :envvar:`DEFAULT_CONTEXT` does
+      **neither** change :envvar:`ox/context/id` **nor** the extended attribute
+      ``oxContext``.
