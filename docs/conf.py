@@ -120,7 +120,7 @@ numfig_format = {
 if "spelling" in sys.argv:
     spelling_lang = "en"
     spelling_show_suggestions = True
-    spelling_word_list_filename = []
+    spelling_word_list_filename = ["spelling_wordlist"]
     suppress_warnings = ['git.too_shallow']
 
 

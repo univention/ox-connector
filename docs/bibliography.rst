@@ -10,8 +10,3 @@
    ************
 
 .. bibliography::
-
-.. spelling::
-
-   Raphaël
-   Freexian
