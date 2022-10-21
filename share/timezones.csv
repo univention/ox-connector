@@ -1,0 +1,544 @@
+Africa/Abidjan
+Africa/Accra
+Africa/Addis_Ababa
+Africa/Algiers
+Africa/Asmera
+Africa/Bamako	UTC
+Africa/Bangui
+Africa/Banjul
+Africa/Bissau
+Africa/Blantyre
+Africa/Brazzaville	Europe/Zurich
+Africa/Bujumbura
+Africa/Cairo
+Africa/Casablanca
+Africa/Ceuta	Europe/Zurich
+Africa/Conakry
+Africa/Dakar
+Africa/Dar_es_Salaam
+Africa/Djibouti
+Africa/Douala
+Africa/El_Aaiun	UTC
+Africa/Freetown
+Africa/Gaborone
+Africa/Harare
+Africa/Johannesburg
+Africa/Kampala
+Africa/Khartoum
+Africa/Kigali
+Africa/Kinshasa
+Africa/Lagos
+Africa/Libreville
+Africa/Lome
+Africa/Luanda
+Africa/Lubumbashi
+Africa/Lusaka
+Africa/Malabo
+Africa/Maputo
+Africa/Maseru
+Africa/Mbabane
+Africa/Mogadishu
+Africa/Monrovia
+Africa/Nairobi
+Africa/Ndjamena
+Africa/Niamey
+Africa/Nouakchott
+Africa/Ouagadougou
+Africa/Porto-Novo
+Africa/Sao_Tome
+Africa/Timbuktu
+Africa/Tripoli
+Africa/Tunis
+Africa/Windhoek
+America/Adak
+America/Anchorage
+America/Anguilla
+America/Antigua
+America/Araguaina	Atlantic/Stanley
+America/Argentina/Buenos_Aires	Atlantic/South_Georgia
+America/Argentina/Catamarca	Atlantic/Stanley
+America/Argentina/ComodRivadavia	Atlantic/Stanley
+America/Argentina/Cordoba	Atlantic/South_Georgia
+America/Argentina/Jujuy	Atlantic/Stanley
+America/Argentina/La_Rioja	Atlantic/Stanley
+America/Argentina/Mendoza	Atlantic/Stanley
+America/Argentina/Rio_Gallegos	Atlantic/Stanley
+America/Argentina/San_Juan	Atlantic/Stanley
+America/Argentina/Tucuman	Atlantic/South_Georgia
+America/Argentina/Ushuaia	Atlantic/Stanley
+America/Argentina	UTC
+America/Aruba
+America/Asuncion
+America/Atka	Pacific/Gambier
+America/Bahia	Atlantic/Stanley
+America/Barbados
+America/Belem	Atlantic/Stanley
+America/Belize
+America/Boa_Vista	America/New_York
+America/Bogota
+America/Boise	Pacific/Galapagos
+America/Buenos_Aires
+America/Cambridge_Bay	Pacific/Galapagos
+America/Campo_Grande	America/New_York
+America/Cancun	Pacific/Galapagos
+America/Caracas
+America/Catamarca	Atlantic/Stanley
+America/Cayenne
+America/Cayman
+America/Chicago
+America/Chihuahua	America/Vancouver
+America/Cordoba	Atlantic/South_Georgia
+America/Costa_Rica
+America/Cuiaba
+America/Curacao
+America/Danmarkshavn	UTC
+America/Dawson	America/Vancouver
+America/Dawson_Creek
+America/Denver
+America/Detroit	America/New_York
+America/Dominica
+America/Edmonton
+America/Eirunepe	America/New_York
+America/El_Salvador
+America/Ensenada	Pacific/Pitcairn
+America/Fortaleza
+America/Fort_Wayne	America/New_York
+America/Glace_Bay	Atlantic/Stanley
+America/Godthab
+America/Goose_Bay	Atlantic/Stanley
+America/Grand_Turk
+America/Grenada
+America/Guadeloupe
+America/Guatemala
+America/Guayaquil
+America/Guyana
+America/Halifax
+America/Havana
+America/Hermosillo	America/Vancouver
+America/Indiana/Indianapolis	America/New_York
+America/Indiana/Knox	Pacific/Easter
+America/Indiana/Marengo	America/New_York
+America/Indianapolis
+America/Indiana	UTC
+America/Indiana/Vevay	America/New_York
+America/Inuvik	Pacific/Galapagos
+America/Iqaluit	America/New_York
+America/Jamaica
+America/Jujuy	Atlantic/Stanley
+America/Juneau	Pacific/Pitcairn
+America/Kentucky/Louisville	America/New_York
+America/Kentucky/Monticello	America/New_York
+America/Kentucky	UTC
+America/Knox_IN	Pacific/Easter
+America/La_Paz
+America/Lima
+America/Los_Angeles
+America/Louisville	America/New_York
+America/Maceio	Atlantic/Stanley
+America/Managua
+America/Manaus
+America/Martinique
+America/Mazatlan
+America/Mendoza	Atlantic/Stanley
+America/Menominee	Pacific/Easter
+America/Merida	Pacific/Galapagos
+America/Mexico_City
+America/Miquelon
+America/Monterrey	Pacific/Galapagos
+America/Montevideo
+America/Montreal
+America/Montserrat
+America/Nassau
+America/New_York
+America/Nipigon	America/New_York
+America/Nome	Pacific/Pitcairn
+America/Noronha
+America/North_Dakota/Center	Pacific/Easter
+America/North_Dakota	UTC
+America/Panama
+America/Pangnirtung	America/New_York
+America/Paramaribo
+America/Phoenix
+America/Port-au-Prince
+America/Porto_Acre
+America/Port_of_Spain
+America/Porto_Velho	America/New_York
+America/Puerto_Rico
+America/Rainy_River	Pacific/Easter
+America/Rankin_Inlet	Pacific/Easter
+America/Recife	Atlantic/Stanley
+America/Regina
+America/Rio_Branco
+America/Rosario	Atlantic/South_Georgia
+America/Santiago
+America/Santo_Domingo
+America/Sao_Paulo
+America/Scoresbysund
+America/Shiprock	Pacific/Galapagos
+America/St_Johns
+America/St_Kitts
+America/St_Lucia
+America/St_Thomas
+America/St_Vincent
+America/Swift_Current	Pacific/Galapagos
+America/Tegucigalpa
+America/Thule
+America/Thunder_Bay	America/New_York
+America/Tijuana
+America/Toronto	America/New_York
+America/Tortola
+America/Vancouver
+America/Virgin	America/New_York
+America/Whitehorse	America/Vancouver
+America/Winnipeg
+America/Yakutat	Pacific/Pitcairn
+America/Yellowknife	Pacific/Galapagos
+Antarctica/Casey
+Antarctica/Davis	Indian/Christmas
+Antarctica/DumontDUrville
+Antarctica/Mawson
+Antarctica/McMurdo
+Antarctica/Palmer
+Antarctica/Rothera	Atlantic/Stanley
+Antarctica/South_Pole	Pacific/Tongatapu
+Antarctica/Syowa	Indian/Mayotte
+Antarctica/Vostok	Indian/Chagos
+Arctic/Longyearbyen	Europe/Zurich
+Asia/Aden
+Asia/Almaty
+Asia/Amman
+Asia/Anadyr
+Asia/Aqtau
+Asia/Aqtobe
+Asia/Ashgabat	Indian/Mauritius
+Asia/Ashkhabad
+Asia/Baghdad
+Asia/Bahrain
+Asia/Baku
+Asia/Bangkok
+Asia/Beirut
+Asia/Bishkek
+Asia/Brunei
+Asia/Calcutta
+Asia/Choibalsan	Asia/Ulaanbaatar
+Asia/Chongqing	Asia/Ulaanbaatar
+Asia/Chungking	Asia/Ulaanbaatar
+Asia/Colombo
+Asia/Dacca
+Asia/Damascus
+Asia/Dhaka
+Asia/Dili	Pacific/Palau
+Asia/Dubai
+Asia/Dushanbe
+Asia/Gaza	Europe/Vilnius
+Asia/Harbin	Asia/Ulaanbaatar
+Asia/Hong_Kong
+Asia/Hovd	Indian/Christmas
+Asia/Irkutsk
+Asia/Istanbul	Europe/Vilnius
+Asia/Jakarta
+Asia/Jayapura
+Asia/Jerusalem
+Asia/Kabul
+Asia/Kamchatka
+Asia/Karachi
+Asia/Kashgar	Asia/Ulaanbaatar
+Asia/Katmandu
+Asia/Krasnoyarsk
+Asia/Kuala_Lumpur
+Asia/Kuching	Asia/Ulaanbaatar
+Asia/Kuwait
+Asia/Macao
+Asia/Macau	Asia/Ulaanbaatar
+Asia/Magadan
+Asia/Makassar	Asia/Ulaanbaatar
+Asia/Manila
+Asia/Muscat
+Asia/Nicosia
+Asia/Novosibirsk
+Asia/Omsk	Indian/Chagos
+Asia/Oral	Indian/Mauritius
+Asia/Phnom_Penh
+Asia/Pontianak	Indian/Christmas
+Asia/Pyongyang
+Asia/Qatar
+Asia/Qyzylorda	Indian/Chagos
+Asia/Rangoon
+Asia/Riyadh
+Asia/Riyadh87	UTC
+Asia/Riyadh88	UTC
+Asia/Riyadh89	UTC
+Asia/Saigon
+Asia/Sakhalin	Pacific/Truk
+Asia/Samarkand	Indian/Mauritius
+Asia/Seoul
+Asia/Shanghai
+Asia/Singapore
+Asia/Taipei
+Asia/Tashkent
+Asia/Tbilisi
+Asia/Tehran
+Asia/Tel_Aviv	Europe/Vilnius
+Asia/Thimbu
+Asia/Thimphu	Indian/Chagos
+Asia/Tokyo
+Asia/Ujung_Pandang
+Asia/Ulaanbaatar
+Asia/Ulan_Bator	Asia/Ulaanbaatar
+Asia/Urumqi	Asia/Ulaanbaatar
+Asia/Vientiane
+Asia/Vladivostok
+Asia/Yakutsk
+Asia/Yekaterinburg
+Asia/Yerevan
+Atlantic/Azores
+Atlantic/Bermuda
+Atlantic/Canary
+Atlantic/Cape_Verde
+Atlantic/Faeroe
+Atlantic/Jan_Mayen
+Atlantic/Madeira	UTC
+Atlantic/Reykjavik
+Atlantic/South_Georgia
+Atlantic/Stanley
+Atlantic/St_Helena
+Australia/ACT	Pacific/Ponape
+Australia/Adelaide
+Australia/Brisbane
+Australia/Broken_Hill
+Australia/Canberra	Pacific/Ponape
+Australia/Darwin
+Australia/Hobart
+Australia/LHI	Pacific/Ponape
+Australia/Lindeman	Pacific/Truk
+Australia/Lord_Howe
+Australia/Melbourne	Pacific/Ponape
+Australia/North	Australia/Darwin
+Australia/NSW	Pacific/Ponape
+Australia/Perth
+Australia/Queensland	Pacific/Truk
+Australia/South	Australia/Broken_Hill
+Australia/Sydney
+Australia/Tasmania	Pacific/Ponape
+Australia	UTC
+Australia/Victoria	Pacific/Ponape
+Australia/West	Pacific/Palau
+Australia/Yancowinna	Australia/Broken_Hill
+Brazil/Acre	America/New_York
+Brazil/DeNoronha	Atlantic/South_Georgia
+Brazil/East	Atlantic/Stanley
+Brazil/West	America/New_York
+Canada/Atlantic	Atlantic/Stanley
+Canada/Central	Pacific/Easter
+Canada/Eastern	America/New_York
+Canada/East-Saskatchewan	Pacific/Galapagos
+Canada/Mountain	Pacific/Galapagos
+Canada/Newfoundland	America/St_Johns
+Canada/Pacific	America/Vancouver
+Canada/Saskatchewan	Pacific/Galapagos
+Canada/Yukon	America/Vancouver
+CET	Europe/Zurich
+Chile/Continental	Atlantic/Stanley
+Chile/EasterIsland	Pacific/Easter
+CST6CDT	Pacific/Easter
+Cuba	America/New_York
+EET	Europe/Vilnius
+Egypt	Europe/Vilnius
+Eire	UTC
+EST5EDT	America/New_York
+EST	Pacific/Easter
+Etc/GMT+0	Europe/London
+Etc/GMT-0	UTC
+Etc/GMT+0	UTC
+Etc/GMT0	UTC
+Etc/GMT+10	Australia/Sydney
+Etc/GMT+10	Pacific/Port_Moresby
+Etc/GMT-10	Pacific/Tahiti
+Etc/GMT+11	Asia/Magadan
+Etc/GMT-11	UTC
+Etc/GMT+12	Pacific/Fiji
+Etc/GMT-12	UTC
+Etc/GMT+1	Africa/Algiers
+Etc/GMT-1	Atlantic/Cape_Verde
+Etc/GMT+2	Africa/Gaborone
+Etc/GMT-2	Altantic/South_Georgia
+Etc/GMT-3	America/Paramaribo
+Etc/GMT+3	Asia/Bahrein
+Etc/GMT-4	America/Anguilla
+Etc/GMT+4	Indian/Mauritius
+Etc/GMT-5	America/Cayman
+Etc/GMT+5	Asia/Karachi
+Etc/GMT-6	America/Belize
+Etc/GMT+6	Asia/Dhaka
+Etc/GMT+7	Asia/Phnom_Penh
+Etc/GMT-7	UTC
+Etc/GMT+8	Asia/Brunei
+Etc/GMT-8	Pacific/Pitcairn
+Etc/GMT+9	Asia/Tokyo
+Etc/GMT-9	UTC
+Etc/GMT	Europe/London
+Etc/Greenwich	UTC
+Etc/UCT	UTC
+Etc/Universal	UCT
+Etc/UTC	UTC
+Etc/Zulu	UTC
+Europe/Amsterdam
+Europe/Andorra
+Europe/Athens
+Europe/Belfast	UTC
+Europe/Belgrade
+Europe/Berlin
+Europe/Bratislava	Europe/Zurich
+Europe/Brussels
+Europe/Bucharest
+Europe/Budapest
+Europe/Chisinau
+Europe/Copenhagen
+Europe/Dublin
+Europe/Gibraltar
+Europe/Helsinki
+Europe/Istanbul
+Europe/Kaliningrad
+Europe/Kiev
+Europe/Lisbon
+Europe/Ljubljana	Europe/Zurich
+Europe/London
+Europe/Luxembourg
+Europe/Madrid
+Europe/Malta
+Europe/Mariehamn	Europe/Vilnius
+Europe/Minsk
+Europe/Monaco
+Europe/Moscow
+Europe/Nicosia	Europe/Vilnius
+Europe/Oslo
+Europe/Paris
+Europe/Prague
+Europe/Riga
+Europe/Rome
+Europe/Samara
+Europe/San_Marino	Europe/Zurich
+Europe/Sarajevo	Europe/Zurich
+Europe/Simferopol
+Europe/Skopje	Europe/Zurich
+Europe/Sofia
+Europe/Stockholm
+Europe/Tallinn
+Europe/Tirane
+Europe/Tiraspol	Europe/Vilnius
+Europe/Uzhgorod	Europe/Vilnius
+Europe/Vaduz
+Europe/Vatican	Europe/Zurich
+Europe/Vienna
+Europe/Vilnius
+Europe/Warsaw
+Europe/Zagreb	Europe/Zurich
+Europe/Zaporozhye	Europe/Vilnius
+Europe/Zurich
+Factory	UTC
+GB-Eire	UTC
+GB	UTC
+GMT
+GMT-0	UTC
+GMT+0	UTC
+GMT0	UTC
+GMT	UTC
+Greenwich	UTC
+Hongkong	Asia/Ulaanbaatar
+HST	Pacific/Tahiti
+Iceland	UTC
+Indian/Antananarivo
+Indian/Chagos
+Indian/Christmas
+Indian/Cocos
+Indian/Comoro
+Indian/Kerguelen
+Indian/Mahe
+Indian/Maldives
+Indian/Mauritius
+Indian/Mayotte
+Indian/Reunion
+Iran	Asia/Tehran
+Israel	Europe/Vilnius
+Jamaica	Pacific/Easter
+Japan	Pacific/Palau
+Kwajalein	Pacific/Wallis
+Libya	Europe/Vilnius
+MET	Europe/Zurich
+Mexico/BajaNorte	Pacific/Pitcairn
+Mexico/BajaSur	America/Vancouver
+Mexico/General	Pacific/Galapagos
+Mideast/Riyadh87	UTC
+Mideast/Riyadh88	UTC
+Mideast/Riyadh89	UTC
+MST7MDT	Pacific/Galapagos
+MST	America/Vancouver
+Navajo	Pacific/Galapagos
+NZ-CHAT	Pacific/Chatham
+NZ	Pacific/Tongatapu
+Pacific/Apia
+Pacific/Auckland
+Pacific/Chatham
+Pacific/Easter
+Pacific/Efate
+Pacific/Enderbury
+Pacific/Fakaofo
+Pacific/Fiji
+Pacific/Funafuti
+Pacific/Galapagos
+Pacific/Gambier
+Pacific/Guadalcanal
+Pacific/Guam
+Pacific/Honolulu
+Pacific/Johnston	Pacific/Tahiti
+Pacific/Kiritimati
+Pacific/Kosrae
+Pacific/Kwajalein	Pacific/Wallis
+Pacific/Majuro
+Pacific/Marquesas
+Pacific/Midway	Pacific/Pago_Pago
+Pacific/Nauru
+Pacific/Niue
+Pacific/Norfolk
+Pacific/Noumea
+Pacific/Pago_Pago
+Pacific/Palau
+Pacific/Pitcairn
+Pacific/Ponape
+Pacific/Port_Moresby
+Pacific/Rarotonga
+Pacific/Saipan
+Pacific/Samoa	Pacific/Pago_Pago
+Pacific/Tahiti
+Pacific/Tarawa
+Pacific/Tongatapu
+Pacific/Truk
+Pacific/Wake
+Pacific/Wallis
+Pacific/Yap	Pacific/Truk
+Poland	Europe/Zurich
+Portugal	UTC
+PRC	Asia/Ulaanbaatar
+PST8PDT	America/Vancouver
+ROC	Asia/Ulaanbaatar
+ROK	Pacific/Palau
+Singapore	Asia/Ulaanbaatar
+Turkey	Europe/Vilnius
+UCT	UTC
+Universal	UTC
+US/Alaska	Pacific/Pitcairn
+US/Aleutian	Pacific/Gambier
+US/Arizona	America/Vancouver
+US/Central	Pacific/Easter
+US/Eastern	America/New_York
+US/East-Indiana	America/New_York
+US/Hawaii	Pacific/Tahiti
+US/Indiana-Starke	Pacific/Easter
+US/Michigan	America/New_York
+US/Mountain	Pacific/Galapagos
+US/Pacific	America/Vancouver
+US/Samoa	Pacific/Pago_Pago
+UTC
+WET
+W-SU	Indian/Mayotte
+Zulu	UTC

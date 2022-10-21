@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<umc version="2.0">
+  <module id="udm" icon="udm/module" version="1.0" translationId="ox-common">
+    <!-- Translation currently broken due to Bug #35061 -->
+    <name></name>
+    <description></description>
+    <flavor icon="udm-mail" id="oxmail/oxcontext">
+      <name>OX Contexts</name>
+      <description>Managing OX contexts</description>
+    </flavor>
+    <flavor icon="udm-oxmail-functional_account" id="oxmail/functional_account">
+      <name>OX Functional Accounts</name>
+      <description>Managing OX functional accounts</description>
+    </flavor>
+    <flavor icon="udm-oxresources-oxresources" id="oxresources/oxresources">
+      <name>OX Resources</name>
+      <description>Managing OX resources</description>
+    </flavor>
+    <categories>
+      <category name="domain"/>
+    </categories>
+  </module>
+</umc>

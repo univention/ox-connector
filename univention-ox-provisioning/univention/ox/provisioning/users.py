@@ -36,7 +36,7 @@ import imghdr
 import base64
 
 import univention.ox.provisioning.helpers
-from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
     get_access_profile,

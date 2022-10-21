@@ -16,8 +16,8 @@ DOCKER_REGISTRY_SERVER="docker.knut.univention.de"
 APPSUITE_REPO_DIR="appsuite"
 APPSUITE_BRANCH="dwiesent/ox-provisioning-app"
 GIT_ARGS="-c http.sslVerify=false"
-GIT_REPO_URI="https://git.knut.univention.de/univention/open-xchange/appsuite.git"
-OUR_PYTHON_PACKAGES="appsuite/univention-ox appsuite/univention-ox-soap-api univention-ox-provisioning"
+#GIT_REPO_URI="https://git.knut.univention.de/univention/open-xchange/appsuite.git"
+OUR_PYTHON_PACKAGES="univention-ox-soap-api univention-ox-provisioning"
 
 BUILD_ARGS=""
 PROXY_ARGS=""
@@ -58,19 +58,19 @@ if [ "$RELEASE" = 1 ]; then
   docker rmi -f "$APP_IMG" || true
 fi
 
-echo "Updating 'appsuite' git repo submodule..."
-if [ -e .git ]; then
-  # developer system
-  git $GIT_ARGS submodule update --init --recursive
-  (cd "$APPSUITE_REPO_DIR" && git checkout "$APPSUITE_BRANCH")
-  git $GIT_ARGS submodule foreach --recursive git pull
-else
-  # docker build host
-  if ! [ -d "$APPSUITE_REPO_DIR" ]; then
-    git $GIT_ARGS clone --depth=1 -b "$APPSUITE_BRANCH" "$GIT_REPO_URI" "$APPSUITE_REPO_DIR"
-  fi
-  (cd "$APPSUITE_REPO_DIR" && git checkout "$APPSUITE_BRANCH" && git $GIT_ARGS pull)
-fi
+#echo "Updating 'appsuite' git repo submodule..."
+#if [ -e .git ]; then
+#  # developer system
+#  git $GIT_ARGS submodule update --init --recursive
+#  (cd "$APPSUITE_REPO_DIR" && git checkout "$APPSUITE_BRANCH")
+#  git $GIT_ARGS submodule foreach --recursive git pull
+#else
+#  # docker build host
+#  if ! [ -d "$APPSUITE_REPO_DIR" ]; then
+#    git $GIT_ARGS clone --depth=1 -b "$APPSUITE_BRANCH" "$GIT_REPO_URI" "$APPSUITE_REPO_DIR"
+#  fi
+#  (cd "$APPSUITE_REPO_DIR" && git checkout "$APPSUITE_BRANCH" && git $GIT_ARGS pull)
+#fi
 
 echo "Collecting all Python dependencies..." # to minimize Docker image by installing and uninstalling in one step
 find $OUR_PYTHON_PACKAGES -name 'requirements.txt' -exec cat {} + | \

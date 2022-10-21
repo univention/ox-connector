@@ -5,7 +5,7 @@ import uuid
 
 import pytest
 
-from univention.ox.backend_base import User, get_ox_integration_class
+from univention.ox.soap.backend_base import User, get_ox_integration_class
 
 T = typing.TypeVar("T")
 

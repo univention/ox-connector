@@ -85,8 +85,7 @@ coverage-html: coverage ## check code coverage, create HTML report and show in b
 	$(BROWSER) htmlcov/index.html
 
 install: clean ## install the package to the active Python's site-packages
-	pip3 install -e appsuite/univention-ox
-	pip3 install -e appsuite/univention-ox-soap-api
+	pip3 install -e univention-ox-soap-api
 	pip3 install -e univention-ox-provisioning
 
 install-linting:  ## install linting packages to the active Python's site-packages

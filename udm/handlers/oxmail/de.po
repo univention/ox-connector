@@ -1,0 +1,240 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ox-mail 6.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-11 18:09+0200\n"
+"PO-Revision-Date: 2012-05-11 18:11+0200\n"
+"Last-Translator: Univention GmbH <package@univention.de>\n"
+"Language-Team: German <de@li.org>\n"
+"Language: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: oxcontext.py:45
+msgid "Search"
+msgstr "Suchen"
+
+#: oxcontext.py:45
+msgid "Search for OX contexts"
+msgstr "Nach OX-Context-Objekten suchen"
+
+#: oxcontext.py:51
+msgid "OX Mail: OX context"
+msgstr "OX-Mail: OX context"
+
+#: oxcontext.py:60 oxdomain.py:66 oxfetchmailmulti.py:60
+#: oxfetchmailsingle.py:60 oxfolder.py:66 oxlists.py:56 oxmail.py:85
+msgid "Name"
+msgstr "Name"
+
+#: oxcontext.py:69
+msgid "Hostname"
+msgstr "Rechnername"
+
+#: oxcontext.py:78
+msgid "OX integration version"
+msgstr "Version der OX-Integration"
+
+#: oxcontext.py:87
+msgid "OX GUI version"
+msgstr "Version der OX-GUI"
+
+#: oxcontext.py:96
+msgid "OX admindaemon version"
+msgstr "Version des OX-Admindaemons"
+
+#: oxcontext.py:105
+msgid "OX groupware version"
+msgstr "Version der OX-Groupware"
+
+#: oxcontext.py:114
+msgid "Context ID"
+msgstr "Context-ID"
+
+#: oxcontext.py:123
+msgid "OX Database Server"
+msgstr "OX-Datenbank-Server"
+
+#: oxcontext.py:132
+msgid "Quota [MBytes]"
+msgstr "Quota [MBytes]"
+
+#: oxcontext.py:143 oxcontext.py:144 oxdomain.py:97 oxdomain.py:98
+#: oxfetchmailmulti.py:154 oxfetchmailmulti.py:155 oxfetchmailsingle.py:136
+#: oxfetchmailsingle.py:137 oxfolder.py:135 oxfolder.py:136 oxlists.py:96
+#: oxlists.py:97 oxmail.py:96
+msgid "General"
+msgstr "Allgemein"
+
+#: oxcontext.py:143 oxdomain.py:97 oxlists.py:96
+msgid "Basic Values"
+msgstr "Grundeinstellungen"
+
+#: oxcontext.py:197
+msgid "The deletion of the OX context object is not allowed!"
+msgstr "Das Löschen von OX-Context-Objekten ist nicht erlaubt!"
+
+#: oxcontext.py:197
+msgid "The deletion of the OX context object is not allowed as long as users are in it"
+msgstr "Das Löschen des OX-Context-Objekts ist nicht erlaubt, solange sich Benutzer darin befinden!"
+
+#: oxcontext.py:197
+msgid "The deletion of the OX context object is not allowed as long as resources are in it"
+msgstr "Das Löschen des OX-Context-Objekts ist nicht erlaubt, solange sich Resourcen darin befinden!"
+
+#: oxdomain.py:53
+msgid "OX Mail: Mail Domain"
+msgstr "OX-Mail: Maildomäne"
+
+#: oxdomain.py:75
+msgid "Imap server"
+msgstr "IMAP-Server"
+
+#: oxdomain.py:85
+msgid "OX context name"
+msgstr "OX-Context-Name"
+
+#: oxfetchmailmulti.py:51
+msgid "OX Mail: Fetchmail Multi Drop"
+msgstr "OX Mail: Fetchmail Multi Drop"
+
+#: oxfetchmailmulti.py:69
+msgid ""
+"Space-separated list of local domain names - leave empty for all local "
+"domains"
+msgstr ""
+"Lokale Domains (durch Leerzeichen getrennt) - für alle lokalen Domains Feld "
+"leer lassen"
+
+#: oxfetchmailmulti.py:80
+msgid "Server"
+msgstr "Server"
+
+#: oxfetchmailmulti.py:89 oxfetchmailsingle.py:89
+msgid "Protocol"
+msgstr "Protokoll"
+
+#: oxfetchmailmulti.py:98 oxfetchmailsingle.py:98
+msgid "SSL"
+msgstr "SSL"
+
+#: oxfetchmailmulti.py:107 oxfetchmailsingle.py:107
+msgid "Remote user"
+msgstr "Entfernter Benutzer"
+
+#: oxfetchmailmulti.py:116 oxfetchmailsingle.py:116
+msgid "Remote password"
+msgstr "Entferntes Passwort"
+
+#: oxfetchmailmulti.py:125 oxfetchmailsingle.py:125
+msgid "Leave messages on server"
+msgstr "Auf dem Server behalten"
+
+#: oxfetchmailmulti.py:134
+msgid "Envelope header"
+msgstr "Envelope Mail Header"
+
+#: oxfetchmailmulti.py:143
+msgid "Virtual qmail prefix"
+msgstr "Virtuelles Qmail-Präfix"
+
+#: oxfetchmailmulti.py:154 oxfetchmailsingle.py:136 oxmail.py:96
+msgid "Basic settings"
+msgstr "Grundeinstellungen"
+
+#: oxfetchmailsingle.py:51
+msgid "OX Mail: Fetchmail Single Drop"
+msgstr "OX-Mail: Fetchmail Single Drop"
+
+#: oxfetchmailsingle.py:69
+msgid "Local recipient"
+msgstr "Lokaler Benutzer"
+
+#: oxfetchmailsingle.py:80
+msgid "Remote server"
+msgstr "Entfernter Server"
+
+#: oxfolder.py:52
+msgid "OX Mail: IMAP Folder"
+msgstr "OX-Mail: IMAP-Ordner"
+
+#: oxfolder.py:75
+msgid "Mail Domain"
+msgstr "Mail-Domäne"
+
+#: oxfolder.py:84
+msgid "User ACL"
+msgstr "Benutzer ACL"
+
+#: oxfolder.py:93
+msgid "Group ACL"
+msgstr "Gruppen ACL"
+
+#: oxfolder.py:102
+msgid "Maximum Quota in MB"
+msgstr "Quota in MB"
+
+#: oxfolder.py:111
+msgid "Should Be Visible For Outlook"
+msgstr "Sichtbar für Outlook"
+
+#: oxfolder.py:112
+msgid "Outlook does not display folders outside of the 'user' namespace."
+msgstr "Outlook zeigt keine Ordner außerhalb des Ordners 'user/' an."
+
+#: oxfolder.py:122 oxlists.py:84
+msgid "Mail Address"
+msgstr "E-Mail Adresse"
+
+#: oxfolder.py:135
+msgid "General settings"
+msgstr "Allgemein"
+
+#: oxfolder.py:142 oxfolder.py:143
+msgid "Access Rights"
+msgstr "Zugriffsrechte"
+
+#: oxfolder.py:142
+msgid "Access rights for shared folder"
+msgstr "Zugriffsrechte für IMAP-Ordner"
+
+#: oxfolder.py:206 oxlists.py:143
+msgid "The mail address' domain does not match any mail domain object."
+msgstr "Der Domänenteil der Mailadresse ist nicht in der Liste der eingerichteten Maildomänen enthalten."
+
+#: oxlists.py:49
+msgid "OX Mail: Mailing Lists"
+msgstr "OX Mail: Mailinglisten"
+
+#: oxlists.py:65
+msgid "Description"
+msgstr "Beschreibung"
+
+#: oxlists.py:74
+msgid "Members"
+msgstr "Mitglieder"
+
+#: oxmail.py:53 oxmail.py:57
+msgid "OX Mail"
+msgstr "OX-Mail"
+
+#: oxmail.py:58
+msgid "Add, edit and delete OX Mail Objects"
+msgstr "Hinzufügen, Bearbeiten und Löschen von OX-Mail-Objekten"
+
+#: oxmail.py:67
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: oxmail.py:67
+msgid "Add OX Mail Object"
+msgstr "OX-Mail-Objekt hinzufügen"
+
+#: oxmail.py:68
+msgid "Find"
+msgstr "Suchen"
+
+#: oxmail.py:68
+msgid "Find OX Mail Object(s)"
+msgstr "OX-Mail-Objekt suchen"
