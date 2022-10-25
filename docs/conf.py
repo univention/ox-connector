@@ -151,3 +151,9 @@ latex_elements = {
 }
 
 git_untracked_show_sourcelink = True
+
+# See Univention Sphinx Extension for its options and information about the
+# feedback link.
+# https://git.knut.univention.de/univention/documentation/univention_sphinx_extension
+univention_feedback = True
+univention_doc_basename = "ox-connector-app"
