@@ -373,22 +373,3 @@ class oxtimezone(select):
 		('UTC', 'UTC'),
 		('WET', 'WET'),
 	]
-
-
-class gid_ox(simple):
-	name = 'gid_ox'
-	min_length = 1
-	max_length = 32
-	_re = re.compile(r'(?u)^\w([\w -.]*\w)?$')
-	_re = re.compile(r'(?u)(^[a-zA-Z])[a-zA-Z0-9._ -]*([a-zA-Z0-9]$)')
-
-	@classmethod
-	def parse(cls, text):
-		unicode_text = text.decode("utf-8") if isinstance(text, bytes) else text
-		if cls._re.match(unicode_text):
-			return text
-		else:
-			raise univention.admin.uexceptions.valueError(
-				"A group name must start and end with a letter, number or underscore. In between additionally spaces, "
-				"dashes and dots are allowed."
-			)

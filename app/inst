@@ -105,14 +105,9 @@ register_ldap () {
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py      "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py   "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
 
-	univention-directory-manager policies/registry create "$@" \
-		--ignore_exists \
-		--position "cn=config-registry,cn=policies,$ldap_base" \
-		--set name='open-xchange' \
-		--set registry='directory/manager/web/modules/groups/group/properties/name/syntax gid_ox'
-	univention-directory-manager container/cn modify "$@" \
-		--dn "cn=dc,cn=computers,$ldap_base" \
-		--policy-reference "cn=open-xchange,cn=config-registry,cn=policies,$ldap_base" || :
+	univention-directory-manager policies/registry remove \
+		--ignore_not_exists \
+		--dn "cn=open-xchange,cn=config-registry,cn=policies,$ldap_base" || true
 
 	stop_udm_cli_server
 }
