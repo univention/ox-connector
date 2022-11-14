@@ -9,7 +9,7 @@ variables:
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: noninteractive
   UNIVENTION_BASECONF: /dev/null
-  DOC_TARGET_VERSION: "2.0.0"
+  DOC_TARGET_VERSION: "2.1.1"
   DOCS_TARGET_NAME: "ox-connector-app"
 
 
