@@ -68,7 +68,7 @@ property_descriptions = {
 	'contextid': univention.admin.property(
 		short_description=_('Context ID'),
 		long_description='',
-		syntax=univention.admin.syntax.string,
+		syntax=univention.admin.syntax.integer,
 		required=True,
 		may_change=False,
 	),
