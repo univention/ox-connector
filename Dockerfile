@@ -37,6 +37,7 @@ COPY univention-ox-provisioning /tmp/univention-ox-provisioning
 COPY Makefile /tmp
 COPY app/listener_trigger /tmp/app/
 COPY tests /tmp/tests
+COPY LICENSE /usr/local/share/ox-connector/LICENSE
 
 # 1st linting, then installation
 RUN apk add --no-cache gcc python3-dev make musl-dev && \
