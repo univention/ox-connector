@@ -31,7 +31,7 @@
 import logging
 from copy import deepcopy
 
-from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox, get_db_id
 
 FunctionalAccount = get_ox_integration_class("SOAP", "SecondaryAccount")

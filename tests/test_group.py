@@ -1,4 +1,4 @@
-from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.backend_base import get_ox_integration_class
 
 
 def create_obj(udm, name, members, enabled=True):

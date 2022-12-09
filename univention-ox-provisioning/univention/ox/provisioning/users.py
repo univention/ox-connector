@@ -36,7 +36,7 @@ import imghdr
 import base64
 
 import univention.ox.provisioning.helpers
-from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
     get_access_profile,
@@ -418,11 +418,6 @@ def delete_user(obj):
             f"Found group {soap_group.name} with {len(soap_group.members)} members"
         )
         soap_group.members.remove(user.id)
-        if soap_group.members:
-            logger.info(
-                f"Thus, removing member {user.id} from group {soap_group.name}..."
-            )
-            group_service.change(soap_group)
-        else:
+        if not soap_group.members:
             logger.info(f"Thus, deleting group {soap_group.id} in {user.context_id}...")
             group_service.delete(soap_group)

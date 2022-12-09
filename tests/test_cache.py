@@ -3,7 +3,7 @@ import json
 from contextlib import contextmanager
 from pathlib import Path
 
-from univention.ox.backend_base import User, get_ox_integration_class
+from univention.ox.soap.backend_base import User, get_ox_integration_class
 
 
 # copied from app/listener_trigger to test the cache dbs

@@ -23,14 +23,11 @@ RUN apk add --no-cache $(cat /tmp/alpine_apk_list.build) $(cat /tmp/alpine_apk_l
 	python3 -c "from zeep import Client" && \
 	rm -rf /tmp/*
 
-COPY appsuite/univention-ox/ /tmp/univention-ox/
-RUN pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox && \
-	python3 -c "from univention.ox.backend_base import get_ox_integration_class" && \
-	rm -rf /tmp/*
-
-COPY appsuite/univention-ox-soap-api/ /tmp/univention-ox-soap-api/
-RUN pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api && \
+COPY univention-ox-soap-api/ /tmp/univention-ox-soap-api/
+RUN export OX_PROVISIONING_VERSION="$version" &&\
+	pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api && \
 	python3 -c "from univention.ox.soap.services import get_ox_soap_service_class" && \
+	python3 -c "from univention.ox.soap.backend_base import get_ox_integration_class" && \
 	rm -rf /tmp/*
 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
@@ -61,10 +58,10 @@ RUN apk add --no-cache gcc python3-dev make musl-dev && \
 COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
 COPY LICENSE /usr/local/share/ox-connector/LICENSE
 
-COPY appsuite/univention-ox/share/ /usr/local/share/ox-connector/resources
-COPY appsuite/univention-ox/udm/ /usr/local/share/ox-connector/resources/udm
-COPY appsuite/univention-ox/umc/ /usr/local/share/ox-connector/resources/umc
-COPY appsuite/univention-ox/ldap/ /usr/local/share/ox-connector/resources/ldap
+COPY share/ /usr/local/share/ox-connector/resources
+COPY udm/ /usr/local/share/ox-connector/resources/udm
+COPY umc/ /usr/local/share/ox-connector/resources/umc
+COPY ldap/ /usr/local/share/ox-connector/resources/ldap
 COPY bin/* /usr/local/bin/
 
 #

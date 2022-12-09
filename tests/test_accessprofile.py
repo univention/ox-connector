@@ -1,6 +1,6 @@
 import pytest
 
-from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     get_access_profile,
     get_access_profiles,

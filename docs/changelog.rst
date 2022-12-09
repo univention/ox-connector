@@ -8,6 +8,45 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.1.1
+=====
+
+Released: 9. December 2022
+
+Fixed
+-----
+
+Fixed bug that prevented users from creating OX users from |UMC|.
+
+2.1.0
+=====
+
+Released: 14. November 2022
+
+Fixed
+-----
+
+Remove the use of unnecessary `gid_ox` syntax for OX group names. All valid
+group names in UCS are now accepted in OX.
+
+Avoid unnecessary group `change`` operation that can fail in large groups and
+lead to an infinite loop where the ox-connector tries to delete an
+already deleted user.
+
+Change `oxcontext` `contextid` syntax from string to integer.
+
+Changed
+-------
+
+Refactor of internal project structure.
+
+Update of scripts and internal files.
+
+Added
+-----
+
+Prepare support for Univention OX App suite.
+
 2.0.1
 =====
 

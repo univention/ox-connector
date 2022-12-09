@@ -1,4 +1,4 @@
-from univention.ox.backend_base import get_ox_integration_class
+from univention.ox.soap.backend_base import get_ox_integration_class
 
 
 def create_context(udm, ox_host, context_id, max_quota=1000):

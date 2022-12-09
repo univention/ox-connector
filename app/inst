@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=4
+VERSION=5
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -43,7 +43,6 @@ set -e
 
 . /usr/share/univention-lib/all.sh || exit 1
 . /usr/share/univention-join/joinscripthelper.lib || exit 1
-. "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/ox-lib.sh" || exit 1
 
 main () {
 	joinscript_init
@@ -81,7 +80,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.0.1'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.1.1'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
@@ -106,14 +105,9 @@ register_ldap () {
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py      "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
 	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py   "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
 
-	univention-directory-manager policies/registry create "$@" \
-		--ignore_exists \
-		--position "cn=config-registry,cn=policies,$ldap_base" \
-		--set name='open-xchange' \
-		--set registry='directory/manager/web/modules/groups/group/properties/name/syntax gid_ox'
-	univention-directory-manager container/cn modify "$@" \
-		--dn "cn=dc,cn=computers,$ldap_base" \
-		--policy-reference "cn=open-xchange,cn=config-registry,cn=policies,$ldap_base" || :
+	univention-directory-manager policies/registry remove \
+		--ignore_not_exists \
+		--dn "cn=open-xchange,cn=config-registry,cn=policies,$ldap_base" || true
 
 	stop_udm_cli_server
 }
@@ -167,7 +161,13 @@ create_eas () {
 		--dn "cn=oxDrive,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
 
 	# create all default extended attributes
-	python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
+	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
+
+	if [ $JS_LAST_EXECUTED_VERSION -lt 5 ]; then
+		# Bug #51456: Remove OX App from App-Tab to stabilize extended attributes ("display_name" etc)
+		echo "Updating extended attributes..."
+		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" --update "$@"  || die
+	fi
 
 	stop_udm_cli_server
 }
@@ -197,6 +197,8 @@ remove_user_template () {
 }
 create_user_template () {
 	echo "Creating usertemplate..."
+	primary_group=$(custom_groupname "Domain Users")
+
 	univention-directory-manager settings/usertemplate create "$@" \
 		--ignore_exists --position "cn=templates,cn=univention,$ldap_base" \
 		--set name="open-xchange groupware account" \
@@ -206,15 +208,23 @@ create_user_template () {
 		--set oxDisplayName="<firstname> <lastname>" \
 		--set oxLanguage="$OXLANG" \
 		--set oxTimeZone="$OXTIMEZONE" \
-		--set oxAccess="premium" && return 0
+		--set oxAccess="premium" \
+		--set isOxUser="OK" \
+		--set primaryGroup="cn=$primary_group,cn=groups,$ldap_base" && return 0
 	echo "Failed to create template for user." >&2
 }
 update_user_template () {
-	_ldap_update oxLanguage "" oxLanguage="$OXLANG"
-	_ldap_update oxTimeZone "" oxTimeZone="$OXTIMEZONE"
-	_ldap_update oxDisplayName "" oxDisplayName="<firstname> <lastname>"
-	_ldap_update oxAccess "" oxAccess="premium"
-	_ldap_update homeDirectory "/home/" unixhome="/home/<username>"
+	_ldap_update oxLanguage "" oxLanguage="$OXLANG" "$@"
+	_ldap_update oxTimeZone "" oxTimeZone="$OXTIMEZONE" "$@"
+	_ldap_update oxDisplayName "" oxDisplayName="<firstname> <lastname>" "$@"
+	_ldap_update oxAccess "" oxAccess="premium" "$@"
+	_ldap_update homeDirectory "/home/" unixhome="/home/<username>" "$@"
+	# Bug #51993: fix user template with "Domain Admins" as primary group
+	primary_group_admins=$(custom_groupname "Domain Admins")
+	primary_group_admins_dn="cn=$primary_group_admins,cn=groups,$ldap_base"
+	primary_group_users=$(custom_groupname "Domain Users")
+	primary_group_users_dn="cn=$primary_group_users,cn=groups,$ldap_base"
+	_ldap_update userPrimaryGroupPreset "$primary_group_admins_dn" primaryGroup="$primary_group_users_dn" "$@"
 }
 _ldap_update () { # $1=attr $2=expected $3=replacement "$@"
 	local attr="$1" expected="$2" replacement="$3" value dn
@@ -345,7 +355,7 @@ create_accessprofiles () {
 
 migrate_user_access_profiles() {
 	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
-		python "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
+		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
 	fi
 }
 
@@ -362,6 +372,74 @@ setup_umc () {
 		"udm/layout:objectType=policies/*" \
 		"udm/query:objectType=policies/*"
 }
+
+_ox_lib_main () {
+	case "${0##*/}" in
+	ox[_-]timezone) ox_timezone ; exit $? ;;
+	ox[_-]language) ox_language ; exit $? ;;
+	esac
+}
+
+die () { # [rv] "text"
+	local rv=1
+	case "$1" in
+	[0-9]*) rv="$1" ; shift ;;
+	esac
+	msg "$*" >&2
+	exit "$rv"
+}
+
+msg () {
+	: ${_OX_TERM_BOLD=$(tty <&2 >/dev/null && tput bold)}
+	: ${_OX_TERM_NORM=$(tty <&2 >/dev/null && tput sgr0)}
+	echo "${_OX_TERM_BOLD}${0##*/}:${_OX_TERM_NORM} $*" >&2
+}
+
+ox_timezone () {
+	local current_timezone="$(ox_get_timezone)"
+	ox_translate_timezone "$current_timezone"
+}
+
+ox_get_timezone () {
+	local current_timezone="UTC"
+	if [ -s /etc/timezone ]
+	then
+		current_timezone="$(cat /etc/timezone)"
+	elif [ -L /etc/localtime ]
+	then
+		current_timezone="$(readlink /etc/localtime)"
+		current_timezone="${current_timezone#/usr/share/zoneinfo/}"
+	fi
+	echo "$current_timezone"
+}
+
+ox_translate_timezone () { # "time-zone-name"
+	local current_timezone="$1"
+	local OXTIMEZONE="UTC"
+	#local _self="${BASH_SOURCE:-$0}"
+	while read timezone substitute
+	do
+		if [ "$timezone" = "$current_timezone" ]
+		then
+			OXTIMEZONE="${substitute:-$timezone}"
+			break
+		fi
+	done <"/var/lib/univention-appcenter/apps/$APP_ID/data/resources/timezones.csv"
+	#done <"${_self%/*}/timezones.csv"
+	echo "$OXTIMEZONE"
+}
+
+ox_language () {
+	local locale="$(ucr get locale/default)"
+	local OXLANG
+	case "${locale%%.*}" in
+	de*) OXLANG="de_DE" ;;
+	*) OXLANG="en_US" ;;
+	esac
+	echo "$OXLANG"
+}
+
+_ox_lib_main
 
 main "$@"
 exit $?

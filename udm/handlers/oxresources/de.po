@@ -1,0 +1,104 @@
+# Copyright (C) 2010-2021 Univention GmbH <http://www.univention.de/>
+msgid ""
+msgstr ""
+"Project-Id-Version: ox-resources 6.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-11 18:04+0200\n"
+"PO-Revision-Date: 2012-05-11 18:05+0200\n"
+"Last-Translator: Univention GmbH <package@univention.de>\n"
+"Language-Team: German <de@li.org>\n"
+"Language: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: oxresources.py:47
+msgid "Open-Xchange: Resource"
+msgstr "Open-Xchange: Ressource"
+
+#: oxresources.py:51
+msgid "Resources"
+msgstr "Ressourcen"
+
+#: oxresources.py:52
+msgid "Add, edit and delete Open-Xchange Resource Objects"
+msgstr "Hinzufügen, Bearbeiten und Löschen von Open-Xchange-Ressource-Objekten"
+
+#: oxresources.py:53
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: oxresources.py:53
+msgid "Add Open-Xchange Resource Object"
+msgstr "Open-Xchange-Ressource-Objekt hinzufügen"
+
+#: oxresources.py:53
+msgid "Find"
+msgstr "Suchen"
+
+#: oxresources.py:53
+msgid "Find Open-Xchange Resource Object(s)"
+msgstr "Open-Xchange-Ressourcen-Objekte suchen"
+
+#: oxresources.py:70
+msgid "Name"
+msgstr "Name"
+
+#: oxresources.py:71
+msgid "Internal name of resource"
+msgstr "Interner Name der Ressource"
+
+#: oxresources.py:79
+msgid "Description"
+msgstr "Beschreibung"
+
+#: oxresources.py:80
+msgid "Description for resource object"
+msgstr "Beschreibung des Ressourcenobjekts"
+
+#: oxresources.py:88
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#: oxresources.py:89
+msgid "Name of resource that will be shown in Open-Xchange"
+msgstr "Name der Ressource, der in Open-Xchange angezeigt wird"
+
+#: oxresources.py:98
+msgid "Resource manager"
+msgstr "Ressourcen-Manager"
+
+#: oxresources.py:99
+msgid "User who will manage this resource"
+msgstr "Benutzer, der die Ressource verwaltet"
+
+#: oxresources.py:107
+msgid "Resource e-mail address"
+msgstr "Email-Adresse der Ressource"
+
+#: oxresources.py:108
+msgid "Unique e-mail adress that will be assigned to this resource"
+msgstr "Eindeutige Email-Adresse, die der Ressource zugeordnet wird"
+
+#: oxresources.py:120 oxresources.py:121
+msgid "General"
+msgstr "Allgemein"
+
+#: oxresources.py:120
+msgid "General settings"
+msgstr "Allgemeine Einstellungen"
+
+#: oxresources.py:199
+msgid "The mail address' domain does not match any mail domain object."
+msgstr "Der Domänenteil der Mailadresse ist nicht in der Liste der eingerichteten Maildomänen enthalten."
+
+#~ msgid "Basic Values"
+#~ msgstr "Grundeinstellungen"
+
+#~ msgid "The selected user is not an open-xchange user."
+#~ msgstr "Der ausgewählte Benutzer ist kein Open-Xchange-Benutzer."
+
+#~ msgid "The selected user is already admin of another resource."
+#~ msgstr ""
+#~ "Der ausgewählte Benutzer ist bereits Administrator einer anderen "
+#~ "Ressource."
