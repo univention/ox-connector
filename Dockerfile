@@ -56,8 +56,6 @@ RUN apk add --no-cache gcc python3-dev make musl-dev && \
 	rm -rf /tmp/*
 
 COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
-COPY LICENSE /usr/local/share/ox-connector/LICENSE
-
 COPY share/ /usr/local/share/ox-connector/resources
 COPY udm/ /usr/local/share/ox-connector/resources/udm
 COPY umc/ /usr/local/share/ox-connector/resources/umc
