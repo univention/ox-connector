@@ -40,6 +40,7 @@ LongDescription = <p>
 	</p>
 	
 Logo = logo.svg
+ListenerUDMVersion = 1
 
 [de]
 Description = UCS-Benutzer nach Open-Xchange synchronisieren
