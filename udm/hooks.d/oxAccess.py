@@ -126,11 +126,6 @@ class oxAccess(simpleHook):
 		oxAccess.log_info('Value of oxAccess: %s' % iso)
 
 	def check_syntax_date(self, module):
-		if module['oxBirthday']:
-			try:
-				self.check_date(module['oxBirthday'])
-			except ValueError:
-				raise univention.admin.uexceptions.valueError(oxAccess._('Birthday must be in format \'YYYY-MM-DD\' or \'TT-MM-JJJJ\''))
 		if module['oxAnniversary']:
 			try:
 				self.check_date(module['oxAnniversary'])
