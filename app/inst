@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=5
+VERSION=6
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -48,7 +48,7 @@ main () {
 	joinscript_init
 
 	setup_vars
-
+	clean_old_provisioning "$@"
 	register_ldap "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
@@ -67,6 +67,56 @@ main () {
 	joinscript_save_current_version
 }
 
+unregister_ldap_extension () {
+	declare -a args=()
+	while [ "$1" != -- ]
+	do
+		args+=("$1")
+		shift
+	done
+	shift
+	while [ $# -ge 1 ]
+	do
+		args+=("$1")
+		shift
+	done
+	echo "ucs_unregisterLDAPExtension ${args[@]}"
+	ucs_unregisterLDAPExtension "${args[@]}" ||
+		die "Failed to unregister LDAP module."
+}
+
+clean_old_provisioning () {
+	# Check if there are remanining files from the the old provisioning.
+	# These files will exist if there is an already existing oxseforucs
+	# installation (ver. <= 7.10.6-ucs3) or if oxseforucs was installed
+	# in the past and was removed at some point.
+
+	# This function should remove:
+	#   - listeners (this is only useful for updates, if appsuite was removed
+	# 	the listeners doesn't exist)
+	find /usr/lib/univention-directory-listener/system -type l -name 'ox-*.py' -delete
+
+	#   - udm modules
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxcontext
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxdomain
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxfetchmailmulti
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxfetchmailsingle
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxfolder
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxlists
+	unregister_ldap_extension "$@" -- --udm_module oxmail/oxmail
+	unregister_ldap_extension "$@" -- --udm_module oxresources/oxresources
+
+	#	- hooks (these could just be replaced when installing the new version)
+	unregister_ldap_extension "$@" -- --udm_hook oxUserDefaults
+	unregister_ldap_extension "$@" -- --udm_hook oxGroupHook
+	unregister_ldap_extension "$@" -- --udm_hook oxContextRW
+	unregister_ldap_extension "$@" -- --udm_hook oxAccess
+
+
+	#   - syntax (these could just be replaced when installing the new version)
+	unregister_ldap_extension "$@" -- --udm_syntax 50_ox
+}
+
 setup_vars () {
 	eval "$(univention-config-registry shell)"
 
@@ -75,12 +125,13 @@ setup_vars () {
 	CONTEXTDOMAIN="$domainname"
 	DEFAULT_CONTEXT="$ox_context_id"
 
+	#Using the unviention-ox package to replace the schema in updates.
 	PACKAGE_NAME="univention-ox"
-	PACKAGE_VERSION="11.0.0-67.1A~4.4.0.202009111232"  # FIXME: Need to get from ox branch? Or is it okay as it is?
+	PACKAGE_VERSION="12.0.35"  #This number should be updated when the schema is modified or when we change any ldap_extension
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.1.1'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.1.2'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
