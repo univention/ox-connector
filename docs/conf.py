@@ -117,15 +117,12 @@ numfig_format = {
     "section": _("Section %s"),
 }
 
+suppress_warnings = ['git.too_shallow']
+    
 if "spelling" in sys.argv:
     spelling_lang = "en"
     spelling_show_suggestions = True
     spelling_word_list_filename = ["spelling_wordlist"]
-    suppress_warnings = ['git.too_shallow']
-
-
-if "linkcheck" in sys.argv:
-    suppress_warnings = ['git.too_shallow']
 
 root_doc = "index"
 
