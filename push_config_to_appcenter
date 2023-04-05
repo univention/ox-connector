@@ -37,7 +37,7 @@ download_univention-appcenter-control() {
 }
 
 APP_VERSION="$(grep ^Version app/ini | awk '{ print $3 }')"
-APP_VERSION_STRING="4.4/$APP_ID=$APP_VERSION"
+APP_VERSION_STRING="5.0/$APP_ID=$APP_VERSION"
 echo "App version in source code is: '$APP_VERSION'."
 echo "The app version string used for the upload is '$APP_VERSION_STRING'."
 
