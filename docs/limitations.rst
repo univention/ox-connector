@@ -9,18 +9,24 @@ administrator need to know the following limitations.
 
 .. _limit-ox-app-suite-app:
 
-Incompatible OX Connector and OX App Suite app
-==============================================
+Integration of OX Connector and OX App Suite app
+================================================
 
-Univention doesn't support the use of :program:`OX Connector` towards the
-:program:`OX App Suite` app from Univention App Center. Both apps use different
-and incompatible approaches to provision objects to the database of OX App
-Suite.
+Starting with version 2.1.2, Univention does support the use of :program:`OX
+Connector` towards the :program:`OX App Suite` app from Univention App Center.
+The `OX Connector` takes over the provisioning, the `OX App Suite` ships the
+actual groupware.
 
-The OX Connector requires that the OX App Suite **isn't and was never**
-installed on any UCS system in your domain. Otherwise, the UCS LDAP still has
-schema files installed that conflict with the schema files from the OX
-Connector.
+However, the OX Connector needs administrative credentials to create context
+objects in OX' database. And these credentials are not known at installation
+time. Thus, you may need to reconfigure the Connector after OX App Suite has
+been successfully installed. Note that this is done automatically, if (and only
+if) both Apps run on the same host.
+
+If not, you will find the password on the host that runs the OX App Suite at
+`/etc/ox-secrets/master.secret`. The name of the admin account is
+`oxadminmaster`. You can set these in the App Settings of the Connecor app, see
+:ref:`app-configuration`.
 
 .. _limit-stop-at-conflict:
 
