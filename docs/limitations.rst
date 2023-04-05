@@ -14,19 +14,19 @@ Integration of OX Connector and OX App Suite app
 
 Starting with version 2.1.2, Univention does support the use of :program:`OX
 Connector` towards the :program:`OX App Suite` app from Univention App Center.
-The `OX Connector` takes over the provisioning, the `OX App Suite` ships the
-actual groupware.
+The :program:`OX Connector` takes over the provisioning, the :program:`OX App
+Suite` ships the actual groupware.
 
 However, the OX Connector needs administrative credentials to create context
-objects in OX' database. And these credentials are not known at installation
-time. Thus, you may need to reconfigure the Connector after OX App Suite has
-been successfully installed. Note that this is done automatically, if (and only
-if) both Apps run on the same host.
+objects in OX' database. The installation process doesn't know these
+credentials. Thus, you may need to reconfigure the :program:`OX Connector` after
+you installed :program:`OX App Suite` successfully. The reconfiguration runs
+automatically, if, and only if, both apps locate on the same UCS system.
 
-If not, you will find the password on the host that runs the OX App Suite at
-`/etc/ox-secrets/master.secret`. The name of the admin account is
-`oxadminmaster`. You can set these in the App Settings of the Connecor app, see
-:ref:`app-configuration`.
+If not, you find the password on the UCS system that runs :program:`OX App
+Suite` in the file :file:`/etc/ox-secrets/master.secret`. The username of the
+administrative account is ``oxadminmaster``. You can set the credentials in the
+app settings of the :program:`OX Connecor`, see :ref:`app-configuration`.
 
 .. _limit-stop-at-conflict:
 
