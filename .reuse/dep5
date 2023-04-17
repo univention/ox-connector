@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: UCS@school
+Upstream-Name: OX Connector
 Upstream-Contact: Univention GmbH <info@univention.de>
-Source: https://www.univention.com/products/ucsschool/
+Source: https://www.univention.com/products/univention-app-center/app-catalog/ox-connector/
 
 # Sample paragraph, commented out:
 #
