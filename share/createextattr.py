@@ -54,7 +54,6 @@ ext_attr_container_dn = '{},{}'.format(_EXT_ATTR_CONTAINER, ldapbase)
 
 _parser = OptionParser()
 _parser.add_option('--binddn', action='store', dest='binddn', help='ldap bind dn for UDM CLI operation')
-_parser.add_option('--bindpwd', action='store', dest='bindpwd', help='ldap bind password for bind dn')
 _parser.add_option('--bindpwdfile', action='store', dest='bindpwdfile', help='file with ldap bind password for bind dn')
 _parser.add_option(
 	'--update', action='store_true', dest='update', default=False,
@@ -74,20 +73,12 @@ if options.binddn:
 else:
 	binddn = 'cn=admin,{}'.format(ldapbase)
 
-if options.bindpwd:
-	bindpwd = options.bindpwd
-else:
-	fn = options.bindpwdfile or CN_ADMIN_SECRET_PATH
-	with open(fn) as fp:
-		bindpwd = fp.read().strip()
-
 
 def run_ext(attr_name, cmd):  # type: (str, List[str]) -> None
 	ret = subprocess.call(cmd)
 	if ret:
-		cmd_no_pw = [c if c != bindpwd else '********' for c in cmd]
 		print('FAILED (exit {}) {} extended attribute {!r} with command:\n{!r}'.format(
-			ret, 'updating' if options.update else 'installing', attr_name, cmd_no_pw)
+			ret, 'updating' if options.update else 'installing', attr_name, cmd)
 		)
 		sys.exit(ret)
 
@@ -95,9 +86,11 @@ def run_ext(attr_name, cmd):  # type: (str, List[str]) -> None
 cmd_base = [
 	'univention-directory-manager', 'settings/extended_attribute',
 	'modify' if options.update else 'create',
-	'--binddn', binddn,
-	'--bindpwd', bindpwd,
 ]
+
+if ucr['server/role'] != 'domaincontroller_master':
+    cmd_base += ['--binddn', binddn, '--bindpwdfile', options.bindpwdfile]
+
 if not options.update:
 	cmd_base.extend([
 		'--ignore_exists',
