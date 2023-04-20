@@ -40,6 +40,23 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.1.3
+=====
+
+Released: 21. April 2023
+
+Fixed
+-------
+Changes to the *oxAccessUSM* attribute are now considered by the provisioning logic.
+
+Changed
+-------
+
+Added helper script to remove old listener files from users with empty
+*oxContextIDNum* attribute. 
+
+Removed *bindpwd* uses from *createextattr.py* script (#55985).
+
 2.1.2
 =====
 
