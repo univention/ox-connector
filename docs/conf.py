@@ -72,7 +72,7 @@ def read_version_from_ci() -> str:
     with open("../.gitlab-ci.yml", "r") as f:
         ci = yaml.safe_load(f)
         return ci.get(
-                "variables", {"DOC_TARGET_VERSION": "2.1.2"}
+                "variables", {"DOC_TARGET_VERSION": "2.1.3"}
                 ).get("DOC_TARGET_VERSION")
 
 
