@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=6
+VERSION=7
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -210,6 +210,10 @@ create_eas () {
 	# update makes oxDrive unnecessary. But update could be from OX? So we cannot use JS_EXEC_VERSION 1?
 	univention-directory-manager settings/extended_attribute remove "$@" \
 		--dn "cn=oxDrive,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# this attribute only existed in ox appsuite and shouldn't have been created again in the connector.
+	univention-directory-manager settings/extended_attribute remove "$@" \
+		--dn="cn=oxBirthday,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
 
 	# create all default extended attributes
 	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
