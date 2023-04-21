@@ -56,7 +56,7 @@ def modify_accessprofile(obj):
     profiles = get_access_profiles(force_reload=False)
     rights = []
     for key, value in capability_map.items():
-        if obj.attributes.get(key):
+        if obj.attributes.get(key) == "TRUE":
             rights.append(value)
     profiles[obj.attributes["name"]] = rights
     save_accessprofiles(profiles)
