@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=7
+VERSION=8
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -131,7 +131,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.1.3'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.1.4'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
@@ -214,6 +214,10 @@ create_eas () {
 	# this attribute only existed in ox appsuite and shouldn't have been created again in the connector.
 	univention-directory-manager settings/extended_attribute remove "$@" \
 		--dn="cn=oxBirthday,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes oxAccessUSM unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
 	# create all default extended attributes
 	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die

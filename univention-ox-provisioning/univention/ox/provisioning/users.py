@@ -284,19 +284,6 @@ def set_user_rights(user, obj):
             access_rights[access_right] = True
     logger.info(f"Changing user {user.id} to profile {user_access}")
 
-    if obj.attributes.get('oxAccessUSM') == "OK":
-        if not access_rights["USM"]:
-            logger.info(f"Access right 'USM' is disabled by the access profile but enabled by the user configuration. The value from the user configuration is used (OK).")
-        if not access_rights["activeSync"]:
-            logger.info(f"Access right 'activeSync' is disabled by the access profile but enabled by the user configuration. The value from the user configuration is used (OK).")
-        access_rights["USM"] = True
-        access_rights["activeSync"] = True
-    else:
-        if access_rights["USM"]:
-            logger.info(f"Access right 'USM' is not set in the user configuration but it is enabled in the access profile. The value from the access profile is used (OK).")
-        if access_rights["activeSync"]:
-            logger.info(f"Access right 'activeSync' is not set in the user configuration but it is enabled in the access profile. The value from the access profile is used (OK).")
-
     user.service(user.context_id).change_by_module_access(
         {"id": user.id}, access_rights
     )
