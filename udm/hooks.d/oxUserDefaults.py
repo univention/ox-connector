@@ -46,7 +46,7 @@ from univention.admin import property as uadmin_property
 configRegistry = univention.config_registry.ConfigRegistry()
 configRegistry.load()
 ox_attrs_base = "cn=open-xchange,cn=custom attributes,cn=univention,%s" % configRegistry["ldap/base"]
-ox_property_list = ("oxAccess", "oxDisplayName", "oxLanguage", "oxTimeZone")
+ox_property_list = ("oxAccess", "oxDisplayName")
 
 ucs_user_template_replace = uadmin_property("_replace")._replace
 
