@@ -111,7 +111,6 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []  # value is usally ['_static']
 
-html_last_updated_fmt = "%a, %d. %b %Y at %H:%m (UTC%z)"
 git_last_updated_timezone = "Europe/Berlin"
 
 numfig = True
