@@ -86,7 +86,7 @@ def user_from_attributes(attributes, user_id=None):
 def update_user(user, attributes):
     user.context_admin = False
     user.name = attributes.get("username")
-    user.display_name = attributes.get("oxDisplayName")
+    user.display_name = attributes.get("displayName")
     user.password = "dummy"
     user.given_name = attributes.get("firstname")
     user.sur_name = attributes.get("lastname")

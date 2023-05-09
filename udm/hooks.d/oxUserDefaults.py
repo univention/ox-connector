@@ -46,7 +46,7 @@ from univention.admin import property as uadmin_property
 configRegistry = univention.config_registry.ConfigRegistry()
 configRegistry.load()
 ox_attrs_base = "cn=open-xchange,cn=custom attributes,cn=univention,%s" % configRegistry["ldap/base"]
-ox_property_list = ("oxAccess", "oxDisplayName")
+ox_property_list = ("oxAccess",)
 
 ucs_user_template_replace = uadmin_property("_replace")._replace
 
@@ -54,7 +54,6 @@ ucs_user_template_replace = uadmin_property("_replace")._replace
 class oxUserDefaults(simpleHook):
 	type = "oxUserDefaults"
 	_ox_defaults = {}
-	_oxDisplayName_template = None
 
 	@classmethod
 	def ox_defaults(cls, lo, pos):
@@ -67,22 +66,13 @@ class oxUserDefaults(simpleHook):
 				attr_m = ext_attr_module.lookup(None, lo, scope='sub', base=ox_attrs_base, filter_s=filter_format('cn=%s', (attr,)))
 				if attr_m:
 					cls._ox_defaults[attr] = attr_m[0].info['default']
-		if not cls._ox_defaults["oxDisplayName"]:
-			ud.debug(ud.ADMIN, ud.ERROR, "oxUserDefaults.ox_defaults() 'oxDisplayName' empty in cls._ox_defaults={!r} (lo={!r} pos={!r})\n{}".format(cls._ox_defaults, lo, pos, "\n".join(traceback.format_stack())))
-			raise ValueError("'oxDisplayName' empty in cls._ox_defaults={!r}.".format(cls._ox_defaults))
 		return cls._ox_defaults
 
-	@classmethod
-	def oxDisplayName_template(cls, module):
-		if not cls._oxDisplayName_template:
-			cls._oxDisplayName_template = cls.ox_defaults(module.lo, module.position)['oxDisplayName']
-		return cls._oxDisplayName_template
-
 	def hook_open(self, module):
-		if 'oxUserDefaults' not in module:
-			module.oxUserDefaults = {}
-		if not module.info:
-			# UMC module init
+        if 'oxUserDefaults' not in module:
+            module.oxUserDefaults = {}
+        if not module.info:
+            # UMC module init
 			return
 		for k, v in self.ox_defaults(module.lo, module.position).items():
 			if k not in module.info:
@@ -93,31 +83,9 @@ class oxUserDefaults(simpleHook):
 				# and modify module.oldinfo in hook_ldap_pre_modify(). When the module generates
 				# the modlist, module.oldinfo contains the correct state.
 				module.oxUserDefaults[k] = None
-				if k == "oxDisplayName":
-					module[k] = ucs_user_template_replace(v, module.info)
-				else:
-					module[k] = v
+                module[k] = v
 
-	def hook_ldap_pre_modify(self, module):
-		if module.has_property('oxDisplayName'):
-			# Bug 34302: adjust oxDisplayName when changing givenName or sn
-			ox_display_name_old = ucs_user_template_replace(self.oxDisplayName_template(module), module.oldinfo)
-			ox_display_name_new = ucs_user_template_replace(self.oxDisplayName_template(module), module.info)
-			if ox_display_name_old == module.info.get('oxDisplayName') and ox_display_name_new != module.info.get('oxDisplayName'):
-				ud.debug(
-					ud.ADMIN, ud.ERROR,
-					"oxUserDefaults.hook_ldap_pre_modify() setting "
-					"module['oxDisplayName']={!r} , module['isOxUser']={!r}".format(
-						ox_display_name_new, module['isOxUser'])
-				)
-				if not ox_display_name_new:
-					ud.debug(
-						ud.ADMIN, ud.ERROR,
-						"Empty oxDisplayName!\n{}".format(
-							"\n".join(traceback.format_stack()))
-					)
-				module['oxDisplayName'] = ox_display_name_new
-
-			for key, value in module.oxUserDefaults.items():
-				if key in module.oldinfo and value is None:
-					del module.oldinfo[key]
+    def hook_ldap_pre_modify(self, module):
+        for key, value in module.oxUserDefaults.items():
+            if key in module.oldinfo and value is None:
+                del module.oldinfo[key]

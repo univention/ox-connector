@@ -213,7 +213,6 @@ user_attributes: typing.List[UserAttributeTest] = [
     UserAttributeTest("country_home", "oxCountryHome"),
     UserAttributeTest("country_other", "oxCountryOther"),
     UserAttributeTest("department", "oxDepartment"),
-    UserAttributeTest("display_name", "oxDisplayName", none_generator=no_none),
     UserAttributeTest(
         "email1",
         "mailPrimaryAddress",
@@ -418,7 +417,6 @@ def test_full_blown_user(
         "oxCountryHome": new_user_name_generator(),
         "oxCountryOther": new_user_name_generator(),
         "oxDepartment": new_user_name_generator(),
-        "oxDisplayName": new_user_name_generator(),
         "oxEmail2": "{}@gmx.de".format(new_user_name_generator()),
         "oxEmail3": "{}@gmx.de".format(new_user_name_generator()),
         "oxFaxBusiness": new_user_name_generator(),
@@ -604,7 +602,7 @@ def test_enable_and_disable_user(
     # BUG: so we have to do it in two steps: Bug #50469
     udm.modify("users/user", dn, {"isOxUser": True})
     udm.modify(
-        "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name}
+        "users/user", dn, {"oxContext": new_context_id}
     )
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)

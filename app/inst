@@ -225,6 +225,14 @@ create_eas () {
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
 		--dn "cn=templateOxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
 
+	# update makes oxDisplayName unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=oxDisplayName,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes templateOxDisplayName unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=templateOxDisplayName,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
 	# update makes oxTimeZone unnecessary.
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
 		--dn "cn=oxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
@@ -272,14 +280,12 @@ create_user_template () {
 		--set mailPrimaryAddress="<username>@$CONTEXTDOMAIN" \
 		--set e-mail="<username>@$CONTEXTDOMAIN" \
 		--set unixhome="/home/<username>" \
-		--set oxDisplayName="<firstname> <lastname>" \
 		--set oxAccess="premium" \
 		--set isOxUser="OK" \
 		--set primaryGroup="cn=$primary_group,cn=groups,$ldap_base" && return 0
 	echo "Failed to create template for user." >&2
 }
 update_user_template () {
-	_ldap_update oxDisplayName "" oxDisplayName="<firstname> <lastname>" "$@"
 	_ldap_update oxAccess "" oxAccess="premium" "$@"
 	_ldap_update homeDirectory "/home/" unixhome="/home/<username>" "$@"
 	# Bug #51993: fix user template with "Domain Admins" as primary group
