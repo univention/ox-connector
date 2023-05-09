@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=8
+VERSION=9
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -50,6 +50,7 @@ main () {
 	setup_vars
 	clean_old_provisioning "$@"
 	register_ldap "$@"
+	migrate_user_oxDisplayName "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
 
@@ -420,6 +421,12 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE \
 		--set usm=TRUE
+}
+
+migrate_user_oxDisplayName() {
+	if [ "$JS_LAST_EXECUTED_VERSION" -lt "9" ]; then
+		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxDisplayName.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxDisplayNames-results" "$@"  || die
+	fi
 }
 
 migrate_user_access_profiles() {
