@@ -74,23 +74,28 @@ def str2isodate(text):  # type: (str) -> str
     )
 
 
-def user_from_attributes(attributes, user_id=None):
+def user_from_attributes(attributes, old_attributes, user_id=None):
     user = User(id=user_id)
     if attributes:
         context_id = get_context_id(attributes)
         user.context_id = context_id
-        update_user(user, attributes)
+        update_user(user, attributes, old_attributes)
     return user
 
 
-def update_user(user, attributes):
+def update_user(user, attributes, old_attributes):
     user.context_admin = False
     user.name = attributes.get("username")
     user.display_name = attributes.get("displayName")
     user.password = "dummy"
     user.given_name = attributes.get("firstname")
     user.sur_name = attributes.get("lastname")
-    user.default_sender_address = attributes.get("mailPrimaryAddress")  # TODO: ???
+    if not old_attributes or attributes.get("mailPrimaryAddress") != old_attributes.get("mailPrimaryAddress"):
+        # The SOAP API will fail if the value of the default_sender_address is not one
+        # of all the user's email addresses. To make sure we comply with this requirement
+        # we replace the value when the user's mail address changes. 
+        logger.info("change in primary mail address. Resetting default sender address attribute")
+        user.default_sender_address = attributes.get("mailPrimaryAddress")
     # user.assistant_name = attributes.get()
     user.branches = attributes.get("oxBranches")
     # user.business_category = attributes.get()
@@ -387,12 +392,12 @@ def modify_user(obj):
             else:
                 create_user(obj)
                 return delete_user(deepcopy(obj))
-        user = user_from_attributes(obj.old_attributes, user_id)
+        user = user_from_attributes(obj.old_attributes, obj.old_attributes, user_id)
         user.context_id = new_context
-        update_user(user, obj.attributes)
+        update_user(user, obj.attributes, obj.old_attributes)
     else:
         logger.info(f"{obj} has no old data. Resync?")
-        user = user_from_attributes(obj.attributes, user_id)
+        user = user_from_attributes(obj.attributes, None, user_id)
     user.modify()
     obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
@@ -407,7 +412,7 @@ def delete_user(obj):
     if not user_id:
         logger.info(f"{obj} does not exist. Doing nothing...")
         return
-    user = user_from_attributes(obj.old_attributes, user_id)
+    user = user_from_attributes(obj.old_attributes, None, user_id)
     group_service = Group.service(user.context_id)
     soap_groups = group_service.list_groups_for_user({"id": user.id})
     user.remove()
