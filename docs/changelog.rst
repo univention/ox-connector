@@ -15,13 +15,21 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 2.1.4
 =====
 
-Released: 28. April 2023
+Released: 12. May 2023
 
 Changed
 -------
 
-Removed use of old *oxDrive* and *oxAccessUSM* attributes. The OX-Connector only
-uses the *oxmail/accessprofile* objects to control access rights. 
+Removed use of old *oxDrive* and *oxAccessUSM* udm properties. The OX Connector only
+uses the *oxmail/accessprofile* objects to control access rights.
+
+The OX Connector uses the *displayName* property instead of *oxDisplayName*. 
+The latter has been removed.
+
+The OX connector does not set the sender's email address to the *mailPrimaryAddress* property anymore. 
+The address is configurable from the OX App suite front-end.
+
+The OX connector can handle user files in */listener/old/* without the *oxContext* attribute.
 
 2.1.3
 =====
