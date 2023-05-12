@@ -52,37 +52,37 @@ ucs_user_template_replace = uadmin_property("_replace")._replace
 
 
 class oxUserDefaults(simpleHook):
-	type = "oxUserDefaults"
-	_ox_defaults = {}
+    type = "oxUserDefaults"
+    _ox_defaults = {}
 
-	@classmethod
-	def ox_defaults(cls, lo, pos):
-		if not cls._ox_defaults:
-			univention.admin.modules.update()
-			ext_attr_module = univention.admin.modules.get('settings/extended_attribute')
-			univention.admin.modules.init(lo, pos, ext_attr_module)
-			cls._ox_defaults['isOxUser'] = 'Not'
-			for attr in ox_property_list:
-				attr_m = ext_attr_module.lookup(None, lo, scope='sub', base=ox_attrs_base, filter_s=filter_format('cn=%s', (attr,)))
-				if attr_m:
-					cls._ox_defaults[attr] = attr_m[0].info['default']
-		return cls._ox_defaults
+    @classmethod
+    def ox_defaults(cls, lo, pos):
+        if not cls._ox_defaults:
+            univention.admin.modules.update()
+            ext_attr_module = univention.admin.modules.get('settings/extended_attribute')
+            univention.admin.modules.init(lo, pos, ext_attr_module)
+            cls._ox_defaults['isOxUser'] = 'Not'
+            for attr in ox_property_list:
+                attr_m = ext_attr_module.lookup(None, lo, scope='sub', base=ox_attrs_base, filter_s=filter_format('cn=%s', (attr,)))
+                if attr_m:
+                    cls._ox_defaults[attr] = attr_m[0].info['default']
+        return cls._ox_defaults
 
-	def hook_open(self, module):
+    def hook_open(self, module):
         if 'oxUserDefaults' not in module:
             module.oxUserDefaults = {}
         if not module.info:
             # UMC module init
-			return
-		for k, v in self.ox_defaults(module.lo, module.position).items():
-			if k not in module.info:
-				# OX-Bug #45937
-				# module.save() is called after hook_open(), so module.oldinfo already contains
-				# the modified state and UDM is not able to detect any modification if the default
-				# values are kept. That's why we store the old value in module.oxUserDefaults
-				# and modify module.oldinfo in hook_ldap_pre_modify(). When the module generates
-				# the modlist, module.oldinfo contains the correct state.
-				module.oxUserDefaults[k] = None
+            return
+        for k, v in self.ox_defaults(module.lo, module.position).items():
+            if k not in module.info:
+                # OX-Bug #45937
+                # module.save() is called after hook_open(), so module.oldinfo already contains
+                # the modified state and UDM is not able to detect any modification if the default
+                # values are kept. That's why we store the old value in module.oxUserDefaults
+                # and modify module.oldinfo in hook_ldap_pre_modify(). When the module generates
+                # the modlist, module.oldinfo contains the correct state.
+                module.oxUserDefaults[k] = None
                 module[k] = v
 
     def hook_ldap_pre_modify(self, module):
