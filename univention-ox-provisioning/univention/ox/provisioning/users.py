@@ -318,14 +318,18 @@ def create_user(obj):
     if obj.attributes.get("isOxUser", "Not") == "Not":
         logger.info(f"{obj} is no OX user. Deleting instead...")
         return delete_user(obj)
-    if get_user_id(obj.attributes):
-        if obj.old_attributes is None:
-            obj.old_attributes = deepcopy(obj.attributes)
-            logger.warning(
-                "Found in DB but had no old attributes. Using new ones as old..."
-            )
-        logger.info(f"{obj} exists. Modifying instead...")
-        return modify_user(obj)
+    try:
+        if get_user_id(obj.attributes):
+            if obj.old_attributes is None:
+                obj.old_attributes = deepcopy(obj.attributes)
+                logger.warning(
+                    "Found in DB but had no old attributes. Using new ones as old..."
+                )
+            logger.info(f"{obj} exists. Modifying instead...")
+            return modify_user(obj)
+    except Skip:
+        logger.warning(f"{obj} has no oxContext attribtue. No modification. Consider adding an oxContext to it.")
+        return
     user = user_from_attributes(obj.attributes)
     user.create()
     obj.set_attr("oxDbId", user.id)
@@ -369,8 +373,12 @@ def modify_user(obj):
     try:
         user_id = get_user_id(obj.old_attributes)
     except Skip:
-        logger.info("%s has no context ID. Creating instead...", obj)
-        return create_user(obj)
+        logger.warning("Old %s has no context ID. Using new context ID instead...", obj)
+        try:
+            user_id = get_user_id(obj.attributes)
+        except Skip:
+            logger.warning(f"{obj} has no oxContext attribtue. No modification. Consider adding an oxContext to it.")
+            return
     if not user_id:
         logger.info(f"{obj} does not yet exist. Creating instead...")
         return create_user(obj)
@@ -379,8 +387,19 @@ def modify_user(obj):
             logger.warning(
                 f"{obj} was no OX user before... that should not be the case. Modifying anyway..."
             )
-        old_context = get_context_id(obj.old_attributes)
-        new_context = get_context_id(obj.attributes)
+        try:
+            old_context = get_context_id(obj.old_attributes)
+        except Skip:
+            old_context = get_context_id(obj.attributes)
+            obj.old_attributes['oxContext'] = old_context
+        try:
+            new_context = get_context_id(obj.attributes)
+        except Skip:
+            logger.warning(
+                f"{obj} has no oxContext. that should not be the case. Using old oxContext..."
+            )
+            obj.set_attr("oxContext", old_context)
+            new_context = old_context
         if old_context != new_context:
             logging.info(f"Changing context: {old_context} -> {new_context}")
             already_existing_user_id = get_user_id(obj.attributes)
