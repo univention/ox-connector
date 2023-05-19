@@ -19,7 +19,7 @@ def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True) -> s
         "mailPrimaryAddress": "{}@{}".format(name, domainname),
         "isOxUser": enabled,
         "oxAccess": "premium",
-        "oxContext": context_id,
+        "oxContext": str(context_id),
     }
     if attrs:
         _attrs.update(attrs)
