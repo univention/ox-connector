@@ -89,32 +89,6 @@ class oxAccess(simpleHook):
 			raise univention.admin.uexceptions.valueError(oxAccess._("The primary mail address is required for Open-Xchange users. Currently the users' primary mail address is not set."))
 
 	@staticmethod
-	def check_displayname(module):
-		uidSearchstring = '|'
-		if module.oldinfo:
-			myOldUid = module.oldinfo.get('username', '')
-			oxAccess.log_info('admin.syntax.hook.oxAcces: My OldUid: %s' % myOldUid)
-			if myOldUid:
-				uidSearchstring += filter_format('(uid=%s)', (myOldUid,))
-		if module.info:
-			myUid = module['username']
-			oxAccess.log_info('admin.syntax.hook.oxAcces: My Uid: %s' % myUid)
-			if myUid:
-				uidSearchstring += filter_format('(uid=%s)', (myUid,))
-		oxAccess.log_info('Attribute oxDisplayName: %s' % module['oxDisplayName'])
-		if module['oxDisplayName']:
-			oxDisplayName = module['oxDisplayName']
-			oxAccess.log_info('OX Display Name: %s' % oxDisplayName)
-			filter_s = '(&(objectClass=oxUserObject)(oxDisplayName=%%s)(!(%s)))' % (uidSearchstring,)
-			filter_s = filter_format(filter_s, (oxDisplayName,))
-			oxAccess.log_info('ldap searchstring: %s' % filter_s)
-			result = module.lo.searchDn(filter=filter_s)
-			if result:
-				raise univention.admin.uexceptions.valueError(oxAccess._('OX Display name "%s" is already in use.') % oxDisplayName)
-		else:
-			raise univention.admin.uexceptions.valueError(oxAccess._('OX Display name has to be set for open-xchange users.'))
-
-	@staticmethod
 	def check_date(datestring):
 		oxAccess.log_info('Verfying date value: %s' % datestring)
 		if '-' in datestring:
@@ -159,7 +133,6 @@ class oxAccess(simpleHook):
 		if hasOxAccess:
 			# if not self.check_syntax(module):
 			#	raise univention.admin.uexceptions.valueError, 'Username must only contain numbers, letters and dots!'
-			self.check_displayname(module)
 
 			configRegistry = univention.config_registry.ConfigRegistry()
 			configRegistry.load()
@@ -183,7 +156,6 @@ class oxAccess(simpleHook):
 		if hasOxAccess:
 			# if not self.check_syntax(module):
 			#	raise univention.admin.uexceptions.valueError, 'Username must only contain numbers, letters and dots!'
-			self.check_displayname(module)
 			self.check_mailaddr(module)
 			if not self.check_firstname(module):
 				raise univention.admin.uexceptions.valueError(oxAccess._('First name has to be set for open-xchange users.'))

@@ -145,35 +145,5 @@ for row in attrmap:
 
 print('All extended attribute were {} successfully.'.format('updated' if options.update else 'installed'))
 
-if options.update:
-	print('Setting default for oxLanguage...')
-	locale = ucr.get('locale/default', '')
-	lang = locale.split('.')[0]
-	if lang != 'de_DE':
-		lang = 'en_US'
-	cmd = list(cmd_base)
-	cmd.extend([
-		'--dn', 'cn=oxLanguage,{}'.format(ext_attr_container_dn),
-		'--set', 'default={}'.format(lang),
-	])
-	run_ext('oxLanguage', cmd)
-
-	print('Setting default for oxTimeZone...')
-	try:
-		with open('/etc/timezone', 'r') as fp:
-			tz = fp.read().strip()
-	except IOError:
-		tz = ''
-	if not tz and os.path.islink('/etc/localtime'):
-		tz = '/'.join(os.path.realpath('/etc/localtime').split('/')[-2:])
-	if not tz:
-		tz = 'UTC'
-	cmd = list(cmd_base)
-	cmd.extend([
-		'--dn', 'cn=oxTimeZone,{}'.format(ext_attr_container_dn),
-		'--set', 'default={}'.format(tz),
-	])
-	run_ext('oxTimeZone', cmd)
-
 
 sys.exit(0)

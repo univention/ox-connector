@@ -231,7 +231,7 @@ def create_ox_context(udm, new_context_id_generator, wait_for_listener):
             "cn=open-xchange",
             {
                 "oxQuota": 1000,
-                "contextid": context_id,
+                "contextid": int(context_id),
                 "name": "context{}".format(context_id),
             },
         )

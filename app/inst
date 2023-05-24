@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=8
+VERSION=9
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -50,6 +50,7 @@ main () {
 	setup_vars
 	clean_old_provisioning "$@"
 	register_ldap "$@"
+	migrate_user_oxDisplayName "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
 
@@ -120,8 +121,6 @@ clean_old_provisioning () {
 setup_vars () {
 	eval "$(univention-config-registry shell)"
 
-	OXTIMEZONE="$(ox_timezone)"
-	OXLANG="$(ox_language)"
 	CONTEXTDOMAIN="$domainname"
 	DEFAULT_CONTEXT="$ox_context_id"
 
@@ -219,6 +218,30 @@ create_eas () {
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
 		--dn "cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
+	# update makes oxLanguage unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=oxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes templateOxLanguage unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=templateOxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes oxDisplayName unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=oxDisplayName,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes templateOxDisplayName unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=templateOxDisplayName,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes oxTimeZone unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=oxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
+	# update makes templateOxTimeZone unnecessary.
+	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+		--dn "cn=templateOxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+
 	# create all default extended attributes
 	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
@@ -239,12 +262,6 @@ update_ea_defaults () {
 	univention-directory-manager settings/extended_attribute modify "$@" \
 		--dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
 		--set default="$DEFAULT_CONTEXT" || :
-	univention-directory-manager settings/extended_attribute modify "$@" \
-		--dn "cn=oxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
-		--set default="$OXLANG" || :
-	univention-directory-manager settings/extended_attribute modify "$@" \
-		--dn "cn=oxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
-		--set default="$OXTIMEZONE" || :
 }
 
 remove_user_template () {
@@ -264,18 +281,12 @@ create_user_template () {
 		--set mailPrimaryAddress="<username>@$CONTEXTDOMAIN" \
 		--set e-mail="<username>@$CONTEXTDOMAIN" \
 		--set unixhome="/home/<username>" \
-		--set oxDisplayName="<firstname> <lastname>" \
-		--set oxLanguage="$OXLANG" \
-		--set oxTimeZone="$OXTIMEZONE" \
 		--set oxAccess="premium" \
 		--set isOxUser="OK" \
 		--set primaryGroup="cn=$primary_group,cn=groups,$ldap_base" && return 0
 	echo "Failed to create template for user." >&2
 }
 update_user_template () {
-	_ldap_update oxLanguage "" oxLanguage="$OXLANG" "$@"
-	_ldap_update oxTimeZone "" oxTimeZone="$OXTIMEZONE" "$@"
-	_ldap_update oxDisplayName "" oxDisplayName="<firstname> <lastname>" "$@"
 	_ldap_update oxAccess "" oxAccess="premium" "$@"
 	_ldap_update homeDirectory "/home/" unixhome="/home/<username>" "$@"
 	# Bug #51993: fix user template with "Domain Admins" as primary group
@@ -412,6 +423,12 @@ create_accessprofiles () {
 		--set usm=TRUE
 }
 
+migrate_user_oxDisplayName() {
+	if [ "$JS_LAST_EXECUTED_VERSION" -lt "9" ]; then
+		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxDisplayName.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxDisplayNames-results" "$@"  || die
+	fi
+}
+
 migrate_user_access_profiles() {
 	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
 		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
@@ -432,13 +449,6 @@ setup_umc () {
 		"udm/query:objectType=policies/*"
 }
 
-_ox_lib_main () {
-	case "${0##*/}" in
-	ox[_-]timezone) ox_timezone ; exit $? ;;
-	ox[_-]language) ox_language ; exit $? ;;
-	esac
-}
-
 die () { # [rv] "text"
 	local rv=1
 	case "$1" in
@@ -454,51 +464,6 @@ msg () {
 	echo "${_OX_TERM_BOLD}${0##*/}:${_OX_TERM_NORM} $*" >&2
 }
 
-ox_timezone () {
-	local current_timezone="$(ox_get_timezone)"
-	ox_translate_timezone "$current_timezone"
-}
-
-ox_get_timezone () {
-	local current_timezone="UTC"
-	if [ -s /etc/timezone ]
-	then
-		current_timezone="$(cat /etc/timezone)"
-	elif [ -L /etc/localtime ]
-	then
-		current_timezone="$(readlink /etc/localtime)"
-		current_timezone="${current_timezone#/usr/share/zoneinfo/}"
-	fi
-	echo "$current_timezone"
-}
-
-ox_translate_timezone () { # "time-zone-name"
-	local current_timezone="$1"
-	local OXTIMEZONE="UTC"
-	#local _self="${BASH_SOURCE:-$0}"
-	while read timezone substitute
-	do
-		if [ "$timezone" = "$current_timezone" ]
-		then
-			OXTIMEZONE="${substitute:-$timezone}"
-			break
-		fi
-	done <"/var/lib/univention-appcenter/apps/$APP_ID/data/resources/timezones.csv"
-	#done <"${_self%/*}/timezones.csv"
-	echo "$OXTIMEZONE"
-}
-
-ox_language () {
-	local locale="$(ucr get locale/default)"
-	local OXLANG
-	case "${locale%%.*}" in
-	de*) OXLANG="de_DE" ;;
-	*) OXLANG="en_US" ;;
-	esac
-	echo "$OXLANG"
-}
-
-_ox_lib_main
 
 main "$@"
 exit $?
