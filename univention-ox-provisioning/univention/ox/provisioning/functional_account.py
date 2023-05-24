@@ -32,7 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox, get_db_id
+from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox, get_db_id, get_db_uid
 
 FunctionalAccount = get_ox_integration_class("SOAP", "SecondaryAccount")
 logger = logging.getLogger("listener")
@@ -53,11 +53,6 @@ def update_functional_account(functional_account, attributes, entry_uuid):
     functional_account.mail_endpoint_source = "primary"
 
 
-def update_functional_account_members(functional_account, attributes):
-    functional_account.users = [{"id": db_id} for dn in attributes.get("users") if (db_id := get_db_id(dn))]
-    functional_account.groups = [{"id": db_id} for dn in attributes.get("groups") if (db_id := get_db_id(dn))]
-
-
 def get_functional_account_id(attributes):
     context_id = get_context_id(attributes)
     name = attributes.get("name")
@@ -72,13 +67,16 @@ def create_functional_account(obj):
     if obj.old_attributes is None:
         obj.old_attributes = deepcopy(obj.attributes)
     delete_functional_account(deepcopy(obj))
-    functional_account = functional_account_from_attributes(obj.attributes, obj.entry_uuid)
-    update_functional_account_members(functional_account, obj.attributes)
-    logger.info(f"Got {functional_account!r}")
-    if not functional_account.users and not functional_account.groups:
+    if len(obj.attributes.get("users")) == 0:
         logger.info("Account is empty! Not creating...")
         return
-    functional_account.create()
+    for dn in obj.attributes.get("users"):    
+        functional_account = functional_account_from_attributes(obj.attributes, obj.entry_uuid)
+        functional_account.users = [get_db_id(dn)]
+        functional_account.login += get_db_uid(dn)
+        functional_account.groups = [] # groups are disabled in umc, this should be changed if it is enabled again.
+        if functional_account.users[0]:
+            functional_account.create()
 
 
 def modify_functional_account(obj):
