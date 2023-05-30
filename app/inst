@@ -51,6 +51,7 @@ main () {
 	clean_old_provisioning "$@"
 	register_ldap "$@"
 	migrate_user_oxDisplayName "$@"
+	migrate_user_oxAccessUSM  "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
 
@@ -421,6 +422,12 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE \
 		--set usm=TRUE
+}
+
+migrate_user_oxAccessUSM() {
+	if [ "$JS_LAST_EXECUTED_VERSION" -lt "9" ]; then
+		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM-results" "$@"  || die
+	fi
 }
 
 migrate_user_oxDisplayName() {
