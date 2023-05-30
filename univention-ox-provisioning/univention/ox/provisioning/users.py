@@ -330,7 +330,7 @@ def create_user(obj):
     except Skip:
         logger.warning(f"{obj} has no oxContext attribtue. No modification. Consider adding an oxContext to it.")
         return
-    user = user_from_attributes(obj.attributes)
+    user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None))
     user.create()
     obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
