@@ -217,7 +217,7 @@ create_eas () {
 
 	# update makes oxAccessUSM unnecessary.
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
+		--dn "cn=oxAccessUSM,cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
 	# update makes oxLanguage unnecessary.
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
