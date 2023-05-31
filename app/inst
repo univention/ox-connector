@@ -51,6 +51,7 @@ main () {
 	clean_old_provisioning "$@"
 	register_ldap "$@"
 	migrate_user_oxDisplayName "$@"
+	migrate_user_oxAccessUSM  "$@"
 	create_eas "$@"
 	update_ea_defaults "$@"
 
@@ -216,7 +217,7 @@ create_eas () {
 
 	# update makes oxAccessUSM unnecessary.
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
+		--dn "cn=oxAccessUSM,cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
 	# update makes oxLanguage unnecessary.
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
@@ -421,6 +422,12 @@ create_accessprofiles () {
 		--set multiplemailaccounts=TRUE \
 		--set subscription=TRUE \
 		--set usm=TRUE
+}
+
+migrate_user_oxAccessUSM() {
+	if [ "$JS_LAST_EXECUTED_VERSION" -lt "9" ]; then
+		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM-results" "$@"  || die
+	fi
 }
 
 migrate_user_oxDisplayName() {
