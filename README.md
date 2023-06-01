@@ -199,7 +199,7 @@ Build and push the container:
 
 ```bash
 $ make clean
-$ rsync -av -n --delete --exclude .git --exclude appsuite --exclude __pycache__ ./ --exclude venv --exclude .pytest_cache --exclude requirements_all.txt root@docker.knut.univention.de:ox-provisioning/
+$ rsync -av -n --delete --exclude .git --exclude appsuite --exclude __pycache__ ./ --exclude venv --exclude .pytest_cache --exclude requirements_all.txt docker.knut.univention.de:ox-provisioning/
 # All OK? Then repeat the above command with the '-n'.
 $ ssh root@docker.knut.univention.de
 $ cd ox-provisioning
