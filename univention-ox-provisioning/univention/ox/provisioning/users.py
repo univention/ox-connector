@@ -83,7 +83,7 @@ def user_from_attributes(attributes, old_attributes, user_id=None):
     return user
 
 
-def update_user(user, attributes, old_attributes):
+def update_user(user, attributes, old_attributes, initial_values=False):
     user.context_admin = False
     user.name = attributes.get("username")
     user.display_name = attributes.get("oxDisplayName")
@@ -129,7 +129,8 @@ def update_user(user, attributes, old_attributes):
     # user.info = attributes.get()
     user.instant_messenger1 = attributes.get("oxInstantMessenger1")
     user.instant_messenger2 = attributes.get("oxInstantMessenger2")
-    # user.language = attributes.get("oxLanguage", DEFAULT_LANGUAGE)
+    if initial_values:
+      user.language = DEFAULT_LANGUAGE
     # user.mail_folder_confirmed_ham_name = attributes.get()
     # user.mail_folder_confirmed_spam_name = attributes.get()
     # user.mail_folder_drafts_name = attributes.get()
@@ -172,7 +173,8 @@ def update_user(user, attributes, old_attributes):
     # user.telephone_radio = attributes.get()
     user.telephone_telex = attributes.get("oxTelephoneTelex")
     user.telephone_ttytdd = attributes.get("oxTelephoneTtydd")
-    # user.timezone = attributes.get("oxTimeZone", LOCAL_TIMEZONE)
+    if initial_values:
+      user.timezone = LOCAL_TIMEZONE
     user.title = attributes.get("title")
     # user.upload_file_size_limit = attributes.get()
     # user.upload_file_size_limitPerFile = attributes.get()
@@ -328,9 +330,9 @@ def create_user(obj):
             logger.info(f"{obj} exists. Modifying instead...")
             return modify_user(obj)
     except Skip:
-        logger.warning(f"{obj} has no oxContext attribtue. No modification. Consider adding an oxContext to it.")
+        logger.warning(f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.")
         return
-    user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None))
+    user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None), initial_values=True)
     user.create()
     obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
@@ -377,7 +379,7 @@ def modify_user(obj):
         try:
             user_id = get_user_id(obj.attributes)
         except Skip:
-            logger.warning(f"{obj} has no oxContext attribtue. No modification. Consider adding an oxContext to it.")
+            logger.warning(f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.")
             return
     if not user_id:
         logger.info(f"{obj} does not yet exist. Creating instead...")

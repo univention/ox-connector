@@ -12,23 +12,36 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-2.1.4 / 2.2.0
+2.2.0
 =============
 
-Released: 31. May 2023
+Released: 01. June 2023
 
 Changed
 -------
 
-Removed use of old *oxDrive* and *oxAccessUSM* udm properties. The OX Connector only
+Removed use of old *oxDrive* and *oxAccessUSM* UDM properties. The OX Connector only
 uses the *oxmail/accessprofile* objects to control access rights.
 
-The OX Connector *oxDisplayName* has been deprecated.
+The OX Connector does not require the *oxDisplayName* to be unique anymore.
 
-The OX connector does not set the sender's email address to the *mailPrimaryAddress* property anymore. 
-The address is configurable from the OX App suite front-end.
+The OX connector only sets a user's *default_sender_address*, *language*, and *timezone* when initially creating a user. Afterwards, any user can configure their settings in the OX App suite front-end.
 
-The OX connector can handle user files in */listener/old/* without the *oxContext* attribute.
+The OX connector can handle user files in *listener/old/* without the *oxContext* attribute.
+
+Deprecated
+----------
+
+*oxTimeZone* and *oxLanguage* still exist as UDM attributes. But they are not evaluated anymore (see above in Changed; the Connector sets these attributes to the value set in the App Settings instead).
+
+*oxDisplayName* still exists and is evaluated. At some later version, we will use the original *displayName* of a user.
+
+2.1.4
+=====
+
+Released: 31. May 2023
+
+**This version has been revoked**
 
 2.1.3
 =====
