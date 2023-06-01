@@ -254,6 +254,54 @@ To rebuild the cache, run the following commands:
       Furthermore, the process may generate a lot of load on the OX App Suite
       system and the OX Connector app.
 
+Duplicated *displaynames*
+=========================
+
+In OX Connector version 2.1.4 the udm property *oxDisplayName* has been
+replaced by *displayName* and the limitation that forced the former to
+have a unique value has been removed.
+
+If duplicate values are used in this attribute the *SOAP API* calls will
+fail with the following exception.
+
+.. code-block:: console
+
+   2023-05-30 11:59:31 WARNING Traceback (most recent call last):
+   2023-05-30 11:59:31 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 324, in run_on_files
+   2023-05-30 11:59:31 WARNING     f(obj)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 86, in run
+   2023-05-30 11:59:31 WARNING     modify_user(obj)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/users.py", line 420, in modify_user
+   2023-05-30 11:59:31 WARNING     user.modify()
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/backend.py", line 477, in modify
+   2023-05-30 11:59:31 WARNING     super(SoapUser, self).modify()
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/backend.py", line 180, in modify
+   2023-05-30 11:59:31 WARNING     self.service(self.context_id).change(obj)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/services.py", line 536, in change
+   2023-05-30 11:59:31 WARNING     return self._call_ox('change', usrdata=user)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/services.py", line 163, in _call_ox
+   2023-05-30 11:59:31 WARNING     return getattr(service, func)(**kwargs)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/zeep/proxy.py", line 46, in __call__
+   2023-05-30 11:59:31 WARNING     return self._proxy._binding.send(
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/bindings/soap.py", line 135, in send
+   2023-05-30 11:59:31 WARNING     return self.process_reply(client, operation_obj, response)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/bindings/soap.py", line 229, in process_reply
+   2023-05-30 11:59:31 WARNING     return self.process_error(doc, operation)
+   2023-05-30 11:59:31 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/bindings/soap.py", line 329, in process_error
+   2023-05-30 11:59:31 WARNING     raise Fault(
+   2023-05-30 11:59:31 WARNING zeep.exceptions.Fault: The displayname is already used; exceptionId 1170523631-4
+
+To fix this issue, a change in the  *OX App Suite* configuration is required.
+Add the following lines to the :file:`user.properties` file.
+
+.. code-block:: console
+
+   com.openexchange.user.enforceUniqueDisplayName=false
+   com.openexchange.folderstorage.database.preferDisplayName=false
+
+.. note::
+   This is configured by default in the *OX App Suite* installation of the App center.
+
 Collect information for support ticket
 ======================================
 
