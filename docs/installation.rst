@@ -56,6 +56,18 @@ For the *OX App Suite* server, you must ensure the following prerequisites:
    For manually managing OX contexts without the OX Connector, see
    :ref:`usage-contexts`.
 
+#. The OX App Suite instance must allow the use of duplicated *displaynames*.
+   To enable it, add the following lines to the :file:`user.properties` file.
+
+   .. code-block:: console
+
+      com.openexchange.user.enforceUniqueDisplayName=false
+      com.openexchange.folderstorage.database.preferDisplayName=false
+
+   .. note::
+      This is configured by default in the *OX App Suite* installation from the App center.
+
+
 .. _prerequisite-ucs-domain:
 
 UCS domain

@@ -300,7 +300,7 @@ Add the following lines to the :file:`user.properties` file.
    com.openexchange.folderstorage.database.preferDisplayName=false
 
 .. note::
-   This is configured by default in the *OX App Suite* installation of the App center.
+   This is configured by default in the *OX App Suite* installation from the App center.
 
 Collect information for support ticket
 ======================================

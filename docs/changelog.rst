@@ -23,8 +23,7 @@ Changed
 Removed use of old *oxDrive* and *oxAccessUSM* udm properties. The OX Connector only
 uses the *oxmail/accessprofile* objects to control access rights.
 
-The OX Connector uses the *displayName* property instead of *oxDisplayName*.
-The latter has been removed.
+The OX Connector *oxDisplayName* has been deprecated.
 
 The OX connector does not set the sender's email address to the *mailPrimaryAddress* property anymore. 
 The address is configurable from the OX App suite front-end.
