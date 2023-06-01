@@ -12,8 +12,8 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-2.1.4
-=====
+2.1.4 / 2.2.0
+=============
 
 Released: 31. May 2023
 
@@ -23,7 +23,7 @@ Changed
 Removed use of old *oxDrive* and *oxAccessUSM* udm properties. The OX Connector only
 uses the *oxmail/accessprofile* objects to control access rights.
 
-The OX Connector uses the *displayName* property instead of *oxDisplayName*. 
+The OX Connector uses the *displayName* property instead of *oxDisplayName*.
 The latter has been removed.
 
 The OX connector does not set the sender's email address to the *mailPrimaryAddress* property anymore. 
