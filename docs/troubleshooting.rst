@@ -257,11 +257,10 @@ To rebuild the cache, run the following commands:
 Duplicated *displaynames*
 =========================
 
-In OX Connector version 2.1.4 the udm property *oxDisplayName* has been
-replaced by *displayName* and the limitation that forced the former to
-have a unique value has been removed.
+In OX Connector version 2.2.0 the UDM property *oxDisplayName* does not have a
+unique constraint anymore.
 
-If duplicate values are used in this attribute the *SOAP API* calls will
+If duplicate values are used, but OX is not prepared for that, the *SOAP API* calls will
 fail with the following exception.
 
 .. code-block:: console

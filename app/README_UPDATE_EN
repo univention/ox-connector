@@ -4,3 +4,6 @@
 <p>
 	Please make sure that Open-Xchange has been upgraded before you upgrade this App.
 </p>
+<p>
+	A list of changes can be found <a href="https://docs.software-univention.de/ox-connector-app/latest/changelog.html" target="_blank">here</a>.
+</p>
