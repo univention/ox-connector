@@ -145,5 +145,4 @@ for row in attrmap:
 
 print('All extended attribute were {} successfully.'.format('updated' if options.update else 'installed'))
 
-
 sys.exit(0)

@@ -218,22 +218,6 @@ create_eas () {
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
 		--dn "cn=oxAccessUSM,cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
-	# update makes oxLanguage unnecessary.
-	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=oxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
-
-	# update makes templateOxLanguage unnecessary.
-	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=templateOxLanguage,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
-
-	# update makes oxTimeZone unnecessary.
-	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=oxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
-
-	# update makes templateOxTimeZone unnecessary.
-	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=templateOxTimeZone,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
-
 	# create all default extended attributes
 	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
@@ -457,7 +441,6 @@ msg () {
 	: ${_OX_TERM_NORM=$(tty <&2 >/dev/null && tput sgr0)}
 	echo "${_OX_TERM_BOLD}${0##*/}:${_OX_TERM_NORM} $*" >&2
 }
-
 
 main "$@"
 exit $?
