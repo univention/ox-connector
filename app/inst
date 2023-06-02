@@ -221,7 +221,7 @@ create_eas () {
 	# create all default extended attributes
 	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
-	if [ $JS_LAST_EXECUTED_VERSION -lt 5 ]; then
+	if [ $JS_LAST_EXECUTED_VERSION -lt 10 ]; then
 		# Bug #51456: Remove OX App from App-Tab to stabilize extended attributes ("display_name" etc)
 		echo "Updating extended attributes..."
 		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" --update "$@"  || die
