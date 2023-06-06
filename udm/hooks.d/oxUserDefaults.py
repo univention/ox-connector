@@ -54,6 +54,7 @@ ucs_user_template_replace = uadmin_property("_replace")._replace
 class oxUserDefaults(simpleHook):
     type = "oxUserDefaults"
     _ox_defaults = {}
+    _oxDisplayName_template = None
 
     @classmethod
     def ox_defaults(cls, lo, pos):
@@ -67,6 +68,12 @@ class oxUserDefaults(simpleHook):
                 if attr_m:
                     cls._ox_defaults[attr] = attr_m[0].info['default']
         return cls._ox_defaults
+
+    @classmethod
+    def oxDisplayName_template(cls, module):
+        if not cls._oxDisplayName_template:
+            cls._oxDisplayName_template = cls.ox_defaults(module.lo, module.position)['oxDisplayName']
+        return cls._oxDisplayName_template
 
     def hook_open(self, module):
         if 'oxUserDefaults' not in module:
@@ -83,7 +90,10 @@ class oxUserDefaults(simpleHook):
                 # and modify module.oldinfo in hook_ldap_pre_modify(). When the module generates
                 # the modlist, module.oldinfo contains the correct state.
                 module.oxUserDefaults[k] = None
-                module[k] = v
+                if k == "oxDisplayName":
+                    module[k] = ucs_user_template_replace(v, module.info)
+                else:
+                    module[k] = v
 
     def hook_ldap_pre_modify(self, module):
         if module.has_property('oxDisplayName'):

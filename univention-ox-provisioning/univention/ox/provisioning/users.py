@@ -74,12 +74,12 @@ def str2isodate(text):  # type: (str) -> str
     )
 
 
-def user_from_attributes(attributes, old_attributes, user_id=None):
+def user_from_attributes(attributes, old_attributes, user_id=None, initial_values=False):
     user = User(id=user_id)
     if attributes:
         context_id = get_context_id(attributes)
         user.context_id = context_id
-        update_user(user, attributes, old_attributes)
+        update_user(user, attributes, old_attributes, initial_values)
     return user
 
 
