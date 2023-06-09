@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=10
+VERSION=11
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -130,7 +130,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.0'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.1'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
@@ -218,10 +218,14 @@ create_eas () {
 	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
 		--dn "cn=oxAccessUSM,cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
+    # copy the extended attribute list from the container to the host
+    docker cp $(ucr get appcenter/apps/ox-connector/container):/usr/local/share/ox-connector/resources/attrlist.csv \
+        /var/lib/univention-appcenter/apps/ox-connector/data/resources/attrlist.csv || die
+
 	# create all default extended attributes
 	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
-	if [ $JS_LAST_EXECUTED_VERSION -lt 10 ]; then
+	if [ $JS_LAST_EXECUTED_VERSION -lt 11 ]; then
 		# Bug #51456: Remove OX App from App-Tab to stabilize extended attributes ("display_name" etc)
 		echo "Updating extended attributes..."
 		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" --update "$@"  || die
