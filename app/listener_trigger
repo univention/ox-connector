@@ -42,8 +42,7 @@ import os
 from contextlib import contextmanager
 from pathlib import Path
 
-import univention.ox.provisioning.helpers as helpers
-from univention.ox.provisioning import run
+from univention.ox.provisioning import helpers, run
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
