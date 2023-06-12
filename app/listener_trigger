@@ -149,7 +149,7 @@ class TriggerObject(object):
         old_path = self.get_old_file_path()
         logger.info(f"Looking for old data in {old_path}")
         content = load_from_json_file(old_path)
-        if content is not None:
+        if content:
             self.old_dn = content["dn"]
             self.old_attributes = content["object"]
             self.old_options = content["options"]
@@ -160,7 +160,7 @@ class TriggerObject(object):
         Whether this object is new. Needs the have read an old file
         for this to give a meaningful response
         """
-        if self._old_loaded is False:
+        if not self._old_loaded:
             return None
         return self.old_dn is None
 
