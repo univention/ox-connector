@@ -93,8 +93,9 @@ class TriggerObject(object):
     file. May also hold information of this object from a previous run
     (needs a second, backup file for that)
     """
-
-    def __init__(self, entry_uuid, object_type, dn, attributes, options, path=None):
+    def __init__(
+        self, entry_uuid, object_type, dn, attributes, options, path=None
+    ):
         self.entry_uuid = entry_uuid
         self.object_type = object_type
         self.dn = dn
@@ -120,12 +121,15 @@ class TriggerObject(object):
         if self.object_type == "oxmail/oxcontext" and self.attributes is None:
             # deleting a context should always come last
             return False
-        if other.object_type == "oxmail/oxcontext" and other.attributes is None:
+        if (
+            (other.object_type == "oxmail/oxcontext") and
+            (other.attributes is None)
+        ):
             # deleting a context should always come last
             return True
         if (
-            self.object_type == "oxmail/accessprofile"
-            or other.object_type == "oxmail/accessprofile"
+            (self.object_type == "oxmail/accessprofile") or
+            (other.object_type == "oxmail/accessprofile")
         ):
             # do not change order in accessprofiles
             return False
@@ -210,7 +214,6 @@ class KeyValueStore(object):
     Database about meta information on this listener.
     Particularly the number of consecutive errors.
     """
-
     def __init__(self, name):
         self.db_fname = str(NEW_FILES_DIR / name)
 
@@ -335,7 +338,9 @@ def run_on_files(
             if stop_at_first_error:
                 if 0 < pause_after_errors_num <= errors:
                     logger.warning(f"This is consecutive error #{errors}")
-                    logger.warning(f"Sleeping for {pause_after_errors_length} sec")
+                    logger.warning(
+                        f"Sleeping for {pause_after_errors_length} sec"
+                    )
                     time.sleep(pause_after_errors_length)
                 break
         else:
@@ -347,10 +352,19 @@ def run_on_files(
     return seen
 
 
-while True:
-    objs = objects_from_files(delete_files=False, move_files=True)
-    files_seen = run_on_files(
-        objs, run, pause_after_errors_num=3, pause_after_errors_length=0
-    )
-    if files_seen <= 0:
-        sys.exit(-files_seen)
+def main():
+    while True:
+        objs = objects_from_files(delete_files=False, move_files=True)
+        files_seen = run_on_files(
+            objs, run, pause_after_errors_num=3, pause_after_errors_length=0
+        )
+        if files_seen <= 0:
+            return -files_seen
+    # never reached
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+# [EOF]
