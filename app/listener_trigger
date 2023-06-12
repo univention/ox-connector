@@ -226,10 +226,12 @@ class KeyValueStore(object):
 
     @contextmanager
     def open(self):
+        """Open DBM-Database and yield the handler"""
         with dbm.gnu.open(self.db_fname, "cs") as data_base:
             yield data_base
 
     def set(self, distinguished_name, path):
+        """Write item to DBM-Database"""
         if distinguished_name is None:
             return
         with self.open() as data_base:
@@ -240,6 +242,7 @@ class KeyValueStore(object):
                 data_base[distinguished_name] = str(path)
 
     def get(self, key):
+        """Read value from DBM-Database"""
         with self.open() as data_base:
             return data_base.get(key)
 
@@ -362,6 +365,8 @@ def run_on_files(
 
 
 def main():
+    """Handles listener-JSON-files"""
+    # run forever and only exit on error
     while True:
         objs = objects_from_files(delete_files=False, move_files=True)
         files_seen = run_on_files(
