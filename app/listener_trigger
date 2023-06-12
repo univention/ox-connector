@@ -207,7 +207,7 @@ class TriggerObject(object):
             "options": self.options,
         }
         filename = filename or self.path
-        with open(f"{filename}.tmp", "w") as file_handler:
+        with open(f"{filename}.tmp", "w", encoding="utf-8") as file_handler:
             os.fchmod(file_handler.fileno(), 0o600)
             json.dump(content, file_handler, sort_keys=True, indent=4)
         os.replace(f"{filename}.tmp", filename)
