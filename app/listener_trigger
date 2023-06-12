@@ -148,7 +148,8 @@ class TriggerObject(object):
         Name of the old file. May or may not be present. Is used by
         objects_from_files to move files if specified.
         """
-        return OLD_FILES_DIR / "{}.json".format(self.entry_uuid)
+        file_name = f"{self.entry_uuid}.json"
+        return OLD_FILES_DIR / file_name
 
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
@@ -212,9 +213,7 @@ class TriggerObject(object):
         os.replace(f"{filename}.tmp", filename)
 
     def __repr__(self):
-        return "Object({!r}, {!r})".format(
-            self.object_type, self.distinguished_name
-        )
+        return f"Object({self.object_type!r}, {self.distinguished_name!r})"
 
 
 class KeyValueStore(object):
