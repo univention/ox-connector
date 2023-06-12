@@ -64,8 +64,8 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def _get_old_object(dn):
-    path_to_old_user = mapping.get(dn)
+def _get_old_object(distinguished_name):
+    path_to_old_user = mapping.get(distinguished_name)
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user.decode("utf-8"))
@@ -83,8 +83,8 @@ def load_from_json_file(path):
     """
     if not path.exists():
         return None
-    with path.open() as fd:
-        return json.load(fd)
+    with path.open() as file_handler:
+        return json.load(file_handler)
 
 
 class TriggerObject(object):
@@ -94,11 +94,17 @@ class TriggerObject(object):
     (needs a second, backup file for that)
     """
     def __init__(
-        self, entry_uuid, object_type, dn, attributes, options, path=None
+        self,
+        entry_uuid,
+        object_type,
+        distinguished_name,
+        attributes,
+        options,
+        path=None,
     ):
         self.entry_uuid = entry_uuid
         self.object_type = object_type
-        self.dn = dn
+        self.distinguished_name = distinguished_name
         self.attributes = attributes
         self.options = options
         self.old_dn = None
@@ -196,18 +202,20 @@ class TriggerObject(object):
         content = {
             "id": self.entry_uuid,
             "udm_object_type": self.object_type,
-            "dn": self.dn,
+            "dn": self.distinguished_name,
             "object": self.attributes,
             "options": self.options,
         }
         filename = filename or self.path
-        with open(f"{filename}.tmp", "w") as fd:
-            os.fchmod(fd.fileno(), 0o600)
-            json.dump(content, fd, sort_keys=True, indent=4)
+        with open(f"{filename}.tmp", "w") as file_handler:
+            os.fchmod(file_handler.fileno(), 0o600)
+            json.dump(content, file_handler, sort_keys=True, indent=4)
         os.replace(f"{filename}.tmp", filename)
 
     def __repr__(self):
-        return "Object({!r}, {!r})".format(self.object_type, self.dn)
+        return "Object({!r}, {!r})".format(
+            self.object_type, self.distinguished_name
+        )
 
 
 class KeyValueStore(object):
@@ -220,22 +228,22 @@ class KeyValueStore(object):
 
     @contextmanager
     def open(self):
-        with dbm.gnu.open(self.db_fname, "cs") as db:
-            yield db
+        with dbm.gnu.open(self.db_fname, "cs") as data_base:
+            yield data_base
 
-    def set(self, dn, path):
-        if dn is None:
+    def set(self, distinguished_name, path):
+        if distinguished_name is None:
             return
-        with self.open() as db:
+        with self.open() as data_base:
             if path is None:
-                if dn in db:
-                    del db[dn]
+                if distinguished_name in data_base:
+                    del data_base[distinguished_name]
             else:
-                db[dn] = str(path)
+                data_base[distinguished_name] = str(path)
 
     def get(self, key):
-        with self.open() as db:
-            return db.get(key)
+        with self.open() as data_base:
+            return data_base.get(key)
 
 
 meta = KeyValueStore(
@@ -249,10 +257,12 @@ def object_from_path(path):
     content = load_from_json_file(path)
     entry_uuid = content["id"]
     object_type = content["udm_object_type"]
-    dn = content["dn"]
+    distinguished_name = content["dn"]
     attributes = content["object"]
     options = content["options"]
-    obj = TriggerObject(entry_uuid, object_type, dn, attributes, options, path)
+    obj = TriggerObject(
+        entry_uuid, object_type, distinguished_name, attributes, options, path
+    )
     return obj
 
 
@@ -284,14 +294,14 @@ def objects_from_files(delete_files=True, move_files=False):
     for obj, path in objs:
         yield obj
         if move_files:
-            mapping.set(obj.old_dn, None)
+            mapping.set(obj.old_distinguished_name, None)
             old_file_path = obj.get_old_file_path()
             if old_file_path.exists():
                 old_file_path.unlink()
             if obj.was_deleted():
                 logger.info("Object was deleted. Deleting %s", path)
                 path.unlink()
-                mapping.set(obj.dn, None)
+                mapping.set(obj.distinguished_name, None)
             else:
                 logger.info("mv %s -> %s", path, old_file_path)
                 old_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -301,7 +311,7 @@ def objects_from_files(delete_files=True, move_files=False):
                         "... not done yet; enriching object by rewriting JSON file..."
                     )
                     obj.dump(old_file_path)
-                mapping.set(obj.dn, old_file_path)
+                mapping.set(obj.distinguished_name, old_file_path)
         elif delete_files:
             logger.info("Deleting %s", path)
             path.unlink()
@@ -309,7 +319,7 @@ def objects_from_files(delete_files=True, move_files=False):
 
 def run_on_files(
     objs,
-    f,
+    function,
     stop_at_first_error=True,
     pause_after_errors_num=0,
     pause_after_errors_length=0,
@@ -325,7 +335,7 @@ def run_on_files(
     for obj in objs:
         logger.info("Handling %r", obj.path)
         try:
-            f(obj)
+            function(obj)
         except Exception:
             logger.warning("Error while processing %s", obj.path)
             traceback.print_exc()
