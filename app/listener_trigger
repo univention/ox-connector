@@ -69,7 +69,7 @@ def _get_old_object(dn):
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user.decode("utf-8"))
-    logger.info(f"Loading old object from {path_to_old_user}")
+    logger.info("Loading old object from %s", path_to_old_user)
     return object_from_path(path_to_old_user)
 
 
@@ -118,7 +118,10 @@ class TriggerObject(object):
             "oxmail/functional_account",
             "oxresources/oxresources",
         ]
-        if self.object_type == "oxmail/oxcontext" and self.attributes is None:
+        if (
+            (self.object_type == "oxmail/oxcontext") and
+            (self.attributes is None)
+        ):
             # deleting a context should always come last
             return False
         if (
@@ -127,10 +130,8 @@ class TriggerObject(object):
         ):
             # deleting a context should always come last
             return True
-        if (
-            (self.object_type == "oxmail/accessprofile") or
-            (other.object_type == "oxmail/accessprofile")
-        ):
+        if (self.object_type == "oxmail/accessprofile"
+           ) or (other.object_type == "oxmail/accessprofile"):
             # do not change order in accessprofiles
             return False
         lidx = sorted_object_types.index(self.object_type)
@@ -147,7 +148,7 @@ class TriggerObject(object):
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
         old_path = self.get_old_file_path()
-        logger.info(f"Looking for old data in {old_path}")
+        logger.info("Looking for old data in %s", old_path)
         content = load_from_json_file(old_path)
         if content:
             self.old_dn = content["dn"]
@@ -288,11 +289,11 @@ def objects_from_files(delete_files=True, move_files=False):
             if old_file_path.exists():
                 old_file_path.unlink()
             if obj.was_deleted():
-                logger.info(f"Object was deleted. Deleting {path}")
+                logger.info("Object was deleted. Deleting %s", path)
                 path.unlink()
                 mapping.set(obj.dn, None)
             else:
-                logger.info(f"mv {path} -> {old_file_path}")
+                logger.info("mv %s -> %s", path, old_file_path)
                 old_file_path.parent.mkdir(parents=True, exist_ok=True)
                 path.replace(old_file_path)
                 if obj.was_enriched():
@@ -302,7 +303,7 @@ def objects_from_files(delete_files=True, move_files=False):
                     obj.dump(old_file_path)
                 mapping.set(obj.dn, old_file_path)
         elif delete_files:
-            logger.info(f"Deleting {path}")
+            logger.info("Deleting %s", path)
             path.unlink()
 
 
@@ -322,11 +323,11 @@ def run_on_files(
     ret = 0
     seen = 0
     for obj in objs:
-        logger.info(f"Handling {obj.path!r}")
+        logger.info("Handling %r", obj.path)
         try:
             f(obj)
         except Exception:
-            logger.warning(f"Error while processing {obj.path}")
+            logger.warning("Error while processing %s", obj.path)
             traceback.print_exc()
             ret = -1
             errors = meta.get("errors")
@@ -337,16 +338,16 @@ def run_on_files(
             meta.set("errors", str(errors))
             if stop_at_first_error:
                 if 0 < pause_after_errors_num <= errors:
-                    logger.warning(f"This is consecutive error #{errors}")
+                    logger.warning("This is consecutive error #%s", errors)
                     logger.warning(
-                        f"Sleeping for {pause_after_errors_length} sec"
+                        "Sleeping for %s sec", pause_after_errors_length
                     )
                     time.sleep(pause_after_errors_length)
                 break
         else:
             meta.set("errors", "0")
             seen += 1
-    logger.info(f"Successfully processed {seen} files during this run")
+    logger.info("Successfully processed %s files during this run", seen)
     if ret == -1:
         return ret
     return seen
