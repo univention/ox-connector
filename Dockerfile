@@ -11,6 +11,9 @@ CMD ["/sbin/init"]
 LABEL "description"="UCS OX provisioning app" \
     "version"="$version"
 
+# init: Disable TTY spawning
+RUN sed -i -e 's/^tty/# tty/g' /etc/inittab
+
 # package and Python dependency installation, base system configuration,
 # and uninstallation - all in one step to keep image small
 COPY alpine_apk_list.* requirements_all.txt /tmp/
