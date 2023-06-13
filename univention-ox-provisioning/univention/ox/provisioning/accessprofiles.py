@@ -119,7 +119,8 @@ def get_access_profiles(force_reload):
         try:
             with open(access_definitions_file) as fd:
                 for line in fd:
-                    if match := regex.match(line):
+                    match = regex.match(line)
+                    if match:
                         name = match.groups()[0].strip()
                         capabilities = {x.strip() for x in match.groups()[1].split(",")}
                         _profiles[name] = [
