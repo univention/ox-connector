@@ -53,7 +53,7 @@ def write_it(lo, pos, fname):
     with open(fname, 'w') as fd:
         for res in lo.search(filter=user_filter, attr=['oxAccess', 'oxDrive']):
             dn, attrs = res
-            profile = attrs.get('oxAccess', ['none'])[0]
+            profile = attrs.get('oxAccess', [b'none'])[0].decode("UTF-8")
             if profile in ['webmail', 'pim'] and attrs.get('oxDrive', ['0'])[0] == '1':
                 profile = profile + '_drive'
             print("Found {} having access to {}".format(dn, profile))
