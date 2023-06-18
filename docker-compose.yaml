@@ -22,6 +22,72 @@ services:
       - ldap_secret
     volumes:
       - "ox-connector-standalone-data:/var/lib/univention-directory-listener/:rw"
+    depends_on:
+      ldap-notifier:
+        condition: "service_healthy"
+      ldap-server:
+        condition: "service_healthy"
+
+  ldap-notifier:
+    container_name: "ox-connector-ldap-notifier"
+    platform: "linux/amd64"
+    image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-ldap/ldap-notifier:latest"
+    ports:
+      - "6669:6669"
+    volumes:
+      - "ldap-shared-data:/var/lib/univention-ldap/:rw"
+      - "ldap-shared-run:/var/run/slapd/:ro"
+    depends_on:
+      ldap-server:
+        condition: "service_healthy"
+    healthcheck:
+      test: "bash -c 'echo > /dev/tcp/localhost/6669'"
+      interval: "2s"
+      timeout: "1s"
+      retries: 10
+      start_period: "5s"
+
+  ldap-server:
+    container_name: "ox-connector-ldap-server"
+    platform: "linux/amd64"
+    image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-ldap/ldap-server:latest"
+    env_file: ".env.ldap-server"
+    environment:
+      LDAP_CN_ADMIN_PW: example-password
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - "./saml/idp/:/usr/share/saml/idp/:ro"
+      - "ldap-shared-data:/var/lib/univention-ldap/:rw"
+      - "ldap-shared-run:/var/run/slapd/:rw"
+    healthcheck:
+      test: "bash -c 'echo > /dev/tcp/localhost/389'"
+      interval: "2s"
+      timeout: "1s"
+      retries: 10
+      start_period: "5s"
+
+  ldap-admin:
+    container_name: "ox-connector-ldap-admin"
+    image: "osixia/phpldapadmin:0.9.0"
+    platform: "linux/amd64"
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ldap-server':{'login':{'bind_id':'cn=admin,dc=example,dc=org'}}}]"
+      PHPLDAPADMIN_HTTPS: "false"
+    links:
+      - "ldap-server"
+    ports:
+      - "8001:80"
+    depends_on:
+      ldap-server:
+        condition: "service_healthy"
+    healthcheck:
+      test: "bash -c 'echo > /dev/tcp/localhost/80'"
+      interval: "2s"
+      timeout: "1s"
+      retries: 10
+      start_period: "5s"
 
 secrets:
   ca_cert:
@@ -34,5 +100,9 @@ secrets:
 volumes:
   # OX only
   ox-connector-standalone-data:
+
+  # Notifier + OpenLDAP
+  ldap-shared-data:
+  ldap-shared-run:
 
 ...
