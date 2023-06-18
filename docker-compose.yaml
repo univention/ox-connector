@@ -1,0 +1,38 @@
+---
+
+version: "3.9"
+
+services:
+  ox-connector-standalone:
+    container_name: "ox-connector-standalone"
+    platform: "linux/amd64"
+    build:
+      context: "./"
+      dockerfile: "Dockerfile.standalone"
+      args:
+        - "version=2.2.2"
+    env_file: ".env.standalone"
+    environment:
+      LDAP_HOST: "ldap-server"
+      TLS_REQCERT: "never"
+      START_TLS: "never"
+    secrets:
+      - ca_cert
+      - cert_pem
+      - ldap_secret
+    volumes:
+      - "ox-connector-standalone-data:/var/lib/univention-directory-listener/:rw"
+
+secrets:
+  ca_cert:
+    file: ssl/certs/CAcert.pem
+  cert_pem:
+    file: ssl/certs/cert.pem
+  ldap_secret:
+    file: secret/ldap.secret
+
+volumes:
+  # OX only
+  ox-connector-standalone-data:
+
+...
