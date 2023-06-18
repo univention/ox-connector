@@ -1,2 +1,16 @@
-.git*
-venv
+*
+!/alpine_apk_list.*
+!/app/listener_trigger
+!/bin/
+!/ldap/
+!/LICENSE
+!/Makefile
+!/requirements_all.txt
+!/share/
+!/tests/
+!/udm/
+!/umc/
+!/univention-ox-provisioning/
+!/univention-ox-soap-api/
+
+# [EOF]
