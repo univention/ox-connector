@@ -6,3 +6,8 @@ univention-appcenter-control
 venv
 *swp
 **_build
+/.env.ldap-server
+/.env.standalone
+/docker-compose.override.yaml
+/secret
+/ssl
