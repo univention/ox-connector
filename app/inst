@@ -35,7 +35,7 @@
 
 ## joinscript api: bindpwdfile
 
-VERSION=11
+VERSION=12
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -130,7 +130,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.6'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.3.0'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then

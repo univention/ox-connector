@@ -32,7 +32,8 @@ import logging
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox
+from univention.ox.soap.config import OX_APPSUITE_MAJOR_VERSION
+from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox, get_db_id
 
 Resource = get_ox_integration_class("SOAP", "Resource")
 logger = logging.getLogger("listener")
@@ -50,6 +51,20 @@ def update_resource(resource, attributes):
     resource.description = attributes.get("description")
     resource.display_name = attributes.get("displayname")
     resource.email = attributes.get("resourceMailAddress")
+    if OX_APPSUITE_MAJOR_VERSION >= 8:
+        users_ask_to_book = attributes.get("usersAskToBook", [])
+        users_book_directly = attributes.get("usersBookDirectly", [])
+        users_delegate = attributes.get("usersDelegate", [])
+        groups_ask_to_book = attributes.get("groupsAskToBook", [])
+        groups_book_directly = attributes.get("groupsBookDirectly", [])
+        groups_delegate = attributes.get("groupsDelegate", [])
+        resource.permissions = []
+        resource.permissions.extend(map(lambda x: {"entity": get_db_id(x), "group": False, "privilege": "ask_to_book"}), users_ask_to_book)
+        resource.permissions.extend(map(lambda x: {"entity": get_db_id(x), "group": False, "privilege": "book_directly"}), users_book_directly)
+        resource.permissions.extend(map(lambda x: {"entity": get_db_id(x), "group": False, "privilege": "delegate"}), users_delegate)
+        resource.permissions.extend(map(lambda x: {"entity": get_db_id(x), "group": True, "privilege": "ask_to_book"}), groups_ask_to_book)
+        resource.permissions.extend(map(lambda x: {"entity": get_db_id(x), "group": True, "privilege": "book_directly"}), groups_book_directly)
+        resource.permissions.extend(map(lambda x: {"entity": get_db_id(x), "group": True, "privilege": "delegate"}), groups_delegate)
 
 
 def get_resource_id(attributes):

@@ -1,5 +1,6 @@
 import os
 import random
+import requests
 import string
 import json
 try:
@@ -20,12 +21,18 @@ QUOTA = -1  # unlimited
 OX_SOAP_SERVER = os.environ.get("OX_SOAP_SERVER", "http://127.0.0.1")
 CREDENTIALS_FILE = os.environ.get("OX_CREDENTIALS_FILE", "/etc/ox-secrets/ox-contexts.json")
 FUNCTIONAL_ACCOUNT_LOGIN = os.environ.get("OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE", "{{fa_entry_uuid}}{{username}}")
+OX_APPSUITE_MAJOR_VERSION = get_appsuite_major_version()
 
 _CREDENTIALS = {}
 
 
 class NoContextAdminPassword(Exception):
     pass
+
+
+def get_appsuite_major_version():
+    response = requests.get(OX_SOAP_SERVER + "/appsuite/api/apps/manifests", params={"action": "config"})
+    return int(response.json().get("data").get("version").split(".")[0])
 
 
 def get_new_context_attributes(context_id):  # type: (int) -> Dict[str, str]

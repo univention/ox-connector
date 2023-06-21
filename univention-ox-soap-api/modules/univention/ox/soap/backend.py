@@ -35,7 +35,7 @@ from six import with_metaclass
 
 from univention.ox.soap.backend_base import BackendMetaClass, Context, Group, Resource, SecondaryAccount, User, UserCopy, get_ox_integration_class
 
-from .config import save_context_admin_password, remove_context_admin_password, get_new_context_attributes, DEFAULT_CONTEXT, OX_SOAP_SERVER, QUOTA
+from .config import save_context_admin_password, remove_context_admin_password, get_new_context_attributes, DEFAULT_CONTEXT, OX_SOAP_SERVER, QUOTA, OX_APPSUITE_MAJOR_VERSION
 from .credentials import ClientCredentials
 from .services import get_ox_soap_service_class
 
@@ -313,13 +313,23 @@ class SoapGroup(with_metaclass(BackendMetaClass, SoapBackend, Group)):
 
 class SoapResource(with_metaclass(BackendMetaClass, SoapBackend, Resource)):
 
-    _base2soap = {
-        'available': SoapAttribute('available'),
-        'description': SoapAttribute('description', ''),
-        'display_name': SoapAttribute('displayname'),
-        'email': SoapAttribute('email'),
-    }
-    _mandatory_creation_attr = ('name', 'email')
+    if OX_APPSUITE_MAJOR_VERSION < 8:
+        _base2soap = {
+            'available': SoapAttribute('available'),
+            'description': SoapAttribute('description', ''),
+            'display_name': SoapAttribute('displayname'),
+            'email': SoapAttribute('email'),
+        }
+        _mandatory_creation_attr = ('name', 'email')
+    else:
+        _base2soap = {
+            'available': SoapAttribute('available'),
+            'description': SoapAttribute('description', ''),
+            'display_name': SoapAttribute('displayname'),
+            'email': SoapAttribute('email'),
+            'permissions': SoapAttribute('permissions'),
+        }
+        _mandatory_creation_attr = ('name', 'email')
 
 
 class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):

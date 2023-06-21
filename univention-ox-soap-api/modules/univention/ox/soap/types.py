@@ -85,6 +85,7 @@ class Types(object):
         self.Group = self.wsdl_group.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}Group')
         self.Quota = self.wsdl_context.types.get_type('{http://dataobjects.rmi.admin.openexchange.com/xsd}Quota')
         self.Resource = self.wsdl_resource.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}Resource')
+        self.ResourcePermission = self.wsdl_resource.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}ResourcePermission')
         self.SecondaryAccount = self.wsdl_secondary_account.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}AccountDataOnCreate')
         self.SchemaSelectStrategy = self.wsdl_context.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}SchemaSelectStrategy')
         self.SOAPMapEntry = self.wsdl_context.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPMapEntry')

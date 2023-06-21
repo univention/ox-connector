@@ -30,6 +30,8 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <https://www.gnu.org/licenses/>.
 
+from functools import reduce
+
 from ldap.filter import filter_format
 
 import univention.debug as ud
@@ -77,7 +79,7 @@ property_descriptions = {
     'description': univention.admin.property(
         short_description=_('Description'),
         long_description=_('Description for resource object'),
-        syntax=univention.admin.syntax.string,
+        syntax=univention.admin.syntax.TextArea,
     ),
     'displayname': univention.admin.property(
         short_description=_('Display Name'),
@@ -90,13 +92,43 @@ property_descriptions = {
         short_description=_('Resource manager'),
         long_description=_('User who will manage this resource'),
         syntax=ldap_search_oxuser,
-        required=True,
+        required=False,
     ),
     'resourceMailAddress': univention.admin.property(
         short_description=_('Resource e-mail address'),
         long_description=_('Unique e-mail adress that will be assigned to this resource'),
         syntax=univention.admin.syntax.emailAddress,
         required=True,
+    ),
+    'usersAskToBook': univention.admin.property(
+        short_description=_('Users ask to book.'),
+        syntax=univention.admin.syntax.oxUserDN,
+        multivalue=True,
+    ),
+    'usersBookDirectly': univention.admin.property(
+        short_description=_('Users book directly.'),
+        syntax=univention.admin.syntax.oxUserDN,
+        multivalue=True,
+    ),
+    'usersDelegate': univention.admin.property(
+        short_description=_('Users delegate.'),
+        syntax=univention.admin.syntax.oxUserDN,
+        multivalue=True,
+    ),
+    'groupsAskToBook': univention.admin.property(
+        short_description=_('Groups ask to book.'),
+        syntax=univention.admin.syntax.oxGroupDN,
+        multivalue=True,
+    ),
+    'groupsBookDirectly': univention.admin.property(
+        short_description=_('Groups book directly.'),
+        syntax=univention.admin.syntax.oxGroupDN,
+        multivalue=True,
+    ),
+    'groupsDelegate': univention.admin.property(
+        short_description=_('Groups delegate.'),
+        syntax=univention.admin.syntax.oxGroupDN,
+        multivalue=True,
     ),
 }
 
@@ -105,8 +137,13 @@ layout = [
     Tab(_('General'), _('General settings'), layout=[
         Group(_('General'), layout=[
             ['name', 'displayname'],
-            ['resourceadmin', 'description'],
+            ['description'],
             ['resourceMailAddress']
+        ]),
+        Group(_('Access'), _('Only available from OX App Suite version 8 onwards.'), layout=[
+            ['usersAskToBook', 'groupsAskToBook'],
+            ['usersBookDirectly', 'groupsBookDirectly'],
+            ['usersDelegate', 'groupsDelegate']
         ]),
     ]),
 ]
@@ -117,6 +154,12 @@ mapping.register('description', 'description', None, univention.admin.mapping.Li
 mapping.register('displayname', 'displayName', None, univention.admin.mapping.ListToString)
 mapping.register('resourceadmin', 'oxResourceAdmin', None, univention.admin.mapping.ListToString)
 mapping.register('resourceMailAddress', 'mailPrimaryAddress', None, univention.admin.mapping.ListToString)
+mapping.register('usersAskToBook', 'oxUsersAskToBook')
+mapping.register('usersBookDirectly', 'oxUsersBookDirectly')
+mapping.register('usersDelegate', 'oxUsersDelegate')
+mapping.register('groupsAskToBook', 'oxGroupsAsktoBook')
+mapping.register('groupsBookDirectly', 'oxGroupsBookDirectly')
+mapping.register('groupsDelegate', 'oxGroupsDelegate')
 
 
 class object(univention.admin.handlers.simpleLdap):
@@ -158,13 +201,34 @@ class object(univention.admin.handlers.simpleLdap):
         if not result:
             raise univention.admin.uexceptions.valueError(_("The mail address' domain does not match any mail domain object."))
 
+    def _check_access_permissions(self):
+        users = [self['usersAskToBook'], self['usersBookDirectly'], self['usersDelegate']]
+        groups = [self['groupsAskToBook'],  self['groupsBookDirectly'], self['groupsDelegate']]
+
+        all_users = reduce(set.union, map(set, users))
+        non_duplicated_users = reduce(set.difference, map(set, users))
+        duplicated_users = all_users - non_duplicated_users
+
+        if duplicated_users:
+            raise univention.admin.uexceptions.valueError(_("There are users assigned to more than one access group. (%s)" % duplicated_users))
+
+        all_groups = reduce(set.union, map(set, groups))
+        non_duplicated_groups = reduce(set.difference, map(set, groups))
+        duplicated_groups = all_groups - non_duplicated_groups
+
+        if duplicated_groups:
+            raise univention.admin.uexceptions.valueError(_("There are groups assigned to more than one access group. (%s)" % duplicated_groups))
+
+
     def _ldap_pre_create(self):
         super(object, self)._ldap_pre_create()
         self._check_mailaddress()
+        self._check_access_permissions()
 
     def _ldap_post_create(self):
         super(object, self)._ldap_post_create()
-        self._addMailAddressToResourceAdmin()
+        if self['resourceadmin']:
+            self._addMailAddressToResourceAdmin()
         # confirm allocated resourceMailAddress
         univention.admin.allocators.confirm(self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
 
@@ -191,10 +255,11 @@ class object(univention.admin.handlers.simpleLdap):
         super(object, self)._ldap_pre_modify()
         if self.hasChanged('mailPrimaryAddress'):
             self._check_mailaddress()
+        self._check_access_permissions()
 
     def _ldap_post_modify(self):
         super(object, self)._ldap_post_modify()
-        if self.hasChanged('resourceMailAddress') or self.hasChanged('resourceadmin'):
+        if self['resourceadmin'] and (self.hasChanged('resourceMailAddress') or self.hasChanged('resourceadmin')):
             self._removeMailAddressesFromResourceAdmins()
             self._addMailAddressToResourceAdmin()
 

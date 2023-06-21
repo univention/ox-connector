@@ -36,6 +36,7 @@ try:
 except ImportError:
     pass
 
+from .config import OX_APPSUITE_MAJOR_VERSION
 
 __ox_integration_backend_class_registry = dict()  # type: Dict[str, Dict[str, Type["OxObject"]]]
 __ox_integration_backend_object_cache = {}  # type: Dict[str, Dict[str, "OxObject"]]
@@ -218,6 +219,9 @@ class Resource(OxObject):
     description = None  # type: str
     display_name = None  # type: str
     email = None  # type: str
+
+    if OX_APPSUITE_MAJOR_VERSION >= 8:
+        permissions = [] # type: List[str]
 
 
 class SecondaryAccount(OxObject):

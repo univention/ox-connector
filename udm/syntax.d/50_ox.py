@@ -1,6 +1,6 @@
 import re
 
-from univention.admin.syntax import select, simple, UDM_Objects
+from univention.admin.syntax import select, simple, UDM_Objects, GroupDN, UserDN
 
 
 class ExtendedAttributeIntegerType(univention.admin.types.TypeHint):
@@ -45,6 +45,13 @@ class oxaccess(UDM_Objects):
     key = '%(name)s'
     regex = None
 
+class oxGroupDN(GroupDN):
+    search_widget = 'MultiObjectSelect'
+    udm_filter = 'isOxGroup=OK'
+
+class oxUserDN(UserDN):
+    search_widget = 'MultiObjectSelect'
+    udm_filter = 'isOxUser=OK'
 
 class oxlanguage(select):
     name = 'oxlanguage'
