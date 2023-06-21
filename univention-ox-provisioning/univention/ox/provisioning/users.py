@@ -84,18 +84,28 @@ def user_from_attributes(attributes, old_attributes, user_id=None, initial_value
 
 
 def update_user(user, attributes, old_attributes, initial_values=False):
+    if user.id and not initial_values:
+        old_user = User.from_ox(user.context_id, obj_id=user.id)
+    else:
+        old_user = None
     user.context_admin = False
     user.name = attributes.get("username")
-    user.display_name = attributes.get("oxDisplayName")
+    user.display_name = attributes.get("oxDisplayName") or attributes.get("displayName")
     user.password = "dummy"
     user.given_name = attributes.get("firstname")
     user.sur_name = attributes.get("lastname")
-    if not old_attributes or attributes.get("mailPrimaryAddress") != old_attributes.get("mailPrimaryAddress"):
+    user.email1 = attributes.get("mailPrimaryAddress")
+    user.primary_email = user.email1
+    aliases = [user.email1] + attributes.get("mailAlternativeAddress", [])
+    user.aliases = aliases
+    if old_user:
+        user.default_sender_address = old_user.default_sender_address
+    else:
+        user.default_sender_address = user.primary_email
+    if user.default_sender_address: not in aliases:
         # The SOAP API will fail if the value of the default_sender_address is not one
-        # of all the user's email addresses. To make sure we comply with this requirement
-        # we replace the value when the user's mail address changes. 
-        logger.info("change in primary mail address. Resetting default sender address attribute")
-        user.default_sender_address = attributes.get("mailPrimaryAddress")
+        # of all the user's email addresses. Make sure we comply with this requirement
+        user.default_sender_address = user.primary_email
     # user.assistant_name = attributes.get()
     user.branches = attributes.get("oxBranches")
     # user.business_category = attributes.get()
@@ -112,8 +122,6 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.drive_user_folder_mode = attributes.get()
     # user.default_group = attributes.get()
     user.department = attributes.get("oxDepartment")
-    user.email1 = attributes.get("mailPrimaryAddress")
-    user.primary_email = user.email1
     user.imap_login = user.email1
     user.email2 = attributes.get("oxEmail2")
     user.email3 = attributes.get("oxEmail3")
@@ -129,8 +137,11 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.info = attributes.get()
     user.instant_messenger1 = attributes.get("oxInstantMessenger1")
     user.instant_messenger2 = attributes.get("oxInstantMessenger2")
-    if initial_values:
-      user.language = DEFAULT_LANGUAGE
+    user.telephone_ttytdd = attributes.get("oxTelephoneTtydd")
+    if old_user:
+        user.language = old_user.language
+    else:
+        user.language = DEFAULT_LANGUAGE
     # user.mail_folder_confirmed_ham_name = attributes.get()
     # user.mail_folder_confirmed_spam_name = attributes.get()
     # user.mail_folder_drafts_name = attributes.get()
@@ -173,8 +184,10 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.telephone_radio = attributes.get()
     user.telephone_telex = attributes.get("oxTelephoneTelex")
     user.telephone_ttytdd = attributes.get("oxTelephoneTtydd")
-    if initial_values:
-      user.timezone = LOCAL_TIMEZONE
+    if old_user:
+        user.timezone = old_user.timezone
+    else:
+        user.timezone = LOCAL_TIMEZONE
     user.title = attributes.get("title")
     # user.upload_file_size_limit = attributes.get()
     # user.upload_file_size_limitPerFile = attributes.get()
@@ -254,8 +267,6 @@ def update_user(user, attributes, old_attributes, initial_values=False):
         user.telephone_home2 = attributes.get("homeTelephoneNumber")[1]
     else:
         user.telephone_home2 = None
-    aliases = [user.email1] + attributes.get("mailAlternativeAddress", [])
-    user.aliases = aliases
     if attributes.get("oxAccess", "none") != "none":
         user.mail_enabled = True
     else:
