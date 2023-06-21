@@ -137,7 +137,6 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.info = attributes.get()
     user.instant_messenger1 = attributes.get("oxInstantMessenger1")
     user.instant_messenger2 = attributes.get("oxInstantMessenger2")
-    user.telephone_ttytdd = attributes.get("oxTelephoneTtydd")
     if old_user:
         user.language = old_user.language
     else:
