@@ -137,9 +137,7 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.info = attributes.get()
     user.instant_messenger1 = attributes.get("oxInstantMessenger1")
     user.instant_messenger2 = attributes.get("oxInstantMessenger2")
-    if old_user:
-        user.language = old_user.language
-    else:
+    if initial_values:
         user.language = DEFAULT_LANGUAGE
     # user.mail_folder_confirmed_ham_name = attributes.get()
     # user.mail_folder_confirmed_spam_name = attributes.get()
@@ -183,9 +181,7 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.telephone_radio = attributes.get()
     user.telephone_telex = attributes.get("oxTelephoneTelex")
     user.telephone_ttytdd = attributes.get("oxTelephoneTtydd")
-    if old_user:
-        user.timezone = old_user.timezone
-    else:
+    if initial_values:
         user.timezone = LOCAL_TIMEZONE
     user.title = attributes.get("title")
     # user.upload_file_size_limit = attributes.get()
