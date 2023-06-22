@@ -1,7 +1,7 @@
 [Application]
 ID = ox-connector
 Code = 31
-Version = 2.2.1
+Version = 2.2.2
 Name = OX Connector
 Vendor = Univention
 Contact = feedback@univention.de
@@ -15,7 +15,7 @@ DockerScriptUpdateRelease =
 DockerScriptSetup = 
 ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources, users/user, groups/group, oxmail/accessprofile, oxmail/functional_account
 DockerShellCommand = /bin/ash
-DockerImage = docker.software-univention.de/ox-connector:2.2.1
+DockerImage = docker.software-univention.de/ox-connector:2.2.2
 DockerScriptConfigure = /tmp/ox-connector.configure
 Description = Synchronize UCS Users and Groups to Open-Xchange
 SupportedUcsVersions = 5.0-0 errata174, 5.1-0, 5.2-0
