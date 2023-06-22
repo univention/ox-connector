@@ -102,7 +102,7 @@ def update_user(user, attributes, old_attributes, initial_values=False):
         user.default_sender_address = old_user.default_sender_address
     else:
         user.default_sender_address = user.primary_email
-    if user.default_sender_address: not in aliases:
+    if user.default_sender_address not in aliases:
         # The SOAP API will fail if the value of the default_sender_address is not one
         # of all the user's email addresses. Make sure we comply with this requirement
         user.default_sender_address = user.primary_email
