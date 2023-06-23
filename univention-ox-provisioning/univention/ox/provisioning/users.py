@@ -84,10 +84,15 @@ def user_from_attributes(attributes, old_attributes, user_id=None, initial_value
 
 
 def update_user(user, attributes, old_attributes, initial_values=False):
+    old_user = None
     if user.id and not initial_values:
-        old_user = User.from_ox(user.context_id, obj_id=user.id)
-    else:
-        old_user = None
+        try:
+            if old_attributes and get_context_id(old_attributes) != user.context_id:
+                old_user = User.from_ox(get_context_id(old_attributes), obj_id=user.id)
+            else:
+                old_user = User.from_ox(user.context_id, obj_id=user.id)
+        except:
+            pass
     user.context_admin = False
     user.name = attributes.get("username")
     user.display_name = attributes.get("oxDisplayName") or attributes.get("displayName")
