@@ -1,6 +1,11 @@
 ---
 
 include:
+  - project: "univention/customers/dataport/upx/common-ci"
+    file:
+      - "defaults/souvap-workflow.yaml"
+      - "templates/souvap.yaml"
+      - "templates/kaniko.yaml"
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
 
@@ -13,8 +18,10 @@ workflow:
 
 stages:
   - "build"
-  - "merge"
-  - "production"
+  - "publish"
+  - "docs-build"
+  - "docs-merge"
+  - "docs-production"
 
 variables:
   DOCS_DIR: "docs"
@@ -24,38 +31,77 @@ variables:
   DOC_TARGET_VERSION: "2.2.3"
   DOC_TARGET_NAME: "ox-connector-app"
   DOC_TARGET_PATH: "$DOC_TARGET_NAME/$DOC_TARGET_VERSION"
+  SOUVAP_DOCKER_ACCESS_USER: "gitlab-ci-knut"
+  SOUVAP_DOCKER_ACCESS_TOKEN: "${SOUVAP_REGISTRY_TOKEN}"
+  SOUVAP_REGISTRY_HOST: "registry.souvap-univention.de"
+  SOUVAP_REGISTRY_PATH: "souvap/tooling/images/ox-connector"
+  SOUVAP_REGISTRY_REPO: "${SOUVAP_REGISTRY_HOST}/${SOUVAP_REGISTRY_PATH}"
+
+build-appcenter-job:
+  stage: "build"
+  extends: ".kaniko_pre"
+  variables:
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--build-arg version=$UV_APP_VERSION"
+    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector"
+  script:
+    - !reference [".kaniko_pre", "script"]
+    # Build and push the container. To disable push add --no-push
+    - >-
+      /kaniko/executor
+      --context "${KANIKO_BUILD_CONTEXT:?}"
+      --dockerfile "$DOCKERFILE_PATH"
+      --destination "$IMAGE_TAG"
+      --build-arg "DOCKER_PROXY=${KANIKO_DOCKER_PROXY}/"
+      $KANIKO_CACHE_ARGS
+      $KANIKO_ARGS
+
+push-image-souvap-appcenter-job:
+  stage: "publish"
+  needs:
+    - job: "build-appcenter-job"
+  extends: ".push-image-souvap"
+  variables:
+    CI_REGISTRY_IMAGE: "$CI_REGISTRY_IMAGE"
+    SOUVAP_IMAGE_NAME: "ox-connector"
 
 docs-linkcheck:
+  stage: "docs-build"
   extends: ".sphinx-linkcheck-template"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
 
 docs-spelling:
+  stage: "docs-build"
   extends: ".sphinx-spelling-template"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
 
 docs-html:
+  stage: "docs-build"
   extends: ".sphinx-html-template"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
 
 docs-pdf:
+  stage: "docs-build"
   extends: ".sphinx-pdf-template"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
 
 docs-warnings:
+  stage: "docs-build"
   extends: ".sphinx-warnings-template"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
 
 docs-merge-to-one-artifact:
+  stage: "docs-merge"
   extends: ".sphinx-merge-template"
   needs:
     - job: "docs-html"
@@ -76,6 +122,7 @@ docs-merge-to-one-artifact:
 # The template has inherit:variables:false to prevent the passing of pipeline
 # variables to downstream, and therefore $DOCS_DIR is not available here.
 docs-create-production-merge-request:
+  stage: "docs-production"
   extends: ".sphinx-docs-merge-request-template"
   needs:
     - job: "docs-merge-to-one-artifact"

@@ -14,14 +14,25 @@ LABEL "description"="UCS OX provisioning app" \
 # init: Disable TTY spawning
 RUN sed -i -e 's/^tty/# tty/g' /etc/inittab
 
+# generate pip requirements
+COPY univention-ox-soap-api/requirements.txt /build/requirements/ox-soap-api.txt
+COPY univention-ox-provisioning/requirements.txt /build/requirements/ox-provisioning.txt
+RUN find /build/requirements/ -name '*.txt' -exec cat {} + \
+  | egrep -v 'univention' \
+  | grep -v 'six' \
+  | sort \
+  | uniq \
+  > /build/requirements_all.txt \
+ && rm -rf /build/requirements/
+
 # package and Python dependency installation, base system configuration,
 # and uninstallation - all in one step to keep image small
-COPY alpine_apk_list.* requirements_all.txt /tmp/
+COPY alpine_apk_list.* /tmp/
 RUN apk add --no-cache $(cat /tmp/alpine_apk_list.build) $(cat /tmp/alpine_apk_list.runtime) && \
 	cp -v /usr/share/zoneinfo/Europe/Berlin /etc/localtime && \
 	echo "Europe/Berlin" > /etc/timezone && \
 	pip3 install --no-cache-dir --compile --upgrade pip && \
-	pip3 install --no-cache-dir --compile --upgrade -r /tmp/requirements_all.txt && \
+	pip3 install --no-cache-dir --compile --upgrade -r /build/requirements_all.txt && \
 	apk del --no-cache $(cat /tmp/alpine_apk_list.build) && \
 	python3 -c "from zeep import Client" && \
 	rm -rf /tmp/*
