@@ -8,6 +8,7 @@ venv
 **_build
 /.env.ldap-server
 /.env.standalone
+/.env.udm-rest-api
 /docker-compose.override.yaml
 /secret
 /ssl

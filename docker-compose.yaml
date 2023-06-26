@@ -89,6 +89,25 @@ services:
       retries: 10
       start_period: "5s"
 
+  udm-rest-api:
+    container_name: "ox-connector-udm-rest-api"
+    image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-udm-rest/udm-rest-api:latest"
+    env_file: ".env.udm-rest-api"
+    environment:
+      LDAP_HOST: "ldap-server"
+      MACHINE_SECRET: "example-password"
+    ports:
+      - "9979:9979"
+    depends_on:
+      ldap-server:
+        condition: "service_healthy"
+    healthcheck:
+      test: "bash -c 'echo > /dev/tcp/localhost/9979'"
+      interval: "2s"
+      timeout: "1s"
+      retries: 10
+      start_period: "5s"
+
 secrets:
   ca_cert:
     file: ssl/certs/CAcert.pem
