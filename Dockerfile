@@ -34,20 +34,17 @@ RUN export OX_PROVISIONING_VERSION="$version" &&\
 	rm -rf /tmp/*
 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
-COPY Makefile /tmp
 COPY app/listener_trigger /tmp/app/
 COPY tests /tmp/tests
 COPY LICENSE /usr/local/share/ox-connector/LICENSE
 
 # 1st linting, then installation
-RUN apk add --no-cache gcc python3-dev make musl-dev && \
+RUN apk add --no-cache gcc python3-dev musl-dev && \
 	python3 -m venv --system-site-packages /tmp/venv && \
 	. /tmp/venv/bin/activate && \
 	pip3 install --no-cache-dir --compile -U pip && \
 	pip3 install --no-cache-dir --compile black flake8 isort && \
 	cd /tmp && \
-	#make lint && \
-	#echo "Linting OK." && \
 	# deactivate() is not installed in 'ash' shell, manually deactivate virtualenv:
 	export PATH="${_OLD_VIRTUAL_PATH:-}" && \
 	export PS1="${_OLD_VIRTUAL_PS1:-}" && \
@@ -55,7 +52,7 @@ RUN apk add --no-cache gcc python3-dev make musl-dev && \
 	export OX_PROVISIONING_VERSION="$version" && \
 	pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
 	python3 -c "from univention.ox.provisioning import run" && \
-	apk del --no-cache gcc python3-dev make musl-dev && \
+	apk del --no-cache gcc python3-dev musl-dev && \
 	rm -rf /tmp/*
 
 COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
