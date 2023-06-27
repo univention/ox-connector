@@ -1,83 +1,87 @@
+---
+
 include:
-  - project: 'univention/documentation/sphinx-docker'
-    file: 'pipeline/sphinx.yml'
+  - project: "univention/documentation/sphinx-docker"
+    file: "pipeline/sphinx.yml"
 
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_OPEN_MERGE_REQUESTS
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED == "true"
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "webide"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_OPEN_MERGE_REQUESTS'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "webide"'
 
 stages:
-  - build
-  - merge
-  - production
+  - "build"
+  - "merge"
+  - "production"
 
 variables:
   DOCS_DIR: "docs"
   LANG: "C.UTF-8"
-  DEBIAN_FRONTEND: noninteractive
-  UNIVENTION_BASECONF: /dev/null
+  DEBIAN_FRONTEND: "noninteractive"
+  UNIVENTION_BASECONF: "/dev/null"
   DOC_TARGET_VERSION: "2.2.3"
   DOC_TARGET_NAME: "ox-connector-app"
   DOC_TARGET_PATH: "$DOC_TARGET_NAME/$DOC_TARGET_VERSION"
 
 docs-linkcheck:
-  extends: .sphinx-linkcheck-template
+  extends: ".sphinx-linkcheck-template"
   rules:
     - changes:
-      - $DOCS_DIR/**/*
+        - "$DOCS_DIR/**/*"
 
 docs-spelling:
-  extends: .sphinx-spelling-template
+  extends: ".sphinx-spelling-template"
   rules:
     - changes:
-      - $DOCS_DIR/**/*
+        - "$DOCS_DIR/**/*"
 
 docs-html:
-  extends: .sphinx-html-template
+  extends: ".sphinx-html-template"
   rules:
     - changes:
-      - $DOCS_DIR/**/*
+        - "$DOCS_DIR/**/*"
 
 docs-pdf:
-  extends: .sphinx-pdf-template
+  extends: ".sphinx-pdf-template"
   rules:
     - changes:
-      - $DOCS_DIR/**/*
+        - "$DOCS_DIR/**/*"
 
 docs-warnings:
-  extends: .sphinx-warnings-template
+  extends: ".sphinx-warnings-template"
   rules:
     - changes:
-      - $DOCS_DIR/**/*
+        - "$DOCS_DIR/**/*"
 
 docs-merge-to-one-artifact:
-  extends: .sphinx-merge-template
+  extends: ".sphinx-merge-template"
   needs:
-    - job: docs-html
-    - job: docs-pdf
-    - job: docs-spelling
+    - job: "docs-html"
+    - job: "docs-pdf"
+    - job: "docs-spelling"
       artifacts: false
-    - job: docs-linkcheck
+    - job: "docs-linkcheck"
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: "$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH"
       changes:
-      - $DOCS_DIR/**/*
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+        - "$DOCS_DIR/**/*"
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       changes:
-      - $DOCS_DIR/**/*
-      when: manual
+        - "$DOCS_DIR/**/*"
+      when: "manual"
 
 # The template has inherit:variables:false to prevent the passing of pipeline
 # variables to downstream, and therefore $DOCS_DIR is not available here.
 docs-create-production-merge-request:
-  extends: .sphinx-docs-merge-request-template
+  extends: ".sphinx-docs-merge-request-template"
   needs:
-    - job: docs-merge-to-one-artifact
+    - job: "docs-merge-to-one-artifact"
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       changes:
-      - docs/**/*
+        - "docs/**/*"
+
+...
