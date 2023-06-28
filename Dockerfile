@@ -18,8 +18,7 @@ RUN sed -i -e 's/^tty/# tty/g' /etc/inittab
 COPY univention-ox-soap-api/requirements.txt /build/requirements/ox-soap-api.txt
 COPY univention-ox-provisioning/requirements.txt /build/requirements/ox-provisioning.txt
 RUN find /build/requirements/ -name '*.txt' -exec cat {} + \
-  | egrep -v 'univention' \
-  | grep -v 'six' \
+  | egrep -v 'univention|six' \
   | sort \
   | uniq \
   > /build/requirements_all.txt \
