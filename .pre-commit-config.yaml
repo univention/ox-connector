@@ -1,0 +1,143 @@
+---
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+exclude: "patches"
+repos:
+  - repo: "https://github.com/pre-commit/pre-commit-hooks"
+    rev: "v4.4.0"
+    hooks:
+      # Name: "check for added large files"
+      - id: "check-added-large-files"
+      # Name: "check for merge conflicts"
+      - id: "check-merge-conflict"
+      # Name: "check yaml"
+      - id: "check-yaml"
+        exclude: "^helm/.+/templates/"
+      # Name: "fix end of files"
+      # TODO: reenable after fixing
+      # - id: "end-of-file-fixer"
+      #   exclude: "^helm/.+/README.md$"
+      # Name: "fix python encoding pragma"
+      # TODO: reenable after fixing
+      # - id: "fix-encoding-pragma"
+      #   args:
+      #     - "--remove"
+      # Name: "trim trailing whitespace"
+      # TODO: reenable after fixing
+      # - id: "trailing-whitespace"
+
+  - repo: https://github.com/pycqa/flake8
+    rev: '6.0.0'
+    hooks:
+      # Name: "flake8"
+      - id: flake8
+        args:
+          #- '--max-line-length="3745"'
+          #- '--ignore="E501"'
+          - '--select="W504"'
+          # Ignore "line too long"
+          #- '--extend-ignore="E501"'
+        #  # TODO: remove "--extend-ignore" parameter
+        #  - "--extend-ignore=E101,E122,E128,W191,E201,E202,E203,E225,E231,E251,E261,E265,W291,E302,E303,F401,E501,F541,W605,E722,E731,F811,F821,F822,F841"
+
+
+  - repo: "https://github.com/compilerla/conventional-pre-commit"
+    rev: "v2.3.0"
+    hooks:
+      # "Commit messages"
+      - id: "conventional-pre-commit"
+        stages: ["commit-msg"]
+
+  - repo: "https://github.com/astral-sh/ruff-pre-commit"
+    # Ruff version.
+    rev: "v0.0.287"
+    hooks:
+      - id: "ruff"
+        args:
+          - "check"
+          - "--fix"
+          - "--show-source"
+          - "--exit-non-zero-on-fix"
+          # Trailing comma missing
+          - '--ignore="COM812"'
+
+  # - repo: "https://github.com/astral-sh/ruff-pre-commit"
+  #   # Ruff version.
+  #   rev: "v0.0.287"
+  #   hooks:
+  #     - id: "ruff"
+
+  # - repo: "https://github.com/astral-sh/ruff-pre-commit"
+  #   # Ruff version.
+  #   rev: "v0.0.287"
+  #   hooks:
+  #     - id: "ruff"
+  #       args: [ --fix, --exit-non-zero-on-fix ]
+
+  - repo: "https://github.com/astral-sh/ruff-pre-commit"
+    rev: "v0.0.287"
+    hooks:
+      # Python linter and formatter
+      - id: "ruff"
+        args:
+          # TODO: reenable after fixing
+          #- "--fix"
+          - "--exit-non-zero-on-fix"
+          - "--extend-select=COM"
+          #- "--ignore=F401,E501,F541,E722,E731,COM812,COM819,F821,F822,F841"
+
+# TODO: reenable after fixing
+  # - repo: "https://github.com/psf/black"
+  #   rev: "23.3.0"
+  #   hooks:
+  #     # "Python formatter"
+  #     - id: "black"
+  #       args:
+  #         - "--skip-string-normalization"
+  #         - "--line-length=79"
+  #         - "--target-version=py311"
+
+  - repo: "https://gitlab.com/univention/pre-commit-hooks/pre-commit-shell"
+    rev: "v1.0.6"
+    hooks:
+      # This is a wrapper for shellcheck as long as
+      # shellcheck doesn't have it's own .pre-commit-hooks.yaml
+      # https://github.com/koalaman/shellcheck/pull/1032
+      # Name: "Shell Syntax Check"
+      - id: "shell-lint"
+        #args:
+          # TODO: remove "--exclude" parameter
+          #- "--exclude=SC1091,SC2034,SC2046,SC2086,SC2088,SC2145,SC2154,SC2196,SC2223"
+
+  - repo: "https://gitlab.com/univention/pre-commit-hooks/docker-compose-check"
+    rev: "7702a8801a158b8595569dd29e2dd655d8a08310"
+    hooks:
+      # A docker-compose.yaml linter
+      # Name: "Validate docker-compose files"
+      - id: "docker-compose-check"
+
+  - repo: "https://gitlab.com/univention/pre-commit-hooks/docker-pre-commit"
+    rev: "v3.0.1"
+    hooks:
+      # hadolint is a Dockerfile linter
+      # Name: "Lint Dockerfiles"
+      - id: "hadolint-system"
+
+  - repo: "https://github.com/gruntwork-io/pre-commit"
+    rev: "v0.1.21"
+    hooks:
+      # Name: "helmlint"
+      - id: "helmlint"
+
+  - repo: "https://github.com/norwoodj/helm-docs"
+    rev: "v1.11.0"
+    hooks:
+      # Name: "Helm Docs"
+      - id: "helm-docs"
+        args:
+          - "--chart-search-root=helm"
+          - "--template-files=README.md.gotmpl"
+
+...
