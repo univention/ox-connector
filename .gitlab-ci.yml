@@ -39,22 +39,11 @@ variables:
 
 build-appcenter-job:
   stage: "build"
-  extends: ".kaniko_pre"
+  extends: ".kaniko"
   variables:
     DOCKERFILE_PATH: "Dockerfile"
     KANIKO_ARGS: "--build-arg version=$UV_APP_VERSION"
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector"
-  script:
-    - !reference [".kaniko_pre", "script"]
-    # Build and push the container. To disable push add --no-push
-    - >-
-      /kaniko/executor
-      --context "${KANIKO_BUILD_CONTEXT:?}"
-      --dockerfile "$DOCKERFILE_PATH"
-      --destination "$IMAGE_TAG"
-      --build-arg "DOCKER_PROXY=${KANIKO_DOCKER_PROXY}/"
-      $KANIKO_CACHE_ARGS
-      $KANIKO_ARGS
+    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter"
 
 push-image-souvap-appcenter-job:
   stage: "publish"
@@ -62,8 +51,8 @@ push-image-souvap-appcenter-job:
     - job: "build-appcenter-job"
   extends: ".push-image-souvap"
   variables:
-    CI_REGISTRY_IMAGE: "$CI_REGISTRY_IMAGE"
-    SOUVAP_IMAGE_NAME: "ox-connector"
+    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter"
+    SOUVAP_IMAGE_NAME: "ox-connector-appcenter"
 
 docs-linkcheck:
   stage: "docs-build"
