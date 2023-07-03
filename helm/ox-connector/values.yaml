@@ -1,0 +1,133 @@
+---
+# Default values for ox-connector.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## Global values
+affinity: {}
+environment: {}
+fullnameOverride: ""
+nameOverride: ""
+nodeSelector: {}
+podAnnotations: {}
+podSecurityContext: {}
+replicaCount: 1
+tolerations: []
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+
+oxConnector:
+  # CONTAINER LISTENER BASE (univention directory listener)
+  # -- CA root certificate. Optional; will be written to "caCertFile" if set.
+  caCert: null
+  # -- Where to search for the CA Certificate file.
+  caCertFile: "/var/secrets/ca_cert"
+  # -- Listener Debug Level
+  debugLevel: "5"
+  # -- LDAP Base Distinguished Name
+  ldapBaseDn: null
+  # -- LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set.
+  ldapPassword: null
+  # -- The path to the "ldapPasswordFile" docker secret or a plain file
+  ldapPasswordFile: "/var/secrets/ldap_secret"
+  # -- LDAP Hostname
+  ldapHost: null
+  # -- LDAP Host Distinguished Name
+  ldapHostDn: null
+  # -- Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set
+  ldapHostIp: null
+  # -- LDAP Server Port
+  ldapPort: "389"
+  # -- Defaults to "ldapHost" if not set.
+  notifierServer: null
+  # -- Whether to start encryption and validate certificates.
+  # Chose from "off", "unvalidated" and "secure".
+  tlsMode: "secure"
+
+
+  # OX CONNECTOR
+  # -- OX-Mail-Domain to generate OX-email-addresses
+  domainName: null
+  # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+  oxMasterAdmin: "oxadminmaster"
+  # -- OX Admin password
+  oxMasterPassword: null
+  # -- Default timezone for new users
+  oxLocalTimezone: "Europe/Berlin"
+  # -- Default language for new users
+  oxLanguage: "de_DE"
+  # -- Default context for users (has to exist)
+  oxDefaultContext: "10"
+  # -- Default SMTP server for new users (if not set explicitely there)
+  oxSmtpServer: null
+  # -- Default IMAP server for new users (if not set explicitely there)
+  oxImapServer: null
+  # -- The server where Open-Xchange is installed
+  oxSoapServer: null
+  # -- OX Connector log level
+  # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
+  logLevel: "INFO"
+
+# -- Kubernetes ingress
+ingress:
+  # -- Set this to `true` in order to enable the installation on Ingress related objects.
+  enabled: false
+
+## Docker image
+image:
+  registry: "registry.souvap-univention.de"
+  repository: "souvap/tooling/images/ox-connector/ox-connector-standalone"
+  pullPolicy: "Always"
+  tag: "latest"
+  # -- Define image sha256 as an alternative to `tag`
+  sha256: null
+
+## Container deployment probes
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 120
+    timeoutSeconds: 3
+    periodSeconds: 30
+    failureThreshold: 3
+    successThreshold: 1
+
+  readiness:
+    enabled: true
+    initialDelaySeconds: 30
+    timeoutSeconds: 3
+    periodSeconds: 15
+    failureThreshold: 30
+    successThreshold: 1
+
+## Deployment resources
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "4Gi"
+    cpu: "4"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - "ALL"
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+...

@@ -1,0 +1,44 @@
+---
+
+apiVersion: "v1"
+kind: ConfigMap
+metadata:
+  name: '{{ include "common.names.fullname" . }}'
+data:
+  {{ with .Values.oxConnector }}
+
+  # CONTAINER LISTENER BASE (univention directory listener)
+  LDAP_HOST: "{{ .ldapHost }}"
+  LDAP_PORT: "{{ .ldapPort }}"
+  LDAP_BASE_DN: "{{ .ldapBaseDn }}"
+  LDAP_HOST_DN: "{{ .ldapHostDn }}"
+  NOTIFIER_SERVER: "{{ .notifierServer }}"
+  DEBUG_LEVEL: "{{ .debugLevel }}"
+  TLS_MODE: "{{ .tlsMode }}"
+  LDAP_PASSWORD: "{{ .ldapPassword }}"
+  CA_CERT_FILE: "{{ .caCertFile }}"
+
+  # OX CONNECTOR
+  # OX-Mail-Domain to generate OX-email-addresses
+  DOMAINNAME: "{{ .domainName }}"
+  # OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+  OX_MASTER_ADMIN: "{{ .oxMasterAdmin }}"
+  # OX Admin password
+  OX_MASTER_PASSWORD: "{{ .oxMasterPassword }}"
+  # Default timezone for new users
+  LOCAL_TIMEZONE: "{{ .oxLocalTimezone }}"
+  # Default language for new users
+  OX_LANGUAGE: "{{ .oxLanguage }}"
+  # Default context for users (has to exist)
+  DEFAULT_CONTEXT: "{{ .oxDefaultContext }}"
+  # Default SMTP server for new users (if not set explicitely there)
+  OX_SMTP_SERVER: "{{ .oxSmtpServer }}"
+  # Default IMAP server for new users (if not set explicitely there)
+  OX_IMAP_SERVER: "{{ .oxImapServer }}"
+  # The server where Open-Xchange is installed
+  OX_SOAP_SERVER: "{{ .oxSoapServer }}"
+  # OX Connector log level
+  LOG_LEVEL: "{{ .logLevel }}"
+  {{ end }}
+
+...
