@@ -6,6 +6,7 @@ include:
       - "defaults/souvap-workflow.yaml"
       - "templates/souvap.yaml"
       - "templates/kaniko.yaml"
+      - "jobs/package-and-publish-helm-charts.yaml"
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
 
@@ -18,12 +19,14 @@ workflow:
 
 stages:
   - "build"
+  - "package"
   - "publish"
   - "docs-build"
   - "docs-merge"
   - "docs-production"
 
 variables:
+  # Variables for sphinx-docs
   DOCS_DIR: "docs"
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: "noninteractive"
@@ -31,11 +34,19 @@ variables:
   DOC_TARGET_VERSION: "2.2.4"
   DOC_TARGET_NAME: "ox-connector-app"
   DOC_TARGET_PATH: "$DOC_TARGET_NAME/$DOC_TARGET_VERSION"
+
+  # Variables for ".push-image-souvap" include
   SOUVAP_DOCKER_ACCESS_USER: "gitlab-ci-knut"
-  SOUVAP_DOCKER_ACCESS_TOKEN: "${SOUVAP_REGISTRY_TOKEN}"
+  #SOUVAP_DOCKER_ACCESS_TOKEN: "${SOUVAP_DOCKER_ACCESS_TOKEN}"
   SOUVAP_REGISTRY_HOST: "registry.souvap-univention.de"
   SOUVAP_REGISTRY_PATH: "souvap/tooling/images/ox-connector"
   SOUVAP_REGISTRY_REPO: "${SOUVAP_REGISTRY_HOST}/${SOUVAP_REGISTRY_PATH}"
+
+  # Variables for ".publish-helm-charts-souvap" include
+  SOUVAP_HELM_ACCESS_USER: "gitlab-ci-knut"
+  #SOUVAP_HELM_ACCESS_TOKEN: "${SOUVAP_HELM_ACCESS_TOKEN}"
+  SOUVAP_API_V4_URL: "https://gitlab.souvap-univention.de/api/v4"
+  SOUVAP_HELM_PROJECT_ID: "128"
 
 build-appcenter-job:
   stage: "build"
@@ -70,6 +81,9 @@ push-image-souvap-standalone-job:
   variables:
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone"
     SOUVAP_IMAGE_NAME: "ox-connector-standalone"
+
+publish-helm-charts-souvap:
+  extends: .publish-helm-charts-souvap
 
 docs-linkcheck:
   stage: "docs-build"
