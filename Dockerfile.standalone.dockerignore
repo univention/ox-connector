@@ -1,5 +1,6 @@
 *
 !/app/listener_trigger
+!/entrypoint.sh
 !/standalone-files/
 
 # [EOF]

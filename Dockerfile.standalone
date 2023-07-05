@@ -57,7 +57,7 @@ RUN \
       libicu63 \
       # libxml2.so.2 for python lxml.etree
       libxml2 \
-      # libxslt.so.1 for python lxml.etree
+      # libxslt.so.1 for python lxml.etree and ${PYPKG}/zeep/utils.py
       libxslt1.1
 
 ###############################################################################
@@ -93,22 +93,23 @@ RUN \
       libpython3.7-stdlib \
       python3-minimal \
       python3.7-minimal \
+      jq \
     && \
-
+    \
     # dependency of ${PYPKG}/univention/config_registry/handler.py
     mkdir --parents "/var/cache/univention-config/" && \
     touch "/var/cache/univention-config/cache" && \
-
+    \
     # dependency of /usr/sbin/univention-directory-listener:getpwnam
     echo "listener:x:102:65534::/var/lib/univention-directory-listener:/usr/sbin/nologin" >> "/etc/passwd" && \
-
+    \
     # Avoid unused dependency on PIL
     mkdir --parents "${PYPKG}/univention/admin/" && \
     echo "" > "${PYPKG}/univention/admin/license.py" && \
-
+    \
     # Avoid unused dependency on PIL
     echo "" > "${PYPKG}/PIL.py" && \
-
+    \
     # requiered by os.mkdir(log_dir) of ${PYPKG}/univention/listener/handler_logging.py
     mkdir "/var/log/univention"
 
@@ -140,6 +141,7 @@ COPY --from=listener-base /etc/ldap/ldap.conf /etc/ldap/
 COPY --from=listener-base \
   # dependency of /listener-base-entrypoint.sh
   /usr/sbin/ucr \
+  /usr/sbin/univention-config-registry \
 
   # dependency of /command.sh
   /usr/sbin/univention-directory-listener \
@@ -182,34 +184,50 @@ COPY --from=listener-base \
 
 COPY --from=listener-base \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libuniventiondebug.so.1* \
+  /usr/lib/x86_64-linux-gnu/libuniventiondebug.so.1.0.0 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libuniventionconfig.so.0* \
+  /usr/lib/x86_64-linux-gnu/libuniventionconfig.so.0.0.1 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libicuuc.so.63* \
+  /usr/lib/x86_64-linux-gnu/libicuuc.so.63.1 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libuniventionpolicy.so.0* \
+  /usr/lib/x86_64-linux-gnu/libuniventionpolicy.so.0.0.1 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libldap_r-2.4.so.2* \
+  /usr/lib/x86_64-linux-gnu/libldap_r-2.4.so.2.10.10 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/liblber-2.4.so.2* \
+  /usr/lib/x86_64-linux-gnu/liblber-2.4.so.2.10.10 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/liblmdb.so.0* \
+  /usr/lib/x86_64-linux-gnu/liblmdb.so.0.0.0 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libicudata.so.63* \
+  /usr/lib/x86_64-linux-gnu/libicudata.so.63.1 \
   # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libsasl2.so.2* \
+  /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25 \
   /usr/lib/x86_64-linux-gnu/
 
 COPY --from=debian-python-deps \
   # dependency dbm.gnu of /usr/local/lib/python3.7/dist-packages/listener_trigger.py
-  /usr/lib/x86_64-linux-gnu/libgdbm.so.6* \
-  # dependency lxml.etree of /usr/local/lib/python3.7/dist-packages/zeep/utils.py
-  /usr/lib/x86_64-linux-gnu/libxslt.so.1 \
-  /usr/lib/x86_64-linux-gnu/libexslt.so.0 \
-  /usr/lib/x86_64-linux-gnu/libxml2.so.2* \
-  /usr/lib/x86_64-linux-gnu/libicui18n.so.63* \
+  /usr/lib/x86_64-linux-gnu/libgdbm.so.6.0.0 \
+  # dependency lxml.etree of ${PYPKG}zeep/utils.py
+  /usr/lib/x86_64-linux-gnu/libxslt.so.1.1.32 \
+  /usr/lib/x86_64-linux-gnu/libexslt.so.0.8.20 \
+  /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.4 \
+  /usr/lib/x86_64-linux-gnu/libicui18n.so.63.1 \
   /usr/lib/x86_64-linux-gnu/
+
+RUN \
+  ln --symbolic --force libexslt.so.0.8.20 /usr/lib/x86_64-linux-gnu/libexslt.so.0 && \
+  ln --symbolic --force libgdbm.so.6.0.0 /usr/lib/x86_64-linux-gnu/libgdbm.so.6 && \
+  ln --symbolic --force libicudata.so.63.1 /usr/lib/x86_64-linux-gnu/libicudata.so.63 && \
+  ln --symbolic --force libicui18n.so.63.1 /usr/lib/x86_64-linux-gnu/libicui18n.so.63 && \
+  ln --symbolic --force libicuuc.so.63.1 /usr/lib/x86_64-linux-gnu/libicuuc.so.63 && \
+  ln --symbolic --force liblber-2.4.so.2.10.10 /usr/lib/x86_64-linux-gnu/liblber-2.4.so.2 && \
+  ln --symbolic --force libldap_r-2.4.so.2.10.10 /usr/lib/x86_64-linux-gnu/libldap_r-2.4.so.2 && \
+  ln --symbolic --force liblmdb.so.0.0.0 /usr/lib/x86_64-linux-gnu/liblmdb.so.0 && \
+  ln --symbolic --force libsasl2.so.2.0.25 /usr/lib/x86_64-linux-gnu/libsasl2.so.2 && \
+  ln --symbolic --force libuniventionconfig.so.0.0.1 /usr/lib/x86_64-linux-gnu/libuniventionconfig.so.0 && \
+  ln --symbolic --force libuniventiondebug.so.1.0.0 /usr/lib/x86_64-linux-gnu/libuniventiondebug.so.1 && \
+  ln --symbolic --force libuniventionpolicy.so.0.0.1 /usr/lib/x86_64-linux-gnu/libuniventionpolicy.so.0 && \
+  ln --symbolic --force libxml2.so.2.9.4 /usr/lib/x86_64-linux-gnu/libxml2.so.2 && \
+  ln --symbolic --force libxslt.so.1.1.32 /usr/lib/x86_64-linux-gnu/libxslt.so.1
 
 COPY --from=ox-connector \
   # dependency univention.ox.soap.backend_base of ${PYPKG}/univention/ox/provisioning/contexts.py
@@ -304,6 +322,8 @@ COPY \
   standalone-files/umc_module.py \
   # Avoid unused dependency on samba and other libs
   standalone-files/admember.py \
+  # dependency univention.lib.misc of univention/admin/license.py
+  standalone-files/misc.py \
   ${PYPKG}/univention/lib/
 
 # dependency dateutil of /usr/local/lib/python3.7/dist-packages/univention/admin/syntax.py
@@ -313,19 +333,22 @@ COPY --from=ox-connector /usr/lib/python3.9/site-packages/dateutil/ ${PYPKG}/dat
 COPY --from=listener-base ${LBPKG}/univention/admindiary/  ${PYPKG}/univention/admindiary/
 
 # dependency listener of ${PYPKG}/univention/listener/handler.py [univention-directory-listener]
-COPY --from=listener-base ${LBPKG}/listener.py  ${PYPKG}/
+COPY --from=listener-base ${LBPKG}/listener.py ${PYPKG}/
+
+COPY --from=listener-base /etc/univention/base-forced.conf /etc/univention/
 
 RUN \
+  touch /usr/local/lib/python3.7/dist-packages/univention/license.py && \
   /usr/bin/python3.7 -m compileall -b \
     "/etc/python3.7/sitecustomize.py" \
     "/usr/lib/python3.7/" \
     "/usr/lib/univention-directory-listener/system/listener_handler.py" \
     "${PYPKG}/" \
-    "/usr/share" \
-  && \
-  find "/" -name '*.py' -and ! -name 'handler.py' -print -delete
+    "/usr/share"
 
-ENTRYPOINT ["/listener-base-entrypoint.sh"]
+COPY entrypoint.sh /
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/command.sh"]
 
 # [EOF]
