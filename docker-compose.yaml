@@ -11,15 +11,42 @@ services:
       dockerfile: "Dockerfile.standalone"
       args:
         - "version=2.2.2"
-    env_file: ".env.standalone"
     environment:
-      LDAP_HOST: "ldap-server"
-      TLS_REQCERT: "never"
-      START_TLS: "never"
-    secrets:
-      - ca_cert
-      - cert_pem
-      - ldap_secret
+      # -- CONTAINER LISTENER BASE (univention directory listener)
+      LDAP_HOST: "ox-connector-ldap-server"
+      LDAP_PORT: 389
+      LDAP_BASE_DN: "dc=example,dc=org"
+      LDAP_HOST_DN: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
+      NOTIFIER_SERVER: "ox-connector-ldap-notifier"
+
+      DEBUG_LEVEL: 5
+      # Whenever to start encryption and validate certificates.
+      # Chose from "off", "unvalidated" and "secure".
+      TLS_MODE: "off"
+      LDAP_PASSWORD: "ldap-password"
+      LDAP_PASSWORD_FILE: "/var/secrets/ldap_secret"
+
+      # -- OX CONNECTOR
+      # OX-Mail-Domain to generate OX-email-addresses
+      DOMAINNAME: example.org
+      # OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+      OX_MASTER_ADMIN: "oxadminmaster"
+      # OX Admin password
+      OX_MASTER_PASSWORD: "ox-password"
+      # Default timezone for new users
+      LOCAL_TIMEZONE: "Europe/Berlin"
+      # Default language for new users
+      OX_LANGUAGE: "de_DE"
+      # Default context for users (has to exist)
+      DEFAULT_CONTEXT: "10"
+      # Default SMTP server for new users (if not set explicitely there)
+      OX_SMTP_SERVER: "smtp://example.org:587"
+      # Default IMAP server for new users (if not set explicitely there)
+      OX_IMAP_SERVER: "imap://example.org:143"
+      # The server where Open-Xchange is installed
+      OX_SOAP_SERVER: "https://ox.example.org"
+      # Log level: DEBUG, INFO, WARNING, ERROR
+      LOG_LEVEL: "DEBUG"
     volumes:
       - "ox-connector-standalone-data:/var/lib/univention-directory-listener/:rw"
     depends_on:
@@ -51,9 +78,11 @@ services:
     container_name: "ox-connector-ldap-server"
     platform: "linux/amd64"
     image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-ldap/ldap-server:latest"
-    env_file: ".env.ldap-server"
     environment:
-      LDAP_CN_ADMIN_PW: example-password
+      DOMAIN_NAME: "ldap.example.org"
+      LDAP_BASE_DN: "dc=example,dc=org"
+      # For binding with user "cn=admin,${LDAP_BASE_DN}"
+      LDAP_CN_ADMIN_PW: "ldap-password"
     ports:
       - "389:389"
       - "636:636"
@@ -73,12 +102,12 @@ services:
     image: "osixia/phpldapadmin:0.9.0"
     platform: "linux/amd64"
     environment:
-      PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ldap-server':{'login':{'bind_id':'cn=admin,dc=example,dc=org'}}}]"
+      PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ox-connector-ldap-server':{'login':{'bind_id':'cn=admin,dc=example,dc=org'}}}]"
       PHPLDAPADMIN_HTTPS: "false"
-    links:
-      - "ldap-server"
+      PHPLDAPADMIN_LDAP_CLIENT_TLS: "true"
+      PHPLDAPADMIN_LDAP_CLIENT_TLS_REQCERT: "never"
     ports:
-      - "8001:80"
+      - "8080:80"
     depends_on:
       ldap-server:
         condition: "service_healthy"
@@ -92,10 +121,27 @@ services:
   udm-rest-api:
     container_name: "ox-connector-udm-rest-api"
     image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-udm-rest/udm-rest-api:latest"
-    env_file: ".env.udm-rest-api"
     environment:
-      LDAP_HOST: "ldap-server"
-      MACHINE_SECRET: "example-password"
+      # ucr domainname
+      DOMAINNAME: "udm.example.org"
+      # ucr hostname
+      HOSTNAME: "udm.example.org:9979"
+      # ldap.conf and ucr ldap/master and ldap/server/name
+      LDAP_HOST: "ox-connector-ldap-server"
+      # ldap.conf and ucr ldap/master/port and ldap/server/port
+      LDAP_PORT: 389
+      # ldap.conf and ucr ldap/base
+      LDAP_BASE_DN: "dc=example,dc=org"
+      # ucr ldap/hostdn
+      LDAP_HOST_DN: "cn=admin,dc=example,dc=org"
+      # ldap.conf and ucr directory/manager/rest/ldap-connection/user-read/start-tls
+      TLS_REQCERT: "never"
+      # ucr directory/manager/rest/debug_level
+      DEBUG_LEVEL: "5"
+      # ucr directory/manager/rest/authorized-groups/domain-admins
+      AUTHORIZED_DOMAIN_ADMINS: "cn=Domain Admins,cn=groups,dc=example,dc=org"
+      # /etc/machine.secret
+      MACHINE_SECRET: "machine-password"
     ports:
       - "9979:9979"
     depends_on:
@@ -107,14 +153,6 @@ services:
       timeout: "1s"
       retries: 10
       start_period: "5s"
-
-secrets:
-  ca_cert:
-    file: ssl/certs/CAcert.pem
-  cert_pem:
-    file: ssl/certs/cert.pem
-  ldap_secret:
-    file: secret/ldap.secret
 
 volumes:
   # OX only
