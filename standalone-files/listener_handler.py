@@ -47,23 +47,80 @@ name = 'ox-listener-service'
 # in place.
 
 ldap_to_udm_keys_mapping = {
-        # user
-        "uid": {"new_key": "username", "is_multivalue": False},
-        "givenName": {"new_key": "firstname", "is_multivalue": False},
-        "sn": {"new_key": "lastname", "is_multivalue": False},
-        "mailPrimaryAddress": {"new_key": "mailPrimaryAddress", "is_multivalue": False},
-        "l": {"new_key": "city", "is_multivalue": False},
-        "postalCode": {"new_key": "postcode", "is_multivalue": False},
-        "title": {"new_key": "title", "is_multivalue": False},
-        "roomNumber": {"new_key": "roomNumber", "is_multivalue": True}, # multivalue
-        "o": {"new_key": "organisation", "is_multivalue": False},
-        "mailAlternativeAddress": {"new_key": "mailAlternativeAddress", "is_multivalue": False},
-        "pagerTelephoneNumber": {"new_key": "pagerTelephoneNumber", "is_multivalue": True}, # multivalue
-        "univentionBirthday": {"new_key": "birthday", "is_multivalue": False},
-        "telephoneNumber": {"new_key": "mobileTelephoneNumber", "is_multivalue": True}, # multivalue
-        "univentionMailHomeServer": {"new_key": "mailHomeServer", "is_multivalue": False},
-        "oxContextIDNum": {"new_key": "oxContext", "is_multivalue": False},
-        "uniqueMember": {"new_key": "users", "is_multivalue": True}, # multivalue
+    # user
+    "uid": {
+        "new_key": "username",
+        "is_multivalue": False
+    },
+    "givenName": {
+        "new_key": "firstname",
+        "is_multivalue": False
+    },
+    "sn": {
+        "new_key": "lastname",
+        "is_multivalue": False
+    },
+    "mailPrimaryAddress":
+        {
+            "new_key": "mailPrimaryAddress",
+            "is_multivalue": False,
+        },
+    "l": {
+        "new_key": "city",
+        "is_multivalue": False
+    },
+    "postalCode": {
+        "new_key": "postcode",
+        "is_multivalue": False
+    },
+    "title": {
+        "new_key": "title",
+        "is_multivalue": False
+    },
+    # multivalue
+    "roomNumber": {
+        "new_key": "roomNumber",
+        "is_multivalue": True,
+    },
+    "o": {
+        "new_key": "organisation",
+        "is_multivalue": False
+    },
+    "mailAlternativeAddress":
+        {
+            "new_key": "mailAlternativeAddress",
+            "is_multivalue": False,
+        },
+    # multivalue
+    "pagerTelephoneNumber":
+        {
+            "new_key": "pagerTelephoneNumber",
+            "is_multivalue": True,
+        },
+    "univentionBirthday": {
+        "new_key": "birthday",
+        "is_multivalue": False
+    },
+    # multivalue
+    "telephoneNumber":
+        {
+            "new_key": "mobileTelephoneNumber",
+            "is_multivalue": True,
+        },
+    "univentionMailHomeServer":
+        {
+            "new_key": "mailHomeServer",
+            "is_multivalue": False,
+        },
+    "oxContextIDNum": {
+        "new_key": "oxContext",
+        "is_multivalue": False
+    },
+    # multivalue
+    "uniqueMember": {
+        "new_key": "users",
+        "is_multivalue": True
+    },
 }
 
 
@@ -72,7 +129,7 @@ ldap_to_udm_keys_mapping = {
 def unpack_values(values_list: list, is_multivalue: bool = False):
     """
     Unpack LDAP list of binary values to a list of strings.
-    
+
     :param values_list: list of binary values
 
     :return: string if single value or list of strings
@@ -100,11 +157,13 @@ def unpack_dictionary(old: dict) -> dict:
     :return: dict with single string or list of strings values.
     """
     udm_object = {}
-    for k,v in old.items():
+    for k, v in old.items():
         if v is None:
             continue
         if k in ldap_to_udm_keys_mapping:
-            udm_object[ldap_to_udm_keys_mapping[k]['new_key']] = unpack_values(v, ldap_to_udm_keys_mapping[k]['is_multivalue'])
+            udm_object[ldap_to_udm_keys_mapping[k]['new_key']] = unpack_values(
+                v, ldap_to_udm_keys_mapping[k]['is_multivalue']
+            )
         else:
             udm_object[k] = unpack_values(v)
     return udm_object
@@ -119,13 +178,16 @@ def format_as_udm_object(ldap_object: dict) -> dict:
     :return: dict of UDM object
     """
     return {
-        'dn': unpack_values(ldap_object.get('entryDN', [])),
-        'id': unpack_values(ldap_object.get('entryUUID', [])),
-        'object': unpack_dictionary(ldap_object),
+        'dn':
+            unpack_values(ldap_object.get('entryDN', [])),
+        'id':
+            unpack_values(ldap_object.get('entryUUID', [])),
+        'object':
+            unpack_dictionary(ldap_object),
         'options': ['default'],
-        'udm_object_type': unpack_values(ldap_object.get('univentionObjectType', []))
+        'udm_object_type':
+            unpack_values(ldap_object.get('univentionObjectType', [])),
     }
-
 
 
 class OxConnectorListenerModule(ListenerModuleHandler):
@@ -141,7 +203,7 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_udm_obj['dn'],
             fake_udm_obj['object'],
             fake_udm_obj['options'],
-            None
+            None,
         )
         run(obj)
 
@@ -154,7 +216,7 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_udm_obj['dn'],
             fake_udm_obj['object'],
             fake_udm_obj['options'],
-            None
+            None,
         )
         run(obj)
         if old_dn:
@@ -166,7 +228,9 @@ class OxConnectorListenerModule(ListenerModuleHandler):
 
     class Configuration(ListenerModuleHandler.Configuration):
         name = name
-        description = 'Handle LDAP-changes for various OX objects, users and groups'
+        description = (
+            'Handle LDAP-changes for various OX objects, users and groups'
+        )
         # oxmail/oxcontext, oxresources/oxresources, users/user, groups/group, oxmail/accessprofile, oxmail/functional_account
         ldap_filter = '(|(univentionObjectType=users/user)(univentionObjectType=oxmail/oxcontext)(univentionObjectType=oxresources/oxresources)(univentionObjectType=groups/group)(univentionObjectType=oxmail/accessprofile)(univentionObjectType=oxmail/functional_account))'
 
