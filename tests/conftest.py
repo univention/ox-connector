@@ -159,7 +159,7 @@ class UDMTest(object):
         obj = mod.new(position="{},{}".format(position, self.ldap_base))
         obj.properties.update(attrs)
         obj.save()
-        dn = obj.dn
+        dn = obj.distinguished_name
         print("Successfully added {}".format(dn))
         dns = self.new_objs.get(module, [])
         dns.append(dn)
@@ -171,7 +171,7 @@ class UDMTest(object):
         obj = self.client.get(module).get(dn)
         obj.properties.update(attrs)
         obj.save()
-        new_dn = obj.dn
+        new_dn = obj.distinguished_name
         print("Successfully modified {}".format(dn))
         if new_dn != dn:
             dns = self.new_objs.get(module, [])

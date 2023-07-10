@@ -133,7 +133,7 @@ def run(obj):  # noqa: C901
     # logging for tests
     if TEST_LOG_FILE.exists():
         with TEST_LOG_FILE.open("a") as fp:
-            fp.write(f"{obj.dn}\n")
+            fp.write(f"{obj.distinguished_name}\n")
 
 
 def get_group_objs(obj):  # noqa: C901
