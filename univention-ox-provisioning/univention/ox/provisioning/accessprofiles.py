@@ -47,12 +47,12 @@ def empty_rights_profile():
 
 
 def create_accessprofile(obj):
-    logger.info("Adding an accessprofile if like modifying it...")
+    logger.info("Adding an accessprofile is like modifying it...")
     modify_accessprofile(obj)
 
 
 def modify_accessprofile(obj):
-    logger.info(f"Changing accessprofile {obj.dn}")
+    logger.info(f"Changing accessprofile {obj}")
     profiles = get_access_profiles(force_reload=False)
     rights = []
     for key, value in capability_map.items():
@@ -64,7 +64,7 @@ def modify_accessprofile(obj):
 
 
 def delete_accessprofile(obj):
-    logger.info(f"Removing accessprofile {obj.dn}")
+    logger.info(f"Removing accessprofile {obj}")
     profiles = get_access_profiles(force_reload=False)
     profiles.pop(obj.old_attributes["name"], None)
     save_accessprofiles(profiles)
