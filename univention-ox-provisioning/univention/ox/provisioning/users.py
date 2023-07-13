@@ -46,6 +46,7 @@ from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
     DEFAULT_SMTP_SERVER,
+    IMAP_LOGIN,
     LOCAL_TIMEZONE,
     get_context_admin_user,
 )
@@ -127,7 +128,7 @@ def update_user(user, attributes, old_attributes, initial_values=False):
     # user.drive_user_folder_mode = attributes.get()
     # user.default_group = attributes.get()
     user.department = attributes.get("oxDepartment")
-    user.imap_login = user.email1
+    user.imap_login = IMAP_LOGIN.format(user.email1) if "{}" in IMAP_LOGIN else IMAP_LOGIN
     user.email2 = attributes.get("oxEmail2")
     user.email3 = attributes.get("oxEmail3")
     user.employee_type = attributes.get("employeeType")

@@ -186,6 +186,36 @@ App Settings
         - Password
         - N/A
 
+.. envvar:: OX_IMAP_LOGIN
+
+   Defines the value that is used by OX to log in to the user's inbox.
+   If this value is empty it is set to the user's mail address.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - String
+        - N/A
+
+   .. note::
+
+        In cases where SSO is to be used, this variable has to be appended with an asterisk
+        and the mail server's master user. For Dovecot this would be *\*dovecotadmin*. In this
+        case ``OX_IMAP_LOGIN`` can be set to ``'{}*dovecotadmin'``. The curly braces are used
+        as a template for the primary mail address. The resulting `imaplogin` value would then
+        look like this:
+
+        .. code-block:: console
+
+            myuser@maildomain.de*dovecotadmin
+
+
 .. _ucr-variables:
 
 |UCSUCRV|\ s

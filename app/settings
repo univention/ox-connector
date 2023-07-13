@@ -60,3 +60,10 @@ Description[de] = OX Admin-Passwort
 Show = Install, Settings
 Type = Password
 Required = False
+
+[OX_IMAP_LOGIN]
+Description = imapLogin field that is used by OX to log in to the user's inbox. If this value is empty it is set to the user's mail address.
+Description[de] = imapLogin-Feld, welches von OX verwendet wird, um sich beim Posteingang des Benutzers anzumelden. Wenn dieser Wert leer ist, wird er auf die E-Mail-Adresse des Benutzers gesetzt.
+Show = Install, Settings
+Type = String
+Required = False
