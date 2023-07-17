@@ -143,8 +143,12 @@ def unpack_values(values_list: list, is_multivalue: bool = False):
         # Handle exceptions such as trying to utf-8 decode the krb5Key
         try:
             string_values.append(v.decode())
-        except:
+        except UnicodeDecodeError:
+            self.logger.warning('UDL Handler/unpack_values: UnicodeDecodeError for "%s"', v)
             continue
+        except Exception:
+            self.logger.exception('UDL Handler/unpack_values: Unhandled error for "%s"', v)
+            raise
     return string_values
 
 
@@ -205,7 +209,11 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_udm_obj['options'],
             None,
         )
-        run(obj)
+        try:
+            run(obj)
+        except Exception:
+            self.logger.exception('UDL Handler/create: run failed')
+            raise
 
     def modify(self, dn, old, new, old_dn):
         self.logger.info('[ modify ] dn: %r', dn)
@@ -218,7 +226,11 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_udm_obj['options'],
             None,
         )
-        run(obj)
+        try:
+            run(obj)
+        except Exception:
+            self.logger.exception('UDL Handler/modify: run failed')
+            raise
         if old_dn:
             self.logger.debug('it is (also) a move! old_dn: %r, old_dn')
         self.logger.debug('changed attributes %r', new)
