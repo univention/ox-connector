@@ -36,7 +36,7 @@
 from univention.listener.handler import ListenerModuleHandler
 
 # internal
-from univention.ox.provisioning import helpers, run
+from univention.ox.provisioning import run
 from listener_trigger import TriggerObject
 
 name = 'ox-listener-service'
