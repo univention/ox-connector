@@ -209,6 +209,10 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_udm_obj['options'],
             None,
         )
+        obj.old_distinguished_name = new["dn"]
+        obj.old_attributes = new["object"]
+        obj.old_options = new["options"]
+        obj._old_loaded = True
         try:
             run(obj)
         except Exception:
@@ -226,6 +230,10 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_udm_obj['options'],
             None,
         )
+        obj.old_distinguished_name = old["dn"]
+        obj.old_attributes = old["object"]
+        obj.old_options = old["options"]
+        obj._old_loaded = True
         try:
             run(obj)
         except Exception:
@@ -237,6 +245,10 @@ class OxConnectorListenerModule(ListenerModuleHandler):
 
     def remove(self, dn, old):
         self.logger.info('[ remove ] dn: %r', dn)
+        obj.old_distinguished_name = old["dn"]
+        obj.old_attributes = old["object"]
+        obj.old_options = old["options"]
+        obj._old_loaded = True
 
     class Configuration(ListenerModuleHandler.Configuration):
         name = name
