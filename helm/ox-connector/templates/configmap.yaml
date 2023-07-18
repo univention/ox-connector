@@ -37,6 +37,8 @@ data:
   OX_IMAP_SERVER: "{{ .oxImapServer }}"
   # The server where Open-Xchange is installed
   OX_SOAP_SERVER: "{{ .oxSoapServer }}"
+  # LDAP filter for univention-directory-listener
+  OX_LDAP_FILTER: "{{ .oxLdapFilter }}"
   # OX Connector log level
   LOG_LEVEL: "{{ .logLevel }}"
   {{ end }}

@@ -21,6 +21,7 @@ A Helm chart for the ox-connector
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| cleanup.deletePodsOnSuccess | bool | `false` |  |
 | environment | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"Always"` |  |
@@ -48,6 +49,7 @@ A Helm chart for the ox-connector
 | oxConnector.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
 | oxConnector.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
 | oxConnector.oxLanguage | string | `"de_DE"` | Default language for new users |
+| oxConnector.oxLdapFilter | string | `"(|(univentionObjectType=users/user)(univentionObjectType=oxmail/oxcontext)(univentionObjectType=oxresources/oxresources)(univentionObjectType=groups/group)(univentionObjectType=oxmail/accessprofile)(univentionObjectType=oxmail/functional_account))"` | The LDAP filter that univention-directory-listener will finally use. Gets overwritten during pre-install hook. |
 | oxConnector.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
 | oxConnector.oxMasterAdmin | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
 | oxConnector.oxMasterPassword | string | `nil` | OX Admin password |
