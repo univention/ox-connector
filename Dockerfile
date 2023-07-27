@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.14 AS final
 
 ARG version
 
@@ -72,9 +72,10 @@ COPY umc/ /usr/local/share/ox-connector/resources/umc
 COPY ldap/ /usr/local/share/ox-connector/resources/ldap
 COPY bin/* /usr/local/bin/
 
-#
-# comment below out for final image
-#
+###############################################################################
+# A separate stage for tests
+FROM final AS test
+
 RUN apk add --no-cache vim
 
 RUN apk add --no-cache py3-multidict py3-yarl && \
@@ -87,3 +88,5 @@ COPY univention-ox-provisioning/requirements_tests.txt tests/ /oxp/tests/
 RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt && \
 	python3 -m pytest --collect-only /oxp/tests && \
 	rm -rf /oxp/.pytest_cache /oxp/tests/requirements_tests.txt
+
+# [EOF]

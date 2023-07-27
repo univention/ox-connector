@@ -62,7 +62,7 @@ RUN \
 
 ###############################################################################
 # Final debian container near to distroless
-FROM ${DOCKER_PROXY}debian:buster-slim
+FROM ${DOCKER_PROXY}debian:buster-slim AS final
 
 SHELL ["/bin/sh", "-eux", "-c"]
 
@@ -350,5 +350,14 @@ COPY entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/command.sh"]
+
+###############################################################################
+# A separate stage for tests
+FROM final AS test
+
+# TODO copy tests here
+
+ENTRYPOINT []
+CMD ["python3", "-m", "pytest", "-l", "-v", "tests"]
 
 # [EOF]
