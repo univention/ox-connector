@@ -56,13 +56,23 @@ build-appcenter-job:
     KANIKO_ARGS: "--build-arg version=$UV_APP_VERSION"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter"
 
-build-standalone-job:
+build-standalone-final-image:
   stage: "build"
   extends: ".kaniko"
+  needs: []
   variables:
     DOCKERFILE_PATH: "Dockerfile.standalone"
-    KANIKO_ARGS: "--build-arg version=$UV_APP_VERSION"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone"
+    KANIKO_ARGS: "--target=final --build-arg version=$UV_APP_VERSION"
+
+build-standalone-test-image:
+  stage: "build"
+  extends: ".kaniko"
+  needs: []
+  variables:
+    DOCKERFILE_PATH: "Dockerfile.standalone"
+    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test"
+    KANIKO_ARGS: "--target=test --build-arg version=$UV_APP_VERSION"
 
 push-image-souvap-appcenter-job:
   stage: "publish"
@@ -76,7 +86,7 @@ push-image-souvap-appcenter-job:
 push-image-souvap-standalone-job:
   stage: "publish"
   needs:
-    - job: "build-standalone-job"
+    - job: "build-standalone-final-image"
   extends: ".push-image-souvap"
   variables:
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone"
