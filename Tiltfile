@@ -1,6 +1,6 @@
 # -*- mode: Python -*-
 
-allow_k8s_contexts('admin_1684836134@kubernetes')
+allow_k8s_contexts('CHANGE_ME')
 
 # docker_build(
 #     'gitregistry.knut.univention.de/univention/open-xchange/provisioning/ox-connector-appcenter:latest',
@@ -16,8 +16,21 @@ docker_build(
     build_args={'version': '1.2.3'},
     pull=True,
     target="final"
+)
+
+docker_prune_settings(
+    disable=False,
+    max_age_mins=360,
+    num_builds=0,
+    interval_hrs=1,
+    keep_recent=2
+)
+
+k8s_yaml(
+    helm(
+        'helm/ox-connector',
+        name='ox-connector',
+        namespace='CHANGE_ME',
+        values='../deploy-souvap-ng/helmfile/apps/provisioning/values-oxconnector.yaml'
     )
-
-docker_prune_settings ( disable = False , max_age_mins = 360 , num_builds = 0 , interval_hrs = 1 , keep_recent = 2 )
-
-k8s_yaml(helm('helm/ox-connector', name='ox-connector', namespace='uv-jaime',values='../deploy-souvap-ng/helmfile/apps/provisioning/values-oxconnector.yaml'))
+)

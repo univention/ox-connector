@@ -19,6 +19,10 @@ data:
   CA_CERT_FILE: "{{ .caCertFile }}"
 
   # OX CONNECTOR
+  # LDAP server for OX Connector test suite
+  LDAP_MASTER: "{{ .ldapHost }}"
+  # LDAP base distinguished name for OX Connector test suite
+  LDAP_BASE: "{{ .ldapBaseDn }}"
   # OX-Mail-Domain to generate OX-email-addresses
   DOMAINNAME: "{{ .domainName }}"
   # OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
@@ -37,8 +41,6 @@ data:
   OX_IMAP_SERVER: "{{ .oxImapServer }}"
   # The server where Open-Xchange is installed
   OX_SOAP_SERVER: "{{ .oxSoapServer }}"
-  # LDAP filter for univention-directory-listener
-  OX_LDAP_FILTER: "{{ .oxLdapFilter }}"
   # OX Connector log level
   LOG_LEVEL: "{{ .logLevel }}"
   {{ end }}

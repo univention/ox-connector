@@ -46,7 +46,7 @@ check_required_variables
 
 mkdir -p "/var/lib/univention-appcenter/apps/ox-connector/data/listener"
 chown -R "listener:root" "/var/lib/univention-appcenter/apps/ox-connector/data"
-chmod -R "0777" "/var/lib/univention-appcenter/apps/ox-connector/data"
+chmod -R "0744" "/var/lib/univention-appcenter/apps/ox-connector/data"
 
 # Write credentials file for univention/ox/soap/config.py
 JSON_STRING=$(
@@ -65,10 +65,7 @@ chown "listener:root" "${OX_CREDENTIALS_FILE}"
 chmod "0600" "${OX_CREDENTIALS_FILE}"
 
 
-# Start listener with pre-run OX_LDAP_FILTER
-
 echo "starting listener with access profiles and contexts"
-
 
 UDL_PID_FILE="/var/lib/univention-directory-listener/pid"
 [ -f "$UDL_PID_FILE" ] && rm -f "$UDL_PID_FILE"

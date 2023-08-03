@@ -134,12 +134,12 @@ def udm_uri():
 
 @pytest.fixture
 def udm_admin_username():
-    return "Administrator"
+    return os.environ.get("TESTS_UDM_ADMIN_USERNAME", "Administrator")
 
 
 @pytest.fixture
 def udm_admin_password():
-    return "univention"
+    return os.environ.get("TESTS_UDM_ADMIN_PASSWORD", "univention")
 
 
 @pytest.fixture
@@ -159,7 +159,7 @@ class UDMTest(object):
         obj = mod.new(position="{},{}".format(position, self.ldap_base))
         obj.properties.update(attrs)
         obj.save()
-        dn = obj.distinguished_name
+        dn = obj.dn
         print("Successfully added {}".format(dn))
         dns = self.new_objs.get(module, [])
         dns.append(dn)
@@ -171,7 +171,7 @@ class UDMTest(object):
         obj = self.client.get(module).get(dn)
         obj.properties.update(attrs)
         obj.save()
-        new_dn = obj.distinguished_name
+        new_dn = obj.dn
         print("Successfully modified {}".format(dn))
         if new_dn != dn:
             dns = self.new_objs.get(module, [])

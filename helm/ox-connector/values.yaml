@@ -68,9 +68,6 @@ oxConnector:
   oxImapServer: null
   # -- The server where Open-Xchange is installed
   oxSoapServer: null
-  # -- The LDAP filter that univention-directory-listener will finally use.
-  # Gets overwritten during pre-install hook.
-  oxLdapFilter: "(|(univentionObjectType=users/user)(univentionObjectType=oxmail/oxcontext)(univentionObjectType=oxresources/oxresources)(univentionObjectType=groups/group)(univentionObjectType=oxmail/accessprofile)(univentionObjectType=oxmail/functional_account))"
   # -- OX Connector log level
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
@@ -79,9 +76,6 @@ oxConnector:
 ingress:
   # -- Set this to `true` in order to enable the installation on Ingress related objects.
   enabled: false
-
-cleanup:
-  deletePodsOnSuccess: false
 
 ## Docker image
 image:

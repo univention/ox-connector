@@ -343,9 +343,6 @@ COPY --from=listener-base ${LBPKG}/listener.py ${PYPKG}/
 
 COPY --from=listener-base /etc/univention/base-forced.conf /etc/univention/
 
-# FIXME: this is not getting installed on container-listener-base
-COPY standalone-files/univention-directory-listener-ctrl /usr/sbin/
-
 RUN \
   touch /usr/local/lib/python3.7/dist-packages/univention/license.py && \
   /usr/bin/python3.7 -m compileall -b \
@@ -384,9 +381,5 @@ RUN apt-get update && \
       exceptiongroup \
       py \
       importlib-metadata
-
-ENTRYPOINT []
-CMD ["python3", "-m", "pytest", "-l", "-v", "tests"]
-
 
 # [EOF]
