@@ -19,6 +19,7 @@ OX_MASTER_PASSWORD = os.environ.get("OX_MASTER_PASSWORD", "")
 QUOTA = -1  # unlimited
 OX_SOAP_SERVER = os.environ.get("OX_SOAP_SERVER", "http://127.0.0.1")
 CREDENTIALS_FILE = os.environ.get("OX_CREDENTIALS_FILE", "/etc/ox-secrets/ox-contexts.json")
+FUNCTIONAL_ACCOUNT_LOGIN = os.environ.get("OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE", "{{fa_entry_uuid}}{{username}}")
 
 _CREDENTIALS = {}
 

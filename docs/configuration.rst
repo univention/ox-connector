@@ -216,6 +216,45 @@ App Settings
             myuser@maildomain.de*dovecotadmin
 
 
+.. envvar:: OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE
+
+   A template that defines the value which is used by OX to log in to the functional account inbox.
+   If this value is empty it is set to a concatenation of the functional account LDAP entry UUID
+   and the user LDAP uid.
+
+   This template has to include the functional account entry UUID (`fa_entry_uuid`) and can additionally
+   include any OX user UDM property (including the user's `entry_uuid` and `dn`). Every value used in this
+   template must be enclosed by ``{{ }}`` e.g ``{{fa_entry_uuid}}{{username}}``. Multiple values can
+   optionally be separated by any combination of the characters ``:;+``.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - String
+        - N/A
+
+   .. note::
+
+        If the UCS OX App Suite is used, this app setting can be left empty, which is equivalent to using the
+        value ``{{fa_entry_uuid}}{{username}}``.
+
+        OX-Connector installations that previously only used the functional account entry UUID should configure
+        this app setting to ``{{fa_entry_uuid}}``.
+
+        Some examples:
+
+        .. code-block:: console
+
+            "{{fa_entry_uuid}}::{{entry_uuid}}" # Functional account entry UUID and user UUID separated by two colons.
+            "{{username}}+{{fa_entry_uuid}}+{{dn}}" # username, functional account entry UUID and user dn separated by a '+'
+
+
 .. _ucr-variables:
 
 |UCSUCRV|\ s
