@@ -72,6 +72,7 @@ WS_URLS = {
 	'Resource': '{}/OXResourceService?wsdl'.format(WS_BASE_URL),
 	'SecondaryAccount': '{}/OXSecondaryAccountService?wsdl'.format(WS_BASE_URL),
 	'User': '{}/OXUserService?wsdl'.format(WS_BASE_URL),
+	'UserCopy': '{}/OXUserCopyService?wsdl'.format(WS_BASE_URL),
 }
 __ox_service_registry = dict()
 logger = logging.getLogger(__name__)
@@ -126,7 +127,7 @@ class OxSoapService(ZeepClient):
 		assert self._type_name in WS_URLS, 'Unknown service {!r}.'.format(self._type_name)
 
 		self.credentials = client_credentials
-		self.Type = getattr(client_credentials.types, self._type_name)
+		self.Type = getattr(client_credentials.types, self._type_name, None)
 		transport = kwargs.pop('transport', None)
 		assert transport is None or isinstance(transport, Transport)
 		if not transport:
@@ -141,7 +142,6 @@ class OxSoapService(ZeepClient):
 
 	def _call_ox(self, func, **kwargs):  # type: (str, **Any) -> Any
 		assert self.credentials.context_obj is not None
-
 		try:
 			kwargs[self._ctx_arg_name] = kwargs.pop('ctx')
 		except KeyError:
@@ -781,6 +781,16 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
 		return self._call_ox('moveUserFilestore', user=user, dst_filestore_id=dst_filestore)
 
 
+class OXUserCopyService(with_metaclass(OxServiceMetaClass, OxSoapService)):
+
+	_type_name = 'UserCopy'
+	_ctx_arg_name = 'src'
+
+	def copy_user(self, user, dest_ctx):
+		# type: (univention.ox.soap.types.Types.User, univention.ox.soap.types.Types.Context, univention.ox.soap.types.Types.Context) -> univention.ox.soap.types.Types.User
+		return self._call_ox('copyUser', user=user, dest=dest_ctx, auth=self.credentials.master_credentials)
+
+
 ######################################
 # Below are SOAP function signatures #
 ######################################
@@ -879,3 +889,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
 # getMultipleData(ctx: ns4:Context, resources: ns4:Resource[], auth: ns5:Credentials) -> return: ns4:Resource[]
 # list(ctx: ns4:Context, pattern: xsd:string, auth: ns5:Credentials) -> return: ns4:Resource[]
 # listAll(ctx: ns4:Context, auth: ns5:Credentials) -> return: ns4:Resource[]
+
+# Service: OXUserCopy
+#
+# copyUser(user: ns1:User, src: ns1:Context, dest: ns1:Context, auth: ns2:Credentials) -> ns1:User

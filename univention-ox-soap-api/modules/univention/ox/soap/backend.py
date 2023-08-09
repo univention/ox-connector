@@ -33,14 +33,14 @@ from collections import namedtuple
 
 from six import with_metaclass
 
-from univention.ox.soap.backend_base import BackendMetaClass, Context, Group, Resource, SecondaryAccount, User, get_ox_integration_class
+from univention.ox.soap.backend_base import BackendMetaClass, Context, Group, Resource, SecondaryAccount, User, UserCopy, get_ox_integration_class
 
 from .config import save_context_admin_password, remove_context_admin_password, get_new_context_attributes, DEFAULT_CONTEXT, OX_SOAP_SERVER, QUOTA
 from .credentials import ClientCredentials
 from .services import get_ox_soap_service_class
 
 
-__all__ = ['SoapContext', 'SoapGroup', 'SoapResource', 'SoapUser', 'SoapAccount']
+__all__ = ['SoapContext', 'SoapGroup', 'SoapResource', 'SoapUser', 'SoapAccount', 'SoapUserCopy']
 
 
 SoapAttribute = namedtuple('SoapAttribute', ['name', 'default'], defaults=[None])
@@ -530,3 +530,9 @@ class SoapSecondaryAccount(with_metaclass(BackendMetaClass, SoapBackend, Seconda
 		self.service(self.context_id).delete(obj.primaryAddress)
 		self.logger.info('Deleted {} {!r} in context {} (id={!r}).'.format(
 			self._object_type.lower(), obj.name, self.context_id, self.email))
+
+
+class SoapUserCopy(with_metaclass(BackendMetaClass, SoapBackend, UserCopy)):
+
+	_base2soap = {}
+	_mandatory_creation_attr = ()

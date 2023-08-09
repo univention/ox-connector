@@ -237,6 +237,16 @@ class SecondaryAccount(OxObject):
 	groups = []  # type: List[int]
 
 
+class UserCopy(OxObject):
+	"""
+	Representation of a OX UserCopy module.
+
+	When implementing a class derived from this, use BackendMetaClass as its
+	metaclass.
+	"""
+	_object_type = 'UserCopy'
+
+
 class User(OxObject):
 	"""
 	Representation of a OX User.

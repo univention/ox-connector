@@ -52,6 +52,7 @@ from univention.ox.soap.config import (
 )
 
 User = get_ox_integration_class("SOAP", "User")
+UserCopy = get_ox_integration_class("SOAP", "UserCopy")
 Group = get_ox_integration_class("SOAP", "Group")
 logger = logging.getLogger("listener")
 
@@ -327,7 +328,7 @@ def get_user_id(attributes, lookup_ox=True):
         return user.id
 
 
-def create_user(obj):
+def create_user(obj, user_copy_service=False, user_id=None):
     logger.info(f"Creating {obj}")
     if obj.attributes.get("isOxUser", "Not") == "Not":
         logger.info(f"{obj} is no OX user. Deleting instead...")
@@ -345,7 +346,11 @@ def create_user(obj):
         logger.warning(f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.")
         return
     user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None), initial_values=True)
-    user.create()
+    if not user_copy_service:
+        user.create()
+    else:
+        res = user_copy_service.copy_user(user={"id": user_id}, dest_ctx={"id" : user.context_id})
+        user = get_obj_by_name_from_ox(User, user.context_id, user.name)
     obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
     logger.info("Looking for groups of this user to be created in the context id")
@@ -423,7 +428,7 @@ def modify_user(obj):
                 )
                 delete_user(deepcopy(obj))
             else:
-                create_user(obj)
+                create_user(obj, user_copy_service=UserCopy().service(old_context), user_id=user_id)
                 return delete_user(deepcopy(obj))
         user = user_from_attributes(obj.old_attributes, obj.old_attributes, user_id)
         user.context_id = new_context
