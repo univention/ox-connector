@@ -1,9 +1,7 @@
 ---
+{{ include "common.configMap" (dict "top" . "overrides" "oxConnector.configMap") }}
 
-apiVersion: "v1"
-kind: ConfigMap
-metadata:
-  name: '{{ include "common.names.fullname" . }}'
+{{- define "oxConnector.configMap" }}
 data:
   {{ with .Values.oxConnector }}
 
@@ -44,5 +42,6 @@ data:
   # OX Connector log level
   LOG_LEVEL: "{{ .logLevel }}"
   {{ end }}
+{{- end }}
 
 ...
