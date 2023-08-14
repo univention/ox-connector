@@ -130,7 +130,7 @@ setup_vars () {
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.4'  # Version in meta-inf/*/oxseforucs_*.ini
+	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.5'  # Version in meta-inf/*/oxseforucs_*.ini
 	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
 	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
