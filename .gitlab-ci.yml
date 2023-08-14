@@ -26,6 +26,9 @@ stages:
   - "docs-production"
 
 variables:
+  APP_VERSION:
+    value: ""
+    description: "Docker tag"
   # Variables for sphinx-docs
   DOCS_DIR: "docs"
   LANG: "C.UTF-8"
@@ -160,5 +163,41 @@ docs-create-production-merge-request:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       changes:
         - "docs/**/*"
+
+compute-image-name:
+  stage: "build"
+  extends: ".kaniko_pre"
+  variables:
+    GIT_STRATEGY: none
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $APP_VERSION != ""
+
+build-docker-image:
+  stage: "build"
+  extends: ".kaniko"
+  variables:
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--target=test --build-arg version=$DOC_TARGET_VERSION"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+upload-docker-image:
+  stage: "publish"
+  needs:
+    - job: compute-image-name
+  rules:
+    - if: $APP_VERSION != ""
+  variables:
+    GIT_STRATEGY: none
+  image:
+    name: "docker-registry.knut.univention.de/knut/ssh"
+    entrypoint: [""]
+  before_script:
+    - chmod 0600 "$SSH_PRIVATE_KEY"
+  script:
+    - ssh -o BatchMode=yes -i "$SSH_PRIVATE_KEY" -l root docker.knut.univention.de "docker pull $BUILD_IMAGE_TAG"
+    - ssh -o BatchMode=yes -i "$SSH_PRIVATE_KEY" -l root docker.knut.univention.de "docker tag $BUILD_IMAGE_TAG docker-upload.software-univention.de/ox-connector:$APP_VERSION"
+    - ssh -o BatchMode=yes -i "$SSH_PRIVATE_KEY" -l root docker.knut.univention.de "docker push docker-upload.software-univention.de/ox-connector:$APP_VERSION"
 
 ...
