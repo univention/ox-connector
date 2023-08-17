@@ -101,9 +101,14 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'univention_sphinx_book_theme'
 
+pdf_doc_base = 'ox-connector-app'
+
 html_theme_options = {
     "pdf_download_filename": "ox-connector-app.pdf",
     "show_source_license": True,
+    "typesense_search": True,
+    "typesense_document": pdf_doc_base,
+    "typesense_document_version": release,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -146,7 +151,7 @@ latex_engine = 'lualatex'
 latex_show_pagerefs = True
 latex_show_urls = "footnote"
 latex_documents = [
-    (root_doc, 'ox-connector-app.tex', project, author, "manual", False)]
+    (root_doc, f'{pdf_doc_base}.tex', project, author, "manual", False)]
 latex_elements = {
     "papersize": "a4paper",
 }
