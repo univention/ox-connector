@@ -42,44 +42,44 @@ from .types import Types
 
 
 class ClientCredentials(object):
-	_context_admin_credentials = dict()
-	_context_objs = dict()
-	_types = None
+    _context_admin_credentials = dict()
+    _context_objs = dict()
+    _types = None
 
-	def __init__(self, server=OX_SOAP_SERVER, context_id=10, username=None, password=None):
-		# type: (Optional[str], Optional[int], Optional[str], Optional[str]) -> None
+    def __init__(self, server=OX_SOAP_SERVER, context_id=10, username=None, password=None):
+        # type: (Optional[str], Optional[int], Optional[str], Optional[str]) -> None
 
-		self.server = server
-		self.context_id = int(context_id)
-		self.username = username
-		self.password = password
+        self.server = server
+        self.context_id = int(context_id)
+        self.username = username
+        self.password = password
 
-	@property
-	def master_credentials(self):
-		user, pw = get_master_credentials()
-		return self.types.Credentials(login=user, password=pw)
+    @property
+    def master_credentials(self):
+        user, pw = get_master_credentials()
+        return self.types.Credentials(login=user, password=pw)
 
-	@property
-	def context_admin_credentials(self):
-		if self.context_id not in self._context_admin_credentials:
-			self._context_admin_credentials[self.context_id] = self.types.Credentials(*get_credentials_for_context(self.context_id))
-		return self._context_admin_credentials[self.context_id]
+    @property
+    def context_admin_credentials(self):
+        if self.context_id not in self._context_admin_credentials:
+            self._context_admin_credentials[self.context_id] = self.types.Credentials(*get_credentials_for_context(self.context_id))
+        return self._context_admin_credentials[self.context_id]
 
-	@property
-	def credentials(self):
-		if self.username and self.password:
-			return self.types.Credentials(self.username, self.password)
-		else:
-			return self.context_admin_credentials
+    @property
+    def credentials(self):
+        if self.username and self.password:
+            return self.types.Credentials(self.username, self.password)
+        else:
+            return self.context_admin_credentials
 
-	@property
-	def context_obj(self):
-		if self.context_id not in self._context_objs:
-			self._context_objs[self.context_id] = self.types.Context(id=self.context_id)
-		return self._context_objs[self.context_id]
+    @property
+    def context_obj(self):
+        if self.context_id not in self._context_objs:
+            self._context_objs[self.context_id] = self.types.Context(id=self.context_id)
+        return self._context_objs[self.context_id]
 
-	@property
-	def types(self):
-		if not self._types:
-			self.__class__._types = Types(self.server)
-		return self._types
+    @property
+    def types(self):
+        if not self._types:
+            self.__class__._types = Types(self.server)
+        return self._types

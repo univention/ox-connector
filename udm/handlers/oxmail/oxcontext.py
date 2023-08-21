@@ -48,45 +48,45 @@ short_description = _('OX Mail: OX context')
 long_description = ''
 
 options = {
-	'default': univention.admin.option(
-		short_description=short_description,
-		default=True,
-		objectClasses=['top', 'oxContext'],
-	)
+        'default': univention.admin.option(
+                short_description=short_description,
+                default=True,
+                objectClasses=['top', 'oxContext'],
+        )
 }
 
 property_descriptions = {
-	'name': univention.admin.property(
-		short_description=_('Name'),
-		long_description='',
-		syntax=univention.admin.syntax.string,
-		include_in_default_search=True,
-		required=True,
-		may_change=False,
-		identifies=True
-	),
-	'contextid': univention.admin.property(
-		short_description=_('Context ID'),
-		long_description='',
-		syntax=univention.admin.syntax.integer,
-		required=True,
-		may_change=False,
-	),
-	'oxQuota': univention.admin.property(
-		short_description=_('Quota [MBytes]'),
-		long_description='',
-		syntax=univention.admin.syntax.integer,
-	),
+        'name': univention.admin.property(
+                short_description=_('Name'),
+                long_description='',
+                syntax=univention.admin.syntax.string,
+                include_in_default_search=True,
+                required=True,
+                may_change=False,
+                identifies=True
+        ),
+        'contextid': univention.admin.property(
+                short_description=_('Context ID'),
+                long_description='',
+                syntax=univention.admin.syntax.integer,
+                required=True,
+                may_change=False,
+        ),
+        'oxQuota': univention.admin.property(
+                short_description=_('Quota [MBytes]'),
+                long_description='',
+                syntax=univention.admin.syntax.integer,
+        ),
 }
 
 layout = [
-	Tab(_('General'), _('Basic Values'), layout=[
-		Group(_('General'), layout=[
-			'name',
-			'contextid',
-			'oxQuota',
-		]),
-	]),
+        Tab(_('General'), _('Basic Values'), layout=[
+                Group(_('General'), layout=[
+                        'name',
+                        'contextid',
+                        'oxQuota',
+                ]),
+        ]),
 ]
 
 mapping = univention.admin.mapping.mapping()
@@ -96,27 +96,27 @@ mapping.register('oxQuota', 'oxQuota', None, univention.admin.mapping.ListToStri
 
 
 class object(univention.admin.handlers.simpleLdap):
-	module = module
+    module = module
 
-	def _ldap_pre_remove(self):
-		super(object, self)._ldap_pre_remove()
+    def _ldap_pre_remove(self):
+        super(object, self)._ldap_pre_remove()
 
-		# refuse deletion of context object if it is the only one
-		searchResult = lookup(None, self.lo, None)
-		if len(searchResult) <= 1:
-			raise univention.admin.uexceptions.valueError(_('The deletion of the OX context object is not allowed!'))
+        # refuse deletion of context object if it is the only one
+        searchResult = lookup(None, self.lo, None)
+        if len(searchResult) <= 1:
+            raise univention.admin.uexceptions.valueError(_('The deletion of the OX context object is not allowed!'))
 
-		# refuse deletion of context object if users still exist
-		user_filter = ldap.filter.filter_format('oxContext=%s', [str(self['contextid'])])
-		searchResult = univention.admin.modules.lookup('users/user', None, self.lo, user_filter, scope='sub')
-		if len(searchResult) >= 1:
-			raise univention.admin.uexceptions.valueError(_('The deletion of the OX context object is not allowed as long as users are in it'))
+        # refuse deletion of context object if users still exist
+        user_filter = ldap.filter.filter_format('oxContext=%s', [str(self['contextid'])])
+        searchResult = univention.admin.modules.lookup('users/user', None, self.lo, user_filter, scope='sub')
+        if len(searchResult) >= 1:
+            raise univention.admin.uexceptions.valueError(_('The deletion of the OX context object is not allowed as long as users are in it'))
 
-		# refuse deletion of context object if users still exist
-		resource_filter = ldap.filter.filter_format('oxContext=%s', [str(self['contextid'])])
-		searchResult = univention.admin.modules.lookup('oxresources/oxresources', None, self.lo, resource_filter, scope='sub')
-		if len(searchResult) >= 1:
-			raise univention.admin.uexceptions.valueError(_('The deletion of the OX context object is not allowed as long as resources are in it'))
+        # refuse deletion of context object if users still exist
+        resource_filter = ldap.filter.filter_format('oxContext=%s', [str(self['contextid'])])
+        searchResult = univention.admin.modules.lookup('oxresources/oxresources', None, self.lo, resource_filter, scope='sub')
+        if len(searchResult) >= 1:
+            raise univention.admin.uexceptions.valueError(_('The deletion of the OX context object is not allowed as long as resources are in it'))
 
 
 lookup = object.lookup

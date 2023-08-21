@@ -45,25 +45,25 @@ _ = translation.translate
 
 
 class oxContextRW(simpleHook):
-	type = 'oxContextRW'
+    type = 'oxContextRW'
 
-	def is_cli(self):
-		return sys.modules.get('univention.management.console.modules.udm') is None
+    def is_cli(self):
+        return sys.modules.get('univention.management.console.modules.udm') is None
 
-	@staticmethod
-	def log_info(msg):
-		univention.debug.debug(univention.debug.ADMIN, univention.debug.INFO, 'oxContextRW: %s' % msg)
+    @staticmethod
+    def log_info(msg):
+        univention.debug.debug(univention.debug.ADMIN, univention.debug.INFO, 'oxContextRW: %s' % msg)
 
-	def hook_open(self, module):
-		if self.is_cli():
-			self.log_info('_open: running via CLI')
-			for module_name in ('users/user', 'groups/group', 'oxresources/oxresources'):
-				imodule = univention.admin.modules.get(module_name)
-				if imodule is None:
-					continue
-				for iprop in imodule.property_descriptions:
-					if iprop in ('oxContext',):
-						imodule.property_descriptions[iprop].editable = True
-						# imodule.property_descriptions[iprop].may_change = True
-						self.log_info('_open: property %r found in module %r: switched to editable=True' % (iprop, module_name))
-		self.log_info('_open: done')
+    def hook_open(self, module):
+        if self.is_cli():
+            self.log_info('_open: running via CLI')
+            for module_name in ('users/user', 'groups/group', 'oxresources/oxresources'):
+                imodule = univention.admin.modules.get(module_name)
+                if imodule is None:
+                    continue
+                for iprop in imodule.property_descriptions:
+                    if iprop in ('oxContext',):
+                        imodule.property_descriptions[iprop].editable = True
+                        # imodule.property_descriptions[iprop].may_change = True
+                        self.log_info('_open: property %r found in module %r: switched to editable=True' % (iprop, module_name))
+        self.log_info('_open: done')

@@ -118,7 +118,7 @@ def create_functional_account(obj):
     if len(obj.attributes.get("users")) == 0:
         logger.info("Account is empty! Not creating...")
         return
-    for dn in obj.attributes.get("users"):    
+    for dn in obj.attributes.get("users"):
         functional_account = functional_account_from_attributes(obj.attributes)
         functional_account.users = [get_db_id(dn)]
         functional_account.login = obj.entry_uuid
