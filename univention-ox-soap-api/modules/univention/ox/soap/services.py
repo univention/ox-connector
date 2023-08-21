@@ -67,12 +67,12 @@ from .config import OX_SOAP_SERVER
 __all__ = ['get_ox_soap_service_class']
 WS_BASE_URL = '{server}/webservices'
 WS_URLS = {
-        'Context': '{}/OXContextService?wsdl'.format(WS_BASE_URL),
-        'Group': '{}/OXGroupService?wsdl'.format(WS_BASE_URL),
-        'Resource': '{}/OXResourceService?wsdl'.format(WS_BASE_URL),
-        'SecondaryAccount': '{}/OXSecondaryAccountService?wsdl'.format(WS_BASE_URL),
-        'User': '{}/OXUserService?wsdl'.format(WS_BASE_URL),
-        'UserCopy': '{}/OXUserCopyService?wsdl'.format(WS_BASE_URL),
+    'Context': '{}/OXContextService?wsdl'.format(WS_BASE_URL),
+    'Group': '{}/OXGroupService?wsdl'.format(WS_BASE_URL),
+    'Resource': '{}/OXResourceService?wsdl'.format(WS_BASE_URL),
+    'SecondaryAccount': '{}/OXSecondaryAccountService?wsdl'.format(WS_BASE_URL),
+    'User': '{}/OXUserService?wsdl'.format(WS_BASE_URL),
+    'UserCopy': '{}/OXUserCopyService?wsdl'.format(WS_BASE_URL),
 }
 __ox_service_registry = dict()
 logger = logging.getLogger(__name__)
@@ -135,9 +135,9 @@ class OxSoapService(ZeepClient):
                 self.__class__._transport = Transport(cache=InMemoryCache())
             transport = self._transport
         super(OxSoapService, self).__init__(
-                WS_URLS[self._type_name].format(server=self.credentials.server),
-                transport=transport,
-                **kwargs
+            WS_URLS[self._type_name].format(server=self.credentials.server),
+            transport=transport,
+            **kwargs
         )
 
     def _call_ox(self, func, **kwargs):  # type: (str, **Any) -> Any
@@ -150,8 +150,8 @@ class OxSoapService(ZeepClient):
             del kwargs[self._ctx_arg_name]
         elif kwargs[self._ctx_arg_name].id != self.credentials.context_obj.id and not kwargs.get('auth'):
             raise OxSoapServiceError(
-                    'Credentials must be supplied, when using a context different to the one used for initializing the '
-                    'service.'
+                'Credentials must be supplied, when using a context different to the one used for initializing the '
+                'service.'
             )
         kwargs['auth'] = kwargs.pop('auth', None) or self.credentials.credentials
         # Bug: OX references itself in its WSDL definition always with
@@ -200,12 +200,12 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         :return: None
         """
         return self._call_ox(
-                'changeCapabilities',
-                ctx=context_obj,
-                auth=self.credentials.master_credentials,
-                capsToAdd=caps_to_add,
-                capsToRemove=caps_to_remove,
-                capsToDrop=caps_to_drop
+            'changeCapabilities',
+            ctx=context_obj,
+            auth=self.credentials.master_credentials,
+            capsToAdd=caps_to_add,
+            capsToRemove=caps_to_remove,
+            capsToDrop=caps_to_drop
         )
 
     def change_module_access(self, context_obj, access):
@@ -219,8 +219,8 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         access rights of the context!
 
         :param context_obj: univention.ox.soap.types.Types.Context - A new
-                Context object, this should not have been used before or a one
-                returned from a previous call to this API.
+            Context object, this should not have been used before or a one
+            returned from a previous call to this API.
         """
         return self._call_ox('changeModuleAccess', ctx=context_obj, access=access)
 
@@ -242,8 +242,8 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         quota entry (and falls back to configured behavior).
 
         :param context_obj: univention.ox.soap.types.Types.Context - A new
-                Context object, this should not have been used before or a one
-                returned from a previous call to this API.
+            Context object, this should not have been used before or a one
+            returned from a previous call to this API.
         """
         # type: (univention.ox.soap.types.Types.Context, str, str) -> None
         assert module in ('calendar', 'task', 'contact', 'infostore', 'attachment', 'invite_guests', 'share_links')
@@ -262,39 +262,39 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         Mandatory attributes: id, name, maxQuota
 
         :param context_obj: univention.ox.soap.types.Types.Context - A new
-                Context object, this should not have been used before or a one
-                returned from a previous call to this API.
+            Context object, this should not have been used before or a one
+            returned from a previous call to this API.
         :param admin_user: univention.ox.soap.types.Types.User - User data of administrative user account for this context
         :param schema_select_strategy: univention.ox.soap.types.Types.SchemaSelectStrategy
         :return: None
         """
         return self._call_ox(
-                'create',
-                ctx=context_obj,
-                admin_user=admin_user,
-                auth=self.credentials.master_credentials
+            'create',
+            ctx=context_obj,
+            admin_user=admin_user,
+            auth=self.credentials.master_credentials
         )
 
     def create_module_access(self, context_obj, admin_user, access):
         # type: (univention.ox.soap.types.Types.Context, univention.ox.soap.types.Types.User, univention.ox.soap.types.Types.UserModuleAccess) -> univention.ox.soap.types.Types.Context
         """Same as create."""
         return self._call_ox(
-                'createModuleAccess',
-                ctx=context_obj,
-                admin_user=admin_user,
-                access=access,
-                auth=self.credentials.master_credentials
+            'createModuleAccess',
+            ctx=context_obj,
+            admin_user=admin_user,
+            access=access,
+            auth=self.credentials.master_credentials
         )
 
     def create_module_access_by_name(self, context_obj, admin_user, access_combination_name):
         # type: (univention.ox.soap.types.Types.Context, univention.ox.soap.types.Types.User, str) -> univention.ox.soap.types.Types.Context
         """Same as create."""
         return self._call_ox(
-                'createModuleAccessByName',
-                ctx=context_obj,
-                admin_user=admin_user,
-                access_combination_name=access_combination_name,
-                auth=self.credentials.master_credentials
+            'createModuleAccessByName',
+            ctx=context_obj,
+            admin_user=admin_user,
+            access_combination_name=access_combination_name,
+            auth=self.credentials.master_credentials
         )
 
     def delete(self, context_obj):  # type: (univention.ox.soap.types.Types.Context) -> None
@@ -396,20 +396,20 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         # type: (univention.ox.soap.types.Types.Context, univention.ox.soap.types.Types.Database) -> int
         """Move all data of a context contained in a database to another database"""
         return self._call_ox(
-                'moveContextDatabase',
-                ctx=context_obj,
-                dst_database_id=dst_database_id,
-                auth=self.credentials.master_credentials
+            'moveContextDatabase',
+            ctx=context_obj,
+            dst_database_id=dst_database_id,
+            auth=self.credentials.master_credentials
         )
 
     def move_context_filestore(self, context_obj, dst_filestore_id):
         # type: (univention.ox.soap.types.Types.Context, univention.ox.soap.types.Types.Filestore) -> int
         """Move all data of a context contained on the filestore to another filestore"""
         return self._call_ox(
-                'moveContextFilestore',
-                ctx=context_obj,
-                dst_filestore_id=dst_filestore_id,
-                auth=self.credentials.master_credentials
+            'moveContextFilestore',
+            ctx=context_obj,
+            dst_filestore_id=dst_filestore_id,
+            auth=self.credentials.master_credentials
         )
 
 
@@ -552,11 +552,11 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         # type: (univention.ox.soap.types.Types.User, str, str, str) -> None
         """Changes specified user's capabilities."""
         return self._call_ox(
-                'changeCapabilities',
-                user=user,
-                capsToAdd=caps_to_add,
-                capsToRemove=caps_to_remove,
-                capsToDrop=caps_to_drop
+            'changeCapabilities',
+            user=user,
+            capsToAdd=caps_to_add,
+            capsToRemove=caps_to_remove,
+            capsToDrop=caps_to_drop
         )
 
     def change_mail_address_personal(self, user, local_part):
@@ -572,19 +572,19 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         If no filter is given, all users are changed.
 
         :param filter_s: str - The call affects only users with exactly this
-                access combination. This is either a String representing a defined
-                module access combination or an Integer (masked as String) for
-                direct definitions. null for no filter.
+            access combination. This is either a String representing a defined
+            module access combination or an Integer (masked as String) for
+            direct definitions. null for no filter.
         :param add_access: UserModuleAccess - Access rights to be added
         :param remove_access: UserModuleAccess - Access rights to be removed
         :return: None
         """
         return self._call_ox(
-                'changeModuleAccessGlobal',
-                auth=self.credentials.master_credentials,
-                filter=filter_s,
-                addAccess=add_access,
-                removeAccess=remove_access
+            'changeModuleAccessGlobal',
+            auth=self.credentials.master_credentials,
+            filter=filter_s,
+            addAccess=add_access,
+            removeAccess=remove_access
         )
 
     def create(self, user):  # type: (univention.ox.soap.types.Types.User) -> univention.ox.soap.types.Types.User
@@ -637,7 +637,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         Check return value (can be None).
 
         :returns str|None - Access combination name or null if current access
-                rights cannot be mapped to an access combination name.
+            rights cannot be mapped to an access combination name.
         """
         return self._call_ox('getAccessCombinationName', user=user)
 
@@ -679,10 +679,10 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         :return: User[] with currently ONLY id set in each User.
         """
         return self._call_ox(
-                'list',
-                search_pattern=search_pattern,
-                include_guests=include_guests,
-                exclude_users=exclude_users
+            'list',
+            search_pattern=search_pattern,
+            include_guests=include_guests,
+            exclude_users=exclude_users
         )
 
     def list_all(self, include_guests=True, exclude_users=False):
@@ -714,13 +714,13 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         This operation is quota-aware and thus transfers current quota usage from context to user.
 
         :return: int - The job identifier which can be used for retrieving
-                progress information.
+            progress information.
         """
         return self._call_ox(
-                'moveFromContextToUserFilestore',
-                user=user,
-                dst_filestore_id=dst_filestore,
-                max_quota=max_quota
+            'moveFromContextToUserFilestore',
+            user=user,
+            dst_filestore_id=dst_filestore,
+            max_quota=max_quota
         )
 
     def move_from_master_to_user_filestore(self, user, master_user, dst_filestore, max_quota):
@@ -731,14 +731,14 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         This operation is quota-aware and thus transfers current quota usage from master account to user.
 
         :return: int - The job identifier which can be used for retrieving
-                progress information.
+            progress information.
         """
         return self._call_ox(
-                'moveFromMasterToUserFilestore',
-                user=user,
-                masterUser=master_user,
-                dst_filestore_id=dst_filestore,
-                max_quota=max_quota
+            'moveFromMasterToUserFilestore',
+            user=user,
+            masterUser=master_user,
+            dst_filestore_id=dst_filestore,
+            max_quota=max_quota
         )
 
     def move_from_user_filestore_to_master(self, user, master_user):
@@ -751,7 +751,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         to master account as well.
 
         :return: int - The job identifier which can be used for retrieving
-                progress information.
+            progress information.
         """
         return self._call_ox('moveFromUserFilestoreToMaster', user=user, masterUser=master_user)
 
@@ -762,7 +762,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         from user to context.
 
         :return: int - The job identifier which can be used for retrieving
-                progress information.
+            progress information.
         """
         return self._call_ox('moveFromUserToContextFilestore', user=user)
 
@@ -776,7 +776,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         OXContextInterface.moveContextFilestore().
 
         :return: int - The job identifier which can be used for retrieving
-                progress information.
+            progress information.
         """
         return self._call_ox('moveUserFilestore', user=user, dst_filestore_id=dst_filestore)
 

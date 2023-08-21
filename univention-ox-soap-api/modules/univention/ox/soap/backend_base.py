@@ -81,7 +81,7 @@ class BackendMetaClass(type):
                 kls.logger = cls.logger.getChild(clsname)
             register_ox_integration_backend_class(kls._backend, kls._object_type, kls)
             cls.logger.debug('Registered class {!r} of backend {!r} for object type {!r}.'.format(
-                    cls.__name__, kls._backend, kls._object_type))
+                cls.__name__, kls._backend, kls._object_type))
         return kls
 
 
@@ -159,8 +159,8 @@ class OxObject(object):
 
         :param context_id: int - ID of context to list object from
         :param pattern: str - pattern can be a string matching the ID or the
-                name, use '*' not '.*' for placeholder. None to retrieve all
-                objects.
+            name, use '*' not '.*' for placeholder. None to retrieve all
+            objects.
         :return: list of OxObjects
         """
         raise NotImplementedError()

@@ -56,12 +56,12 @@ _parser = OptionParser()
 _parser.add_option('--binddn', action='store', dest='binddn', help='ldap bind dn for UDM CLI operation')
 _parser.add_option('--bindpwdfile', action='store', dest='bindpwdfile', help='file with ldap bind password for bind dn')
 _parser.add_option(
-        '--update', action='store_true', dest='update', default=False,
-        help='update existing extended attributes with the package defaults (except "default" property)'
+    '--update', action='store_true', dest='update', default=False,
+    help='update existing extended attributes with the package defaults (except "default" property)'
 )
 _parser.add_option(
-        '--update-reset-defaults', action='store_true', dest='update_defaults', default=False,
-        help='update existing extended attributes with the package defaults (including "default" property)'
+    '--update-reset-defaults', action='store_true', dest='update_defaults', default=False,
+    help='update existing extended attributes with the package defaults (including "default" property)'
 )
 (options, params) = _parser.parse_args()
 
@@ -78,14 +78,14 @@ def run_ext(attr_name, cmd):  # type: (str, List[str]) -> None
     ret = subprocess.call(cmd)
     if ret:
         print('FAILED (exit {}) {} extended attribute {!r} with command:\n{!r}'.format(
-                ret, 'updating' if options.update else 'installing', attr_name, cmd)
+            ret, 'updating' if options.update else 'installing', attr_name, cmd)
         )
         sys.exit(ret)
 
 
 cmd_base = [
-        'univention-directory-manager', 'settings/extended_attribute',
-        'modify' if options.update else 'create',
+    'univention-directory-manager', 'settings/extended_attribute',
+    'modify' if options.update else 'create',
 ]
 
 if ucr['server/role'] != 'domaincontroller_master':
@@ -93,8 +93,8 @@ if ucr['server/role'] != 'domaincontroller_master':
 
 if not options.update:
     cmd_base.extend([
-            '--ignore_exists',
-            '--position', ext_attr_container_dn,
+        '--ignore_exists',
+        '--position', ext_attr_container_dn,
     ])
 
 attrmap = csv.DictReader(open(EXT_ATTR_CSV_PATH, 'r'))
@@ -107,31 +107,31 @@ for row in attrmap:
         # else: keep previous 'default' property setting
     else:
         cmd.extend([
-                '--set', 'name={}'.format(row['name']),
-                '--set', 'default={}'.format(row['default'] or ''),
+            '--set', 'name={}'.format(row['name']),
+            '--set', 'default={}'.format(row['default'] or ''),
         ])
     cmd.extend([
-            '--set', 'module={}'.format(row['module']),
-            '--set', 'ldapMapping={}'.format(row['ldapMapping']),
-            '--set', 'objectClass={}'.format(row['objectClass']),
-            '--set', 'shortDescription={}'.format(row['shortDescription'] or ''),
-            '--set', 'longDescription={}'.format(row['longDescription'] or ''),
-            '--set', 'translationShortDescription="de_DE" "{}"'.format(row['translationShortDescription'] or ''),
-            '--set', 'translationLongDescription="de_DE" "{}"'.format(row['translationLongDescription'] or ''),
-            '--set', 'tabName={}'.format(row['tabName'] or ''),
-            '--set', 'translationTabName="de_DE" "{}"'.format(row['translationTabName'] or ''),
-            '--set', 'overwriteTab={}'.format(row['overwriteTab'] or ''),
-            '--set', 'valueRequired={}'.format(row['valueRequired'] or ''),
-            '--set', 'CLIName={}'.format(row['CLIName'] or ''),
-            '--set', 'syntax={}'.format(row['syntax'] or ''),
-            '--set', 'tabAdvanced={}'.format(row['tabAdvanced'] or ''),
-            '--set', 'mayChange={}'.format(row['mayChange'] or ''),
-            '--set', 'multivalue={}'.format(row['multivalue'] or ''),
-            '--set', 'deleteObjectClass={}'.format(row['deleteObjectClass'] or ''),
-            '--set', 'tabPosition={}'.format(row['tabPosition'] or ''),
-            '--set', 'overwritePosition={}'.format(row['overwritePosition'] or ''),
-            '--set', 'doNotSearch={}'.format(row['doNotSearch'] or ''),
-            '--set', 'hook={}'.format(row['hook'] or ''),
+        '--set', 'module={}'.format(row['module']),
+        '--set', 'ldapMapping={}'.format(row['ldapMapping']),
+        '--set', 'objectClass={}'.format(row['objectClass']),
+        '--set', 'shortDescription={}'.format(row['shortDescription'] or ''),
+        '--set', 'longDescription={}'.format(row['longDescription'] or ''),
+        '--set', 'translationShortDescription="de_DE" "{}"'.format(row['translationShortDescription'] or ''),
+        '--set', 'translationLongDescription="de_DE" "{}"'.format(row['translationLongDescription'] or ''),
+        '--set', 'tabName={}'.format(row['tabName'] or ''),
+        '--set', 'translationTabName="de_DE" "{}"'.format(row['translationTabName'] or ''),
+        '--set', 'overwriteTab={}'.format(row['overwriteTab'] or ''),
+        '--set', 'valueRequired={}'.format(row['valueRequired'] or ''),
+        '--set', 'CLIName={}'.format(row['CLIName'] or ''),
+        '--set', 'syntax={}'.format(row['syntax'] or ''),
+        '--set', 'tabAdvanced={}'.format(row['tabAdvanced'] or ''),
+        '--set', 'mayChange={}'.format(row['mayChange'] or ''),
+        '--set', 'multivalue={}'.format(row['multivalue'] or ''),
+        '--set', 'deleteObjectClass={}'.format(row['deleteObjectClass'] or ''),
+        '--set', 'tabPosition={}'.format(row['tabPosition'] or ''),
+        '--set', 'overwritePosition={}'.format(row['overwritePosition'] or ''),
+        '--set', 'doNotSearch={}'.format(row['doNotSearch'] or ''),
+        '--set', 'hook={}'.format(row['hook'] or ''),
     ])
     if row.get("translationGroupName"):
         cmd.extend(['--set', 'translationGroupName="de_DE" "{}"'.format(row['translationGroupName'])])

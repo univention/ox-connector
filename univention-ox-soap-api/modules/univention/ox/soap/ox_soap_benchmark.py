@@ -100,9 +100,9 @@ for context_id, context_obj in context_objs.items():
     print('Retrieving {} complete user objects in context {}...'.format(len(simple_users[context_id]), context_id))
     for user_id in [u.id for u in simple_users[context_id]]:
         users[context_id][user_id] = client_user.service.getData(
-                ctx=context_obj,
-                user=user_type(id=user_id),
-                auth=context_creds[context_id]
+            ctx=context_obj,
+            user=user_type(id=user_id),
+            auth=context_creds[context_id]
         )
 print('Retrieved {} complete user objects in {:.2f} seconds.'.format(sum(len(g) for g in users.values()), time.time() - t1))
 print('Total time for user retrieval: {:.2f} seconds.'.format(time.time() - t0))

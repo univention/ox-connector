@@ -47,75 +47,75 @@ short_description=_('OX Mail: Functional Mailbox')
 long_description=''
 
 options = {
-        'default': univention.admin.option(
-                short_description=short_description,
-                default=True,
-    objectClasses=['top', 'oxFunctionalAccount'],
-        )
+    'default': univention.admin.option(
+        short_description=short_description,
+        default=True,
+        objectClasses=['top', 'oxFunctionalAccount'],
+    )
 }
 
 property_descriptions={
-        'name': univention.admin.property(
-                short_description=_('Name'),
-                long_description='',
-                syntax=univention.admin.syntax.string,
-                include_in_default_search=1,
-                multivalue=0,
-                required=1,
-                may_change=0,
-                identifies=1
-        ),
-        'mailPrimaryAddress': univention.admin.property(
-                short_description=_('Primary e-mail address'),
-                long_description='',
-                syntax=univention.admin.syntax.primaryEmailAddressValidDomain,
-                include_in_default_search=1,
-                may_change=0,
-                required=1,
-        ),
-        'oxQuota': univention.admin.property(
-                short_description=_('Quota [MBytes]'),
-                long_description='',
-                syntax=univention.admin.syntax.integer,
-                multivalue=0,
-                required=0,
-                may_change=1,
-                identifies=0
-        ),
-        'personal': univention.admin.property(
-                short_description=_('Personal'),
-                long_description='',
-                syntax=univention.admin.syntax.string,
-                include_in_default_search=True,
-        ),
-        'users': univention.admin.property(
-                short_description=_('Users'),
-                long_description='',
-                syntax=univention.admin.syntax.UserDN,
-                multivalue=True,
-                copyable=True,
-        ),
-        'groups': univention.admin.property(
-                short_description=_('Groups'),
-                long_description='',
-                syntax=univention.admin.syntax.GroupDN,
-                multivalue=True,
-        ),
+    'name': univention.admin.property(
+        short_description=_('Name'),
+        long_description='',
+        syntax=univention.admin.syntax.string,
+        include_in_default_search=1,
+        multivalue=0,
+        required=1,
+        may_change=0,
+        identifies=1
+    ),
+    'mailPrimaryAddress': univention.admin.property(
+        short_description=_('Primary e-mail address'),
+        long_description='',
+        syntax=univention.admin.syntax.primaryEmailAddressValidDomain,
+        include_in_default_search=1,
+        may_change=0,
+        required=1,
+    ),
+    'oxQuota': univention.admin.property(
+        short_description=_('Quota [MBytes]'),
+        long_description='',
+        syntax=univention.admin.syntax.integer,
+        multivalue=0,
+        required=0,
+        may_change=1,
+        identifies=0
+    ),
+    'personal': univention.admin.property(
+        short_description=_('Personal'),
+        long_description='',
+        syntax=univention.admin.syntax.string,
+        include_in_default_search=True,
+    ),
+    'users': univention.admin.property(
+        short_description=_('Users'),
+        long_description='',
+        syntax=univention.admin.syntax.UserDN,
+        multivalue=True,
+        copyable=True,
+    ),
+    'groups': univention.admin.property(
+        short_description=_('Groups'),
+        long_description='',
+        syntax=univention.admin.syntax.GroupDN,
+        multivalue=True,
+    ),
 }
 
 layout = [
-        Tab(_('General'),_('Functional Account settings'), layout = [
-                Group( _( 'General' ), layout = [
-                        'name',
-                        'mailPrimaryAddress',
-                        'oxQuota',
-                        'personal',
-                ] ),
-                Group( _( 'Access Rights' ), layout = [
-                        'users',
-                        #'groups',
-                ] ),
+    Tab(_('General'),_('Functional Account settings'), layout = [
+        Group( _( 'General' ), layout = [
+            'name',
+            'mailPrimaryAddress',
+            'oxQuota',
+            'personal',
         ] ),
+        Group( _( 'Access Rights' ), layout = [
+            'users',
+            #'groups',
+        ] ),
+    ] ),
 ]
 
 mapping=univention.admin.mapping.mapping()

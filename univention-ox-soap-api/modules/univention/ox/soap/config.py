@@ -32,17 +32,17 @@ def get_new_context_attributes(context_id):  # type: (int) -> Dict[str, str]
     name = 'context{}'.format(context_id)
     mapping = ['context{}'.format(context_id), str(context_id)]
     return {
-            'id': context_id,
-            'name': name,
-            'mapping': mapping,
-            'timezone': LOCAL_TIMEZONE,
-            'username': get_standard_context_admin_user(context_id),
-            'displayname': 'OX Admin',
-            'givenname': 'OX',
-            'surname': 'Admin',
-            'email': '{}@{}'.format(get_standard_context_admin_user(context_id), DOMAIN),
-            'quota': QUOTA,
-            'password': get_random_password(),
+        'id': context_id,
+        'name': name,
+        'mapping': mapping,
+        'timezone': LOCAL_TIMEZONE,
+        'username': get_standard_context_admin_user(context_id),
+        'displayname': 'OX Admin',
+        'givenname': 'OX',
+        'surname': 'Admin',
+        'email': '{}@{}'.format(get_standard_context_admin_user(context_id), DOMAIN),
+        'quota': QUOTA,
+        'password': get_random_password(),
     }
 
 
@@ -99,8 +99,8 @@ def save_context_admin_password(context_id, context_admin, password):
     # type: (Union[int, str], str, str) -> None
     credentials = _get_credentials()
     credentials[str(context_id)] = {
-            "adminuser": context_admin,
-            "adminpass": password,
+        "adminuser": context_admin,
+        "adminpass": password,
     }
     _save_credentials(credentials)
 

@@ -53,62 +53,62 @@ operations = ['add', 'edit', 'remove', 'search', 'move']
 default_containers = ["cn=oxresources,cn=open-xchange"]
 
 ldap_search_oxuser = univention.admin.syntax.LDAP_Search(  # FIXME/TODO: move to syntax.d otherwise it's not usable in UMC
-        filter='(&(objectClass=oxUserObject)(isOxUser=OK))',
-        attribute=['users/user: uid'],
-        value='users/user: uidNumber')
+    filter='(&(objectClass=oxUserObject)(isOxUser=OK))',
+    attribute=['users/user: uid'],
+    value='users/user: uidNumber')
 
 options = {
-        'default': univention.admin.option(
-                short_description=short_description,
-                default=True,
-                objectClasses=['top', 'oxResourceObject'],
-        )
+    'default': univention.admin.option(
+        short_description=short_description,
+        default=True,
+        objectClasses=['top', 'oxResourceObject'],
+    )
 }
 
 property_descriptions = {
-        'name': univention.admin.property(
-                short_description=_('Name'),
-                long_description=_('Internal name of resource'),
-                syntax=univention.admin.syntax.string_numbers_letters_dots_spaces,
-                required=True,
-                may_change=False,
-                identifies=True
-        ),
-        'description': univention.admin.property(
-                short_description=_('Description'),
-                long_description=_('Description for resource object'),
-                syntax=univention.admin.syntax.string,
-        ),
-        'displayname': univention.admin.property(
-                short_description=_('Display Name'),
-                long_description=_('Name of resource that will be shown in Open-Xchange'),
-                syntax=univention.admin.syntax.string,
-                required=True,
-                default='<name>'
-        ),
-        'resourceadmin': univention.admin.property(
-                short_description=_('Resource manager'),
-                long_description=_('User who will manage this resource'),
-                syntax=ldap_search_oxuser,
-                required=True,
-        ),
-        'resourceMailAddress': univention.admin.property(
-                short_description=_('Resource e-mail address'),
-                long_description=_('Unique e-mail adress that will be assigned to this resource'),
-                syntax=univention.admin.syntax.emailAddress,
-                required=True,
-        ),
+    'name': univention.admin.property(
+        short_description=_('Name'),
+        long_description=_('Internal name of resource'),
+        syntax=univention.admin.syntax.string_numbers_letters_dots_spaces,
+        required=True,
+        may_change=False,
+        identifies=True
+    ),
+    'description': univention.admin.property(
+        short_description=_('Description'),
+        long_description=_('Description for resource object'),
+        syntax=univention.admin.syntax.string,
+    ),
+    'displayname': univention.admin.property(
+        short_description=_('Display Name'),
+        long_description=_('Name of resource that will be shown in Open-Xchange'),
+        syntax=univention.admin.syntax.string,
+        required=True,
+        default='<name>'
+    ),
+    'resourceadmin': univention.admin.property(
+        short_description=_('Resource manager'),
+        long_description=_('User who will manage this resource'),
+        syntax=ldap_search_oxuser,
+        required=True,
+    ),
+    'resourceMailAddress': univention.admin.property(
+        short_description=_('Resource e-mail address'),
+        long_description=_('Unique e-mail adress that will be assigned to this resource'),
+        syntax=univention.admin.syntax.emailAddress,
+        required=True,
+    ),
 }
 
 
 layout = [
-        Tab(_('General'), _('General settings'), layout=[
-                Group(_('General'), layout=[
-                        ['name', 'displayname'],
-                        ['resourceadmin', 'description'],
-                        ['resourceMailAddress']
-                ]),
+    Tab(_('General'), _('General settings'), layout=[
+        Group(_('General'), layout=[
+            ['name', 'displayname'],
+            ['resourceadmin', 'description'],
+            ['resourceMailAddress']
         ]),
+    ]),
 ]
 
 mapping = univention.admin.mapping.mapping()

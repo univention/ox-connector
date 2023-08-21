@@ -132,7 +132,7 @@ class oxAccess(simpleHook):
         self.check_syntax_date(module)
         if hasOxAccess:
             # if not self.check_syntax(module):
-            #       raise univention.admin.uexceptions.valueError, 'Username must only contain numbers, letters and dots!'
+            #     raise univention.admin.uexceptions.valueError, 'Username must only contain numbers, letters and dots!'
 
             configRegistry = univention.config_registry.ConfigRegistry()
             configRegistry.load()
@@ -155,7 +155,7 @@ class oxAccess(simpleHook):
         self.check_syntax_date(module)
         if hasOxAccess:
             # if not self.check_syntax(module):
-            #       raise univention.admin.uexceptions.valueError, 'Username must only contain numbers, letters and dots!'
+            #     raise univention.admin.uexceptions.valueError, 'Username must only contain numbers, letters and dots!'
             self.check_mailaddr(module)
             if not self.check_firstname(module):
                 raise univention.admin.uexceptions.valueError(oxAccess._('First name has to be set for open-xchange users.'))

@@ -48,45 +48,45 @@ short_description = _('OX Mail: OX context')
 long_description = ''
 
 options = {
-        'default': univention.admin.option(
-                short_description=short_description,
-                default=True,
-                objectClasses=['top', 'oxContext'],
-        )
+    'default': univention.admin.option(
+        short_description=short_description,
+        default=True,
+        objectClasses=['top', 'oxContext'],
+    )
 }
 
 property_descriptions = {
-        'name': univention.admin.property(
-                short_description=_('Name'),
-                long_description='',
-                syntax=univention.admin.syntax.string,
-                include_in_default_search=True,
-                required=True,
-                may_change=False,
-                identifies=True
-        ),
-        'contextid': univention.admin.property(
-                short_description=_('Context ID'),
-                long_description='',
-                syntax=univention.admin.syntax.integer,
-                required=True,
-                may_change=False,
-        ),
-        'oxQuota': univention.admin.property(
-                short_description=_('Quota [MBytes]'),
-                long_description='',
-                syntax=univention.admin.syntax.integer,
-        ),
+    'name': univention.admin.property(
+        short_description=_('Name'),
+        long_description='',
+        syntax=univention.admin.syntax.string,
+        include_in_default_search=True,
+        required=True,
+        may_change=False,
+        identifies=True
+    ),
+    'contextid': univention.admin.property(
+        short_description=_('Context ID'),
+        long_description='',
+        syntax=univention.admin.syntax.integer,
+        required=True,
+        may_change=False,
+    ),
+    'oxQuota': univention.admin.property(
+        short_description=_('Quota [MBytes]'),
+        long_description='',
+        syntax=univention.admin.syntax.integer,
+    ),
 }
 
 layout = [
-        Tab(_('General'), _('Basic Values'), layout=[
-                Group(_('General'), layout=[
-                        'name',
-                        'contextid',
-                        'oxQuota',
-                ]),
+    Tab(_('General'), _('Basic Values'), layout=[
+        Group(_('General'), layout=[
+            'name',
+            'contextid',
+            'oxQuota',
         ]),
+    ]),
 ]
 
 mapping = univention.admin.mapping.mapping()

@@ -130,8 +130,8 @@ class SoapBackend(object):
 
         :param context_id: int - ID of context to list object from
         :param pattern: str - pattern can be a string matching the ID or the
-                name, use '*' not '.*' for placeholder. None to retrieve all
-                contexts.
+            name, use '*' not '.*' for placeholder. None to retrieve all
+            contexts.
         :return: list of univention.ox.soap.types.Types.Context
         """
         if pattern is None:
@@ -150,7 +150,7 @@ class SoapBackend(object):
         """
         for attr in self._mandatory_creation_attr:
             assert getattr(self, attr) is not None, 'Mandatory attributes: {}.'.format(
-                    ', '.join(self._mandatory_creation_attr))
+                ', '.join(self._mandatory_creation_attr))
 
         if hasattr(self, 'display_name'):
             self.display_name = self.name if self.display_name is None else self.display_name
@@ -160,7 +160,7 @@ class SoapBackend(object):
         new_obj = self.service(self.context_id).create(obj)
         self.id = new_obj.id
         self.logger.info('Created {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), new_obj.name, self.context_id, self.id))
+            self._object_type.lower(), new_obj.name, self.context_id, self.id))
         return new_obj.id
 
     def modify(self):  # type: () -> None
@@ -179,7 +179,7 @@ class SoapBackend(object):
         obj = self.service(self.context_id).Type(**obj_kwargs)
         self.service(self.context_id).change(obj)
         self.logger.info('Modified {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), obj.name, self.context_id, self.id))
+            self._object_type.lower(), obj.name, self.context_id, self.id))
 
     def remove(self):  # type: () -> None
         """
@@ -192,7 +192,7 @@ class SoapBackend(object):
         obj = self.service(self.context_id).Type(id=self.id, name=self.name)
         self.service(self.context_id).delete(obj)
         self.logger.info('Deleted {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), obj.name, self.context_id, self.id))
+            self._object_type.lower(), obj.name, self.context_id, self.id))
 
     @classmethod
     def _soap_obj2base_obj(cls, context_id, soap_obj):  # type: (int, Any) -> OxObject
@@ -205,16 +205,16 @@ class SoapBackend(object):
 class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
 
     _base2soap = {
-            'average_size': SoapAttribute('average_size'),
-            'enabled': SoapAttribute('enabled'),
-            'filestore_id': SoapAttribute('filestoreId'),
-            'filestore_name': SoapAttribute('filestore_name'),
-            'login_mappings': SoapAttribute('loginMappings'),
-            'max_quota': SoapAttribute('maxQuota', QUOTA),
-            'read_database': SoapAttribute('readDatabase'),
-            'used_quota': SoapAttribute('usedQuota'),
-            'user_attributes': SoapAttribute('userAttributes'),
-            'write_database': SoapAttribute('writeDatabase'),
+        'average_size': SoapAttribute('average_size'),
+        'enabled': SoapAttribute('enabled'),
+        'filestore_id': SoapAttribute('filestoreId'),
+        'filestore_name': SoapAttribute('filestore_name'),
+        'login_mappings': SoapAttribute('loginMappings'),
+        'max_quota': SoapAttribute('maxQuota', QUOTA),
+        'read_database': SoapAttribute('readDatabase'),
+        'used_quota': SoapAttribute('usedQuota'),
+        'user_attributes': SoapAttribute('userAttributes'),
+        'write_database': SoapAttribute('writeDatabase'),
     }
     _mandatory_creation_attr = ('id',)
 
@@ -237,14 +237,14 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         context_kwargs = self._base_obj2soap_obj()
         context = self.default_service.Type(**context_kwargs)
         admin_user = self.get_ox_soap_type_class('User')(
-                name=context_creation_kwargs['username'],
-                display_name=context_creation_kwargs['displayname'],
-                password=context_creation_kwargs['password'],
-                given_name=context_creation_kwargs['givenname'],
-                sur_name=context_creation_kwargs['surname'],
-                primaryEmail=context_creation_kwargs['email'],
-                email1=context_creation_kwargs['email'],
-                timezone=context_creation_kwargs['timezone']
+            name=context_creation_kwargs['username'],
+            display_name=context_creation_kwargs['displayname'],
+            password=context_creation_kwargs['password'],
+            given_name=context_creation_kwargs['givenname'],
+            sur_name=context_creation_kwargs['surname'],
+            primaryEmail=context_creation_kwargs['email'],
+            email1=context_creation_kwargs['email'],
+            timezone=context_creation_kwargs['timezone']
         )
         self.logger.debug('Creating context: {!r}'.format(context))
         self.logger.debug('Creating context admin: {!r}'.format(admin_user))
@@ -290,8 +290,8 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
 
         :param context_id: int - ignored
         :param pattern: str - pattern can be a string matching the ID or the
-                name, use '*' not '.*' for placeholder. None to retrieve all
-                contexts.
+            name, use '*' not '.*' for placeholder. None to retrieve all
+            contexts.
         :return: list of univention.ox.soap.types.Types.Context
         """
         context_service = cls.service(DEFAULT_CONTEXT)
@@ -305,8 +305,8 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
 class SoapGroup(with_metaclass(BackendMetaClass, SoapBackend, Group)):
 
     _base2soap = {
-            'display_name': SoapAttribute('displayname'),
-            'members': SoapAttribute('members'),
+        'display_name': SoapAttribute('displayname'),
+        'members': SoapAttribute('members'),
     }
     _mandatory_creation_attr = ('name',)
 
@@ -314,10 +314,10 @@ class SoapGroup(with_metaclass(BackendMetaClass, SoapBackend, Group)):
 class SoapResource(with_metaclass(BackendMetaClass, SoapBackend, Resource)):
 
     _base2soap = {
-            'available': SoapAttribute('available'),
-            'description': SoapAttribute('description', ''),
-            'display_name': SoapAttribute('displayname'),
-            'email': SoapAttribute('email'),
+        'available': SoapAttribute('available'),
+        'description': SoapAttribute('description', ''),
+        'display_name': SoapAttribute('displayname'),
+        'email': SoapAttribute('email'),
     }
     _mandatory_creation_attr = ('name', 'email')
 
@@ -325,139 +325,139 @@ class SoapResource(with_metaclass(BackendMetaClass, SoapBackend, Resource)):
 class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
 
     _base2soap = {
-            'aliases': SoapAttribute('aliases'),
-            'anniversary': SoapAttribute('anniversary'),
-            'assistant_name': SoapAttribute('assistant_name'),
-            'birthday': SoapAttribute('birthday'),
-            'branches': SoapAttribute('branches', ''),
-            'business_category': SoapAttribute('business_category'),
-            'categories': SoapAttribute('categories'),
-            'cellular_telephone1': SoapAttribute('cellular_telephone1', ''),
-            'cellular_telephone2': SoapAttribute('cellular_telephone2', ''),
-            'city_business': SoapAttribute('city_business', ''),
-            'city_home': SoapAttribute('city_home', ''),
-            'city_other': SoapAttribute('city_other', ''),
-            'commercial_register': SoapAttribute('commercial_register', ''),
-            'company': SoapAttribute('company', ''),
-            'context_admin': SoapAttribute('contextadmin'),
-            'country_business': SoapAttribute('country_business', ''),
-            'country_home': SoapAttribute('country_home', ''),
-            'country_other': SoapAttribute('country_other', ''),
-            'drive_user_folder_mode': SoapAttribute('drive_user_folder_mode'),
-            'default_sender_address': SoapAttribute('defaultSenderAddress'),
-            'default_group': SoapAttribute('default_group'),
-            'department': SoapAttribute('department', ''),
-            'display_name': SoapAttribute('display_name', ''),
-            'email1': SoapAttribute('email1', ''),
-            'email2': SoapAttribute('email2', ''),
-            'email3': SoapAttribute('email3', ''),
-            'employee_type': SoapAttribute('employeeType'),
-            'fax_business': SoapAttribute('fax_business', ''),
-            'fax_home': SoapAttribute('fax_home', ''),
-            'fax_other': SoapAttribute('fax_other', ''),
-            'filestore_id': SoapAttribute('filestoreId'),
-            'filestore_name': SoapAttribute('filestore_name'),
-            'folder_tree': SoapAttribute('folderTree'),
-            'given_name': SoapAttribute('given_name', ''),
-            'gui_preferences_for_soap': SoapAttribute('guiPreferencesForSoap'),
-            'gui_spam_filter_enabled': SoapAttribute('gui_spam_filter_enabled'),
-            'imap_login': SoapAttribute('imapLogin', ''),
-            'imap_port': SoapAttribute('imapPort'),
-            'imap_schema': SoapAttribute('imapSchema'),
-            'imap_server': SoapAttribute('imapServer'),
-            'imap_server_string': SoapAttribute('imapServerString'),
-            'info': SoapAttribute('info'),
-            'instant_messenger1': SoapAttribute('instant_messenger1', ''),
-            'instant_messenger2': SoapAttribute('instant_messenger2', ''),
-            'language': SoapAttribute('language'),
-            'mail_folder_confirmed_ham_name': SoapAttribute('mail_folder_confirmed_ham_name'),
-            'mail_folder_confirmed_spam_name': SoapAttribute('mail_folder_confirmed_spam_name'),
-            'mail_folder_drafts_name': SoapAttribute('mail_folder_drafts_name'),
-            'mail_folder_sent_name': SoapAttribute('mail_folder_sent_name'),
-            'mail_folder_spam_name': SoapAttribute('mail_folder_spam_name'),
-            'mail_folder_trash_name': SoapAttribute('mail_folder_trash_name'),
-            'mail_folder_archive_full_name': SoapAttribute('mail_folder_archive_full_name'),
-            'mail_enabled': SoapAttribute('mailenabled'),
-            'manager_name': SoapAttribute('manager_name', ''),
-            'marital_status': SoapAttribute('marital_status', ''),
-            'max_quota': SoapAttribute('maxQuota'),
-            'middle_name': SoapAttribute('middle_name', ''),
-            'nickname': SoapAttribute('nickname', ''),
-            'note': SoapAttribute('note', ''),
-            'number_of_children': SoapAttribute('number_of_children', ''),
-            'number_of_employee': SoapAttribute('number_of_employee', ''),
-            'password': SoapAttribute('password'),
-            'password_mech': SoapAttribute('passwordMech'),
-            'password_expired': SoapAttribute('password_expired'),
-            'position': SoapAttribute('position', ''),
-            'postal_code_business': SoapAttribute('postal_code_business', ''),
-            'postal_code_home': SoapAttribute('postal_code_home', ''),
-            'postal_code_other': SoapAttribute('postal_code_other', ''),
-            'primary_email': SoapAttribute('primaryEmail', ''),
-            'profession': SoapAttribute('profession', ''),
-            'room_number': SoapAttribute('room_number', ''),
-            'sales_volume': SoapAttribute('sales_volume', ''),
-            'smtp_port': SoapAttribute('smtpPort'),
-            'smtp_schema': SoapAttribute('smtpSchema'),
-            'smtp_server': SoapAttribute('smtpServer'),
-            'smtp_server_string': SoapAttribute('smtpServerString'),
-            'spouse_name': SoapAttribute('spouse_name', ''),
-            'state_business': SoapAttribute('state_business', ''),
-            'state_home': SoapAttribute('state_home', ''),
-            'state_other': SoapAttribute('state_other', ''),
-            'street_business': SoapAttribute('street_business', ''),
-            'street_home': SoapAttribute('street_home', ''),
-            'street_other': SoapAttribute('street_other', ''),
-            'suffix': SoapAttribute('suffix', ''),
-            'sur_name': SoapAttribute('sur_name', ''),
-            'tax_id': SoapAttribute('tax_id', ''),
-            'telephone_assistant': SoapAttribute('telephone_assistant', ''),
-            'telephone_business1': SoapAttribute('telephone_business1', ''),
-            'telephone_business2': SoapAttribute('telephone_business2', ''),
-            'telephone_callback': SoapAttribute('telephone_callback'),
-            'telephone_car': SoapAttribute('telephone_car', ''),
-            'telephone_company': SoapAttribute('telephone_company', ''),
-            'telephone_home1': SoapAttribute('telephone_home1', ''),
-            'telephone_home2': SoapAttribute('telephone_home2', ''),
-            'telephone_ip': SoapAttribute('telephone_ip', ''),
-            'telephone_isdn': SoapAttribute('telephone_isdn'),
-            'telephone_other': SoapAttribute('telephone_other', ''),
-            'telephone_pager': SoapAttribute('telephone_pager', ''),
-            'telephone_primary': SoapAttribute('telephone_primary'),
-            'telephone_radio': SoapAttribute('telephone_radio'),
-            'telephone_telex': SoapAttribute('telephone_telex', ''),
-            'telephone_ttytdd': SoapAttribute('telephone_ttytdd', ''),
-            'timezone': SoapAttribute('timezone'),
-            'title': SoapAttribute('title', ''),
-            'upload_file_size_limit': SoapAttribute('uploadFileSizeLimit'),
-            'upload_file_size_limitPerFile': SoapAttribute('uploadFileSizeLimitPerFile'),
-            'url': SoapAttribute('url', ''),
-            'used_quota': SoapAttribute('usedQuota'),
-            'user_attributes': SoapAttribute('userAttributes'),
-            'userfield01': SoapAttribute('userfield01', ''),
-            'userfield02': SoapAttribute('userfield02', ''),
-            'userfield03': SoapAttribute('userfield03', ''),
-            'userfield04': SoapAttribute('userfield04', ''),
-            'userfield05': SoapAttribute('userfield05', ''),
-            'userfield06': SoapAttribute('userfield06', ''),
-            'userfield07': SoapAttribute('userfield07', ''),
-            'userfield08': SoapAttribute('userfield08', ''),
-            'userfield09': SoapAttribute('userfield09', ''),
-            'userfield10': SoapAttribute('userfield10', ''),
-            'userfield11': SoapAttribute('userfield11', ''),
-            'userfield12': SoapAttribute('userfield12', ''),
-            'userfield13': SoapAttribute('userfield13', ''),
-            'userfield14': SoapAttribute('userfield14', ''),
-            'userfield15': SoapAttribute('userfield15', ''),
-            'userfield16': SoapAttribute('userfield16', ''),
-            'userfield17': SoapAttribute('userfield17', ''),
-            'userfield18': SoapAttribute('userfield18', ''),
-            'userfield19': SoapAttribute('userfield19', ''),
-            'userfield20': SoapAttribute('userfield20', ''),
-            'primary_account_name': SoapAttribute('primaryAccountName'),
-            'convert_drive_user_folders': SoapAttribute('convert_drive_user_folders'),
-            'image1': SoapAttribute('image1'),
-            'image1ContentType': SoapAttribute('image1ContentType', ''),
+        'aliases': SoapAttribute('aliases'),
+        'anniversary': SoapAttribute('anniversary'),
+        'assistant_name': SoapAttribute('assistant_name'),
+        'birthday': SoapAttribute('birthday'),
+        'branches': SoapAttribute('branches', ''),
+        'business_category': SoapAttribute('business_category'),
+        'categories': SoapAttribute('categories'),
+        'cellular_telephone1': SoapAttribute('cellular_telephone1', ''),
+        'cellular_telephone2': SoapAttribute('cellular_telephone2', ''),
+        'city_business': SoapAttribute('city_business', ''),
+        'city_home': SoapAttribute('city_home', ''),
+        'city_other': SoapAttribute('city_other', ''),
+        'commercial_register': SoapAttribute('commercial_register', ''),
+        'company': SoapAttribute('company', ''),
+        'context_admin': SoapAttribute('contextadmin'),
+        'country_business': SoapAttribute('country_business', ''),
+        'country_home': SoapAttribute('country_home', ''),
+        'country_other': SoapAttribute('country_other', ''),
+        'drive_user_folder_mode': SoapAttribute('drive_user_folder_mode'),
+        'default_sender_address': SoapAttribute('defaultSenderAddress'),
+        'default_group': SoapAttribute('default_group'),
+        'department': SoapAttribute('department', ''),
+        'display_name': SoapAttribute('display_name', ''),
+        'email1': SoapAttribute('email1', ''),
+        'email2': SoapAttribute('email2', ''),
+        'email3': SoapAttribute('email3', ''),
+        'employee_type': SoapAttribute('employeeType'),
+        'fax_business': SoapAttribute('fax_business', ''),
+        'fax_home': SoapAttribute('fax_home', ''),
+        'fax_other': SoapAttribute('fax_other', ''),
+        'filestore_id': SoapAttribute('filestoreId'),
+        'filestore_name': SoapAttribute('filestore_name'),
+        'folder_tree': SoapAttribute('folderTree'),
+        'given_name': SoapAttribute('given_name', ''),
+        'gui_preferences_for_soap': SoapAttribute('guiPreferencesForSoap'),
+        'gui_spam_filter_enabled': SoapAttribute('gui_spam_filter_enabled'),
+        'imap_login': SoapAttribute('imapLogin', ''),
+        'imap_port': SoapAttribute('imapPort'),
+        'imap_schema': SoapAttribute('imapSchema'),
+        'imap_server': SoapAttribute('imapServer'),
+        'imap_server_string': SoapAttribute('imapServerString'),
+        'info': SoapAttribute('info'),
+        'instant_messenger1': SoapAttribute('instant_messenger1', ''),
+        'instant_messenger2': SoapAttribute('instant_messenger2', ''),
+        'language': SoapAttribute('language'),
+        'mail_folder_confirmed_ham_name': SoapAttribute('mail_folder_confirmed_ham_name'),
+        'mail_folder_confirmed_spam_name': SoapAttribute('mail_folder_confirmed_spam_name'),
+        'mail_folder_drafts_name': SoapAttribute('mail_folder_drafts_name'),
+        'mail_folder_sent_name': SoapAttribute('mail_folder_sent_name'),
+        'mail_folder_spam_name': SoapAttribute('mail_folder_spam_name'),
+        'mail_folder_trash_name': SoapAttribute('mail_folder_trash_name'),
+        'mail_folder_archive_full_name': SoapAttribute('mail_folder_archive_full_name'),
+        'mail_enabled': SoapAttribute('mailenabled'),
+        'manager_name': SoapAttribute('manager_name', ''),
+        'marital_status': SoapAttribute('marital_status', ''),
+        'max_quota': SoapAttribute('maxQuota'),
+        'middle_name': SoapAttribute('middle_name', ''),
+        'nickname': SoapAttribute('nickname', ''),
+        'note': SoapAttribute('note', ''),
+        'number_of_children': SoapAttribute('number_of_children', ''),
+        'number_of_employee': SoapAttribute('number_of_employee', ''),
+        'password': SoapAttribute('password'),
+        'password_mech': SoapAttribute('passwordMech'),
+        'password_expired': SoapAttribute('password_expired'),
+        'position': SoapAttribute('position', ''),
+        'postal_code_business': SoapAttribute('postal_code_business', ''),
+        'postal_code_home': SoapAttribute('postal_code_home', ''),
+        'postal_code_other': SoapAttribute('postal_code_other', ''),
+        'primary_email': SoapAttribute('primaryEmail', ''),
+        'profession': SoapAttribute('profession', ''),
+        'room_number': SoapAttribute('room_number', ''),
+        'sales_volume': SoapAttribute('sales_volume', ''),
+        'smtp_port': SoapAttribute('smtpPort'),
+        'smtp_schema': SoapAttribute('smtpSchema'),
+        'smtp_server': SoapAttribute('smtpServer'),
+        'smtp_server_string': SoapAttribute('smtpServerString'),
+        'spouse_name': SoapAttribute('spouse_name', ''),
+        'state_business': SoapAttribute('state_business', ''),
+        'state_home': SoapAttribute('state_home', ''),
+        'state_other': SoapAttribute('state_other', ''),
+        'street_business': SoapAttribute('street_business', ''),
+        'street_home': SoapAttribute('street_home', ''),
+        'street_other': SoapAttribute('street_other', ''),
+        'suffix': SoapAttribute('suffix', ''),
+        'sur_name': SoapAttribute('sur_name', ''),
+        'tax_id': SoapAttribute('tax_id', ''),
+        'telephone_assistant': SoapAttribute('telephone_assistant', ''),
+        'telephone_business1': SoapAttribute('telephone_business1', ''),
+        'telephone_business2': SoapAttribute('telephone_business2', ''),
+        'telephone_callback': SoapAttribute('telephone_callback'),
+        'telephone_car': SoapAttribute('telephone_car', ''),
+        'telephone_company': SoapAttribute('telephone_company', ''),
+        'telephone_home1': SoapAttribute('telephone_home1', ''),
+        'telephone_home2': SoapAttribute('telephone_home2', ''),
+        'telephone_ip': SoapAttribute('telephone_ip', ''),
+        'telephone_isdn': SoapAttribute('telephone_isdn'),
+        'telephone_other': SoapAttribute('telephone_other', ''),
+        'telephone_pager': SoapAttribute('telephone_pager', ''),
+        'telephone_primary': SoapAttribute('telephone_primary'),
+        'telephone_radio': SoapAttribute('telephone_radio'),
+        'telephone_telex': SoapAttribute('telephone_telex', ''),
+        'telephone_ttytdd': SoapAttribute('telephone_ttytdd', ''),
+        'timezone': SoapAttribute('timezone'),
+        'title': SoapAttribute('title', ''),
+        'upload_file_size_limit': SoapAttribute('uploadFileSizeLimit'),
+        'upload_file_size_limitPerFile': SoapAttribute('uploadFileSizeLimitPerFile'),
+        'url': SoapAttribute('url', ''),
+        'used_quota': SoapAttribute('usedQuota'),
+        'user_attributes': SoapAttribute('userAttributes'),
+        'userfield01': SoapAttribute('userfield01', ''),
+        'userfield02': SoapAttribute('userfield02', ''),
+        'userfield03': SoapAttribute('userfield03', ''),
+        'userfield04': SoapAttribute('userfield04', ''),
+        'userfield05': SoapAttribute('userfield05', ''),
+        'userfield06': SoapAttribute('userfield06', ''),
+        'userfield07': SoapAttribute('userfield07', ''),
+        'userfield08': SoapAttribute('userfield08', ''),
+        'userfield09': SoapAttribute('userfield09', ''),
+        'userfield10': SoapAttribute('userfield10', ''),
+        'userfield11': SoapAttribute('userfield11', ''),
+        'userfield12': SoapAttribute('userfield12', ''),
+        'userfield13': SoapAttribute('userfield13', ''),
+        'userfield14': SoapAttribute('userfield14', ''),
+        'userfield15': SoapAttribute('userfield15', ''),
+        'userfield16': SoapAttribute('userfield16', ''),
+        'userfield17': SoapAttribute('userfield17', ''),
+        'userfield18': SoapAttribute('userfield18', ''),
+        'userfield19': SoapAttribute('userfield19', ''),
+        'userfield20': SoapAttribute('userfield20', ''),
+        'primary_account_name': SoapAttribute('primaryAccountName'),
+        'convert_drive_user_folders': SoapAttribute('convert_drive_user_folders'),
+        'image1': SoapAttribute('image1'),
+        'image1ContentType': SoapAttribute('image1ContentType', ''),
     }
     _mandatory_creation_attr = ('name', 'display_name', 'password', 'given_name', 'sur_name', 'primary_email', 'email1')
 
@@ -491,12 +491,12 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
 
 class SoapSecondaryAccount(with_metaclass(BackendMetaClass, SoapBackend, SecondaryAccount)):
     _base2soap = {
-            'email': SoapAttribute('primaryAddress'),
-            'personal': SoapAttribute('personal'),
-            'login': SoapAttribute('login'),
-            'mail_endpoint_source': SoapAttribute('mailEndpointSource'),
-            'users': SoapAttribute('users'),
-            'groups': SoapAttribute('groups'),
+        'email': SoapAttribute('primaryAddress'),
+        'personal': SoapAttribute('personal'),
+        'login': SoapAttribute('login'),
+        'mail_endpoint_source': SoapAttribute('mailEndpointSource'),
+        'users': SoapAttribute('users'),
+        'groups': SoapAttribute('groups'),
     }
     _mandatory_creation_attr = ('name', 'email')
 
@@ -515,7 +515,7 @@ class SoapSecondaryAccount(with_metaclass(BackendMetaClass, SoapBackend, Seconda
         obj = self.service(self.context_id).Type(name=self.name, primaryAddress=self.email, personal=self.personal, mailEndpointSource=self.mail_endpoint_source, login=self.login)
         self.service(self.context_id).create(obj, self.users, self.groups)
         self.logger.info('Created {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), obj.name, self.context_id, self.email))
+            self._object_type.lower(), obj.name, self.context_id, self.email))
 
     def modify(self):
         raise NotImplementedError()
@@ -529,7 +529,7 @@ class SoapSecondaryAccount(with_metaclass(BackendMetaClass, SoapBackend, Seconda
         obj = self.service(self.context_id).Type(primaryAddress=self.email)
         self.service(self.context_id).delete(obj.primaryAddress)
         self.logger.info('Deleted {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), obj.name, self.context_id, self.email))
+            self._object_type.lower(), obj.name, self.context_id, self.email))
 
 
 class SoapUserCopy(with_metaclass(BackendMetaClass, SoapBackend, UserCopy)):
