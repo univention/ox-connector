@@ -36,7 +36,7 @@ variables:
   UNIVENTION_BASECONF: "/dev/null"
   DOC_TARGET_VERSION: "2.2.6"
   DOC_TARGET_NAME: "ox-connector-app"
-  DOC_TARGET_PATH: "$DOC_TARGET_NAME/$DOC_TARGET_VERSION"
+  DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOC_TARGET_VERSION}"
 
   # Variables for ".push-image-souvap" include
   SOUVAP_DOCKER_ACCESS_USER: "gitlab-ci-knut"
@@ -51,31 +51,107 @@ variables:
   SOUVAP_API_V4_URL: "https://gitlab.souvap-univention.de/api/v4"
   SOUVAP_HELM_PROJECT_ID: "128"
 
+.common-semantic-release:
+  image: "registry.souvap-univention.de/souvap/tooling/images/semantic-release-patched@${IMAGE_HASH}"
+  variables:
+    IMAGE_HASH: "sha256:da70137c84f27851fc756d5f7bacdeca701544cbfa423f29c37405be94544f92"
+    GIT_DEPTH: "500"
+    GIT_STRATEGY: "clone"
+    GIT_SUBMODULE_STRATEGY: "none"
+
+prepare:
+  stage: ".pre"
+  extends: ".common-semantic-release"
+  artifacts:
+    reports:
+      dotenv: "${CI_PROJECT_DIR}/deploy.env"
+  script:
+    - |
+      if [[ -z "${GITLAB_TOKEN}" ]]; then
+        echo "ERROR: The variable GITLAB_TOKEN is not set"
+        exit 1
+      fi
+      export SEMANTIC_VERSION=$(
+        semantic-release \
+          --dry-run \
+          --no-ci \
+          --branches "${CI_COMMIT_REF_NAME}" \
+          --plugins "@semantic-release/gitlab" |
+        grep --only-matching --perl-regexp "Published release [0-9]+\.[0-9]+\.[0-9]+ on" |
+        grep --only-matching --perl-regexp "[0-9]+\.[0-9]+\.[0-9]+"
+      )
+      if [[ -z "${SEMANTIC_VERSION}" ]]; then
+        echo "ERROR: Failed extract SEMANTIC_VERSION from semantic-release output"
+        exit 1
+      fi
+      echo "Using SEMANTIC_VERSION: ${SEMANTIC_VERSION}"
+      if [[ "${CI_COMMIT_REF_NAME:-}" != "${CI_DEFAULT_BRANCH:-}" ]]; then
+        export RELEASE_VERSION="${SEMANTIC_VERSION}-pre-${CI_COMMIT_REF_SLUG}"
+      else
+        export RELEASE_VERSION="${SEMANTIC_VERSION}"
+      fi
+      echo "Using RELEASE_VERSION: ${RELEASE_VERSION}"
+      echo "SEMANTIC_VERSION=${SEMANTIC_VERSION}" > ${CI_PROJECT_DIR}/deploy.env
+      echo "RELEASE_VERSION=${RELEASE_VERSION}" >> ${CI_PROJECT_DIR}/deploy.env
+
+package-helm-charts:
+  needs:
+    - job: "prepare"
+      artifacts: true
+  before_script:
+    - |
+      echo "Starting before_script"
+      if [[ -z "${RELEASE_VERSION}" ]]; then
+        echo "Variable RELEASE_VERSION not set"
+        exit 1
+      else
+        echo "Variable RELEASE_VERSION is ${RELEASE_VERSION}"
+      fi
+      echo "Finishing before_script"
+
 build-appcenter-job:
   stage: "build"
   extends: ".kaniko"
+  needs:
+    - job: "prepare"
+      artifacts: true
   variables:
     DOCKERFILE_PATH: "Dockerfile"
-    KANIKO_ARGS: "--build-arg version=$UV_APP_VERSION"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter"
+    VERSION: "${RELEASE_VERSION}"
+  before_script:
+    - |
+      # The version build-arg needs to be pip-compataible
+      if [[ "${CI_COMMIT_REF_NAME:-}" != "${CI_DEFAULT_BRANCH:-}" ]]; then
+        export DOCKER_BUILD_VERSION="${DOC_TARGET_VERSION}-dev"
+      else
+        export DOCKER_BUILD_VERSION="${DOC_TARGET_VERSION}"
+      fi
+      export KANIKO_ARGS="--build-arg version=${DOCKER_BUILD_VERSION}"
 
 build-standalone-final-image:
   stage: "build"
   extends: ".kaniko"
-  needs: []
+  needs:
+    - job: "prepare"
+      artifacts: true
   variables:
     DOCKERFILE_PATH: "Dockerfile.standalone"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone"
-    KANIKO_ARGS: "--target=final --build-arg version=$UV_APP_VERSION"
+    KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION}"
+    VERSION: "${RELEASE_VERSION}"
 
 build-standalone-test-image:
   stage: "build"
   extends: ".kaniko"
-  needs: []
+  needs:
+    - job: "prepare"
+      artifacts: true
   variables:
     DOCKERFILE_PATH: "Dockerfile.standalone"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test"
-    KANIKO_ARGS: "--target=test --build-arg version=$UV_APP_VERSION"
+    KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION}"
+    VERSION: "${RELEASE_VERSION}"
 
 push-image-souvap-appcenter-job:
   stage: "publish"
@@ -194,10 +270,31 @@ upload-docker-image:
     name: "docker-registry.knut.univention.de/knut/ssh"
     entrypoint: [""]
   before_script:
-    - chmod 0600 "$SSH_PRIVATE_KEY"
+    - chmod 0600 "${SSH_PRIVATE_KEY}"
   script:
-    - ssh -o BatchMode=yes -i "$SSH_PRIVATE_KEY" -l root docker.knut.univention.de "docker pull $BUILD_IMAGE_TAG"
-    - ssh -o BatchMode=yes -i "$SSH_PRIVATE_KEY" -l root docker.knut.univention.de "docker tag $BUILD_IMAGE_TAG docker-upload.software-univention.de/ox-connector:$APP_VERSION"
-    - ssh -o BatchMode=yes -i "$SSH_PRIVATE_KEY" -l root docker.knut.univention.de "docker push docker-upload.software-univention.de/ox-connector:$APP_VERSION"
+    - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
+      "docker pull ${BUILD_IMAGE_TAG}"
+    - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
+      "docker tag ${BUILD_IMAGE_TAG} docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
+    - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
+      "docker push docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
+
+release:
+  stage: ".post"
+  extends: ".common-semantic-release"
+  rules:
+    - when: on_success
+      if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+  artifacts:
+    paths:
+      - "CHANGELOG.md"
+  script:
+    - |
+      if test -f "${CI_PROJECT_DIR}/.releaserc"; then
+        PLUGINS=
+      else
+        PLUGINS="--plugins @semantic-release/gitlab,@semantic-release/release-notes-generator,@semantic-release/changelog"
+      fi
+    - "semantic-release --branches ${CI_COMMIT_REF_NAME} ${PLUGINS}"
 
 ...
