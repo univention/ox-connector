@@ -123,7 +123,7 @@ def write_it(lo, pos, fname):
         return
     with open(fname, 'w') as fd:
         csv_writer = csv.writer(fd, delimiter='\t',
-                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
         for res in lo.search(filter=user_filter, attr=['oxAccess', 'oxAccessUSM']):
             dn, attrs = res
             ox_access_usm = attrs.get('oxAccessUSM', [None])[0]

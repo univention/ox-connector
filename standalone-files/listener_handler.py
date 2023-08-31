@@ -348,13 +348,13 @@ def unpack_dictionary(ldap_object: dict) -> dict:
 
     # A groups key must be there on functional_account even if empty
     if unpack_values(
-            ldap_object.get('univentionObjectType', [])
-       ) == 'oxmail/functional_account':
+        ldap_object.get('univentionObjectType', [])
+    ) == 'oxmail/functional_account':
         udm_object['groups'] = udm_object.get('groups', [])
     # A users key must be there on groups even if empty
     if unpack_values(
-            ldap_object.get('univentionObjectType', [])
-       ) == 'groups/group':
+        ldap_object.get('univentionObjectType', [])
+    ) == 'groups/group':
         udm_object['users'] = udm_object.get('users', [])
     return udm_object
 
