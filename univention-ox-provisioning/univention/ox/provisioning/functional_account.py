@@ -40,6 +40,7 @@ from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_f
 FunctionalAccount = get_ox_integration_class("SOAP", "SecondaryAccount")
 logger = logging.getLogger("listener")
 
+
 class InvalidSetting(Exception):
     """Raise when one app setting is invalid"""
 
@@ -112,7 +113,7 @@ def create_functional_account(obj):
         functional_account.users = [get_db_id(dn)]
         functional_account.login = obj.entry_uuid
         functional_account.login = get_functional_account_login(dn, obj)
-        functional_account.groups = [] # groups are disabled in umc, this should be changed if it is enabled again.
+        functional_account.groups = []  # groups are disabled in umc, this should be changed if it is enabled again.
         if functional_account.users[0]:
             functional_account.create()
 

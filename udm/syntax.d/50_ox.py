@@ -4,7 +4,7 @@ from univention.admin.syntax import select, simple, UDM_Objects
 
 
 class ExtendedAttributeIntegerType(univention.admin.types.TypeHint):
-    _python_types = (int,  string)
+    _python_types = (int, string)
     _openapi_type = 'integer'
 
     def decode_value(self, value):

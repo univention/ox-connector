@@ -70,7 +70,7 @@ def find_db_id(ox_context, username, build_cache, build_cache_size):
 
             def chunks(objs):
                 return (
-                    objs[pos : pos + build_cache_size]
+                    objs[pos: pos + build_cache_size]
                     for pos in range(0, len(objs), build_cache_size)
                 )
 

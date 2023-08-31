@@ -468,24 +468,24 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             run(obj)
             # Store the needed values to keep track of the objects locally.
             # For more details, see KeyValueStore objects FIXME above.
-            if (obj.attributes.get("oxContext") is not None and
-                    obj.attributes.get("oxContext") != obj.old_attributes.get("oxContext")):
+            if (obj.attributes.get("oxContext") is not None
+                    and obj.attributes.get("oxContext") != obj.old_attributes.get("oxContext")):
                 self.logger.info(
                     "Updating object OX ID in known objects from %s to %s",
                     obj.old_attributes.get("oxContext"),
                     obj.attributes.get("oxContext")
                 )
                 ox_contexts.set(dn, obj.attributes['oxContext'])
-            if (obj.attributes.get("oxDbId") is not None and
-                    obj.attributes.get("oxDbId") != obj.old_attributes.get("oxDbId")):
+            if (obj.attributes.get("oxDbId") is not None
+                    and obj.attributes.get("oxDbId") != obj.old_attributes.get("oxDbId")):
                 self.logger.info(
                     "Updating object OX DB ID in known objects from %s to %s",
                     obj.old_attributes.get("oxDbId"),
                     obj.attributes.get("oxDbId")
                 )
                 ox_db_id.set(dn, obj.attributes['oxDbId'])
-            if (obj.attributes.get("username") is not None and
-                    obj.attributes.get("username") != obj.old_attributes.get("username")):
+            if (obj.attributes.get("username") is not None
+                    and obj.attributes.get("username") != obj.old_attributes.get("username")):
                 self.logger.info(
                     "Updating object username in known objects from %s to %s",
                     obj.old_attributes.get("username"),

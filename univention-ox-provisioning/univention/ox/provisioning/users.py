@@ -350,7 +350,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
         user.create()
     else:
         logger.info(f"Creating {obj} in context {user.context_id} using UserCopy")
-        res = user_copy_service.copy_user(user={"id": user_id}, dest_ctx={"id" : user.context_id})
+        res = user_copy_service.copy_user(user={"id": user_id}, dest_ctx={"id": user.context_id})
         # Bug #56525 When changing the context and the username, the old
         # username is needed for the object search in the database because
         # the object hasn't been modified yet.

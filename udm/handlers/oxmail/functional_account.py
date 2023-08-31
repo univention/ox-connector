@@ -35,16 +35,16 @@ import univention.admin.localization
 import univention.admin.uexceptions
 from univention.admin.layout import Tab, Group
 
-translation=univention.admin.localization.translation('univention.admin.handlers.oxmail.functional_account')
-_=translation.translate
+translation = univention.admin.localization.translation('univention.admin.handlers.oxmail.functional_account')
+_ = translation.translate
 
-module='oxmail/functional_account'
-operations=['add','edit','remove','search','move']
-default_containers=["cn=functional_accounts,cn=open-xchange"]
+module = 'oxmail/functional_account'
+operations = ['add', 'edit', 'remove', 'search', 'move']
+default_containers = ["cn=functional_accounts,cn=open-xchange"]
 
-childs=False
-short_description=_('OX Mail: Functional Mailbox')
-long_description=''
+childs = False
+short_description = _('OX Mail: Functional Mailbox')
+long_description = ''
 
 options = {
     'default': univention.admin.option(
@@ -54,7 +54,7 @@ options = {
     )
 }
 
-property_descriptions={
+property_descriptions = {
     'name': univention.admin.property(
         short_description=_('Name'),
         long_description='',
@@ -104,21 +104,21 @@ property_descriptions={
 }
 
 layout = [
-    Tab(_('General'),_('Functional Account settings'), layout = [
-        Group( _( 'General' ), layout = [
+    Tab(_('General'), _('Functional Account settings'), layout=[
+        Group(_('General'), layout=[
             'name',
             'mailPrimaryAddress',
             'oxQuota',
             'personal',
-        ] ),
-        Group( _( 'Access Rights' ), layout = [
+        ]),
+        Group(_('Access Rights'), layout=[
             'users',
-            #'groups',
-        ] ),
-    ] ),
+            # 'groups',
+        ]),
+    ]),
 ]
 
-mapping=univention.admin.mapping.mapping()
+mapping = univention.admin.mapping.mapping()
 mapping.register('name', 'cn', None, univention.admin.mapping.ListToString)
 mapping.register('mailPrimaryAddress', 'mailPrimaryAddress', None, univention.admin.mapping.ListToLowerString)
 mapping.register('oxQuota', 'oxQuota', None, univention.admin.mapping.ListToString)
@@ -126,7 +126,7 @@ mapping.register('personal', 'oxPersonal', None, univention.admin.mapping.ListTo
 
 
 class object(univention.admin.handlers.simpleLdap):
-    module=module
+    module = module
 
     def open(self):
         super(object, self).open()

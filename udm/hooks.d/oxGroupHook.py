@@ -45,7 +45,7 @@ _ = translation.translate
 class oxGroupHook(simpleHook):
     type = 'oxGroupHook'
     # dummy function until translation method has been loaded in hook_open()
-    _ = lambda x: x
+    def _(x): return x
 
     @staticmethod
     def log_info(msg):

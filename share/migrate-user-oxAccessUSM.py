@@ -88,9 +88,10 @@ capability_map = {
     "webmail": "webmail",
 }
 
-capability_map_rev = {y:x for x,y in capability_map.items()}
+capability_map_rev = {y: x for x, y in capability_map.items()}
 
 _profiles = OrderedDict()
+
 
 def get_access_profiles(force_reload):
     if not _profiles or force_reload:
@@ -149,10 +150,10 @@ def apply_it(lo, pos, fname):
             ox_access = line[1]
             user = udm_objects.get(mod, None, lo, pos, dn)
             udm_objects.open(user)
-            if get_access_profile(ox_access+"_mobility", True):
-                user['oxAccess'] = ox_access+"_mobility"
+            if get_access_profile(ox_access + "_mobility", True):
+                user['oxAccess'] = ox_access + "_mobility"
             else:
-                if not get_access_profile(ox_access+"_mobility_migrated", True):
+                if not get_access_profile(ox_access + "_mobility_migrated", True):
                     oxaccess_profile = udm_objects.default(mod_accessprofile, None, lo, accessprofile_pos)
                     oxaccess_profile.open()
                     access_profile = get_access_profile(ox_access)
@@ -160,15 +161,15 @@ def apply_it(lo, pos, fname):
                         oxaccess_profile[capability_map_rev[k]] = True
                     oxaccess_profile['usm'] = True
                     oxaccess_profile['activesync'] = True
-                    oxaccess_profile['name'] = ox_access+"_mobility_migrated"
+                    oxaccess_profile['name'] = ox_access + "_mobility_migrated"
                     oxaccess_profile['displayName'] = oxaccess_profile['name']
                     try:
                         oxaccess_profile.create()
-                        print("Creating Access profile {} with mobility enabled from {}".format(ox_access+"_mobility_migrated", ox_access))
+                        print("Creating Access profile {} with mobility enabled from {}".format(ox_access + "_mobility_migrated", ox_access))
                     except univention.admin.uexceptions.objectExists:
                         pass
 
-                user['oxAccess'] = ox_access+"_mobility_migrated"
+                user['oxAccess'] = ox_access + "_mobility_migrated"
             user.modify()
             print("Changed access profile for {}".format(user.dn))
 

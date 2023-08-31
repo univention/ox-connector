@@ -92,6 +92,7 @@ class TriggerObject(object):
     file. May also hold information of this object from a previous run
     (needs a second, backup file for that)
     """
+
     def __init__(
         self,
         entry_uuid,
@@ -124,20 +125,20 @@ class TriggerObject(object):
             "oxresources/oxresources",
         ]
         if (
-            (self.object_type == "oxmail/oxcontext") and
-            (self.attributes is None)
+            (self.object_type == "oxmail/oxcontext")
+            and (self.attributes is None)
         ):
             # deleting a context should always come last
             return False
         if (
-            (other.object_type == "oxmail/oxcontext") and
-            (other.attributes is None)
+            (other.object_type == "oxmail/oxcontext")
+            and (other.attributes is None)
         ):
             # deleting a context should always come last
             return True
         if (
-            (self.object_type == "oxmail/accessprofile") or
-            (other.object_type == "oxmail/accessprofile")
+            (self.object_type == "oxmail/accessprofile")
+            or (other.object_type == "oxmail/accessprofile")
         ):
             # do not change order in accessprofiles
             return False
@@ -223,6 +224,7 @@ class KeyValueStore(object):
     Database about meta information on this listener.
     Particularly the number of consecutive errors.
     """
+
     def __init__(self, name):
         self.db_fname = str(NEW_FILES_DIR / name)
 

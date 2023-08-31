@@ -255,7 +255,6 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         self.logger.info('Created context {!r} ({!r}).'.format(obj.name, self.id))
         return obj.id
 
-
     def remove(self):  # type: () -> None
         """
         Delete object.
@@ -265,7 +264,6 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         super(SoapContext, self).remove()
         self.logger.info('Removing secret file for context {}'.format(self.id))
         remove_context_admin_password(self.id)
-
 
     @classmethod
     def from_ox(cls, context_id=None, obj_id=None, name=None):  # type: (int, Optional[int], Optional[str]) -> OxObject
