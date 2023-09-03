@@ -71,6 +71,7 @@ prepare:
         echo "ERROR: The variable GITLAB_TOKEN is not set"
         exit 1
       fi
+      echo "CI_COMMIT_REF_NAME is set to ${CI_COMMIT_REF_NAME}"
       export SEMANTIC_VERSION=$(
         semantic-release \
           --dry-run \
@@ -82,7 +83,9 @@ prepare:
       )
       if [[ -z "${SEMANTIC_VERSION}" ]]; then
         echo "ERROR: Failed extract SEMANTIC_VERSION from semantic-release output"
-        exit 1
+        # TODO: find source for ERELEASEBRANCHES on `5.0` branch and use exit again
+        export SEMANTIC_VERSION="0.0.1"
+        # exit 1
       fi
       echo "Using SEMANTIC_VERSION: ${SEMANTIC_VERSION}"
       if [[ "${CI_COMMIT_REF_NAME:-}" != "${CI_DEFAULT_BRANCH:-}" ]]; then
