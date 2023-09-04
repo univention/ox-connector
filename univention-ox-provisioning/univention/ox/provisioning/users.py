@@ -349,8 +349,14 @@ def create_user(obj, user_copy_service=False, user_id=None):
     if not user_copy_service:
         user.create()
     else:
+        logger.info(f"Creating {obj} in context {user.context_id} using UserCopy")
         res = user_copy_service.copy_user(user={"id": user_id}, dest_ctx={"id" : user.context_id})
-        user = get_obj_by_name_from_ox(User, user.context_id, user.name)
+        # Bug #56525 When changing the context and the username, the old
+        # username is needed for the object search in the database because
+        # the object hasn't been modified yet.
+        user = get_obj_by_name_from_ox(User, user.context_id, obj.old_attributes.get("username"))
+        update_user(user, obj.attributes, obj.old_attributes)
+        user.modify()
     obj.set_attr("oxDbId", user.id)
     set_user_rights(user, obj)
     logger.info("Looking for groups of this user to be created in the context id")

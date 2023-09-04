@@ -222,10 +222,10 @@ App Settings
    If this value is empty it is set to a concatenation of the functional account LDAP entry UUID
    and the user LDAP uid.
 
-   This template has to include the functional account entry UUID (`fa_entry_uuid`) and can additionally
-   include any OX user UDM property (including the user's `entry_uuid` and `dn`). Every value used in this
-   template must be enclosed by ``{{ }}`` e.g ``{{fa_entry_uuid}}{{username}}``. Multiple values can
-   optionally be separated by any combination of the characters ``:;+``.
+   This template can include the functional account entry UUID (`fa_entry_uuid`), the functional
+   account email address (`fa_email_address`) and any OX user UDM property (including the user's `entry_uuid` and `dn`).
+   Every UDM property used in this template must be enclosed by ``{{ }}`` e.g ``{{fa_entry_uuid}}{{username}}``. Multiple values can
+   optionally be separated by other text.
 
    .. list-table::
       :header-rows: 1
@@ -253,6 +253,19 @@ App Settings
 
             "{{fa_entry_uuid}}::{{entry_uuid}}" # Functional account entry UUID and user UUID separated by two colons.
             "{{username}}+{{fa_entry_uuid}}+{{dn}}" # username, functional account entry UUID and user dn separated by a '+'
+            "{{fa_email_address}}*dovecotadmin" # Concatenation of functional account's mail address and the string *\*dovecotadmin
+
+
+   .. note::
+
+        In cases where SSO is to be used, this variable has to be appended with an asterisk
+        and the mail server's master user. For Dovecot this would be *\*dovecotadmin*. In this
+        case ``OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE`` can be set to ``'{{fa_email_address}}*dovecotadmin'``.
+        The resulting login value for the functional account would then look like this:
+
+        .. code-block:: console
+
+            myfunctional_account@maildomain.de*dovecotadmin
 
 
 .. _ucr-variables:

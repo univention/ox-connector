@@ -69,8 +69,8 @@ Type = String
 Required = False
 
 [OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE]
-Description = Template to format the functional account login field. All specified values used in this template must be enclosed by "{{ }}" e.g "{{fa_entry_uuid}}{{username}}". Multiple values can optionally be separated by any of the characters ":;+". The functional account entry-uuid ('fa_entry_uuid') has to always be included and any udm property of OX users (including their entry_uuid and dn) can optionally be added.
-Description[de] = Template welches den Wert für das Login-Feld von Funktionspostfächern setzt. Jeder angegebene Wert muss mit "{{ }}" umschlossen werden (z.B. "{{fa_entry_uuid}}{{username}}"). Bei mehreren Werten können optional die Zeichen ":;+" als Separator verwendet werden. Die Funktionspostfach-Entry-Uuid ('fa_entry_uuid') muss immer angegeben werden. Diese kann darüber hinaus mit beliebigen OX-User-UDM-Properties erweitert werden (inkl. derer entry_uuid und DN).
+Description = Customizes the functional account login field format using templates. You can use plain text or incorporate UDM properties, which have to be enclosed within double curly braces, such as '{{fa_entry_uuid}}{{username}}'." For more details, please refer to the <a target="_blank" href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE">ox-connector manual</a>.
+Description[de] = Formatvorgabe für das Login-Feld von Funktionspostfächern mit Hilfe von Templates. Gültige Werte sind einfacher Text und UDM-Properties. UDM-Properties müssen mit "{{ }}" umschlossen werden (z.B. "{{fa_entry_uuid}}{{username}}"). Weitere Einzelheiten können der <a target="_blank" href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE">OX-Connector-Dokumentation</a> entnommen werden.
 Show = Install, Settings
 Type = String
 Required = False

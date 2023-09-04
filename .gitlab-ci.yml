@@ -34,7 +34,7 @@ variables:
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: "noninteractive"
   UNIVENTION_BASECONF: "/dev/null"
-  DOC_TARGET_VERSION: "2.2.6"
+  DOC_TARGET_VERSION: "2.2.7"
   DOC_TARGET_NAME: "ox-connector-app"
   DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOC_TARGET_VERSION}"
 

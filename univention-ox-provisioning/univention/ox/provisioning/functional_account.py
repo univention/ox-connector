@@ -47,43 +47,32 @@ class InvalidSetting(Exception):
 
 
 def configure_functional_account_login(app_setting):
-    INVALID_FORMAT_ERR_MSG = "The format used for OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE app setting is invalid"
-    MISSING_FA_ENTRY_UUID_ERR_MSG = "The functional account entry uuid is required in the OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE app setting"
-
     try:
-        FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = []
-        prev_end = 0
-        for f in re.finditer("({{\w+}})([:;+]?)*", app_setting):
-            if f.span(0)[0] != prev_end:
-                raise InvalidSetting(INVALID_FORMAT_ERR_MSG)
-            prev_end = f.span(0)[1]
-            FUNCTIONAL_ACCOUNT_LOGIN_FORMAT.append((f.group(1)[2:-2], f.group(0).lstrip(f.group(1))))
-        if prev_end != len(app_setting):
-            raise InvalidSetting(INVALID_FORMAT_ERR_MSG)
+        FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = [f.span() for f in re.finditer("{{\w+}}", app_setting)]
     except ValueError:
         raise InvalidSetting(INVALID_FORMAT_ERR_MSG)
-    else:
-        if not any(x[0] == "fa_entry_uuid" for x in FUNCTIONAL_ACCOUNT_LOGIN_FORMAT):
-            raise InvalidSetting(MISSING_FA_ENTRY_UUID_ERR_MSG)
-    return FUNCTIONAL_ACCOUNT_LOGIN_FORMAT
+    return sorted(FUNCTIONAL_ACCOUNT_LOGIN_FORMAT, reverse=True)
 
 
 FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = configure_functional_account_login(FUNCTIONAL_ACCOUNT_LOGIN)
 
 
 def get_functional_account_login(dn, fa):
-    value = ""
+    value = FUNCTIONAL_ACCOUNT_LOGIN
     obj = univention.ox.provisioning.helpers.get_old_obj(dn)
-    for attribute, separator in FUNCTIONAL_ACCOUNT_LOGIN_FORMAT:
-        if attribute == "fa_entry_uuid":
-            value += fa.entry_uuid
-        elif attribute == "entry_uuid":
-            value += obj.entry_uuid
-        elif attribute == "dn":
-            value += obj.distinguished_name
+    for span in FUNCTIONAL_ACCOUNT_LOGIN_FORMAT:
+        attr_name = value[span[0]+2:span[1]-2]
+        if attr_name == "fa_entry_uuid":
+            value = value.replace(value[span[0]:span[1]], fa.entry_uuid)
+        elif attr_name == "fa_email_address":
+            value = value.replace(value[span[0]:span[1]], fa.attributes["mailPrimaryAddress"])
+        elif attr_name == "entry_uuid":
+            value = value.replace(value[span[0]:span[1]], obj.entry_uuid)
+        elif attr_name == "dn":
+            value = value.replace(value[span[0]:span[1]], obj.distinguished_name)
         else:
-            value += obj.attributes[attribute]
-        value += separator
+            value = value.replace(value[span[0]:span[1]], obj.attributes[attr_name])
+    logger.info(f"format functional account login value ({value})")
     return value
 
 

@@ -1,6 +1,6 @@
 # OX Provisioning App
 
-**APP VERSION 2.2.6**
+**APP VERSION 2.2.7**
 **OX VERSION 7.10.6**
 
 This App connects to UCS' Identity Management with OX' database.

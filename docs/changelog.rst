@@ -12,6 +12,24 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.2.7
+=============
+
+Released: 7. September 2023
+
+Changed
+-------
+
+Allow any string in `OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE` app setting to simplify SSO configurations.
+
+Fixed
+-------
+
+Fix `OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE` empty app setting handling (Bug #56523).
+
+Fix error in context change when modifying the context and the username in the same operation (Bug #56525).
+
+
 2.2.6
 =============
 
