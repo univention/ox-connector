@@ -7,7 +7,7 @@ def create_obj(udm, name, domainname, context_id, user):
         "cn=oxresources,cn=open-xchange",
         {
             "name": name,
-            "displayname": name.upper(),
+            "displayname": name,
             "description": "A description for {}".format(name),
             "resourceMailAddress": "{}@{}".format(name, domainname),
             "resourceadmin": str(user.properties["uidNumber"]),
@@ -45,7 +45,7 @@ def test_add_resource_in_default_context(
     dn = create_obj(udm, new_resource_name, domainname, None, user)
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_resource_name)
-    assert obj.display_name == new_resource_name.upper()
+    assert obj.display_name == new_resource_name
     assert obj.description == "A description for {}".format(new_resource_name)
     assert obj.email == "{}@{}".format(new_resource_name, domainname)
 
@@ -68,7 +68,7 @@ def test_add_resource(
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_resource_name)
-    assert obj.display_name == new_resource_name.upper()
+    assert obj.display_name == new_resource_name
     assert obj.description == "A description for {}".format(new_resource_name)
     assert obj.email == "{}@{}".format(new_resource_name, domainname)
 

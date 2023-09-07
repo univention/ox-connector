@@ -7,7 +7,7 @@ services:
     container_name: "ox-connector-standalone"
     platform: "linux/amd64"
     build:
-      context: "./"
+      context: "."
       dockerfile: "Dockerfile.standalone"
       args:
         - "version=2.2.2"
@@ -47,6 +47,8 @@ services:
       OX_SOAP_SERVER: "https://ox.example.org"
       # Log level: DEBUG, INFO, WARNING, ERROR
       LOG_LEVEL: "DEBUG"
+      LDAP_MASTER: "ox-connector-ldap-server"
+      LDAP_BASE: "dc=example,dc=org"
     volumes:
       - "ox-connector-standalone-data:/var/lib/univention-directory-listener/:rw"
     depends_on:
@@ -83,6 +85,7 @@ services:
       LDAP_BASE_DN: "dc=example,dc=org"
       # For binding with user "cn=admin,${LDAP_BASE_DN}"
       LDAP_CN_ADMIN_PW: "ldap-password"
+      TLS_MODE: "off"
     ports:
       - "389:389"
       - "636:636"

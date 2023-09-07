@@ -55,68 +55,46 @@ name = 'ox-listener-service'
 # Some LDAP attributes are mapped to multiple UDM attributes.
 
 ldap_to_udm_keys_mapping = {
-    "uid": {
-        "new_keys": ["username"],
-        "is_multivalue": False
-    },
-    "groups": {
-        "new_keys": ["groups"],
-        "is_multivalue": True
-    },
-    "givenName": {
-        "new_keys": ["firstname"],
-        "is_multivalue": False
-    },
-    "sn": {
-        "new_keys": ["lastname"],
-        "is_multivalue": False
-    },
+    "uid": {"new_keys": ["username"], "is_multivalue": False},
+    "groups": {"new_keys": ["groups"], "is_multivalue": True},
+    "givenName": {"new_keys": ["firstname"], "is_multivalue": False},
+    "sn": {"new_keys": ["lastname"], "is_multivalue": False},
     "mailPrimaryAddress": {
         "new_keys": ["mailPrimaryAddress", "resourceMailAddress"],
         "is_multivalue": False,
     },
-    "l": {
-        "new_keys": ["city"],
-        "is_multivalue": False
-    },
-    "postalCode": {
-        "new_keys": ["postcode"],
-        "is_multivalue": False
-    },
+    "l": {"new_keys": ["city"], "is_multivalue": False},
+    "postalCode": {"new_keys": ["postcode"], "is_multivalue": False},
     "cn": {
         "new_keys": ["name"],
         "is_multivalue": False,
     },
-    "title": {
-        "new_keys": ["title"],
-        "is_multivalue": False
-    },
-    "users": {
-        "new_keys": ["users"],
-        "is_multivalue": True
-    },
+    "title": {"new_keys": ["title"], "is_multivalue": False},
+    "users": {"new_keys": ["users"], "is_multivalue": True},
     "roomNumber": {
         "new_keys": ["roomNumber"],
         "is_multivalue": True,
     },
-    "o": {
-        "new_keys": ["organisation"],
-        "is_multivalue": False
-    },
+    "o": {"new_keys": ["organisation"], "is_multivalue": False},
     "mailAlternativeAddress": {
         "new_keys": ["mailAlternativeAddress"],
-        "is_multivalue": False,
+        "is_multivalue": True,
     },
-    "pagerTelephoneNumber": {
+    "pager": {
         "new_keys": ["pagerTelephoneNumber"],
         "is_multivalue": True,
     },
-    "univentionBirthday": {
-        "new_keys": ["birthday"],
-        "is_multivalue": False
+    "homePhone": {
+        "new_keys": ["homeTelephoneNumber"],
+        "is_multivalue": True,
+    },
+    "univentionBirthday": {"new_keys": ["birthday"], "is_multivalue": False},
+    "mobile": {
+        "new_keys": ["mobileTelephoneNumber"],
+        "is_multivalue": True,
     },
     "telephoneNumber": {
-        "new_keys": ["mobileTelephoneNumber"],
+        "new_keys": ["mobileTelephoneNumber", "phone"],
         "is_multivalue": True,
     },
     "univentionMailHomeServer": {
@@ -125,114 +103,68 @@ ldap_to_udm_keys_mapping = {
     },
     "oxContextIDNum": {
         "new_keys": ["contextid", "oxContext"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxResourceAdmin": {
-        "new_keys": ["resourceadmin"],
-        "is_multivalue": False
-    },
-    "uniqueMember": {
-        "new_keys": ["users"],
-        "is_multivalue": True
-    },
-    "oxRightCalendar": {
-        "new_keys": ["calendar"],
-        "is_multivalue": False
-    },
+    "oxResourceAdmin": {"new_keys": ["resourceadmin"], "is_multivalue": False},
+    "uniqueMember": {"new_keys": ["users"], "is_multivalue": True},
+    "oxRightCalendar": {"new_keys": ["calendar"], "is_multivalue": False},
     "oxRightCollectemailaddresses": {
         "new_keys": ["collectemailaddresses"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxRightContacts": {
-        "new_keys": ["contacts"],
-        "is_multivalue": False
-    },
+    "oxRightContacts": {"new_keys": ["contacts"], "is_multivalue": False},
     "oxRightDelegatetask": {
         "new_keys": ["delegatetask"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxRightEditgroup": {
-        "new_keys": ["editgroup"],
-        "is_multivalue": False
-    },
+    "oxRightEditgroup": {"new_keys": ["editgroup"], "is_multivalue": False},
     "oxRightEditpassword": {
         "new_keys": ["editpassword"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
     "oxRightEditpublicfolders": {
         "new_keys": ["editpublicfolders"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
     "oxRightEditresource": {
         "new_keys": ["editresource"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxRightIcal": {
-        "new_keys": ["ical"],
-        "is_multivalue": False
-    },
+    "oxRightIcal": {"new_keys": ["ical"], "is_multivalue": False},
     "oxRightMultiplemailaccounts": {
         "new_keys": ["multiplemailaccounts"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
     "oxRightReadcreatesharedfolders": {
         "new_keys": ["readcreatesharedfolders"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
     "oxRightSubscription": {
         "new_keys": ["subscription"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxRightTasks": {
-        "new_keys": ["tasks"],
-        "is_multivalue": False
-    },
-    "oxRightVcard": {
-        "new_keys": ["vcard"],
-        "is_multivalue": False
-    },
-    "oxRightWebdav": {
-        "new_keys": ["webdav"],
-        "is_multivalue": False
-    },
-    "oxRightWebmail": {
-        "new_keys": ["webmail"],
-        "is_multivalue": False
-    },
-    "oxRightUsm": {
-        "new_keys": ["usm"],
-        "is_multivalue": False
-    },
-    "oxRightActivesync": {
-        "new_keys": ["activesync"],
-        "is_multivalue": False
-    },
+    "oxRightTasks": {"new_keys": ["tasks"], "is_multivalue": False},
+    "oxRightVcard": {"new_keys": ["vcard"], "is_multivalue": False},
+    "oxRightWebdav": {"new_keys": ["webdav"], "is_multivalue": False},
+    "oxRightWebmail": {"new_keys": ["webmail"], "is_multivalue": False},
+    "oxRightUsm": {"new_keys": ["usm"], "is_multivalue": False},
+    "oxRightActivesync": {"new_keys": ["activesync"], "is_multivalue": False},
     "oxRightDeniedportal": {
         "new_keys": ["deniedportal"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
     "oxRightGlobaladdressbookdisabled": {
         "new_keys": ["globaladdressbookdisabled"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxRightInfostore": {
-        "new_keys": ["infostore"],
-        "is_multivalue": False
-    },
+    "oxRightInfostore": {"new_keys": ["infostore"], "is_multivalue": False},
     "oxRightPublicfoldereditable": {
         "new_keys": ["publicfoldereditable"],
-        "is_multivalue": False
+        "is_multivalue": False,
     },
-    "oxRightSyncml": {
-        "new_keys": ["syncml"],
-        "is_multivalue": False
-    },
-    "oxRightWebdavxml": {
-        "new_keys": ["webdavxml"],
-        "is_multivalue": False
-    }
+    "oxRightSyncml": {"new_keys": ["syncml"], "is_multivalue": False},
+    "oxRightWebdavxml": {"new_keys": ["webdavxml"], "is_multivalue": False},
 }
-
 
 logger = logging.getLogger("univention.ox")
 logger.setLevel(os.environ.get("LOG_LEVEL", "INFO"))
@@ -277,11 +209,19 @@ def _get_existing_object_ox_id(distinguished_name):
     object_ox_db_id = ox_db_id.get(distinguished_name)
     object_ox_db_uid = usernames.get(distinguished_name)
     logger.info("Loading object OX ID from known objects")
-    fake_obj = FakeObject({
-        "oxContext": object_ox_id.decode("utf-8") if object_ox_id else None,
-        "oxDbId": object_ox_db_id.decode("utf-8") if object_ox_db_id else None,
-        "username": object_ox_db_uid.decode("utf-8") if object_ox_db_uid else None
-    })
+    fake_obj = FakeObject(
+        {
+            "oxContext": object_ox_id.decode("utf-8")
+            if object_ox_id
+            else None,
+            "oxDbId": object_ox_db_id.decode("utf-8")
+            if object_ox_db_id
+            else None,
+            "username": object_ox_db_uid.decode("utf-8")
+            if object_ox_db_uid
+            else None,
+        },
+    )
     logger.debug("old object retrieved: %s", fake_obj.attributes)
     return fake_obj
 
@@ -290,7 +230,7 @@ def _get_existing_object_ox_id(distinguished_name):
 helpers.get_old_obj = _get_existing_object_ox_id
 
 
-def unpack_values(values_list: list, is_multivalue: bool = False):
+def unpack_values(values, is_multivalue: bool = False):
     """
     Unpack LDAP list of binary values to a list of strings.
 
@@ -298,19 +238,19 @@ def unpack_values(values_list: list, is_multivalue: bool = False):
 
     :return: string if single value or list of strings
     """
-    if len(values_list) == 1:
+    if len(values) == 1:
         if is_multivalue:
-            return [values_list[0].decode()]
+            return [values[0].decode()]
         try:
-            return values_list[0].decode()
+            return values[-1].decode()
         except UnicodeDecodeError:
             logger.warning(
-                'unpack_values UnicodeDecodeError, trying base64 image'
+                'unpack_values UnicodeDecodeError, trying base64 image',
             )
             # Handle images
-            return base64.b64encode(values_list[0]).decode()
+            return base64.b64encode(values[0]).decode()
     string_values = []
-    for v in values_list:
+    for v in values:
         # Handle exceptions such as trying to utf-8 decode the krb5Key
         try:
             string_values.append(v.decode())
@@ -342,19 +282,30 @@ def unpack_dictionary(ldap_object: dict) -> dict:
             udm_object[k] = unpack_values(v)
             continue
         for new_key in ldap_to_udm_keys_mapping[k]['new_keys']:
+            # FIXME: remove if not needed
+            # if new_key == 'oxContext':
+            #     udm_object[new_key] = str(unpack_values(
+            #         v, ldap_to_udm_keys_mapping[k]['is_multivalue']
+            #     ))
+            #     continue
             udm_object[new_key] = unpack_values(
-                v, ldap_to_udm_keys_mapping[k]['is_multivalue']
+                v,
+                ldap_to_udm_keys_mapping[k]['is_multivalue'],
             )
 
-    # A groups key must be there on functional_account even if empty
-    if unpack_values(
-        ldap_object.get('univentionObjectType', [])
-    ) == 'oxmail/functional_account':
+    # A groups and users key must be there on functional_account even if empty
+    # but LDAP will not send it if empty
+    if (
+        unpack_values(ldap_object.get('univentionObjectType', []))
+        == 'oxmail/functional_account'
+    ):
         udm_object['groups'] = udm_object.get('groups', [])
+        udm_object['users'] = udm_object.get('users', [])
     # A users key must be there on groups even if empty
-    if unpack_values(
-        ldap_object.get('univentionObjectType', [])
-    ) == 'groups/group':
+    if (
+        unpack_values(ldap_object.get('univentionObjectType', []))
+        == 'groups/group'
+    ):
         udm_object['users'] = udm_object.get('users', [])
     return udm_object
 
@@ -369,20 +320,17 @@ def format_as_udm_object(ldap_object: dict) -> dict:
     :return: dict of UDM object
     """
     return {
-        'dn':
-            unpack_values(ldap_object.get('entryDN', [])),
-        'id':
-            unpack_values(ldap_object.get('entryUUID', [])),
-        'object':
-            unpack_dictionary(ldap_object),
+        'dn': unpack_values(ldap_object.get('entryDN', [])),
+        'id': unpack_values(ldap_object.get('entryUUID', [])),
+        'object': unpack_dictionary(ldap_object),
         'options': ['default'],
-        'udm_object_type':
-            unpack_values(ldap_object.get('univentionObjectType', [])),
+        'udm_object_type': unpack_values(
+            ldap_object.get('univentionObjectType', []),
+        ),
     }
 
 
 class OxConnectorListenerModule(ListenerModuleHandler):
-
     class Configuration(ListenerModuleHandler.Configuration):
         name = name
         description = (
@@ -394,22 +342,26 @@ class OxConnectorListenerModule(ListenerModuleHandler):
         # is due to Univention Directory Listener not sending the events in
         # order until the listener is initialized, causing issues when i.e
         # creating a user in a context that has not been provisioned yet.
-        ldap_filter = "(|" \
-            "(univentionObjectType=users/user)" \
-            "(univentionObjectType=oxmail/oxcontext)" \
-            "(univentionObjectType=oxresources/oxresources)" \
-            "(univentionObjectType=groups/group)" \
-            "(univentionObjectType=oxmail/accessprofile)" \
-            "(univentionObjectType=oxmail/functional_account)" \
-            ")" if os.path.exists('/tmp/initialized.lock') else "(|" \
-            "(univentionObjectType=oxmail/oxcontext)" \
+        ldap_filter = (
+            "(|"
+            "(univentionObjectType=users/user)"
+            "(univentionObjectType=oxmail/oxcontext)"
+            "(univentionObjectType=oxresources/oxresources)"
+            "(univentionObjectType=groups/group)"
+            "(univentionObjectType=oxmail/accessprofile)"
+            "(univentionObjectType=oxmail/functional_account)"
+            ")"
+            if os.path.exists('/tmp/initialized.lock')
+            else "(|"
+            "(univentionObjectType=oxmail/oxcontext)"
             "(univentionObjectType=oxmail/accessprofile))"
+        )
 
     def initialize(self):
         self.logger.info('ox-listener-service module initialize')
         self.logger.info(
             "Using the following LDAP filter: %s",
-            self.config.ldap_filter
+            self.config.ldap_filter,
         )
 
     def create(self, dn, new):
@@ -449,7 +401,11 @@ class OxConnectorListenerModule(ListenerModuleHandler):
 
     def modify(self, dn, old, new, old_dn):
         self.logger.info('[ modify ] dn: %r', dn)
+        if old_dn:
+            self.logger.debug('it is (also) a move! old_dn: %r', old_dn)
         fake_new_udm_obj = format_as_udm_object(new)
+        # Emulate the listener_trigger.load_old() method
+        fake_old_udm_obj = format_as_udm_object(old)
         obj = TriggerObject(
             fake_new_udm_obj['id'],
             fake_new_udm_obj['udm_object_type'],
@@ -458,8 +414,6 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             fake_new_udm_obj['options'],
             None,
         )
-        # Emulate the listener_trigger.load_old() method
-        fake_old_udm_obj = format_as_udm_object(old)
         obj.old_distinguished_name = fake_old_udm_obj["dn"]
         obj.old_attributes = fake_old_udm_obj["object"]
         obj.old_options = fake_old_udm_obj["options"]
@@ -468,36 +422,41 @@ class OxConnectorListenerModule(ListenerModuleHandler):
             run(obj)
             # Store the needed values to keep track of the objects locally.
             # For more details, see KeyValueStore objects FIXME above.
-            if (obj.attributes.get("oxContext") is not None
-                    and obj.attributes.get("oxContext") != obj.old_attributes.get("oxContext")):
-                self.logger.info(
-                    "Updating object OX ID in known objects from %s to %s",
-                    obj.old_attributes.get("oxContext"),
+            if obj.attributes:
+                if obj.attributes.get("oxContext") is not None and (
                     obj.attributes.get("oxContext")
-                )
-                ox_contexts.set(dn, obj.attributes['oxContext'])
-            if (obj.attributes.get("oxDbId") is not None
-                    and obj.attributes.get("oxDbId") != obj.old_attributes.get("oxDbId")):
-                self.logger.info(
-                    "Updating object OX DB ID in known objects from %s to %s",
-                    obj.old_attributes.get("oxDbId"),
+                    != obj.old_attributes.get("oxContext")
+                ):
+                    self.logger.info(
+                        "Updating object OX ID in known objects from %s to %s",
+                        obj.old_attributes.get("oxContext"),
+                        obj.attributes.get("oxContext"),
+                    )
+                    ox_contexts.set(dn, obj.attributes['oxContext'])
+                if obj.attributes.get("oxDbId") is not None and (
                     obj.attributes.get("oxDbId")
-                )
-                ox_db_id.set(dn, obj.attributes['oxDbId'])
-            if (obj.attributes.get("username") is not None
-                    and obj.attributes.get("username") != obj.old_attributes.get("username")):
-                self.logger.info(
-                    "Updating object username in known objects from %s to %s",
-                    obj.old_attributes.get("username"),
+                    != obj.old_attributes.get("oxDbId")
+                ):
+                    self.logger.info(
+                        "Updating object OX DB ID in known objects from %s to %s",
+                        obj.old_attributes.get("oxDbId"),
+                        obj.attributes.get("oxDbId"),
+                    )
+                    ox_db_id.set(dn, obj.attributes['oxDbId'])
+                if obj.attributes.get("username") is not None and (
                     obj.attributes.get("username")
-                )
-                usernames.set(dn, obj.attributes['username'])
+                    != obj.old_attributes.get("username")
+                ):
+                    self.logger.info(
+                        "Updating object username in known objects from %s to %s",
+                        obj.old_attributes.get("username"),
+                        obj.attributes.get("username"),
+                    )
+                    usernames.set(dn, obj.attributes['username'])
         except Exception as err:
             self.logger.exception('[ modify ] modify run failed')
             self.logger.debug(err)
             raise
-        if old_dn:
-            self.logger.debug('it is (also) a move! old_dn: %r, old_dn')
         self.logger.debug('[ modify ] end of modify')
 
     def remove(self, dn, old):

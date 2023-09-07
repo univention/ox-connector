@@ -17,9 +17,16 @@ def truncate_wait_for_listener_log():
         with TEST_LOG_FILE.open("w"):
             pass
 
+        TEST_LOG_FILE.chmod(0o666)
+
     yield _func
 
-    TEST_LOG_FILE.unlink(missing_ok=True)
+    # OX standalone runs on Python 3.7 due to univention-directory-listener
+    # and `missing_ok` was added in Python 3.8
+    try:
+        TEST_LOG_FILE.unlink(missing_ok=True)
+    except TypeError:
+        TEST_LOG_FILE.unlink()
 
 
 @pytest.fixture
