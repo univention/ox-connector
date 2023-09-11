@@ -2,6 +2,10 @@
 
 ## Testing ox-connector on SouvAP environment
 
+This process is expected to be run before releasing a new version. See the
+current tests status at the bottom of this file to compare your test run. It is
+recommended to keep an eye on it during development.
+
 First of all you will need a SouvAP deployment on a cluster. You can get one up
 and running [here](https://gitlab.souvap-univention.de/souvap/devops/sovereign-workplace/-/pipelines/new?ref=jconde/ox-connector-tests&var[NAMESPACE]=jconde&var[CLUSTER]=gaia&var[BASE_DOMAIN]=open-desk.cloud&var[DEPLOY_SERVICES]=yes&var[DEPLOY_KEYCLOAK]=yes&var[DEPLOY_UCS]=yes&var[DEPLOY_PROVISIONING]=yes&var[DEPLOY_OX]=yes&var[ENV_STOP_BEFORE]=yes&var[RUN_TESTS]=no).
 If the branch does not exist, you can create one yourself.
@@ -33,6 +37,10 @@ on the parent folder (parallel to `provisioning` repository) and change
 including the templated ones under `values-oxconnector.gotmpl`. If you want to
 know some values and don't have access to the vault, ask @trossner or
 @jconde for them.
+
+> You can find the kubeconfig for gaia cluster and other documentation on
+[DevOps k8s docs](https://gitlab.souvap-univention.de/groups/souvap/devops/-/wikis/deployment/K8s-cluster#gaia-development-cluster-for-univention-souvap-dev-team)
+and [SouvAP](https://univention.gitpages.knut.univention.de/customers/dataport/team-souvap/onboarding/souvap-environment.html)
 
 ## Hotfix UCS container
 

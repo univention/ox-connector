@@ -332,6 +332,8 @@ COPY \
   standalone-files/misc.py \
   ${PYPKG}/univention/lib/
 
+COPY standalone-files/ox_mappings.py ${PYPKG}/ox_mappings.py
+
 # dependency dateutil of /usr/local/lib/python3.7/dist-packages/univention/admin/syntax.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/dateutil/ ${PYPKG}/dateutil/
 

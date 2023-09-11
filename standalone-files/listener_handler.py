@@ -4,7 +4,7 @@
 # Univention Listener Converter
 #  Listener integration
 #
-# Copyright 2021 Univention GmbH
+# Copyright 2023 Univention GmbH
 #
 # https://www.univention.de/
 #
@@ -35,7 +35,6 @@
 # included
 import os
 import logging
-import base64
 
 # 3rd party
 from univention.listener.handler import ListenerModuleHandler
@@ -44,6 +43,8 @@ from univention.listener.handler import ListenerModuleHandler
 from univention.ox.provisioning import helpers, run
 from listener_trigger import TriggerObject, KeyValueStore
 
+from ox_mappings import format_as_udm_object
+
 name = 'ox-listener-service'
 
 # FIXME:
@@ -51,120 +52,6 @@ name = 'ox-listener-service'
 # designed to receive UDM objects. This means we need to map the LDAP
 # objects to UDM objects. This is temporary, until the new provisioning is
 # in place.
-
-# Some LDAP attributes are mapped to multiple UDM attributes.
-
-ldap_to_udm_keys_mapping = {
-    "uid": {"new_keys": ["username"], "is_multivalue": False},
-    "groups": {"new_keys": ["groups"], "is_multivalue": True},
-    "givenName": {"new_keys": ["firstname"], "is_multivalue": False},
-    "sn": {"new_keys": ["lastname"], "is_multivalue": False},
-    "mailPrimaryAddress": {
-        "new_keys": ["mailPrimaryAddress", "resourceMailAddress"],
-        "is_multivalue": False,
-    },
-    "l": {"new_keys": ["city"], "is_multivalue": False},
-    "postalCode": {"new_keys": ["postcode"], "is_multivalue": False},
-    "cn": {
-        "new_keys": ["name"],
-        "is_multivalue": False,
-    },
-    "title": {"new_keys": ["title"], "is_multivalue": False},
-    "users": {"new_keys": ["users"], "is_multivalue": True},
-    "roomNumber": {
-        "new_keys": ["roomNumber"],
-        "is_multivalue": True,
-    },
-    "o": {"new_keys": ["organisation"], "is_multivalue": False},
-    "mailAlternativeAddress": {
-        "new_keys": ["mailAlternativeAddress"],
-        "is_multivalue": True,
-    },
-    "pager": {
-        "new_keys": ["pagerTelephoneNumber"],
-        "is_multivalue": True,
-    },
-    "homePhone": {
-        "new_keys": ["homeTelephoneNumber"],
-        "is_multivalue": True,
-    },
-    "univentionBirthday": {"new_keys": ["birthday"], "is_multivalue": False},
-    "mobile": {
-        "new_keys": ["mobileTelephoneNumber"],
-        "is_multivalue": True,
-    },
-    "telephoneNumber": {
-        "new_keys": ["mobileTelephoneNumber", "phone"],
-        "is_multivalue": True,
-    },
-    "univentionMailHomeServer": {
-        "new_keys": ["mailHomeServer"],
-        "is_multivalue": False,
-    },
-    "oxContextIDNum": {
-        "new_keys": ["contextid", "oxContext"],
-        "is_multivalue": False,
-    },
-    "oxResourceAdmin": {"new_keys": ["resourceadmin"], "is_multivalue": False},
-    "uniqueMember": {"new_keys": ["users"], "is_multivalue": True},
-    "oxRightCalendar": {"new_keys": ["calendar"], "is_multivalue": False},
-    "oxRightCollectemailaddresses": {
-        "new_keys": ["collectemailaddresses"],
-        "is_multivalue": False,
-    },
-    "oxRightContacts": {"new_keys": ["contacts"], "is_multivalue": False},
-    "oxRightDelegatetask": {
-        "new_keys": ["delegatetask"],
-        "is_multivalue": False,
-    },
-    "oxRightEditgroup": {"new_keys": ["editgroup"], "is_multivalue": False},
-    "oxRightEditpassword": {
-        "new_keys": ["editpassword"],
-        "is_multivalue": False,
-    },
-    "oxRightEditpublicfolders": {
-        "new_keys": ["editpublicfolders"],
-        "is_multivalue": False,
-    },
-    "oxRightEditresource": {
-        "new_keys": ["editresource"],
-        "is_multivalue": False,
-    },
-    "oxRightIcal": {"new_keys": ["ical"], "is_multivalue": False},
-    "oxRightMultiplemailaccounts": {
-        "new_keys": ["multiplemailaccounts"],
-        "is_multivalue": False,
-    },
-    "oxRightReadcreatesharedfolders": {
-        "new_keys": ["readcreatesharedfolders"],
-        "is_multivalue": False,
-    },
-    "oxRightSubscription": {
-        "new_keys": ["subscription"],
-        "is_multivalue": False,
-    },
-    "oxRightTasks": {"new_keys": ["tasks"], "is_multivalue": False},
-    "oxRightVcard": {"new_keys": ["vcard"], "is_multivalue": False},
-    "oxRightWebdav": {"new_keys": ["webdav"], "is_multivalue": False},
-    "oxRightWebmail": {"new_keys": ["webmail"], "is_multivalue": False},
-    "oxRightUsm": {"new_keys": ["usm"], "is_multivalue": False},
-    "oxRightActivesync": {"new_keys": ["activesync"], "is_multivalue": False},
-    "oxRightDeniedportal": {
-        "new_keys": ["deniedportal"],
-        "is_multivalue": False,
-    },
-    "oxRightGlobaladdressbookdisabled": {
-        "new_keys": ["globaladdressbookdisabled"],
-        "is_multivalue": False,
-    },
-    "oxRightInfostore": {"new_keys": ["infostore"], "is_multivalue": False},
-    "oxRightPublicfoldereditable": {
-        "new_keys": ["publicfoldereditable"],
-        "is_multivalue": False,
-    },
-    "oxRightSyncml": {"new_keys": ["syncml"], "is_multivalue": False},
-    "oxRightWebdavxml": {"new_keys": ["webdavxml"], "is_multivalue": False},
-}
 
 logger = logging.getLogger("univention.ox")
 logger.setLevel(os.environ.get("LOG_LEVEL", "INFO"))
@@ -228,106 +115,6 @@ def _get_existing_object_ox_id(distinguished_name):
 
 # Overwrite the `get_old_obj` function in the helpers module
 helpers.get_old_obj = _get_existing_object_ox_id
-
-
-def unpack_values(values, is_multivalue: bool = False):
-    """
-    Unpack LDAP list of binary values to a list of strings.
-
-    :param values_list: list of binary values
-
-    :return: string if single value or list of strings
-    """
-    if len(values) == 1:
-        if is_multivalue:
-            return [values[0].decode()]
-        try:
-            return values[-1].decode()
-        except UnicodeDecodeError:
-            logger.warning(
-                'unpack_values UnicodeDecodeError, trying base64 image',
-            )
-            # Handle images
-            return base64.b64encode(values[0]).decode()
-    string_values = []
-    for v in values:
-        # Handle exceptions such as trying to utf-8 decode the krb5Key
-        try:
-            string_values.append(v.decode())
-        except UnicodeDecodeError as err:
-            logger.warning('unpack_values UnicodeDecodeError %s', err)
-            logger.debug('value: %s', v)
-            continue
-        except Exception as err:
-            logger.exception('unpack_values failed with "%s"', err)
-            logger.debug('value: %s', v)
-            raise
-    return string_values
-
-
-def unpack_dictionary(ldap_object: dict) -> dict:
-    """
-    Convert the LDAP object to a dictionary with unpacked string values.
-
-    :param ldap_object: dict of LDAP object
-
-    :return: dict with single string or list of strings values.
-    """
-    udm_object = {}
-    for k, v in ldap_object.items():
-        # kerberos keys should not be mapped neither used
-        if v is None or 'krb5' in k:
-            continue
-        if k not in ldap_to_udm_keys_mapping:
-            udm_object[k] = unpack_values(v)
-            continue
-        for new_key in ldap_to_udm_keys_mapping[k]['new_keys']:
-            # FIXME: remove if not needed
-            # if new_key == 'oxContext':
-            #     udm_object[new_key] = str(unpack_values(
-            #         v, ldap_to_udm_keys_mapping[k]['is_multivalue']
-            #     ))
-            #     continue
-            udm_object[new_key] = unpack_values(
-                v,
-                ldap_to_udm_keys_mapping[k]['is_multivalue'],
-            )
-
-    # A groups and users key must be there on functional_account even if empty
-    # but LDAP will not send it if empty
-    if (
-        unpack_values(ldap_object.get('univentionObjectType', []))
-        == 'oxmail/functional_account'
-    ):
-        udm_object['groups'] = udm_object.get('groups', [])
-        udm_object['users'] = udm_object.get('users', [])
-    # A users key must be there on groups even if empty
-    if (
-        unpack_values(ldap_object.get('univentionObjectType', []))
-        == 'groups/group'
-    ):
-        udm_object['users'] = udm_object.get('users', [])
-    return udm_object
-
-
-# TODO: the new provisioning system should send UDM objects instead of LDAP
-def format_as_udm_object(ldap_object: dict) -> dict:
-    """
-    Format LDAP object as UDM object.
-
-    :param ldap_object: dict of LDAP object
-
-    :return: dict of UDM object
-    """
-    return {
-        'dn': unpack_values(ldap_object.get('entryDN', [])),
-        'id': unpack_values(ldap_object.get('entryUUID', [])),
-        'object': unpack_dictionary(ldap_object),
-        'options': ['default'],
-        'udm_object_type': unpack_values(
-            ldap_object.get('univentionObjectType', []),
-        ),
-    }
 
 
 class OxConnectorListenerModule(ListenerModuleHandler):
