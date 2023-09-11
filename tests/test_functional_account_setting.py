@@ -1,7 +1,7 @@
 import pytest
 from contextlib import nullcontext as does_not_raise
 
-from univention.ox.provisioning.functional_account import configure_functional_account_login, InvalidSetting
+from univention.ox.provisioning.functional_account import configure_functional_account_login
 
 
 @pytest.mark.parametrize("test_input,expected_output,expectation",
