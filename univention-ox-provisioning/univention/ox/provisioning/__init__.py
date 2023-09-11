@@ -181,7 +181,6 @@ def get_group_objs(obj):  # noqa: C901
 def get_account_objs(obj):  # noqa: C901
     users = []
     groups = []
-    ignoring = True
     if obj.old_attributes:
         users.extend(obj.old_attributes.get("users"))
         groups.extend(obj.old_attributes.get("groups"))
