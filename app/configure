@@ -3,8 +3,8 @@
 APP_ID="ox-connector"
 
 if [ "$1" = "install" ] || [ "$1" = "upgrade" ]; then
-	[ -e "/var/lib/univention-appcenter/apps/$APP_ID/data/resources" ] && rm -r "/var/lib/univention-appcenter/apps/$APP_ID/data/resources"
-	cp -r "/usr/local/share/$APP_ID/resources/" "/var/lib/univention-appcenter/apps/$APP_ID/data/resources"
+  [ -e "/var/lib/univention-appcenter/apps/$APP_ID/data/resources" ] && rm -r "/var/lib/univention-appcenter/apps/$APP_ID/data/resources"
+  cp -r "/usr/local/share/$APP_ID/resources/" "/var/lib/univention-appcenter/apps/$APP_ID/data/resources"
 fi
 
 python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-credentials-file.py" /var/lib/univention-appcenter/apps/$APP_ID/data/secrets/*.secret
