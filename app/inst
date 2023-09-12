@@ -45,405 +45,400 @@ set -e
 . /usr/share/univention-join/joinscripthelper.lib || exit 1
 
 main () {
-	joinscript_init
+  joinscript_init
 
-	setup_vars
-	clean_old_provisioning "$@"
-	register_ldap "$@"
-	migrate_user_oxAccessUSM  "$@"
-	create_eas "$@"
-	update_ea_defaults "$@"
+  setup_vars
+  clean_old_provisioning "$@"
+  register_ldap "$@"
+  migrate_user_oxAccessUSM  "$@"
+  create_eas "$@"
+  update_ea_defaults "$@"
 
-	remove_user_template "$@"
-	create_user_template "$@"
-	update_user_template "$@"
+  remove_user_template "$@"
+  create_user_template "$@"
+  update_user_template "$@"
 
-	create_container "$@"
+  create_container "$@"
 
-	create_accessprofiles "$@"
-	migrate_user_access_profiles "$@"
+  create_accessprofiles "$@"
+  migrate_user_access_profiles "$@"
 
-	setup_umc "$@"
+  setup_umc "$@"
 
-	joinscript_save_current_version
+  joinscript_save_current_version
 }
 
 unregister_ldap_extension () {
-	declare -a args=()
-	while [ "$1" != -- ]
-	do
-		args+=("$1")
-		shift
-	done
-	shift
-	while [ $# -ge 1 ]
-	do
-		args+=("$1")
-		shift
-	done
-	echo "ucs_unregisterLDAPExtension ${args[@]}"
-	ucs_unregisterLDAPExtension "${args[@]}" ||
-		die "Failed to unregister LDAP module."
+  declare -a args=()
+  while [ "$1" != -- ]; do
+    args+=("$1")
+    shift
+  done
+  shift
+  while [ $# -ge 1 ]; do
+    args+=("$1")
+    shift
+  done
+  echo "ucs_unregisterLDAPExtension ${args[@]}"
+  ucs_unregisterLDAPExtension "${args[@]}" ||
+    die "Failed to unregister LDAP module."
 }
 
 clean_old_provisioning () {
-	# Check if there are remanining files from the the old provisioning.
-	# These files will exist if there is an already existing oxseforucs
-	# installation (ver. <= 7.10.6-ucs3) or if oxseforucs was installed
-	# in the past and was removed at some point.
+  # Check if there are remanining files from the the old provisioning.
+  # These files will exist if there is an already existing oxseforucs
+  # installation (ver. <= 7.10.6-ucs3) or if oxseforucs was installed
+  # in the past and was removed at some point.
 
-	# This function should remove:
-	#   - listeners (this is only useful for updates, if appsuite was removed
-	# 	the listeners doesn't exist)
-	find /usr/lib/univention-directory-listener/system -type l -name 'ox-*.py' -delete
+  # This function should remove:
+  #   - listeners (this is only useful for updates, if appsuite was removed
+  #   the listeners doesn't exist)
+  find /usr/lib/univention-directory-listener/system -type l -name 'ox-*.py' -delete
 
-	#   - udm modules
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxcontext
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxdomain
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxfetchmailmulti
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxfetchmailsingle
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxfolder
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxlists
-	unregister_ldap_extension "$@" -- --udm_module oxmail/oxmail
-	unregister_ldap_extension "$@" -- --udm_module oxresources/oxresources
+  #   - udm modules
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxcontext
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxdomain
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxfetchmailmulti
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxfetchmailsingle
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxfolder
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxlists
+  unregister_ldap_extension "$@" -- --udm_module oxmail/oxmail
+  unregister_ldap_extension "$@" -- --udm_module oxresources/oxresources
 
-	#	- hooks (these could just be replaced when installing the new version)
-	unregister_ldap_extension "$@" -- --udm_hook oxUserDefaults
-	unregister_ldap_extension "$@" -- --udm_hook oxGroupHook
-	unregister_ldap_extension "$@" -- --udm_hook oxContextRW
-	unregister_ldap_extension "$@" -- --udm_hook oxAccess
+  #  - hooks (these could just be replaced when installing the new version)
+  unregister_ldap_extension "$@" -- --udm_hook oxUserDefaults
+  unregister_ldap_extension "$@" -- --udm_hook oxGroupHook
+  unregister_ldap_extension "$@" -- --udm_hook oxContextRW
+  unregister_ldap_extension "$@" -- --udm_hook oxAccess
 
 
-	#   - syntax (these could just be replaced when installing the new version)
-	unregister_ldap_extension "$@" -- --udm_syntax 50_ox
+  #   - syntax (these could just be replaced when installing the new version)
+  unregister_ldap_extension "$@" -- --udm_syntax 50_ox
 }
 
 setup_vars () {
-	eval "$(univention-config-registry shell)"
+  eval "$(univention-config-registry shell)"
 
-	CONTEXTDOMAIN="$domainname"
-	DEFAULT_CONTEXT="$ox_context_id"
+  CONTEXTDOMAIN="$domainname"
+  DEFAULT_CONTEXT="$ox_context_id"
 
-	#Using the unviention-ox package to replace the schema in updates.
-	PACKAGE_NAME="univention-ox"
-	PACKAGE_VERSION="12.0.35"  #This number should be updated when the schema is modified or when we change any ldap_extension
+  #Using the unviention-ox package to replace the schema in updates.
+  PACKAGE_NAME="univention-ox"
+  PACKAGE_VERSION="12.0.35"  #This number should be updated when the schema is modified or when we change any ldap_extension
 }
 
 register_ldap () {
-	export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.7'  # Version in meta-inf/*/oxseforucs_*.ini
-	local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
+  export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.7'  # Version in meta-inf/*/oxseforucs_*.ini
+  local PREFIX="/var/lib/univention-appcenter/apps/$APP_ID/data/resources/"
 
-	if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
-		ucr set ldap/refint=true
-	else
-		echo "WARNING: You are not on a Primary Node. Please make sure that your Primary Node's LDAP server"
-		echo "runs with the refint overlay module enabled."
-		echo "  ucr set ldap/refint=true && service restart slapd"
-	fi
-	univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
-		-h "$ldap_master" -p "$ldap_master_port" \
-		-E '!mv=(attributeTypes=1.3.6.1.4.1.19414.2.1.651)' \
-		'(objectClass=subschema)' attributeTypes |
-		grep -q attributeTypes ||
-		register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs-extra.schema ||
-			die "Failed to register LDAP extensions."
+  if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
+    ucr set ldap/refint=true
+  else
+    echo "WARNING: You are not on a Primary Node. Please make sure that your Primary Node's LDAP server"
+    echo "runs with the refint overlay module enabled."
+    echo "  ucr set ldap/refint=true && service restart slapd"
+  fi
+  univention-ldapsearch -LLL -o ldif-wrap=no -b cn=Subschema -s base \
+    -h "$ldap_master" -p "$ldap_master_port" \
+    -E '!mv=(attributeTypes=1.3.6.1.4.1.19414.2.1.651)' \
+    '(objectClass=subschema)' attributeTypes |
+    grep -q attributeTypes ||
+    register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs-extra.schema ||
+      die "Failed to register LDAP extensions."
 
-	# 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
-	register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py          "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/functional_account.py "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfolder.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py      "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
-	register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py   "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
+  # 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
+  register_ldap_extension "$@" -- "$PREFIX"/ldap/oxforucs.schema "$PREFIX"/udm/syntax.d/*.py "$PREFIX"/udm/hooks.d/*.py
+  register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/oxcontext.py          "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxcontext.*
+  register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/functional_account.py "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-oxfolder.*
+  register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxmail/accessprofile.py      "$PREFIX"/udm/handlers/oxmail/*.mo      "$PREFIX"/umc/icons/*/udm-oxmail-accessprofile.*
+  register_ldap_extension "$@" -- "$PREFIX"/udm/handlers/oxresources/oxresources.py   "$PREFIX"/udm/handlers/oxresources/*.mo "$PREFIX"/umc/icons/*/udm-oxresources-oxresources.* "$PREFIX"/umc/ox-common.xml
 
-	univention-directory-manager policies/registry remove \
-		--ignore_not_exists \
-		--dn "cn=open-xchange,cn=config-registry,cn=policies,$ldap_base" || true
+  univention-directory-manager policies/registry remove \
+    --ignore_not_exists \
+    --dn "cn=open-xchange,cn=config-registry,cn=policies,$ldap_base" || true
 
-	stop_udm_cli_server
+  stop_udm_cli_server
 }
 register_ldap_extension () {
-	declare -a args=()
-	while [ "$1" != -- ]
-	do
-		args+=("$1")
-		shift
-	done
-	args+=(--packagename "$PACKAGE_NAME")
-	args+=(--packageversion "$PACKAGE_VERSION")
-	args+=(--ucsversionstart "4.4-3")
-	args+=(--ucsversionend "5.99-0")
-	shift
-	while [ $# -ge 1 ]
-	do
-		case "$1" in
-		*/syntax*.py) args+=(--udm_syntax "$1") ;;
-		*/hook*.py) args+=(--udm_hook "$1") ;;
-		*.py) args+=(--udm_module "$1") ;;
-		*.mo) [ -s "$1" ] && args+=(--messagecatalog "$1") ;;
-		*.acl) args+=(--acl "$1") ;;
-		*.schema) args+=(--schema "$1") ;;
-		*.png|*.svg) args+=(--icon "$1") ;;
-		*.xml) args+=(--umcregistration "$1") ;;
-		*) die "Unknown file: '$1'" ;;
-		esac
-		shift
-	done
-	echo "ucs_registerLDAPExtension ${args[@]}"
-	ucs_registerLDAPExtension "${args[@]}" ||
-		die "Failed to register LDAP module."
+  declare -a args=()
+  while [ "$1" != -- ]; do
+    args+=("$1")
+    shift
+  done
+  args+=(--packagename "$PACKAGE_NAME")
+  args+=(--packageversion "$PACKAGE_VERSION")
+  args+=(--ucsversionstart "4.4-3")
+  args+=(--ucsversionend "5.99-0")
+  shift
+  while [ $# -ge 1 ]; do
+    case "$1" in
+    */syntax*.py) args+=(--udm_syntax "$1") ;;
+    */hook*.py) args+=(--udm_hook "$1") ;;
+    *.py) args+=(--udm_module "$1") ;;
+    *.mo) [ -s "$1" ] && args+=(--messagecatalog "$1") ;;
+    *.acl) args+=(--acl "$1") ;;
+    *.schema) args+=(--schema "$1") ;;
+    *.png|*.svg) args+=(--icon "$1") ;;
+    *.xml) args+=(--umcregistration "$1") ;;
+    *) die "Unknown file: '$1'" ;;
+    esac
+    shift
+  done
+  echo "ucs_registerLDAPExtension ${args[@]}"
+  ucs_registerLDAPExtension "${args[@]}" ||
+    die "Failed to register LDAP module."
 }
 
 create_eas () {
-	echo "Creating extended attributes..."
-	# create a new container for OX related extended attributes
-	univention-directory-manager container/cn create "$@" \
-		--ignore_exists \
-		--position "cn=custom attributes,cn=univention,$ldap_base" \
-		--set name="open-xchange" ||
-		die "Failed to create container 'open-xchange' for Extended Attributes."
+  echo "Creating extended attributes..."
+  # create a new container for OX related extended attributes
+  univention-directory-manager container/cn create "$@" \
+    --ignore_exists \
+    --position "cn=custom attributes,cn=univention,$ldap_base" \
+    --set name="open-xchange" ||
+    die "Failed to create container 'open-xchange' for Extended Attributes."
 
-	univention-directory-manager settings/syntax remove "$@" \
-		--ignore_not_exists \
-		--dn cn="oxContextSelect,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base"
+  univention-directory-manager settings/syntax remove "$@" \
+    --ignore_not_exists \
+    --dn cn="oxContextSelect,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base"
 
-	# update makes oxDrive unnecessary. But update could be from OX? So we cannot use JS_EXEC_VERSION 1?
-	univention-directory-manager settings/extended_attribute remove "$@" \
-		--dn "cn=oxDrive,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+  # update makes oxDrive unnecessary. But update could be from OX? So we cannot use JS_EXEC_VERSION 1?
+  univention-directory-manager settings/extended_attribute remove "$@" \
+    --dn "cn=oxDrive,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
 
-	# this attribute only existed in ox appsuite and shouldn't have been created again in the connector.
-	univention-directory-manager settings/extended_attribute remove "$@" \
-		--dn="cn=oxBirthday,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
+  # this attribute only existed in ox appsuite and shouldn't have been created again in the connector.
+  univention-directory-manager settings/extended_attribute remove "$@" \
+    --dn="cn=oxBirthday,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" || true
 
-	# update makes oxAccessUSM unnecessary.
-	univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
-		--dn "cn=oxAccessUSM,cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
+  # update makes oxAccessUSM unnecessary.
+  univention-directory-manager settings/extended_attribute remove --ignore_exists "$@"  \
+    --dn "cn=oxAccessUSM,cn=open-xchange-mobility,cn=custom attributes,cn=univention,$ldap_base" || true
 
-    # copy the extended attribute list from the container to the host
-    docker cp $(ucr get appcenter/apps/ox-connector/container):/usr/local/share/ox-connector/resources/attrlist.csv \
-        /var/lib/univention-appcenter/apps/ox-connector/data/resources/attrlist.csv || die
+  # copy the extended attribute list from the container to the host
+  docker cp $(ucr get appcenter/apps/ox-connector/container):/usr/local/share/ox-connector/resources/attrlist.csv \
+    /var/lib/univention-appcenter/apps/ox-connector/data/resources/attrlist.csv || die
 
-	# create all default extended attributes
-	python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
+  # create all default extended attributes
+  python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" "$@"  || die
 
-	if [ $JS_LAST_EXECUTED_VERSION -lt 11 ]; then
-		# Bug #51456: Remove OX App from App-Tab to stabilize extended attributes ("display_name" etc)
-		echo "Updating extended attributes..."
-		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" --update "$@"  || die
-	fi
+  if [ $JS_LAST_EXECUTED_VERSION -lt 11 ]; then
+    # Bug #51456: Remove OX App from App-Tab to stabilize extended attributes ("display_name" etc)
+    echo "Updating extended attributes..."
+    python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/createextattr.py" --update "$@"  || die
+  fi
 
-	stop_udm_cli_server
+  stop_udm_cli_server
 }
 
 update_ea_defaults () {
-	echo "Setting defaults..."
-	univention-directory-manager settings/extended_attribute modify "$@" \
-		--dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
-		--set default="$DEFAULT_CONTEXT" || :
-	univention-directory-manager settings/extended_attribute modify "$@" \
-		--dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
-		--set default="$DEFAULT_CONTEXT" || :
+  echo "Setting defaults..."
+  univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxContextUser,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
+    --set default="$DEFAULT_CONTEXT" || :
+  univention-directory-manager settings/extended_attribute modify "$@" \
+    --dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base" \
+    --set default="$DEFAULT_CONTEXT" || :
 }
 
 remove_user_template () {
-	univention-directory-manager settings/usertemplate list "$@" \
-		--filter "kolabHomeServer=${hostname}.${domainname}" |
-	sed -ne 's/^DN: //p' |
-	xargs -r -d '\n' -n 1 univention-directory-manager settings/usertemplate remove "$@" --dn ||
-		die "Failed to remove kolab home server."
+  univention-directory-manager settings/usertemplate list "$@" \
+    --filter "kolabHomeServer=${hostname}.${domainname}" |
+  sed -ne 's/^DN: //p' |
+  xargs -r -d '\n' -n 1 univention-directory-manager settings/usertemplate remove "$@" --dn ||
+    die "Failed to remove kolab home server."
 }
 create_user_template () {
-	echo "Creating usertemplate..."
-	primary_group=$(custom_groupname "Domain Users")
+  echo "Creating usertemplate..."
+  primary_group=$(custom_groupname "Domain Users")
 
-	univention-directory-manager settings/usertemplate create "$@" \
-		--ignore_exists --position "cn=templates,cn=univention,$ldap_base" \
-		--set name="open-xchange groupware account" \
-		--set mailPrimaryAddress="<username>@$CONTEXTDOMAIN" \
-		--set e-mail="<username>@$CONTEXTDOMAIN" \
-		--set unixhome="/home/<username>" \
-		--set oxDisplayName="<firstname> <lastname>" \
-		--set oxAccess="premium" \
-		--set isOxUser="OK" \
-		--set primaryGroup="cn=$primary_group,cn=groups,$ldap_base" && return 0
-	echo "Failed to create template for user." >&2
+  univention-directory-manager settings/usertemplate create "$@" \
+    --ignore_exists --position "cn=templates,cn=univention,$ldap_base" \
+    --set name="open-xchange groupware account" \
+    --set mailPrimaryAddress="<username>@$CONTEXTDOMAIN" \
+    --set e-mail="<username>@$CONTEXTDOMAIN" \
+    --set unixhome="/home/<username>" \
+    --set oxDisplayName="<firstname> <lastname>" \
+    --set oxAccess="premium" \
+    --set isOxUser="OK" \
+    --set primaryGroup="cn=$primary_group,cn=groups,$ldap_base" && return 0
+  echo "Failed to create template for user." >&2
 }
 update_user_template () {
-	_ldap_update oxDisplayName "" oxDisplayName="<firstname> <lastname>" "$@"
-	_ldap_update oxAccess "" oxAccess="premium" "$@"
-	_ldap_update homeDirectory "/home/" unixhome="/home/<username>" "$@"
-	# Bug #51993: fix user template with "Domain Admins" as primary group
-	primary_group_admins=$(custom_groupname "Domain Admins")
-	primary_group_admins_dn="cn=$primary_group_admins,cn=groups,$ldap_base"
-	primary_group_users=$(custom_groupname "Domain Users")
-	primary_group_users_dn="cn=$primary_group_users,cn=groups,$ldap_base"
-	_ldap_update userPrimaryGroupPreset "$primary_group_admins_dn" primaryGroup="$primary_group_users_dn" "$@"
+  _ldap_update oxDisplayName "" oxDisplayName="<firstname> <lastname>" "$@"
+  _ldap_update oxAccess "" oxAccess="premium" "$@"
+  _ldap_update homeDirectory "/home/" unixhome="/home/<username>" "$@"
+  # Bug #51993: fix user template with "Domain Admins" as primary group
+  primary_group_admins=$(custom_groupname "Domain Admins")
+  primary_group_admins_dn="cn=$primary_group_admins,cn=groups,$ldap_base"
+  primary_group_users=$(custom_groupname "Domain Users")
+  primary_group_users_dn="cn=$primary_group_users,cn=groups,$ldap_base"
+  _ldap_update userPrimaryGroupPreset "$primary_group_admins_dn" primaryGroup="$primary_group_users_dn" "$@"
 }
 _ldap_update () { # $1=attr $2=expected $3=replacement "$@"
-	local attr="$1" expected="$2" replacement="$3" value dn
-	shift 3 || die "Missing arguments"
-	dn="cn=open-xchange groupware account,cn=templates,cn=univention,$ldap_base"
-	value="$(univention-ldapsearch -LLL -b "$dn" -s base "" "$attr" |
-		ldapsearch-wrapper |
-		ldapsearch-decode64 |
-		sed -ne "s/^${attr}: //p")"
-	if [ "$value" = "$expected" ]
-	then
-		udm settings/usertemplate modify "$@" --dn "$dn" --set "$replacement"
-	fi
+  local attr="$1" expected="$2" replacement="$3" value dn
+  shift 3 || die "Missing arguments"
+  dn="cn=open-xchange groupware account,cn=templates,cn=univention,$ldap_base"
+  value="$(univention-ldapsearch -LLL -b "$dn" -s base "" "$attr" |
+    ldapsearch-wrapper |
+    ldapsearch-decode64 |
+    sed -ne "s/^${attr}: //p")"
+  if [ "$value" = "$expected" ]; then
+    udm settings/usertemplate modify "$@" --dn "$dn" --set "$replacement"
+  fi
 }
 
 create_container () {
-	echo "Creating containers..."
-	univention-directory-manager container/cn create "$@" \
-		--ignore_exists --position "$ldap_base" \
-		--set name=open-xchange
-	univention-directory-manager container/cn create "$@" \
-		--ignore_exists --position "cn=open-xchange,$ldap_base" \
-		--set name=functional_accounts
-	univention-directory-manager container/cn create "$@" \
-		--ignore_exists --position "cn=open-xchange,$ldap_base" \
-		--set name=oxresources
-	univention-directory-manager container/cn create "$@" \
-		--ignore_exists --position "cn=open-xchange,$ldap_base" \
-		--set name=accessprofiles
+  echo "Creating containers..."
+  univention-directory-manager container/cn create "$@" \
+    --ignore_exists --position "$ldap_base" \
+    --set name=open-xchange
+  univention-directory-manager container/cn create "$@" \
+    --ignore_exists --position "cn=open-xchange,$ldap_base" \
+    --set name=functional_accounts
+  univention-directory-manager container/cn create "$@" \
+    --ignore_exists --position "cn=open-xchange,$ldap_base" \
+    --set name=oxresources
+  univention-directory-manager container/cn create "$@" \
+    --ignore_exists --position "cn=open-xchange,$ldap_base" \
+    --set name=accessprofiles
 }
 
 create_accessprofiles () {
-	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
-		# new listener filter
-		service univention-directory-listener restart
-	fi
-	echo "Creating OX access profiles..."
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=none \
-		--set displayName="Login disabled"
+  if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
+    # new listener filter
+    service univention-directory-listener restart
+  fi
+  echo "Creating OX access profiles..."
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=none \
+    --set displayName="Login disabled"
 
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=webmail \
-		--set displayName=Webmail \
-		--set contacts=TRUE \
-		--set webmail=TRUE \
-		--set collectemailaddresses=TRUE \
-		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=webmail \
+    --set displayName=Webmail \
+    --set contacts=TRUE \
+    --set webmail=TRUE \
+    --set collectemailaddresses=TRUE \
+    --set multiplemailaccounts=TRUE \
+    --set subscription=TRUE
 
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=webmail_drive \
-		--set displayName="Webmail, Drive" \
-		--set contacts=TRUE \
-		--set infostore=TRUE \
-		--set webmail=TRUE \
-		--set collectemailaddresses=TRUE \
-		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=webmail_drive \
+    --set displayName="Webmail, Drive" \
+    --set contacts=TRUE \
+    --set infostore=TRUE \
+    --set webmail=TRUE \
+    --set collectemailaddresses=TRUE \
+    --set multiplemailaccounts=TRUE \
+    --set subscription=TRUE
 
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=pim \
-		--set displayName="Webmail, PIM" \
-		--set calendar=TRUE \
-		--set contacts=TRUE \
-		--set delegatetask=TRUE \
-		--set tasks=TRUE \
-		--set webmail=TRUE \
-		--set collectemailaddresses=TRUE \
-		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=pim \
+    --set displayName="Webmail, PIM" \
+    --set calendar=TRUE \
+    --set contacts=TRUE \
+    --set delegatetask=TRUE \
+    --set tasks=TRUE \
+    --set webmail=TRUE \
+    --set collectemailaddresses=TRUE \
+    --set multiplemailaccounts=TRUE \
+    --set subscription=TRUE
 
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=pim_drive \
-		--set displayName="Webmail, PIM, Drive" \
-		--set calendar=TRUE \
-		--set contacts=TRUE \
-		--set delegatetask=TRUE \
-		--set infostore=TRUE \
-		--set tasks=TRUE \
-		--set webmail=TRUE \
-		--set collectemailaddresses=TRUE \
-		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=pim_drive \
+    --set displayName="Webmail, PIM, Drive" \
+    --set calendar=TRUE \
+    --set contacts=TRUE \
+    --set delegatetask=TRUE \
+    --set infostore=TRUE \
+    --set tasks=TRUE \
+    --set webmail=TRUE \
+    --set collectemailaddresses=TRUE \
+    --set multiplemailaccounts=TRUE \
+    --set subscription=TRUE
 
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=groupware \
-		--set displayName="Webmail, PIM, Groupware" \
-		--set calendar=TRUE \
-		--set contacts=TRUE \
-		--set delegatetask=TRUE \
-		--set editpublicfolders=TRUE \
-		--set infostore=TRUE \
-		--set readcreatesharedfolders=TRUE \
-		--set tasks=TRUE \
-		--set webmail=TRUE \
-		--set collectemailaddresses=TRUE \
-		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=groupware \
+    --set displayName="Webmail, PIM, Groupware" \
+    --set calendar=TRUE \
+    --set contacts=TRUE \
+    --set delegatetask=TRUE \
+    --set editpublicfolders=TRUE \
+    --set infostore=TRUE \
+    --set readcreatesharedfolders=TRUE \
+    --set tasks=TRUE \
+    --set webmail=TRUE \
+    --set collectemailaddresses=TRUE \
+    --set multiplemailaccounts=TRUE \
+    --set subscription=TRUE
 
-	univention-directory-manager oxmail/accessprofile create "$@" \
-		--ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
-		--set name=premium \
-		--set displayName="Webmail, PIM, Groupware, WebDAV" \
-		--set calendar=TRUE \
-		--set contacts=TRUE \
-		--set delegatetask=TRUE \
-		--set editpublicfolders=TRUE \
-		--set ical=TRUE \
-		--set infostore=TRUE \
-		--set readcreatesharedfolders=TRUE \
-		--set tasks=TRUE \
-		--set vcard=TRUE \
-		--set webdav=TRUE \
-		--set webdavxml=TRUE \
-		--set webmail=TRUE \
-		--set collectemailaddresses=TRUE \
-		--set multiplemailaccounts=TRUE \
-		--set subscription=TRUE \
-		--set usm=TRUE
+  univention-directory-manager oxmail/accessprofile create "$@" \
+    --ignore_exists --position "cn=accessprofiles,cn=open-xchange,$ldap_base" \
+    --set name=premium \
+    --set displayName="Webmail, PIM, Groupware, WebDAV" \
+    --set calendar=TRUE \
+    --set contacts=TRUE \
+    --set delegatetask=TRUE \
+    --set editpublicfolders=TRUE \
+    --set ical=TRUE \
+    --set infostore=TRUE \
+    --set readcreatesharedfolders=TRUE \
+    --set tasks=TRUE \
+    --set vcard=TRUE \
+    --set webdav=TRUE \
+    --set webdavxml=TRUE \
+    --set webmail=TRUE \
+    --set collectemailaddresses=TRUE \
+    --set multiplemailaccounts=TRUE \
+    --set subscription=TRUE \
+    --set usm=TRUE
 }
 
 migrate_user_oxAccessUSM() {
-	if [ "$JS_LAST_EXECUTED_VERSION" -lt "9" ]; then
-		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM-results" "$@"  || die
-	fi
+  if [ "$JS_LAST_EXECUTED_VERSION" -lt "9" ]; then
+    python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-oxAccessUSM-results" "$@"  || die
+  fi
 }
 
 migrate_user_access_profiles() {
-	if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
-		python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
-	fi
+  if [ "$JS_LAST_EXECUTED_VERSION" -eq "1" ]; then
+    python3 "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/$APP_ID/data/resources/migrate-user-access-profiles-results" "$@"  || die
+  fi
 }
 
 setup_umc () {
-	umc_init
-	umc_operation_create "udm-oxcontext" "UDM - OXCONTEXT" "oxmail/oxcontext" \
-		"udm/*:objectType=oxmail/*" \
-		"udm/properties:objectType=policies/*" \
-		"udm/layout:objectType=policies/*" \
-		"udm/query:objectType=policies/*"
-	umc_operation_create "udm-oxresources" "UDM - OXRESOURCES" "oxresources/oxresources" \
-		"udm/*:objectType=oxresources/*" \
-		"udm/properties:objectType=policies/*" \
-		"udm/layout:objectType=policies/*" \
-		"udm/query:objectType=policies/*"
+  umc_init
+  umc_operation_create "udm-oxcontext" "UDM - OXCONTEXT" "oxmail/oxcontext" \
+    "udm/*:objectType=oxmail/*" \
+    "udm/properties:objectType=policies/*" \
+    "udm/layout:objectType=policies/*" \
+    "udm/query:objectType=policies/*"
+  umc_operation_create "udm-oxresources" "UDM - OXRESOURCES" "oxresources/oxresources" \
+    "udm/*:objectType=oxresources/*" \
+    "udm/properties:objectType=policies/*" \
+    "udm/layout:objectType=policies/*" \
+    "udm/query:objectType=policies/*"
 }
 
 die () { # [rv] "text"
-	local rv=1
-	case "$1" in
-	[0-9]*) rv="$1" ; shift ;;
-	esac
-	msg "$*" >&2
-	exit "$rv"
+  local rv=1
+  case "$1" in
+    [0-9]*) rv="$1"; shift ;;
+  esac
+  msg "$*" >&2
+  exit "$rv"
 }
 
 msg () {
-	: ${_OX_TERM_BOLD=$(tty <&2 >/dev/null && tput bold)}
-	: ${_OX_TERM_NORM=$(tty <&2 >/dev/null && tput sgr0)}
-	echo "${_OX_TERM_BOLD}${0##*/}:${_OX_TERM_NORM} $*" >&2
+  : ${_OX_TERM_BOLD=$(tty <&2 >/dev/null && tput bold)}
+  : ${_OX_TERM_NORM=$(tty <&2 >/dev/null && tput sgr0)}
+  echo "${_OX_TERM_BOLD}${0##*/}:${_OX_TERM_NORM} $*" >&2
 }
 
 main "$@"

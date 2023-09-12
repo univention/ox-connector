@@ -30,10 +30,10 @@
 APP_ID="ox-connector"
 
 download_univention-appcenter-control() {
-	if ! [[ -x univention-appcenter-control ]]; then
-		curl -s -o univention-appcenter-control https://provider-portal.software-univention.de/appcenter-selfservice/univention-appcenter-control
-		chmod +x univention-appcenter-control
-	fi
+  if ! [[ -x univention-appcenter-control ]]; then
+    curl -s -o univention-appcenter-control https://provider-portal.software-univention.de/appcenter-selfservice/univention-appcenter-control
+    chmod +x univention-appcenter-control
+  fi
 }
 
 APP_VERSION="$(grep ^Version app/ini | awk '{ print $3 }')"
