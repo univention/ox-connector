@@ -1,6 +1,7 @@
-import re
 
-from univention.admin.syntax import select, simple, UDM_Objects
+import univention.admin.types.TypeHint
+import univention.debug as ud
+from univention.admin.syntax import UDM_Objects, select, string
 
 
 class ExtendedAttributeIntegerType(univention.admin.types.TypeHint):
@@ -11,7 +12,15 @@ class ExtendedAttributeIntegerType(univention.admin.types.TypeHint):
         try:
             value = int(value)
         except ValueError:
-            ud.debug(ud.ADMIN, ud.WARN, '%s: %s: not a integer: %r' % (self.property_name, self.syntax.name, value,))
+            ud.debug(
+                ud.ADMIN,
+                ud.WARN,
+                '%s: %s: not a integer: %r' % (
+                    self.property_name,
+                    self.syntax.name,
+                    value,
+                ),
+            )
         return value
 
     def encode_value(self, value):
@@ -36,7 +45,9 @@ class oxContextSelect(UDM_Objects):
         elif isinstance(text, list) and len(text) == 1:
             return [int(text[0])]
         else:
-            raise ValueError("Can't parse %s of type %s as an int" % (text, type(text)))
+            raise ValueError(
+                "Can't parse %s of type %s as an int" % (text, type(text)),
+            )
 
 
 class oxaccess(UDM_Objects):
