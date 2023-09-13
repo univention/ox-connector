@@ -238,6 +238,6 @@ Three scenarios must be tested:
 
 The test suite found in the `tests` directory can be executed in each environment using the following services:
 
-1. TODO: Jaime: TILT at ...
+1. Deployment on our `gaia` k8s cluster and manually run tests using `tilt up` on this repository. Detailed instructions can be found on [`README.standalone.md`](/README.standalone.md)
 2. Jenkins job that installs the OX connector (using app `ox-connector`) and OX (using app `oxseforucs`) on the same UCS primary: https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-appsuite/ (replace `5.0-4` with the current stable UCS release).
 3. Jenkins job that installs the OX connector app (using app `ox-connector`) on a UCS primary and OX on a Debian Buster system (another UCS primary, not joined to the 1st), using `apt-get` from OX' original repo, exactly how the OX documentation describes it. The UCS integration (`oxseforucs`) is _not_ used.: https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-connector/ (replace `5.0-4` with the current stable UCS release).
