@@ -227,3 +227,17 @@ provided there to ease the development setup.
 
 > Note a `docker-compose.override.yaml` will be created, as well as a `secret`
 and a `ssl` folder. All of them are needed for development on this repository.
+
+## Testing
+
+Three scenarios must be tested:
+
+1. OX connector and OX installed in k8s (SouvWP).
+2. OX connector and OX installed both in UCS by the apps `ox-connector` and `oxseforucs`.
+3. OX connector installed in UCS by the app `ox-connector` and OX separately (platform irrelevant).
+
+The test suite found in the `tests` directory can be executed in each environment using the following services:
+
+1. TODO: Jaime: TILT at ...
+2. Jenkins job that installs the OX connector (using app `ox-connector`) and OX (using app `oxseforucs`) on the same UCS primary: https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-appsuite/ (replace `5.0-4` with the current stable UCS release).
+3. Jenkins job that installs the OX connector app (using app `ox-connector`) on a UCS primary and OX on a Debian Buster system (another UCS primary, not joined to the 1st), using `apt-get` from OX' original repo, exactly how the OX documentation describes it. The UCS integration (`oxseforucs`) is _not_ used.: https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-connector/ (replace `5.0-4` with the current stable UCS release).
