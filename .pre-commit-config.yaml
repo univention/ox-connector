@@ -1,0 +1,54 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.2
+    hooks:
+      - id: autopep8
+        name: autopep8
+        description: Check that python code style follows pep8
+        language: python
+        types:
+          - python
+        args:
+          - -i
+        require_serial: false
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-merge-conflict
+        name: check for merge conflicts
+        description: Checks for files that contain merge conflict strings.
+        entry: check-merge-conflict
+        types: [text]
+      - id: end-of-file-fixer
+        name: fix end of files
+        description: Ensures that a file is either empty, or ends with one newline.
+        entry: end-of-file-fixer
+      - id: trailing-whitespace
+        name: trim trailing whitespace
+        description: Trims trailing whitespace.
+        entry: trailing-whitespace-fixer
+      - id: check-executables-have-shebangs
+        name: check that executables have shebangs
+        description: Ensures that (non-binary) executables have a shebang.
+        entry: check-executables-have-shebangs
+        language: python
+        types: [text, executable]
+  - repo: https://github.com/norwoodj/helm-docs
+    rev: v1.11.0
+    hooks:
+      - id: helm-docs
+        args: []
+        description: Uses 'helm-docs' to create documentation from the Helm chart's 'values.yaml' file, and inserts the result into a corresponding 'README.md' file.
+        entry: git-hook/helm-docs
+        files: (README\.md\.gotmpl|(Chart|requirements|values)\.yaml)$
+        language: script
+        name: Helm Docs
+        require_serial: true
+      - id: helm-docs-built
+        args: []
+        description: Uses auto built 'helm-docs' to create documentation from the Helm chart's 'values.yaml' file, and inserts the result into a corresponding 'README.md' file.
+        entry: helm-docs
+        files: (README\.md\.gotmpl|(Chart|requirements|values)\.yaml)$
+        language: golang
+        name: Helm Docs Built
+        require_serial: true

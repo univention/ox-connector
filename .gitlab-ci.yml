@@ -6,6 +6,7 @@ include:
       - "defaults/souvap-workflow.yaml"
       - "templates/souvap.yaml"
       - "templates/kaniko.yaml"
+      - "jobs/lint-pre-commit.yaml"
       - "jobs/package-and-publish-helm-charts.yaml"
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
@@ -18,6 +19,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "webide"'
 
 stages:
+  - "lint"
   - "build"
   - "package"
   - "publish"
@@ -242,6 +244,17 @@ docs-create-production-merge-request:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       changes:
         - "docs/**/*"
+
+lint-helm-chart:
+  stage: "lint"
+  needs: []
+  image:
+    name: "${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/alpine/helm:3.10.2"
+    entrypoint: [""]
+  script:
+    - helm dependency build helm/ox-connector
+    - helm lint helm/ox-connector --strict
+
 
 compute-image-name:
   stage: "build"
