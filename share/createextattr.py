@@ -53,8 +53,10 @@ ext_attr_container_dn = '{},{}'.format(_EXT_ATTR_CONTAINER, ldapbase)
 
 
 _parser = OptionParser()
-_parser.add_option('--binddn', action='store', dest='binddn', help='ldap bind dn for UDM CLI operation')
-_parser.add_option('--bindpwdfile', action='store', dest='bindpwdfile', help='file with ldap bind password for bind dn')
+_parser.add_option('--binddn', action='store', dest='binddn',
+                   help='ldap bind dn for UDM CLI operation')
+_parser.add_option('--bindpwdfile', action='store', dest='bindpwdfile',
+                   help='file with ldap bind password for bind dn')
 _parser.add_option(
     '--update', action='store_true', dest='update', default=False,
     help='update existing extended attributes with the package defaults (except "default" property)'
@@ -101,7 +103,8 @@ attrmap = csv.DictReader(open(EXT_ATTR_CSV_PATH, 'r'))
 for row in attrmap:
     cmd = list(cmd_base)
     if options.update:
-        cmd.extend(['--dn', 'cn={},{}'.format(row['name'], ext_attr_container_dn)])
+        cmd.extend(
+            ['--dn', 'cn={},{}'.format(row['name'], ext_attr_container_dn)])
         if options.update_defaults:
             cmd.extend(['--set', 'default={}'.format(row['default'] or '')])
         # else: keep previous 'default' property setting
@@ -116,10 +119,13 @@ for row in attrmap:
         '--set', 'objectClass={}'.format(row['objectClass']),
         '--set', 'shortDescription={}'.format(row['shortDescription'] or ''),
         '--set', 'longDescription={}'.format(row['longDescription'] or ''),
-        '--set', 'translationShortDescription="de_DE" "{}"'.format(row['translationShortDescription'] or ''),
-        '--set', 'translationLongDescription="de_DE" "{}"'.format(row['translationLongDescription'] or ''),
+        '--set', 'translationShortDescription="de_DE" "{}"'.format(
+            row['translationShortDescription'] or ''),
+        '--set', 'translationLongDescription="de_DE" "{}"'.format(
+            row['translationLongDescription'] or ''),
         '--set', 'tabName={}'.format(row['tabName'] or ''),
-        '--set', 'translationTabName="de_DE" "{}"'.format(row['translationTabName'] or ''),
+        '--set', 'translationTabName="de_DE" "{}"'.format(
+            row['translationTabName'] or ''),
         '--set', 'overwriteTab={}'.format(row['overwriteTab'] or ''),
         '--set', 'valueRequired={}'.format(row['valueRequired'] or ''),
         '--set', 'CLIName={}'.format(row['CLIName'] or ''),
@@ -134,15 +140,19 @@ for row in attrmap:
         '--set', 'hook={}'.format(row['hook'] or ''),
     ])
     if row.get("translationGroupName"):
-        cmd.extend(['--set', 'translationGroupName="de_DE" "{}"'.format(row['translationGroupName'])])
+        cmd.extend(
+            ['--set', 'translationGroupName="de_DE" "{}"'.format(row['translationGroupName'])])
     for propertyName in ('groupName', 'groupPosition', 'disableUDMWeb'):
         if row.get(propertyName):
-            cmd.extend(['--set', '{}={}'.format(propertyName, row[propertyName])])
+            cmd.extend(
+                ['--set', '{}={}'.format(propertyName, row[propertyName])])
 
-    print('{} extended attribute {}...'.format('Updating' if options.update else 'Installing', row['name']))
+    print('{} extended attribute {}...'.format(
+        'Updating' if options.update else 'Installing', row['name']))
     sys.stdout.flush()
     run_ext(row['name'], cmd)
 
-print('All extended attribute were {} successfully.'.format('updated' if options.update else 'installed'))
+print('All extended attribute were {} successfully.'.format(
+    'updated' if options.update else 'installed'))
 
 sys.exit(0)

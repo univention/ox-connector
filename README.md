@@ -167,6 +167,19 @@ univention-app shell ox-connector
 python3 -m pytest -l -v tests
 ```
 
+### Pre-commit
+
+There is pre-commit running automatically on the pipeline, so make sure to
+install the hooks to run before every commit.
+
+```
+pre-commit install
+pre-commit run --all-files
+```
+
+Now pre-commit will run on every commit and will warn you (and apply changes)
+so you can add the changes to the commit.
+
 ## Release
 
 Besides the necessary steps for an app update, make sure to apply the following

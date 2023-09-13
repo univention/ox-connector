@@ -146,7 +146,8 @@ def test_change_context(
     """
     create_context(udm, ox_host, new_context_id, wait_for_listener)
     create_user(udm, new_user_name_generator(), domainname, default_ox_context)
-    dn = create_user(udm, new_user_name_generator(), domainname, default_ox_context)
+    dn = create_user(udm, new_user_name_generator(),
+                     domainname, default_ox_context)
     wait_for_listener(dn)
     db_id = get_db_id(dn)
     assert db_id is not None

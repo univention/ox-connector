@@ -60,11 +60,13 @@ class oxUserDefaults(simpleHook):
     def ox_defaults(cls, lo, pos):
         if not cls._ox_defaults:
             univention.admin.modules.update()
-            ext_attr_module = univention.admin.modules.get('settings/extended_attribute')
+            ext_attr_module = univention.admin.modules.get(
+                'settings/extended_attribute')
             univention.admin.modules.init(lo, pos, ext_attr_module)
             cls._ox_defaults['isOxUser'] = 'Not'
             for attr in ox_property_list:
-                attr_m = ext_attr_module.lookup(None, lo, scope='sub', base=ox_attrs_base, filter_s=filter_format('cn=%s', (attr,)))
+                attr_m = ext_attr_module.lookup(
+                    None, lo, scope='sub', base=ox_attrs_base, filter_s=filter_format('cn=%s', (attr,)))
                 if attr_m:
                     cls._ox_defaults[attr] = attr_m[0].info['default']
         return cls._ox_defaults
@@ -72,7 +74,8 @@ class oxUserDefaults(simpleHook):
     @classmethod
     def oxDisplayName_template(cls, module):
         if not cls._oxDisplayName_template:
-            cls._oxDisplayName_template = cls.ox_defaults(module.lo, module.position)['oxDisplayName']
+            cls._oxDisplayName_template = cls.ox_defaults(
+                module.lo, module.position)['oxDisplayName']
         return cls._oxDisplayName_template
 
     def hook_open(self, module):
@@ -98,8 +101,10 @@ class oxUserDefaults(simpleHook):
     def hook_ldap_pre_modify(self, module):
         if module.has_property('oxDisplayName'):
             # Bug 34302: adjust oxDisplayName when changing givenName or sn
-            ox_display_name_old = ucs_user_template_replace(self.oxDisplayName_template(module), module.oldinfo)
-            ox_display_name_new = ucs_user_template_replace(self.oxDisplayName_template(module), module.info)
+            ox_display_name_old = ucs_user_template_replace(
+                self.oxDisplayName_template(module), module.oldinfo)
+            ox_display_name_new = ucs_user_template_replace(
+                self.oxDisplayName_template(module), module.info)
             if ox_display_name_old == module.info.get('oxDisplayName') and ox_display_name_new != module.info.get('oxDisplayName'):
                 ud.debug(
                     ud.ADMIN, ud.ERROR,

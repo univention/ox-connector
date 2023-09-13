@@ -62,7 +62,8 @@ class ClientCredentials(object):
     @property
     def context_admin_credentials(self):
         if self.context_id not in self._context_admin_credentials:
-            self._context_admin_credentials[self.context_id] = self.types.Credentials(*get_credentials_for_context(self.context_id))
+            self._context_admin_credentials[self.context_id] = self.types.Credentials(
+                *get_credentials_for_context(self.context_id))
         return self._context_admin_credentials[self.context_id]
 
     @property
@@ -75,7 +76,8 @@ class ClientCredentials(object):
     @property
     def context_obj(self):
         if self.context_id not in self._context_objs:
-            self._context_objs[self.context_id] = self.types.Context(id=self.context_id)
+            self._context_objs[self.context_id] = self.types.Context(
+                id=self.context_id)
         return self._context_objs[self.context_id]
 
     @property

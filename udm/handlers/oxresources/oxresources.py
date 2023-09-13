@@ -42,7 +42,8 @@ import univention.admin.uldap
 from univention.admin.layout import Tab, Group
 
 
-translation = univention.admin.localization.translation('univention.admin.handlers.oxresources.oxresources')
+translation = univention.admin.localization.translation(
+    'univention.admin.handlers.oxresources.oxresources')
 _ = translation.translate
 
 module = 'oxresources/oxresources'
@@ -81,7 +82,8 @@ property_descriptions = {
     ),
     'displayname': univention.admin.property(
         short_description=_('Display Name'),
-        long_description=_('Name of resource that will be shown in Open-Xchange'),
+        long_description=_(
+            'Name of resource that will be shown in Open-Xchange'),
         syntax=univention.admin.syntax.string,
         required=True,
         default='<name>'
@@ -94,7 +96,8 @@ property_descriptions = {
     ),
     'resourceMailAddress': univention.admin.property(
         short_description=_('Resource e-mail address'),
-        long_description=_('Unique e-mail adress that will be assigned to this resource'),
+        long_description=_(
+            'Unique e-mail adress that will be assigned to this resource'),
         syntax=univention.admin.syntax.emailAddress,
         required=True,
     ),
@@ -113,10 +116,14 @@ layout = [
 
 mapping = univention.admin.mapping.mapping()
 mapping.register('name', 'cn', None, univention.admin.mapping.ListToString)
-mapping.register('description', 'description', None, univention.admin.mapping.ListToString)
-mapping.register('displayname', 'displayName', None, univention.admin.mapping.ListToString)
-mapping.register('resourceadmin', 'oxResourceAdmin', None, univention.admin.mapping.ListToString)
-mapping.register('resourceMailAddress', 'mailPrimaryAddress', None, univention.admin.mapping.ListToString)
+mapping.register('description', 'description', None,
+                 univention.admin.mapping.ListToString)
+mapping.register('displayname', 'displayName', None,
+                 univention.admin.mapping.ListToString)
+mapping.register('resourceadmin', 'oxResourceAdmin', None,
+                 univention.admin.mapping.ListToString)
+mapping.register('resourceMailAddress', 'mailPrimaryAddress',
+                 None, univention.admin.mapping.ListToString)
 
 
 class object(univention.admin.handlers.simpleLdap):
@@ -125,38 +132,49 @@ class object(univention.admin.handlers.simpleLdap):
     def _addMailAddressToResourceAdmin(self):
         # Find user object(s) where oxResourceMailAddress should be added
         # The filter tests for (!(oxResourceMailAddress=%s)) to avoid duplicate entries in case of existing inconsitency.
-        searchResult = self.lo.searchDn(filter=filter_format('(&(objectClass=oxUserObject)(uidNumber=%s)(isOxUser=OK)(!(oxResourceMailAddress=%s)))', (self['resourceadmin'], self['resourceMailAddress'])))
+        searchResult = self.lo.searchDn(filter=filter_format(
+            '(&(objectClass=oxUserObject)(uidNumber=%s)(isOxUser=OK)(!(oxResourceMailAddress=%s)))', (self['resourceadmin'], self['resourceMailAddress'])))
         for userDn in searchResult:
-            ud.debug(ud.ADMIN, ud.INFO, "Adding oxResourceMailAddress %s to %s" % (self['resourceMailAddress'], userDn))
-            self.lo.modify(userDn, [('oxResourceMailAddress', [], [self['resourceMailAddress'].encode('utf-8')])])
+            ud.debug(ud.ADMIN, ud.INFO, "Adding oxResourceMailAddress %s to %s" % (
+                self['resourceMailAddress'], userDn))
+            self.lo.modify(userDn, [('oxResourceMailAddress', [], [
+                           self['resourceMailAddress'].encode('utf-8')])])
 
     def _removeMailAddressesFromResourceAdmins(self):
         # Find user object(s) where OLD oxResourceMailAddress is set and ...
         if not self.oldinfo.get('resourceMailAddress'):
             return
-        searchResult = self.lo.searchDn(filter=filter_format('(&(objectClass=oxUserObject)(isOxUser=OK)(oxResourceMailAddress=%s))', (self.oldinfo.get('resourceMailAddress'),)))
+        searchResult = self.lo.searchDn(filter=filter_format(
+            '(&(objectClass=oxUserObject)(isOxUser=OK)(oxResourceMailAddress=%s))', (self.oldinfo.get('resourceMailAddress'),)))
         for userDn in searchResult:
             # ... remove it from user object
-            ud.debug(ud.ADMIN, ud.INFO, "Removing oxResourceMailAddress %s from %s" % (self.oldinfo.get('resourceMailAddress'), userDn))
-            self.lo.modify(userDn, [('oxResourceMailAddress', [self.oldinfo.get('resourceMailAddress').encode('utf-8')], [])])
+            ud.debug(ud.ADMIN, ud.INFO, "Removing oxResourceMailAddress %s from %s" % (
+                self.oldinfo.get('resourceMailAddress'), userDn))
+            self.lo.modify(userDn, [('oxResourceMailAddress', [
+                           self.oldinfo.get('resourceMailAddress').encode('utf-8')], [])])
 
     def _ldap_addlist(self):
         # try to allocate unique mail address for the new resource
         try:
-            self.alloc.append(('mailPrimaryAddress', self['resourceMailAddress']))
-            univention.admin.allocators.request(self.lo, self.position, 'mailPrimaryAddress', value=self['resourceMailAddress'])
+            self.alloc.append(
+                ('mailPrimaryAddress', self['resourceMailAddress']))
+            univention.admin.allocators.request(
+                self.lo, self.position, 'mailPrimaryAddress', value=self['resourceMailAddress'])
         except univention.admin.uexceptions.noLock:
-            ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in addlist" % self['resourceMailAddress'])
+            ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in addlist" %
+                     self['resourceMailAddress'])
             self.cancel()
             raise univention.admin.uexceptions.mailAddressUsed()
         return super(object, self)._ldap_addlist()
 
     def _check_mailaddress(self):
         domain = self['resourceMailAddress'].rsplit('@')[-1]
-        filter = filter_format('(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,))
+        filter = filter_format(
+            '(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,))
         result = self.lo.search(filter=filter)
         if not result:
-            raise univention.admin.uexceptions.valueError(_("The mail address' domain does not match any mail domain object."))
+            raise univention.admin.uexceptions.valueError(
+                _("The mail address' domain does not match any mail domain object."))
 
     def _ldap_pre_create(self):
         super(object, self)._ldap_pre_create()
@@ -166,7 +184,8 @@ class object(univention.admin.handlers.simpleLdap):
         super(object, self)._ldap_post_create()
         self._addMailAddressToResourceAdmin()
         # confirm allocated resourceMailAddress
-        univention.admin.allocators.confirm(self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
+        univention.admin.allocators.confirm(
+            self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
 
     def _ldap_modlist(self):
         ml = super(object, self)._ldap_modlist()
@@ -178,10 +197,13 @@ class object(univention.admin.handlers.simpleLdap):
                     break
             else:
                 try:
-                    self.alloc.append(('mailPrimaryAddress', self['resourceMailAddress']))
-                    univention.admin.allocators.request(self.lo, self.position, 'mailPrimaryAddress', value=self['resourceMailAddress'])
+                    self.alloc.append(
+                        ('mailPrimaryAddress', self['resourceMailAddress']))
+                    univention.admin.allocators.request(
+                        self.lo, self.position, 'mailPrimaryAddress', value=self['resourceMailAddress'])
                 except univention.admin.uexceptions.noLock:
-                    ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in modlist" % self['resourceMailAddress'])
+                    ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in modlist" %
+                             self['resourceMailAddress'])
                     self.cancel()
                     raise univention.admin.uexceptions.mailAddressUsed()
 
@@ -200,9 +222,11 @@ class object(univention.admin.handlers.simpleLdap):
 
         if self.hasChanged('resourceMailAddress'):
             if self['resourceMailAddress']:
-                univention.admin.allocators.confirm(self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
+                univention.admin.allocators.confirm(
+                    self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
             else:
-                univention.admin.allocators.release(self.lo, self.position, 'mailPrimaryAddress', self.oldinfo['resourceMailAddress'])
+                univention.admin.allocators.release(
+                    self.lo, self.position, 'mailPrimaryAddress', self.oldinfo['resourceMailAddress'])
 
     def _ldap_post_remove(self):
         super(object, self)._ldap_post_remove()

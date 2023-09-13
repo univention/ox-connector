@@ -437,7 +437,8 @@ class Module(Client):
         if not opened:
             data["properties"] = "dn"
         self.load_relations()
-        entries = self.client.resolve_relation(self.relations, "search", template=data)
+        entries = self.client.resolve_relation(
+            self.relations, "search", template=data)
         for obj in self.client.resolve_relations(entries, "udm:object"):
             if opened:
                 yield Object.from_data(self.udm, obj)
@@ -642,7 +643,8 @@ class Object(Client):
         ):
             if response.response.headers.get("Retry-After", "").isdigit():
                 time.sleep(
-                    min(30, max(0, int(response.response.headers["Retry-After"]) - 1))
+                    min(30, max(
+                        0, int(response.response.headers["Retry-After"]) - 1))
                 )
             response = self.client.make_request(
                 "GET", response.response.headers["Location"]

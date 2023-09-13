@@ -220,8 +220,10 @@ user_attributes: typing.List[UserAttributeTest] = [
         random_value_generator=random_mail_address,
         none_generator=no_none,
     ),
-    UserAttributeTest("email2", "oxEmail2", random_value_generator=random_mail_address),
-    UserAttributeTest("email3", "oxEmail3", random_value_generator=random_mail_address),
+    UserAttributeTest("email2", "oxEmail2",
+                      random_value_generator=random_mail_address),
+    UserAttributeTest("email3", "oxEmail3",
+                      random_value_generator=random_mail_address),
     UserAttributeTest("fax_business", "oxFaxBusiness"),
     UserAttributeTest("fax_home", "oxFaxHome"),
     UserAttributeTest("fax_other", "oxFaxOther"),
@@ -484,7 +486,8 @@ def test_full_blown_user(
         "roomNumber": [new_user_name_generator()],
         "street": new_user_name_generator(),
     }
-    dn = create_obj(udm, new_user_name, domainname, new_context_id, attrs=attrs)
+    dn = create_obj(udm, new_user_name, domainname,
+                    new_context_id, attrs=attrs)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     for k, v in attrs.items():
@@ -604,7 +607,8 @@ def test_enable_and_disable_user(
     # BUG: so we have to do it in two steps: Bug #50469
     udm.modify("users/user", dn, {"isOxUser": True})
     udm.modify(
-        "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name}
+        "users/user", dn, {"oxContext": new_context_id,
+                           "oxDisplayName": new_user_name}
     )
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)

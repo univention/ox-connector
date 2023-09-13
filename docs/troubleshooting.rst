@@ -318,4 +318,3 @@ details about your case, so that the Univention Support team can help you:
 * Describe the expected behavior.
 
 * Provide data from the provisioning that causes the error.
-

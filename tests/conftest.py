@@ -61,7 +61,8 @@ def wait_for_listener(truncate_wait_for_listener_log):
 
 
 def _new_id(cache):
-    value = cache.get("newobjects/id", int(os.environ["DEFAULT_CONTEXT"]) + 100)
+    value = cache.get(
+        "newobjects/id", int(os.environ["DEFAULT_CONTEXT"]) + 100)
     value += 1
     cache.set("newobjects/id", value)
     return value

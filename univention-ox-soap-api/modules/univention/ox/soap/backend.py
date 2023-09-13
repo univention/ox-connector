@@ -40,10 +40,12 @@ from .credentials import ClientCredentials
 from .services import get_ox_soap_service_class
 
 
-__all__ = ['SoapContext', 'SoapGroup', 'SoapResource', 'SoapUser', 'SoapAccount', 'SoapUserCopy']
+__all__ = ['SoapContext', 'SoapGroup', 'SoapResource',
+           'SoapUser', 'SoapAccount', 'SoapUserCopy']
 
 
-SoapAttribute = namedtuple('SoapAttribute', ['name', 'default'], defaults=[None])
+SoapAttribute = namedtuple(
+    'SoapAttribute', ['name', 'default'], defaults=[None])
 
 
 class SoapBackend(object):
@@ -59,7 +61,8 @@ class SoapBackend(object):
 
     def backend_init(self, *args, **kwargs):  # type: (*str, **str) -> None
         super(SoapBackend, self).backend_init(*args, **kwargs)
-        self.context_id = int(kwargs.get('context_id') or self.context_id or DEFAULT_CONTEXT)
+        self.context_id = int(kwargs.get('context_id')
+                              or self.context_id or DEFAULT_CONTEXT)
         self.default_service = self.service(DEFAULT_CONTEXT)
         self._soap_server = kwargs.pop('soap_server', OX_SOAP_SERVER)
         self._soap_username = kwargs.pop('soap_username', None)
@@ -93,16 +96,20 @@ class SoapBackend(object):
         return obj
 
     @classmethod
-    def get_client_credentials(cls, context_id):  # type: (int) -> ClientCredentials
+    # type: (int) -> ClientCredentials
+    def get_client_credentials(cls, context_id):
         if context_id not in cls._client_credential_objs:
-            cls._client_credential_objs[context_id] = ClientCredentials(context_id=context_id)
+            cls._client_credential_objs[context_id] = ClientCredentials(
+                context_id=context_id)
         return cls._client_credential_objs[context_id]
 
     @classmethod
     def service(cls, context_id):  # type: () -> OxSoapService
         if context_id not in cls._service_objs.setdefault(cls._object_type, {}):
-            OxSoapServiceClass = get_ox_soap_service_class(cls._object_type)  # type: Type[univention.ox.soap.services.OxSoapService]
-            cls._service_objs[cls._object_type][context_id] = OxSoapServiceClass(cls.get_client_credentials(context_id))
+            # type: Type[univention.ox.soap.services.OxSoapService]
+            OxSoapServiceClass = get_ox_soap_service_class(cls._object_type)
+            cls._service_objs[cls._object_type][context_id] = OxSoapServiceClass(
+                cls.get_client_credentials(context_id))
         return cls._service_objs[cls._object_type][context_id]
 
     @classmethod
@@ -110,7 +117,8 @@ class SoapBackend(object):
         return get_ox_integration_class(cls._backend, object_type)().default_service.Type
 
     @classmethod
-    def from_ox(cls, context_id, obj_id=None, name=None):  # type: (int, Optional[int], Optional[str]) -> OxObject
+    # type: (int, Optional[int], Optional[str]) -> OxObject
+    def from_ox(cls, context_id, obj_id=None, name=None):
         """
         Load an object from OX.
 
@@ -119,7 +127,8 @@ class SoapBackend(object):
         :param name: str - name of object to retrieve, either ID or name must be set
         :return: OxObject
         """
-        soap_obj = cls.service(context_id).get_data(cls.service(context_id).Type(id=obj_id, name=name))
+        soap_obj = cls.service(context_id).get_data(
+            cls.service(context_id).Type(id=obj_id, name=name))
         return cls._soap_obj2base_obj(context_id, soap_obj)
 
     @classmethod
@@ -196,7 +205,8 @@ class SoapBackend(object):
 
     @classmethod
     def _soap_obj2base_obj(cls, context_id, soap_obj):  # type: (int, Any) -> OxObject
-        kwargs = {'id': int(soap_obj.id), 'name': soap_obj.name, 'context_id': int(context_id)}
+        kwargs = {'id': int(soap_obj.id), 'name': soap_obj.name,
+                  'context_id': int(context_id)}
         for k, v in cls._base2soap.items():
             kwargs[k] = getattr(soap_obj, v.name)
         return cls(**kwargs)
@@ -220,7 +230,8 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
 
     def backend_init(self, *args, **kwargs):  # type: (*str, **str) -> None
         super(SoapContext, self).backend_init(*args, **kwargs)
-        self.context_id = int(kwargs.get('context_id') or kwargs.get('id') or self.context_id or DEFAULT_CONTEXT)
+        self.context_id = int(kwargs.get('context_id') or kwargs.get(
+            'id') or self.context_id or DEFAULT_CONTEXT)
 
     def create(self):  # type: () -> int
         """
@@ -251,8 +262,10 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         obj = self.default_service.create(context, admin_user)
         self.id = obj.id
         self.logger.info('Adding secret file for context {}'.format(self.id))
-        save_context_admin_password(context.id, admin_user.name, admin_user.password)
-        self.logger.info('Created context {!r} ({!r}).'.format(obj.name, self.id))
+        save_context_admin_password(
+            context.id, admin_user.name, admin_user.password)
+        self.logger.info(
+            'Created context {!r} ({!r}).'.format(obj.name, self.id))
         return obj.id
 
     def remove(self):  # type: () -> None
@@ -266,7 +279,8 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         remove_context_admin_password(self.id)
 
     @classmethod
-    def from_ox(cls, context_id=None, obj_id=None, name=None):  # type: (int, Optional[int], Optional[str]) -> OxObject
+    # type: (int, Optional[int], Optional[str]) -> OxObject
+    def from_ox(cls, context_id=None, obj_id=None, name=None):
         """
         Load context from OX.
 
@@ -457,7 +471,8 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
         'image1': SoapAttribute('image1'),
         'image1ContentType': SoapAttribute('image1ContentType', ''),
     }
-    _mandatory_creation_attr = ('name', 'display_name', 'password', 'given_name', 'sur_name', 'primary_email', 'email1')
+    _mandatory_creation_attr = (
+        'name', 'display_name', 'password', 'given_name', 'sur_name', 'primary_email', 'email1')
 
     def modify(self):  # type: () -> None
         """
@@ -483,7 +498,8 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
         # SoapGroupService = get_ox_soap_service_class(SoapGroup._object_type)
         # group_service = SoapGroup.service
         user = self.service(self.context_id).Type(id=self.id, name=self.name)
-        soap_objs = SoapGroup.service(self.context_id).list_groups_for_user(user)
+        soap_objs = SoapGroup.service(
+            self.context_id).list_groups_for_user(user)
         return [SoapGroup._soap_obj2base_obj(self.context_id, soap_obj) for soap_obj in soap_objs]
 
 
@@ -499,7 +515,8 @@ class SoapSecondaryAccount(with_metaclass(BackendMetaClass, SoapBackend, Seconda
     _mandatory_creation_attr = ('name', 'email')
 
     @classmethod
-    def from_ox(cls, context_id, obj_id=None, name=None):  # type: (int, Optional[int], Optional[str])
+    # type: (int, Optional[int], Optional[str])
+    def from_ox(cls, context_id, obj_id=None, name=None):
         raise NotImplementedError()
 
     @classmethod
@@ -510,7 +527,8 @@ class SoapSecondaryAccount(with_metaclass(BackendMetaClass, SoapBackend, Seconda
         """
         Create object with current attributes.
         """
-        obj = self.service(self.context_id).Type(name=self.name, primaryAddress=self.email, personal=self.personal, mailEndpointSource=self.mail_endpoint_source, login=self.login)
+        obj = self.service(self.context_id).Type(name=self.name, primaryAddress=self.email,
+                                                 personal=self.personal, mailEndpointSource=self.mail_endpoint_source, login=self.login)
         self.service(self.context_id).create(obj, self.users, self.groups)
         self.logger.info('Created {} {!r} in context {} (id={!r}).'.format(
             self._object_type.lower(), obj.name, self.context_id, self.email))

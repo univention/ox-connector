@@ -38,7 +38,8 @@ import univention.admin.localization
 import univention.uldap
 from univention.admin.hook import simpleHook
 
-translation = univention.admin.localization.translation('univention.admin.hooks.d.ox')
+translation = univention.admin.localization.translation(
+    'univention.admin.hooks.d.ox')
 _ = translation.translate
 
 
@@ -49,22 +50,26 @@ class oxGroupHook(simpleHook):
 
     @staticmethod
     def log_info(msg):
-        univention.debug.debug(univention.debug.ADMIN, univention.debug.INFO, 'oxGroupHook: %s' % msg)
+        univention.debug.debug(univention.debug.ADMIN,
+                               univention.debug.INFO, 'oxGroupHook: %s' % msg)
 
     @staticmethod
     def check_mailaddr(module):
         if module['mailAddress']:
             domain = module['mailAddress'].rsplit('@')[-1]
-            filter_s = filter_format('(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,))
+            filter_s = filter_format(
+                '(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,))
             result = module.lo.searchDn(filter=filter_s)
 
             if not result:
-                raise univention.admin.uexceptions.valueError(oxGroupHook._("The mail address' domain does not match any mail domain object."))
+                raise univention.admin.uexceptions.valueError(oxGroupHook._(
+                    "The mail address' domain does not match any mail domain object."))
             else:
                 oxGroupHook.log_info('ldap result: %s' % result)
 
     def hook_open(self, module):
-        oxGroupHook._ = univention.admin.localization.translation('univention.admin.handlers.oxgrouphook').translate
+        oxGroupHook._ = univention.admin.localization.translation(
+            'univention.admin.handlers.oxgrouphook').translate
         self.log_info('_open called')
 
     def hook_ldap_pre_create(self, module):

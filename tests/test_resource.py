@@ -145,7 +145,8 @@ def test_change_context_resource(
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     new_context_id2 = new_context_id_generator()
     create_ox_context(new_context_id2)
-    udm.modify("oxresources/oxresources", dn, {"description": "Soon in a new context"})
+    udm.modify("oxresources/oxresources", dn,
+               {"description": "Soon in a new context"})
     udm.modify(
         "oxresources/oxresources",
         dn,

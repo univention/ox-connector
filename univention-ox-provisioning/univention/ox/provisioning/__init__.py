@@ -170,10 +170,12 @@ def get_group_objs(obj):  # noqa: C901
         new_obj = deepcopy(obj)
         if new_obj.old_attributes:
             new_obj.old_attributes["oxContext"] = context
-            new_obj.old_attributes["users"] = sorted(set(users) & set(new_obj.old_attributes.get("users")))
+            new_obj.old_attributes["users"] = sorted(
+                set(users) & set(new_obj.old_attributes.get("users")))
         if new_obj.attributes:
             new_obj.attributes["oxContext"] = context
-            new_obj.attributes["users"] = sorted(set(users) & set(new_obj.attributes.get("users")))
+            new_obj.attributes["users"] = sorted(
+                set(users) & set(new_obj.attributes.get("users")))
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj
 
@@ -212,7 +214,8 @@ def get_account_objs(obj):  # noqa: C901
             continue
         for new_obj in get_group_objs(group_obj):
             context = new_obj.attributes.get("oxContext")
-            users_in_context, groups_in_context = contexts.get(context, ([], []))
+            users_in_context, groups_in_context = contexts.get(
+                context, ([], []))
             groups_in_context.append(group)
             contexts[context] = users_in_context, groups_in_context
     for context, (users, groups) in contexts.items():
@@ -221,7 +224,9 @@ def get_account_objs(obj):  # noqa: C901
             new_obj.old_attributes["oxContext"] = context
         if new_obj.attributes:
             new_obj.attributes["oxContext"] = context
-            new_obj.attributes["users"] = sorted(set(users) & set(new_obj.attributes.get("users")))
-            new_obj.attributes["groups"] = sorted(set(groups) & set(new_obj.attributes.get("groups")))
+            new_obj.attributes["users"] = sorted(
+                set(users) & set(new_obj.attributes.get("users")))
+            new_obj.attributes["groups"] = sorted(
+                set(groups) & set(new_obj.attributes.get("groups")))
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj

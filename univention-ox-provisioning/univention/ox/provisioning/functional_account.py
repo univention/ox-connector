@@ -49,13 +49,15 @@ class InvalidSetting(Exception):
 
 def configure_functional_account_login(app_setting):
     try:
-        FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = [f.span() for f in re.finditer("{{\w+}}", app_setting)]
+        FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = [
+            f.span() for f in re.finditer("{{\w+}}", app_setting)]
     except ValueError:
         raise InvalidSetting(INVALID_FORMAT_ERR_MSG)
     return sorted(FUNCTIONAL_ACCOUNT_LOGIN_FORMAT, reverse=True)
 
 
-FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = configure_functional_account_login(FUNCTIONAL_ACCOUNT_LOGIN)
+FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = configure_functional_account_login(
+    FUNCTIONAL_ACCOUNT_LOGIN)
 
 
 def get_functional_account_login(dn, fa):
@@ -66,13 +68,16 @@ def get_functional_account_login(dn, fa):
         if attr_name == "fa_entry_uuid":
             value = value.replace(value[span[0]:span[1]], fa.entry_uuid)
         elif attr_name == "fa_email_address":
-            value = value.replace(value[span[0]:span[1]], fa.attributes["mailPrimaryAddress"])
+            value = value.replace(
+                value[span[0]:span[1]], fa.attributes["mailPrimaryAddress"])
         elif attr_name == "entry_uuid":
             value = value.replace(value[span[0]:span[1]], obj.entry_uuid)
         elif attr_name == "dn":
-            value = value.replace(value[span[0]:span[1]], obj.distinguished_name)
+            value = value.replace(
+                value[span[0]:span[1]], obj.distinguished_name)
         else:
-            value = value.replace(value[span[0]:span[1]], obj.attributes[attr_name])
+            value = value.replace(
+                value[span[0]:span[1]], obj.attributes[attr_name])
     logger.info(f"format functional account login value ({value})")
     return value
 
@@ -94,7 +99,8 @@ def update_functional_account(functional_account, attributes):
 def get_functional_account_id(attributes):
     context_id = get_context_id(attributes)
     name = attributes.get("name")
-    functional_account = get_obj_by_name_from_ox(FunctionalAccount, context_id, name)
+    functional_account = get_obj_by_name_from_ox(
+        FunctionalAccount, context_id, name)
     if functional_account:
         return functional_account.id
 
@@ -113,7 +119,8 @@ def create_functional_account(obj):
         functional_account.users = [get_db_id(dn)]
         functional_account.login = obj.entry_uuid
         functional_account.login = get_functional_account_login(dn, obj)
-        functional_account.groups = []  # groups are disabled in umc, this should be changed if it is enabled again.
+        # groups are disabled in umc, this should be changed if it is enabled again.
+        functional_account.groups = []
         if functional_account.users[0]:
             functional_account.create()
 

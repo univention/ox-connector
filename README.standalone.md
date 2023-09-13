@@ -27,7 +27,7 @@ since permissions for running the main branch are reserved.
     * `DEPLOY_OX`: `yes`
     * `ENV_STOP_BEFORE`: `yes` (only if you want to fresh start and already have things on your namespace)`
     * `RUN_TESTS`: `no` (this would run the tests for everything deployed if enabled, but we will manually test our component)
-4. The `ox-connector` image used in the stack is standalone and does not 
+4. The `ox-connector` image used in the stack is standalone and does not
 include tests. Since it is a multi-staged build, there is a tag including the
 tests. Therefore you will need to deploy the staged build with the tests
 included. You can use `tilt up` (see [more on tilt](https://tilt.dev/)) on this

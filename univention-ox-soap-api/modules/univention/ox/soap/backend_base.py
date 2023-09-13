@@ -37,8 +37,10 @@ except ImportError:
     pass
 
 
-__ox_integration_backend_class_registry = dict()  # type: Dict[str, Dict[str, Type["OxObject"]]]
-__ox_integration_backend_object_cache = {}  # type: Dict[str, Dict[str, "OxObject"]]
+# type: Dict[str, Dict[str, Type["OxObject"]]]
+__ox_integration_backend_class_registry = dict()
+# type: Dict[str, Dict[str, "OxObject"]]
+__ox_integration_backend_object_cache = {}
 
 
 def register_ox_integration_backend_class(backend, object_type, cls):
@@ -51,10 +53,12 @@ def register_ox_integration_backend_class(backend, object_type, cls):
     :param cls: Type - the class that should be registered (a subclass of OxObject or one)
     :return: None
     """
-    __ox_integration_backend_class_registry.setdefault(backend, {})[object_type] = cls
+    __ox_integration_backend_class_registry.setdefault(backend, {})[
+        object_type] = cls
 
 
-def get_ox_integration_class(backend, object_type):  # type: (str, str) -> Type["OxObject"]
+# type: (str, str) -> Type["OxObject"]
+def get_ox_integration_class(backend, object_type):
     """
     Get a class implementing OX object manipulation.
 
@@ -75,11 +79,13 @@ class BackendMetaClass(type):
     logger = logging.getLogger(__name__)
 
     def __new__(cls, clsname, bases, attrs):
-        kls = super(BackendMetaClass, cls).__new__(cls, clsname, bases, attrs)  # type: Type["OxObject"]
+        kls = super(BackendMetaClass, cls).__new__(
+            cls, clsname, bases, attrs)  # type: Type["OxObject"]
         if issubclass(kls, OxObject) and getattr(kls, '_backend') and getattr(kls, '_object_type'):
             if not kls.logger:
                 kls.logger = cls.logger.getChild(clsname)
-            register_ox_integration_backend_class(kls._backend, kls._object_type, kls)
+            register_ox_integration_backend_class(
+                kls._backend, kls._object_type, kls)
             cls.logger.debug('Registered class {!r} of backend {!r} for object type {!r}.'.format(
                 cls.__name__, kls._backend, kls._object_type))
         return kls
@@ -102,7 +108,8 @@ class OxObject(object):
     context_id = None  # type: int
 
     def __init__(self, *args, **kwargs):  # type: (*str, **str) -> None
-        self.logger = logging.getLogger('{}.{}'.format(__name__, self.__class__.__name__))
+        self.logger = logging.getLogger(
+            '{}.{}'.format(__name__, self.__class__.__name__))
         self.kwargs2attr(**kwargs)
         self.backend_init(*args, **kwargs)
 
@@ -183,13 +190,15 @@ class Context(OxObject):
     max_quota = None  # type: int
     read_database = None  # type: Dict[str, str]
     used_quota = None  # type: int
-    user_attributes = None  # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
+    # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
+    user_attributes = None
     write_database = None  # type: Dict[str, str]
 
     def __init__(self, *args, **kwargs):  # type: (*str, **str) -> None
         super(Context, self).__init__(*args, **kwargs)
         self.id = self.context_id = self.context_id or self.id
-        self.id = self.context_id = kwargs.get('context_id') or kwargs.get('id')
+        self.id = self.context_id = kwargs.get(
+            'context_id') or kwargs.get('id')
 
 
 class Group(OxObject):
@@ -364,7 +373,8 @@ class User(OxObject):
     upload_file_size_limitPerFile = None  # type: int
     url = None  # type: str
     used_quota = None  # type: int
-    user_attributes = None  # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
+    # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
+    user_attributes = None
     userfield01 = None  # type: str
     userfield02 = None  # type: str
     userfield03 = None  # type: str

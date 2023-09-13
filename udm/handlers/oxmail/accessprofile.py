@@ -327,7 +327,8 @@ mapping.register("name", "cn", None, univention.admin.mapping.ListToString)
 mapping.register(
     "displayName", "displayName", None, univention.admin.mapping.ListToString
 )
-mapping.register("usm", "oxRightUsm", None, univention.admin.mapping.ListToString)
+mapping.register("usm", "oxRightUsm", None,
+                 univention.admin.mapping.ListToString)
 mapping.register(
     "activesync", "oxRightActivesync", None, univention.admin.mapping.ListToString
 )
@@ -370,7 +371,8 @@ mapping.register(
     None,
     univention.admin.mapping.ListToString,
 )
-mapping.register("ical", "oxRightIcal", None, univention.admin.mapping.ListToString)
+mapping.register("ical", "oxRightIcal", None,
+                 univention.admin.mapping.ListToString)
 mapping.register(
     "infostore", "oxRightInfostore", None, univention.admin.mapping.ListToString
 )
@@ -395,10 +397,14 @@ mapping.register(
 mapping.register(
     "subscription", "oxRightSubscription", None, univention.admin.mapping.ListToString
 )
-mapping.register("syncml", "oxRightSyncml", None, univention.admin.mapping.ListToString)
-mapping.register("tasks", "oxRightTasks", None, univention.admin.mapping.ListToString)
-mapping.register("vcard", "oxRightVcard", None, univention.admin.mapping.ListToString)
-mapping.register("webdav", "oxRightWebdav", None, univention.admin.mapping.ListToString)
+mapping.register("syncml", "oxRightSyncml", None,
+                 univention.admin.mapping.ListToString)
+mapping.register("tasks", "oxRightTasks", None,
+                 univention.admin.mapping.ListToString)
+mapping.register("vcard", "oxRightVcard", None,
+                 univention.admin.mapping.ListToString)
+mapping.register("webdav", "oxRightWebdav", None,
+                 univention.admin.mapping.ListToString)
 mapping.register(
     "webdavxml", "oxRightWebdavxml", None, univention.admin.mapping.ListToString
 )
@@ -412,7 +418,8 @@ class object(univention.admin.handlers.simpleLdap):
 
     def _ldap_pre_remove(self):
         super(object, self)._ldap_pre_remove()
-        access_filter = univention.admin.filter.expression("oxAccess", self["name"])
+        access_filter = univention.admin.filter.expression(
+            "oxAccess", self["name"])
         searchResult = univention.admin.modules.lookup(
             "users/user", self.co, self.lo, access_filter, scope="sub"
         )

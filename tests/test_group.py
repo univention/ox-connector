@@ -55,7 +55,8 @@ def test_enable_and_disable_group(
     new_context_id2 = create_ox_context()
     user_dn2 = create_ox_user(context_id=new_context_id2).dn
     user_dn3 = create_ox_user(context_id=new_context_id2).dn
-    dn = create_obj(udm, new_group_name, [user_dn1, user_dn2, user_dn3], enabled=False)
+    dn = create_obj(udm, new_group_name, [
+                    user_dn1, user_dn2, user_dn3], enabled=False)
     wait_for_listener(dn)
     find_obj(new_context_id, new_group_name, assert_empty=True)
     find_obj(new_context_id2, new_group_name, assert_empty=True)

@@ -52,7 +52,8 @@ import univention.admin.objects as udm_objects
 # determine current lookup filter from users/user
 udm_modules.update()
 usersmod = udm_modules.get("users/user")
-user_filter = str(usersmod.lookup_filter(filter_s='(&(objectClass=oxUserObject)(oxDisplayName=*))'))
+user_filter = str(usersmod.lookup_filter(
+    filter_s='(&(objectClass=oxUserObject)(oxDisplayName=*))'))
 
 ucr = ConfigRegistry()
 ucr.load()
@@ -103,7 +104,8 @@ def get_access_profiles(force_reload):
                     match = regex.match(line)
                     if match:
                         name = match.groups()[0].strip()
-                        capabilities = {x.strip() for x in match.groups()[1].split(",")}
+                        capabilities = {x.strip()
+                                        for x in match.groups()[1].split(",")}
                         _profiles[name] = [
                             capability_map.get(cap, cap) for cap in capabilities
                         ]
@@ -131,7 +133,8 @@ def write_it(lo, pos, fname):
             ox_access = attrs.get('oxAccess', [b''])[0].decode('UTF-8')
             access_profile = get_access_profile(ox_access)
             if ox_access_usm == b"OK" and access_profile and not ('USM' in access_profile and 'activeSync' in access_profile):
-                print("Found {} with oxAccessUSM enabled and an Access profile without mobility {}".format(dn, ox_access))
+                print("Found {} with oxAccessUSM enabled and an Access profile without mobility {}".format(
+                    dn, ox_access))
                 csv_writer.writerow((dn, ox_access))
 
 
@@ -140,7 +143,8 @@ def apply_it(lo, pos, fname):
     udm_modules.init(lo, pos, mod)
 
     mod_accessprofile = udm_modules.get('oxmail/accessprofile')
-    accessprofile_pos = univention.admin.uldap.position(f"cn=accessprofiles,cn=open-xchange,{ucr['ldap/base']}")
+    accessprofile_pos = univention.admin.uldap.position(
+        f"cn=accessprofiles,cn=open-xchange,{ucr['ldap/base']}")
     udm_modules.init(lo, pos, mod)
 
     with open(fname) as fd:
@@ -154,7 +158,8 @@ def apply_it(lo, pos, fname):
                 user['oxAccess'] = ox_access + "_mobility"
             else:
                 if not get_access_profile(ox_access + "_mobility_migrated", True):
-                    oxaccess_profile = udm_objects.default(mod_accessprofile, None, lo, accessprofile_pos)
+                    oxaccess_profile = udm_objects.default(
+                        mod_accessprofile, None, lo, accessprofile_pos)
                     oxaccess_profile.open()
                     access_profile = get_access_profile(ox_access)
                     for k in access_profile:
@@ -165,7 +170,8 @@ def apply_it(lo, pos, fname):
                     oxaccess_profile['displayName'] = oxaccess_profile['name']
                     try:
                         oxaccess_profile.create()
-                        print("Creating Access profile {} with mobility enabled from {}".format(ox_access + "_mobility_migrated", ox_access))
+                        print("Creating Access profile {} with mobility enabled from {}".format(
+                            ox_access + "_mobility_migrated", ox_access))
                     except univention.admin.uexceptions.objectExists:
                         pass
 
@@ -175,11 +181,15 @@ def apply_it(lo, pos, fname):
 
 
 parser = ArgumentParser()
-parser.add_argument('--write', action='store_true', help='Write the current state of the user display names')
-parser.add_argument('--apply', action='store_true', help='Apply a previously written state to the users')
-parser.add_argument('--file', help='Filename where the state is written to or read from')
+parser.add_argument('--write', action='store_true',
+                    help='Write the current state of the user display names')
+parser.add_argument('--apply', action='store_true',
+                    help='Apply a previously written state to the users')
+parser.add_argument(
+    '--file', help='Filename where the state is written to or read from')
 parser.add_argument('--binddn', help='Bind DN for LDAP connection')
-parser.add_argument('--bindpwdfile', help='Filename where the LDAP password is stored in')
+parser.add_argument(
+    '--bindpwdfile', help='Filename where the LDAP password is stored in')
 args = parser.parse_args()
 
 master = ucr.get('ldap/master')
@@ -187,7 +197,8 @@ port = ucr.get('ldap/master/port')
 base = ucr.get('ldap/base')
 
 if args.binddn:
-    lo = univention.admin.uldap.access(master, port, base, args.binddn, open(args.bindpwdfile).read())
+    lo = univention.admin.uldap.access(
+        master, port, base, args.binddn, open(args.bindpwdfile).read())
     pos = univention.admin.uldap.position(base)
 else:
     lo, pos = univention.admin.uldap.getAdminConnection()

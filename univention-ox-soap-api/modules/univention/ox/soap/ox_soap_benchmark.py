@@ -68,41 +68,54 @@ client_context = ZeepClient(WS_CONTEXT_URL, transport=transport)
 client_group = ZeepClient(WS_GROUP_URL, transport=transport)
 client_user = ZeepClient(WS_USER_URL, transport=transport)
 
-credentials_type = client_context.wsdl.types.get_type('{http://dataobjects.rmi.admin.openexchange.com/xsd}Credentials')
-context_type = client_context.wsdl.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}Context')
-user_type = client_context.wsdl.types.get_type('{http://dataobjects.soap.admin.openexchange.com/xsd}User')
+credentials_type = client_context.wsdl.types.get_type(
+    '{http://dataobjects.rmi.admin.openexchange.com/xsd}Credentials')
+context_type = client_context.wsdl.types.get_type(
+    '{http://dataobjects.soap.admin.openexchange.com/xsd}Context')
+user_type = client_context.wsdl.types.get_type(
+    '{http://dataobjects.soap.admin.openexchange.com/xsd}User')
 
 master_creds = credentials_type(*get_master_credentials())
 users = defaultdict(dict)
 simple_users = {}
 groups = {}
-context_objs = dict((c.id, c) for c in client_context.service.listAll(auth=master_creds))
-context_creds = dict((c_id, credentials_type(*get_credentials_for_context(c_id))) for c_id in context_objs.keys())
+context_objs = dict((c.id, c)
+                    for c in client_context.service.listAll(auth=master_creds))
+context_creds = dict((c_id, credentials_type(
+    *get_credentials_for_context(c_id))) for c_id in context_objs.keys())
 
-print('Found contexts: {}'.format(', '.join(str(c_id) for c_id in context_objs.keys())))
+print('Found contexts: {}'.format(', '.join(str(c_id)
+      for c_id in context_objs.keys())))
 
 t0 = time.time()
 for context_id, context_obj in context_objs.items():
     print('Retrieving all groups of context {}...'.format(context_id))
-    groups[context_id] = client_group.service.listAll(ctx=context_obj, auth=context_creds[context_id])
+    groups[context_id] = client_group.service.listAll(
+        ctx=context_obj, auth=context_creds[context_id])
     print('... found {} groups.'.format(len(groups[context_id])))
-print('Total time for group retrieval: {:.2f} seconds.'.format(time.time() - t0))
+print('Total time for group retrieval: {:.2f} seconds.'.format(
+    time.time() - t0))
 
 t0 = time.time()
 for context_id, context_obj in context_objs.items():
     print('Retrieving all user IDs in context {}...'.format(context_id))
-    simple_users[context_id] = client_user.service.listAll(ctx=context_obj, auth=context_creds[context_id])
+    simple_users[context_id] = client_user.service.listAll(
+        ctx=context_obj, auth=context_creds[context_id])
     print('... found {} users.'.format(len(simple_users[context_id])))
-print('Retrieved {} user IDs in {:.2f} seconds.'.format(sum(len(g) for g in simple_users.values()), time.time() - t0))
+print('Retrieved {} user IDs in {:.2f} seconds.'.format(sum(len(g)
+      for g in simple_users.values()), time.time() - t0))
 
 t1 = time.time()
 for context_id, context_obj in context_objs.items():
-    print('Retrieving {} complete user objects in context {}...'.format(len(simple_users[context_id]), context_id))
+    print('Retrieving {} complete user objects in context {}...'.format(
+        len(simple_users[context_id]), context_id))
     for user_id in [u.id for u in simple_users[context_id]]:
         users[context_id][user_id] = client_user.service.getData(
             ctx=context_obj,
             user=user_type(id=user_id),
             auth=context_creds[context_id]
         )
-print('Retrieved {} complete user objects in {:.2f} seconds.'.format(sum(len(g) for g in users.values()), time.time() - t1))
-print('Total time for user retrieval: {:.2f} seconds.'.format(time.time() - t0))
+print('Retrieved {} complete user objects in {:.2f} seconds.'.format(
+    sum(len(g) for g in users.values()), time.time() - t1))
+print('Total time for user retrieval: {:.2f} seconds.'.format(
+    time.time() - t0))

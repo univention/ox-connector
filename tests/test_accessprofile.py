@@ -29,7 +29,8 @@ def create_obj(udm, name, right):
     dn = udm.create(
         "oxmail/accessprofile",
         "cn=accessprofiles,cn=open-xchange",
-        {"name": name, "displayName": name.replace("_", " ").title(), right: True},
+        {"name": name, "displayName": name.replace(
+            "_", " ").title(), right: True},
     )
     return dn
 
@@ -98,7 +99,8 @@ def test_every_one_right_access_profile(
     get_access_profiles(force_reload=True)
     profile = get_access_profile(ox_access)
     assert profile == [right_soap]
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context, ox_access)
+    user_dn = create_user(udm, new_user_name, domainname,
+                          default_ox_context, ox_access)
     wait_for_listener(user_dn)
     access = find_access(default_ox_context, new_user_name)
     assert access[right_soap] is True
@@ -108,7 +110,8 @@ def test_every_one_right_access_profile(
         if _right != right_soap:
             assert access[_right] is False
 
-    udm.remove("users/user", user_dn)  # needs to be removed before accessprofile
+    # needs to be removed before accessprofile
+    udm.remove("users/user", user_dn)
     udm.remove("oxmail/accessprofile", dn)
     wait_for_listener(dn)
     get_access_profiles(force_reload=True)

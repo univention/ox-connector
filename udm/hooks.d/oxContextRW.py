@@ -40,7 +40,8 @@ import univention.admin.uexceptions
 import univention.admin.localization
 from univention.admin.hook import simpleHook
 
-translation = univention.admin.localization.translation('univention.admin.hooks.d.ox')
+translation = univention.admin.localization.translation(
+    'univention.admin.hooks.d.ox')
 _ = translation.translate
 
 
@@ -52,7 +53,8 @@ class oxContextRW(simpleHook):
 
     @staticmethod
     def log_info(msg):
-        univention.debug.debug(univention.debug.ADMIN, univention.debug.INFO, 'oxContextRW: %s' % msg)
+        univention.debug.debug(univention.debug.ADMIN,
+                               univention.debug.INFO, 'oxContextRW: %s' % msg)
 
     def hook_open(self, module):
         if self.is_cli():
@@ -65,5 +67,6 @@ class oxContextRW(simpleHook):
                     if iprop in ('oxContext',):
                         imodule.property_descriptions[iprop].editable = True
                         # imodule.property_descriptions[iprop].may_change = True
-                        self.log_info('_open: property %r found in module %r: switched to editable=True' % (iprop, module_name))
+                        self.log_info('_open: property %r found in module %r: switched to editable=True' % (
+                            iprop, module_name))
         self.log_info('_open: done')
