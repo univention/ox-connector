@@ -40,7 +40,7 @@ from .credentials import ClientCredentials
 from .services import get_ox_soap_service_class
 
 
-__all__ = ['SoapContext', 'SoapGroup', 'SoapResource', 'SoapUser', 'SoapAccount', 'SoapUserCopy']
+__all__ = ['SoapContext', 'SoapGroup', 'SoapResource', 'SoapUser', 'SoapUserCopy']
 
 
 SoapAttribute = namedtuple('SoapAttribute', ['name', 'default'], defaults=[None])
