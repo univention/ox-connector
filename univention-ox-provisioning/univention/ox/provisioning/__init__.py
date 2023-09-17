@@ -97,7 +97,7 @@ def run(obj):  # noqa: C901
         logger.warning(f"Skipping: {exc}")
     except NoContextAdminPassword as exc:
         logger.warning(
-            f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
+            f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
         )
     if obj.object_type == "groups/group":
         for new_obj in get_group_objs(obj):
@@ -112,7 +112,7 @@ def run(obj):  # noqa: C901
                 logger.warning(f"Skipping: {exc}")
             except NoContextAdminPassword as exc:
                 logger.warning(
-                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
+                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
                 )
     if obj.object_type == "oxmail/functional_account":
         for new_obj in get_account_objs(obj):
@@ -127,7 +127,7 @@ def run(obj):  # noqa: C901
                 logger.warning(f"Skipping: {exc}")
             except NoContextAdminPassword as exc:
                 logger.warning(
-                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task"
+                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
                 )
 
     # logging for tests
@@ -156,7 +156,7 @@ def get_group_objs(obj):  # noqa: C901
         user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if user_obj is None:
             logger.info(
-                f"Group wants {user} as member. But the user is unknown. Ignoring..."
+                f"Group wants {user} as member. But the user is unknown. Ignoring...",
             )
             continue
         try:
@@ -192,7 +192,7 @@ def get_account_objs(obj):  # noqa: C901
         user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if user_obj is None:
             logger.info(
-                f"Account wants {user} as user. But the user is unknown. Ignoring..."
+                f"Account wants {user} as user. But the user is unknown. Ignoring...",
             )
             continue
         try:
@@ -206,7 +206,7 @@ def get_account_objs(obj):  # noqa: C901
         group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
         if group_obj is None:
             logger.info(
-                f"Account wants {group} as group. But the group is unknown. Ignoring..."
+                f"Account wants {group} as group. But the group is unknown. Ignoring...",
             )
             continue
         for new_obj in get_group_objs(group_obj):

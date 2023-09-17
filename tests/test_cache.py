@@ -87,7 +87,7 @@ def get_db_id(dn: str) -> str:
 
 
 def test_ignore_user(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Test a non ox-user. Should not find a DB ID in cache
@@ -99,7 +99,7 @@ def test_ignore_user(
 
 
 def test_add_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener,
 ):
     """
     Test a new user. Should find a DB ID in cache
@@ -113,7 +113,7 @@ def test_add_user(
 
 
 def test_rename_user(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Renaming a user should keep its ID
@@ -162,7 +162,7 @@ def test_change_context(
 
 
 def test_remove_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener
+    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener,
 ):
     """
     Test a new user. Should find a DB ID in cache

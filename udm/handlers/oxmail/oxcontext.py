@@ -52,7 +52,7 @@ options = {
         short_description=short_description,
         default=True,
         objectClasses=['top', 'oxContext'],
-    )
+    ),
 }
 
 property_descriptions = {
@@ -63,7 +63,7 @@ property_descriptions = {
         include_in_default_search=True,
         required=True,
         may_change=False,
-        identifies=True
+        identifies=True,
     ),
     'contextid': univention.admin.property(
         short_description=_('Context ID'),

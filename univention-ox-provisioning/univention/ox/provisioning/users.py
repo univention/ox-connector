@@ -71,8 +71,8 @@ def str2isodate(text):  # type: (str) -> str
         exc2 = exc
     raise ValueError(
         "Value {!r} in unknown date format or year before 1900 ({} {}).".format(
-            text, exc1, exc2
-        )
+            text, exc1, exc2,
+        ),
     )
 
 
@@ -294,7 +294,7 @@ def set_user_rights(user, obj):
         access_profile = get_access_profile(user_access)
         if access_profile is None:
             logger.warning(
-                f"Cannot find access profile {user_access!r}. Leaving access rights untouched!"
+                f"Cannot find access profile {user_access!r}. Leaving access rights untouched!",
             )
             return
     else:
@@ -305,7 +305,7 @@ def set_user_rights(user, obj):
     logger.info(f"Changing user {user.id} to profile {user_access}")
 
     user.service(user.context_id).change_by_module_access(
-        {"id": user.id}, access_rights
+        {"id": user.id}, access_rights,
     )
 
 
@@ -318,7 +318,7 @@ def get_user_id(attributes, lookup_ox=True):
     username = attributes.get("username")
     if username == get_context_admin_user(context_id):
         raise Skip(
-            f"Not touching {username} in context {context_id}: Is context admin!"
+            f"Not touching {username} in context {context_id}: Is context admin!",
         )
     logger.info(f"Searching for {username} in context {context_id}")
     if not User.service(context_id).exists(User.service(context_id).Type(id=None, name=username)):
@@ -338,7 +338,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
             if obj.old_attributes is None:
                 obj.old_attributes = deepcopy(obj.attributes)
                 logger.warning(
-                    "Found in DB but had no old attributes. Using new ones as old..."
+                    "Found in DB but had no old attributes. Using new ones as old...",
                 )
             logger.info(f"{obj} exists. Modifying instead...")
             return modify_user(obj)
@@ -364,7 +364,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
         group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
         if group_obj is None or group_obj.attributes is None:
             logger.warning(
-                f"Dont know anything about {group}. Does it exist? Is it to be deleted? Skipping..."
+                f"Dont know anything about {group}. Does it exist? Is it to be deleted? Skipping...",
             )
             continue
         if group_obj.attributes.get("isOxGroup", "Not") == "Not":
@@ -374,7 +374,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
         group = get_obj_by_name_from_ox(Group, user.context_id, groupname)
         if not group:
             logger.info(
-                f"Group {groupname} does not yet exist in {user.context_id}. Creating..."
+                f"Group {groupname} does not yet exist in {user.context_id}. Creating...",
             )
             group = Group(
                 context_id=user.context_id,
@@ -410,7 +410,7 @@ def modify_user(obj):
     if obj.old_attributes:
         if obj.old_attributes.get("isOxUser", "Not") == "Not":
             logger.warning(
-                f"{obj} was no OX user before... that should not be the case. Modifying anyway..."
+                f"{obj} was no OX user before... that should not be the case. Modifying anyway...",
             )
         try:
             old_context = get_context_id(obj.old_attributes)
@@ -421,7 +421,7 @@ def modify_user(obj):
             new_context = get_context_id(obj.attributes)
         except Skip:
             logger.warning(
-                f"{obj} has no oxContext. that should not be the case. Using old oxContext..."
+                f"{obj} has no oxContext. that should not be the case. Using old oxContext...",
             )
             obj.set_attr("oxContext", old_context)
             new_context = old_context
@@ -464,7 +464,7 @@ def delete_user(obj):
     logger.info("User was deleted, searching for now empty groups")
     for soap_group in soap_groups:
         logger.info(
-            f"Found group {soap_group.name} with {len(soap_group.members)} members"
+            f"Found group {soap_group.name} with {len(soap_group.members)} members",
         )
         soap_group.members.remove(user.id)
         if not soap_group.members:

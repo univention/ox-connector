@@ -105,13 +105,13 @@ class oxUserDefaults(simpleHook):
                     ud.ADMIN, ud.ERROR,
                     "oxUserDefaults.hook_ldap_pre_modify() setting "
                     "module['oxDisplayName']={!r} , module['isOxUser']={!r}".format(
-                        ox_display_name_new, module['isOxUser'])
+                        ox_display_name_new, module['isOxUser']),
                 )
                 if not ox_display_name_new:
                     ud.debug(
                         ud.ADMIN, ud.ERROR,
                         "Empty oxDisplayName!\n{}".format(
-                            "\n".join(traceback.format_stack()))
+                            "\n".join(traceback.format_stack())),
                     )
                 module['oxDisplayName'] = ox_display_name_new
 

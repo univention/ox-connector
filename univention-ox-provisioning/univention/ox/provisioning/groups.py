@@ -97,7 +97,7 @@ def create_group(obj):
         if obj.old_attributes is None:
             obj.old_attributes = deepcopy(obj.attributes)
             logger.warning(
-                "Found in DB but had no old attributes. Using new ones as old..."
+                "Found in DB but had no old attributes. Using new ones as old...",
             )
         logger.info(f"{obj} exists. Modifying instead...")
         return modify_group(obj)
@@ -123,7 +123,7 @@ def modify_group(obj):
     if obj.old_attributes:
         if obj.old_attributes.get("isOxGroup", "Not") == "Not":
             logger.info(
-                f"{obj} was no OX group before... that should not be the case. Modifying anyway..."
+                f"{obj} was no OX group before... that should not be the case. Modifying anyway...",
             )
         group = group_from_attributes(obj.old_attributes, group_id)
         update_group(group, obj.attributes)

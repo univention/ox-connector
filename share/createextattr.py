@@ -57,11 +57,11 @@ _parser.add_option('--binddn', action='store', dest='binddn', help='ldap bind dn
 _parser.add_option('--bindpwdfile', action='store', dest='bindpwdfile', help='file with ldap bind password for bind dn')
 _parser.add_option(
     '--update', action='store_true', dest='update', default=False,
-    help='update existing extended attributes with the package defaults (except "default" property)'
+    help='update existing extended attributes with the package defaults (except "default" property)',
 )
 _parser.add_option(
     '--update-reset-defaults', action='store_true', dest='update_defaults', default=False,
-    help='update existing extended attributes with the package defaults (including "default" property)'
+    help='update existing extended attributes with the package defaults (including "default" property)',
 )
 (options, params) = _parser.parse_args()
 
@@ -78,7 +78,7 @@ def run_ext(attr_name, cmd):  # type: (str, List[str]) -> None
     ret = subprocess.call(cmd)
     if ret:
         print('FAILED (exit {}) {} extended attribute {!r} with command:\n{!r}'.format(
-            ret, 'updating' if options.update else 'installing', attr_name, cmd)
+            ret, 'updating' if options.update else 'installing', attr_name, cmd),
         )
         sys.exit(ret)
 

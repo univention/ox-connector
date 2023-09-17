@@ -128,7 +128,7 @@ def get_access_profiles(force_reload):
                         ]
         except EnvironmentError:
             logger.warning(
-                "Could not read %s. Working with empty set...", access_definitions_file
+                "Could not read %s. Working with empty set...", access_definitions_file,
             )
     return deepcopy(_profiles)
 

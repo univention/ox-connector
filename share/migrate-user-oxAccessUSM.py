@@ -109,7 +109,7 @@ def get_access_profiles(force_reload):
                         ]
         except EnvironmentError:
             print(
-                f"Could not read {access_definitions_file}. Working with empty set..."
+                f"Could not read {access_definitions_file}. Working with empty set...",
             )
     return deepcopy(_profiles)
 

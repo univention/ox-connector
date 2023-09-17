@@ -75,54 +75,54 @@ class Types(object):
             self.__class__.wsdl_resource = get_wsdl(server, 'Resource')
         if not self.wsdl_secondary_account:
             self.__class__.wsdl_secondary_account = get_wsdl(
-                server, 'SecondaryAccount'
+                server, 'SecondaryAccount',
             )
         if not self.wsdl_user:
             self.__class__.wsdl_user = get_wsdl(server, 'User')
         self.Credentials = self.wsdl_context.types.get_type(
-            '{http://dataobjects.rmi.admin.openexchange.com/xsd}Credentials'
+            '{http://dataobjects.rmi.admin.openexchange.com/xsd}Credentials',
         )
         self.Context = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}Context'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}Context',
         )
         self.Database = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}Database'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}Database',
         )
         self.Entry = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}Entry'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}Entry',
         )
         self.Filestore = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}Filestore'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}Filestore',
         )
         self.Group = self.wsdl_group.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}Group'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}Group',
         )
         self.Quota = self.wsdl_context.types.get_type(
-            '{http://dataobjects.rmi.admin.openexchange.com/xsd}Quota'
+            '{http://dataobjects.rmi.admin.openexchange.com/xsd}Quota',
         )
         self.Resource = self.wsdl_resource.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}Resource'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}Resource',
         )
         self.SecondaryAccount = self.wsdl_secondary_account.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}AccountDataOnCreate'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}AccountDataOnCreate',
         )
         self.SchemaSelectStrategy = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}SchemaSelectStrategy'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}SchemaSelectStrategy',
         )
         self.SOAPMapEntry = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPMapEntry'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPMapEntry',
         )
         self.SOAPStringMap = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPStringMap'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPStringMap',
         )
         self.SOAPStringMapMap = self.wsdl_context.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPStringMapMap'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}SOAPStringMapMap',
         )
         self.User = self.wsdl_user.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}User'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}User',
         )
         self.UserModuleAccess = self.wsdl_user.types.get_type(
-            '{http://dataobjects.soap.admin.openexchange.com/xsd}UserModuleAccess'
+            '{http://dataobjects.soap.admin.openexchange.com/xsd}UserModuleAccess',
         )
 
 

@@ -80,7 +80,7 @@ WS_URLS = {
     'Group': '{}/OXGroupService?wsdl'.format(WS_BASE_URL),
     'Resource': '{}/OXResourceService?wsdl'.format(WS_BASE_URL),
     'SecondaryAccount': '{}/OXSecondaryAccountService?wsdl'.format(
-        WS_BASE_URL
+        WS_BASE_URL,
     ),
     'User': '{}/OXUserService?wsdl'.format(WS_BASE_URL),
     'UserCopy': '{}/OXUserCopyService?wsdl'.format(WS_BASE_URL),
@@ -121,14 +121,14 @@ class OxServiceMetaClass(type):
 
     def __new__(cls, clsname, bases, attrs):
         kls = super(OxServiceMetaClass, cls).__new__(
-            cls, clsname, bases, attrs
+            cls, clsname, bases, attrs,
         )  # type: Type[OxSoapService]
         if issubclass(kls, OxSoapService) and getattr(kls, '_type_name'):
             register_ox_service_class(kls._type_name, kls)
             logger.debug(
                 'Registered class {!r} for service type {!r}.'.format(
-                    cls.__name__, kls._type_name
-                )
+                    cls.__name__, kls._type_name,
+                ),
             )
         return kls
 
@@ -148,7 +148,7 @@ class OxSoapService(ZeepClient):
         **kwargs: str,
     ) -> None:
         assert self._type_name in WS_URLS, 'Unknown service {!r}.'.format(
-            self._type_name
+            self._type_name,
         )
 
         self.credentials = client_credentials
@@ -178,7 +178,7 @@ class OxSoapService(ZeepClient):
         ].id != self.credentials.context_obj.id and not kwargs.get('auth'):
             raise OxSoapServiceError(
                 'Credentials must be supplied, when using a context different '
-                'to the one used for initializing the service.'
+                'to the one used for initializing the service.',
             )
         kwargs['auth'] = (
             kwargs.pop('auth', None) or self.credentials.credentials
@@ -189,7 +189,7 @@ class OxSoapService(ZeepClient):
         binding_options = service._binding_options
         if binding_options['address'].startswith('https://'):
             binding_options['address'] = binding_options['address'].replace(
-                ':80/', ':443/'
+                ':80/', ':443/',
             )
         return getattr(service, func)(**kwargs)
 
@@ -204,7 +204,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
     _type_name = 'Context'
 
     def change(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> None:
         """
         Change specified context!
@@ -220,7 +220,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         context. Normally NO need to change!
         """
         return self._call_ox(
-            'change', ctx=context_obj, auth=self.credentials.master_credentials
+            'change', ctx=context_obj, auth=self.credentials.master_credentials,
         )
 
     def change_capabilities(
@@ -267,7 +267,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
             returned from a previous call to this API.
         """
         return self._call_ox(
-            'changeModuleAccess', ctx=context_obj, access=access
+            'changeModuleAccess', ctx=context_obj, access=access,
         )
 
     def change_module_access_by_name(
@@ -384,7 +384,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def delete(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> None:
         """
         Delete a context.
@@ -393,11 +393,11 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         include (all users, groups, appointments, ...)
         """
         return self._call_ox(
-            'delete', ctx=context_obj, auth=self.credentials.master_credentials
+            'delete', ctx=context_obj, auth=self.credentials.master_credentials,
         )
 
     def disable(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> None:
         """Disable given context."""
         return self._call_ox(
@@ -409,33 +409,33 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
     def disable_all(self) -> None:
         """Same as disable."""
         return self._call_ox(
-            'disableAll', ctx=None, auth=self.credentials.master_credentials
+            'disableAll', ctx=None, auth=self.credentials.master_credentials,
         )
 
     def enable(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> None:
         """Enable given context."""
         return self._call_ox(
-            'enable', ctx=context_obj, auth=self.credentials.master_credentials
+            'enable', ctx=context_obj, auth=self.credentials.master_credentials,
         )
 
     def enable_all(self) -> None:
         """Same as enable."""
         return self._call_ox(
-            'enableAll', ctx=None, auth=self.credentials.master_credentials
+            'enableAll', ctx=None, auth=self.credentials.master_credentials,
         )
 
     def exists(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> bool:
         """Determines whether a context already exists."""
         return self._call_ox(
-            'exists', ctx=context_obj, auth=self.credentials.master_credentials
+            'exists', ctx=context_obj, auth=self.credentials.master_credentials,
         )
 
     def downgrade(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> None:
         """
         If context was changed, call this method to flush data which is no
@@ -448,7 +448,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def get_access_combination_name(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> str:
         """
         Get current access combination name of the context based on the rights
@@ -464,7 +464,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def get_admin_id(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> int:
         """Determines the user ID of the admin user for a given context"""
         return self._call_ox(
@@ -474,7 +474,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def get_context_capabilities(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> str:
         """Gets specified context's capabilities."""
         return self._call_ox(
@@ -484,7 +484,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def get_data(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> univention.ox.soap.types.Types.Context:
         """Get specified context details"""
         return self._call_ox(
@@ -494,7 +494,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def get_module_access(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> univention.ox.soap.types.Types.UserModuleAccess:
         """
         Get current module access rights of the context based on the rights
@@ -507,7 +507,7 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def list(
-        self, search_pattern: str
+        self, search_pattern: str,
     ) -> List[univention.ox.soap.types.Types.Context]:
         """
         Search for contexts
@@ -528,27 +528,27 @@ class OXContextService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         context or list all contexts.
         """
         return self._call_ox(
-            'listAll', ctx=None, auth=self.credentials.master_credentials
+            'listAll', ctx=None, auth=self.credentials.master_credentials,
         )
 
     def list_by_database(
-        self, db: univention.ox.soap.types.Types.Database
+        self, db: univention.ox.soap.types.Types.Database,
     ) -> List[univention.ox.soap.types.Types.Context]:
         """Search for context on specified db."""
         return self._call_ox(
-            'listByDatabase', db=db, auth=self.credentials.master_credentials
+            'listByDatabase', db=db, auth=self.credentials.master_credentials,
         )
 
     def list_by_filestore(
-        self, fs: univention.ox.soap.types.Types.Filestore
+        self, fs: univention.ox.soap.types.Types.Filestore,
     ) -> List[univention.ox.soap.types.Types.Context]:
         """Search for context which store data on specified filestore"""
         return self._call_ox(
-            'listByFilestore', fs=fs, auth=self.credentials.master_credentials
+            'listByFilestore', fs=fs, auth=self.credentials.master_credentials,
         )
 
     def list_quota(
-        self, context_obj: univention.ox.soap.types.Types.Context
+        self, context_obj: univention.ox.soap.types.Types.Context,
     ) -> List[univention.ox.soap.types.Types.Quota]:
         """Gets the configured quotas in given context."""
         return self._call_ox(
@@ -615,7 +615,7 @@ class OXGroupService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('delete', grp=grp)
 
     def delete_multiple(
-        self, grps: List[univention.ox.soap.types.Types.Group]
+        self, grps: List[univention.ox.soap.types.Types.Group],
     ) -> None:
         """Same as delete."""
         return self._call_ox('deleteMultiple', grps=grps)
@@ -627,19 +627,19 @@ class OXGroupService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('getDefaultGroup')
 
     def get_data(
-        self, grp: univention.ox.soap.types.Types.Group
+        self, grp: univention.ox.soap.types.Types.Group,
     ) -> univention.ox.soap.types.Types.Group:
         """Fetch a group from server."""
         return self._call_ox('getData', grp=grp)
 
     def get_members(
-        self, grp: univention.ox.soap.types.Types.Group
+        self, grp: univention.ox.soap.types.Types.Group,
     ) -> List[univention.ox.soap.types.Types.User]:
         """Get User IDs of the members of this group."""
         return self._call_ox('getMembers', grp=grp)
 
     def get_multiple_data(
-        self, grps: List[univention.ox.soap.types.Types.Group]
+        self, grps: List[univention.ox.soap.types.Types.Group],
     ) -> List[univention.ox.soap.types.Types.Group]:
         """Same as get_data."""
         return self._call_ox('getMultipleData', grps=grps)
@@ -655,7 +655,7 @@ class OXGroupService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('listAll')
 
     def list_groups_for_user(
-        self, user: univention.ox.soap.types.Types.User
+        self, user: univention.ox.soap.types.Types.User,
     ) -> List[univention.ox.soap.types.Types.Group]:
         """List groups user is a member of."""
         return self._call_ox('listGroupsForUser', usr=user)
@@ -677,7 +677,7 @@ class OXResourceService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('change', res=res)
 
     def create(
-        self, res: univention.ox.soap.types.Types.Resource
+        self, res: univention.ox.soap.types.Types.Resource,
     ) -> univention.ox.soap.types.Types.Resource:
         return self._call_ox('create', res=res)
 
@@ -685,17 +685,17 @@ class OXResourceService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('delete', res=res)
 
     def get_data(
-        self, res: univention.ox.soap.types.Types.Resource
+        self, res: univention.ox.soap.types.Types.Resource,
     ) -> univention.ox.soap.types.Types.Resource:
         return self._call_ox('getData', res=res)
 
     def get_multiple_data(
-        self, resources: List[univention.ox.soap.types.Types.Resource]
+        self, resources: List[univention.ox.soap.types.Types.Resource],
     ) -> List[univention.ox.soap.types.Types.Resource]:
         return self._call_ox('getMultipleData', resources=resources)
 
     def list(
-        self, pattern: str
+        self, pattern: str,
     ) -> List[univention.ox.soap.types.Types.Resource]:
         return self._call_ox('list', pattern=pattern)
 
@@ -705,7 +705,7 @@ class OXResourceService(with_metaclass(OxServiceMetaClass, OxSoapService)):
 
 
 class OXSecondaryAccountService(
-    with_metaclass(OxServiceMetaClass, OxSoapService)
+    with_metaclass(OxServiceMetaClass, OxSoapService),
 ):
 
     _type_name = 'SecondaryAccount'
@@ -716,12 +716,12 @@ class OXSecondaryAccountService(
 
     def create(self, account, users, groups):
         return self._call_ox(
-            'create', accountDataOnCreate=account, users=users, groups=groups
+            'create', accountDataOnCreate=account, users=users, groups=groups,
         )
 
     def delete(self, email):
         return self._call_ox(
-            'delete', primaryAddress=email, groups=[{"id": 0}]
+            'delete', primaryAddress=email, groups=[{"id": 0}],
         )
 
 
@@ -744,7 +744,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
     ) -> None:
         """Manipulate user module access within the given context."""
         return self._call_ox(
-            'changeByModuleAccess', user=user, moduleAccess=module_access
+            'changeByModuleAccess', user=user, moduleAccess=module_access,
         )
 
     def change_by_module_access_name(
@@ -779,11 +779,11 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def change_mail_address_personal(
-        self, user: univention.ox.soap.types.Types.User, local_part: str
+        self, user: univention.ox.soap.types.Types.User, local_part: str,
     ) -> None:
         """Changes the personal part of specified user's E-Mail address."""
         return self._call_ox(
-            'changeMailAddressPersonal', user=user, personal=local_part
+            'changeMailAddressPersonal', user=user, personal=local_part,
         )
 
     def change_module_access_global(
@@ -814,7 +814,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def create(
-        self, user: univention.ox.soap.types.Types.User
+        self, user: univention.ox.soap.types.Types.User,
     ) -> univention.ox.soap.types.Types.User:
         """
         Creates a new user within the given context.
@@ -831,7 +831,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
     ) -> univention.ox.soap.types.Types.User:
         """Same as create."""
         return self._call_ox(
-            'createByModuleAccess', usrdata=user, access=module_access
+            'createByModuleAccess', usrdata=user, access=module_access,
         )
 
     def create_by_module_access_name(
@@ -865,7 +865,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('delete', **kwargs)
 
     def delete_multiple(
-        self, users: List[univention.ox.soap.types.Types.User], reassign: int
+        self, users: List[univention.ox.soap.types.Types.User], reassign: int,
     ) -> None:
         """Same as delete."""
         kwargs = dict(users=users)
@@ -880,7 +880,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('exists', user=user)
 
     def get_access_combination_name(
-        self, user: univention.ox.soap.types.Types.User
+        self, user: univention.ox.soap.types.Types.User,
     ) -> Union[str, None]:
         """
         Get current access combination name of an user!
@@ -900,19 +900,19 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('getData', user=user)
 
     def get_module_access(
-        self, user: univention.ox.soap.types.Types.User
+        self, user: univention.ox.soap.types.Types.User,
     ) -> univention.ox.soap.types.Types.UserModuleAccess:
         """Retrieve the ModuleAccess for an user."""
         return self._call_ox('getModuleAccess', user=user)
 
     def get_multiple_data(
-        self, users: List[univention.ox.soap.types.Types.User]
+        self, users: List[univention.ox.soap.types.Types.User],
     ) -> List[univention.ox.soap.types.Types.User]:
         """Same as get_data."""
         return self._call_ox('getMultipleData', users=users)
 
     def get_user_capabilities(
-        self, user: univention.ox.soap.types.Types.User
+        self, user: univention.ox.soap.types.Types.User,
     ) -> str:
         """Gets specified user's capabilities."""
         return self._call_ox('getUserCapabilities', user=user)
@@ -944,7 +944,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def list_all(
-        self, include_guests: bool = True, exclude_users: bool = False
+        self, include_guests: bool = True, exclude_users: bool = False,
     ) -> List[univention.ox.soap.types.Types.User]:
         """
         Retrieve all users for a given context.
@@ -958,7 +958,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         )
 
     def list_by_alias_domain(
-        self, alias_domain: str
+        self, alias_domain: str,
     ) -> List[univention.ox.soap.types.Types.User]:
         """
         Retrieve users with the supplied domain used in its `aliases` field.
@@ -968,11 +968,11 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         return self._call_ox('listByAliasDomain', alias_domain=alias_domain)
 
     def list_case_insensitive(
-        self, search_pattern: str
+        self, search_pattern: str,
     ) -> List[univention.ox.soap.types.Types.User]:
         """Same as list."""
         return self._call_ox(
-            'listCaseInsensitive', search_pattern=search_pattern
+            'listCaseInsensitive', search_pattern=search_pattern,
         )
 
     def move_from_context_to_user_filestore(
@@ -1040,11 +1040,11 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
             progress information.
         """
         return self._call_ox(
-            'moveFromUserFilestoreToMaster', user=user, masterUser=master_user
+            'moveFromUserFilestoreToMaster', user=user, masterUser=master_user,
         )
 
     def move_from_user_to_context_filestore(
-        self, user: univention.ox.soap.types.Types.User
+        self, user: univention.ox.soap.types.Types.User,
     ) -> int:
         """
         Moves a user's files from his own to a context storage.
@@ -1073,7 +1073,7 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
             progress information.
         """
         return self._call_ox(
-            'moveUserFilestore', user=user, dst_filestore_id=dst_filestore
+            'moveUserFilestore', user=user, dst_filestore_id=dst_filestore,
         )
 
 

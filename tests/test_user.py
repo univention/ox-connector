@@ -52,7 +52,7 @@ def delete_obj(context_id, name) -> None:
 
 
 def test_ignore_user(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     isOxUser = Not should not create a user
@@ -63,7 +63,7 @@ def test_ignore_user(
 
 
 def test_add_user_in_default_context(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Creating a user without a context should add it in the default context
@@ -76,7 +76,7 @@ def test_add_user_in_default_context(
 
 
 def test_rename_user(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Renaming a user should keep its ID
@@ -96,7 +96,7 @@ def test_rename_user(
 
 
 def test_add_user(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     isOxUser = OK should create a user
@@ -110,7 +110,7 @@ def test_add_user(
 
 
 def test_modify_user(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Changing UDM object should be reflected in OX
@@ -520,7 +520,7 @@ def test_full_blown_user(
 
 @pytest.mark.skip("Fails since our cache implementation")
 def test_modify_user_without_ox_obj(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Changing UDM object without a OX pendant should just create it
@@ -577,7 +577,7 @@ def test_modify_mailserver(
 
 
 def test_remove_user(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Removing a user in UDM should remove the user in OX
@@ -590,7 +590,7 @@ def test_remove_user(
 
 
 def test_enable_and_disable_user(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Add a new UDM user (not yet active in OX)
@@ -604,7 +604,7 @@ def test_enable_and_disable_user(
     # BUG: so we have to do it in two steps: Bug #50469
     udm.modify("users/user", dn, {"isOxUser": True})
     udm.modify(
-        "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name}
+        "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name},
     )
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)
@@ -614,7 +614,7 @@ def test_enable_and_disable_user(
 
 
 def test_change_context(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Special case: Change context:
@@ -640,7 +640,7 @@ def test_change_context(
 
 
 def test_existing_user_in_different_context(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     User already exists in OX DB (legacy data?) and a new
@@ -676,7 +676,7 @@ def test_existing_user_in_different_context(
 
 
 def test_alias(
-    create_ox_context, new_user_name, udm, domainname, wait_for_listener
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Changing mailPrimaryAddress and email1 leads to appropriate aliases

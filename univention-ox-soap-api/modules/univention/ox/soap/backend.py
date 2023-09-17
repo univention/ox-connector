@@ -244,7 +244,7 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
             sur_name=context_creation_kwargs['surname'],
             primaryEmail=context_creation_kwargs['email'],
             email1=context_creation_kwargs['email'],
-            timezone=context_creation_kwargs['timezone']
+            timezone=context_creation_kwargs['timezone'],
         )
         self.logger.debug('Creating context: {!r}'.format(context))
         self.logger.debug('Creating context admin: {!r}'.format(admin_user))

@@ -37,7 +37,7 @@ import univention.admin.localization
 from univention.admin.layout import Group, Tab
 
 translation = univention.admin.localization.translation(
-    "univention.admin.handlers.oxmail.accessprofile"
+    "univention.admin.handlers.oxmail.accessprofile",
 )
 _ = translation.translate
 
@@ -54,7 +54,7 @@ options = {
         short_description=short_description,
         default=True,
         objectClasses=['top', 'oxAccessProfile'],
-    )
+    ),
 }
 
 property_descriptions = {
@@ -325,14 +325,14 @@ layout = [
 mapping = univention.admin.mapping.mapping()
 mapping.register("name", "cn", None, univention.admin.mapping.ListToString)
 mapping.register(
-    "displayName", "displayName", None, univention.admin.mapping.ListToString
+    "displayName", "displayName", None, univention.admin.mapping.ListToString,
 )
 mapping.register("usm", "oxRightUsm", None, univention.admin.mapping.ListToString)
 mapping.register(
-    "activesync", "oxRightActivesync", None, univention.admin.mapping.ListToString
+    "activesync", "oxRightActivesync", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "calendar", "oxRightCalendar", None, univention.admin.mapping.ListToString
+    "calendar", "oxRightCalendar", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
     "collectemailaddresses",
@@ -341,19 +341,19 @@ mapping.register(
     univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "contacts", "oxRightContacts", None, univention.admin.mapping.ListToString
+    "contacts", "oxRightContacts", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "delegatetask", "oxRightDelegatetask", None, univention.admin.mapping.ListToString
+    "delegatetask", "oxRightDelegatetask", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "deniedportal", "oxRightDeniedportal", None, univention.admin.mapping.ListToString
+    "deniedportal", "oxRightDeniedportal", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "editgroup", "oxRightEditgroup", None, univention.admin.mapping.ListToString
+    "editgroup", "oxRightEditgroup", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "editpassword", "oxRightEditpassword", None, univention.admin.mapping.ListToString
+    "editpassword", "oxRightEditpassword", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
     "editpublicfolders",
@@ -362,7 +362,7 @@ mapping.register(
     univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "editresource", "oxRightEditresource", None, univention.admin.mapping.ListToString
+    "editresource", "oxRightEditresource", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
     "globaladdressbookdisabled",
@@ -372,7 +372,7 @@ mapping.register(
 )
 mapping.register("ical", "oxRightIcal", None, univention.admin.mapping.ListToString)
 mapping.register(
-    "infostore", "oxRightInfostore", None, univention.admin.mapping.ListToString
+    "infostore", "oxRightInfostore", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
     "multiplemailaccounts",
@@ -393,17 +393,17 @@ mapping.register(
     univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "subscription", "oxRightSubscription", None, univention.admin.mapping.ListToString
+    "subscription", "oxRightSubscription", None, univention.admin.mapping.ListToString,
 )
 mapping.register("syncml", "oxRightSyncml", None, univention.admin.mapping.ListToString)
 mapping.register("tasks", "oxRightTasks", None, univention.admin.mapping.ListToString)
 mapping.register("vcard", "oxRightVcard", None, univention.admin.mapping.ListToString)
 mapping.register("webdav", "oxRightWebdav", None, univention.admin.mapping.ListToString)
 mapping.register(
-    "webdavxml", "oxRightWebdavxml", None, univention.admin.mapping.ListToString
+    "webdavxml", "oxRightWebdavxml", None, univention.admin.mapping.ListToString,
 )
 mapping.register(
-    "webmail", "oxRightWebmail", None, univention.admin.mapping.ListToString
+    "webmail", "oxRightWebmail", None, univention.admin.mapping.ListToString,
 )
 
 
@@ -414,11 +414,11 @@ class object(univention.admin.handlers.simpleLdap):
         super(object, self)._ldap_pre_remove()
         access_filter = univention.admin.filter.expression("oxAccess", self["name"])
         searchResult = univention.admin.modules.lookup(
-            "users/user", self.co, self.lo, access_filter, scope="sub"
+            "users/user", self.co, self.lo, access_filter, scope="sub",
         )
         if len(searchResult) >= 1:
             raise univention.admin.uexceptions.valueError(_(
-                "The deletion of the OX access profile object is not allowed as long as users reference it"
+                "The deletion of the OX access profile object is not allowed as long as users reference it",
             ))
 
 

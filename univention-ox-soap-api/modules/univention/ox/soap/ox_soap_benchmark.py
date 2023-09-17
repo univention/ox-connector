@@ -102,7 +102,7 @@ for context_id, context_obj in context_objs.items():
         users[context_id][user_id] = client_user.service.getData(
             ctx=context_obj,
             user=user_type(id=user_id),
-            auth=context_creds[context_id]
+            auth=context_creds[context_id],
         )
 print('Retrieved {} complete user objects in {:.2f} seconds.'.format(sum(len(g) for g in users.values()), time.time() - t1))
 print('Total time for user retrieval: {:.2f} seconds.'.format(time.time() - t0))

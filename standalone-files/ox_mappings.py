@@ -53,19 +53,19 @@ mappings = {
     "users/user": {
         "uid": {
             "new_keys": ["username"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "uidNumber": {
             "new_keys": ["uidNumber"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "givenName": {
             "new_keys": ["firstname"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "sn": {
             "new_keys": ["lastname"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "jpegPhoto": {
             "new_keys": ["jpegPhoto"],
@@ -73,11 +73,11 @@ mappings = {
         },
         "gecos": {
             "new_keys": ["gecos"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "title": {
             "new_keys": ["title"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "mailPrimaryAddress": {
             "new_keys": ["mailPrimaryAddress"],
@@ -161,7 +161,7 @@ mappings = {
         },
         "groups": {
             "new_keys": ["groups"],
-            "is_multivalue": True
+            "is_multivalue": True,
         },
         "mailAlternativeAddress": {
             "new_keys": ["mailAlternativeAddress"],
@@ -529,99 +529,99 @@ mappings = {
         },
         "oxRightCollectemailaddresses": {
             "new_keys": ["collectemailaddresses"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightContacts": {
             "new_keys": ["contacts"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightDelegatetask": {
             "new_keys": ["delegatetask"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightEditgroup": {
             "new_keys": ["editgroup"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightEditpassword": {
             "new_keys": ["editpassword"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightEditpublicfolders": {
             "new_keys": ["editpublicfolders"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightEditresource": {
             "new_keys": ["editresource"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightIcal": {
             "new_keys": ["ical"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightMultiplemailaccounts": {
             "new_keys": ["multiplemailaccounts"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightReadcreatesharedfolders": {
             "new_keys": ["readcreatesharedfolders"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightSubscription": {
             "new_keys": ["subscription"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightCalendar": {
             "new_keys": ["calendar"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightTasks": {
             "new_keys": ["tasks"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightVcard": {
             "new_keys": ["vcard"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightWebdav": {
             "new_keys": ["webdav"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightWebmail": {
             "new_keys": ["webmail"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightUsm": {
             "new_keys": ["usm"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightActivesync": {
             "new_keys": ["activesync"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightDeniedportal": {
             "new_keys": ["deniedportal"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightGlobaladdressbookdisabled": {
             "new_keys": ["globaladdressbookdisabled"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightInfostore": {
             "new_keys": ["infostore"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightPublicfoldereditable": {
             "new_keys": ["publicfoldereditable"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightSyncml": {
             "new_keys": ["syncml"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
         "oxRightWebdavxml": {
             "new_keys": ["webdavxml"],
-            "is_multivalue": False
+            "is_multivalue": False,
         },
     },
     "oxmail/functional_account": {
@@ -649,7 +649,7 @@ mappings = {
             "new_keys": ["users"],
             "is_multivalue": True,
             "required": True,
-        }
+        },
     },
 }
 
@@ -691,7 +691,7 @@ def unpack_values(values, is_multivalue: bool = False):
             return values[-1].decode()
         except UnicodeDecodeError:
             logger.warning(
-                'unpack_values UnicodeDecodeError, trying base64 image'
+                'unpack_values UnicodeDecodeError, trying base64 image',
             )
             # Handle images
             return base64.b64encode(values[0]).decode()
@@ -727,7 +727,7 @@ def unpack_dictionary(ldap_object: dict) -> dict:
             continue
         for new_key in object_mappings[k]['new_keys']:
             udm_object[new_key] = unpack_values(
-                v, object_mappings[k].get('is_multivalue', False)
+                v, object_mappings[k].get('is_multivalue', False),
             )
     if object_type == "oxmail/functional_account":
         udm_object['groups'] = udm_object.get('groups', [])

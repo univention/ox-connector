@@ -42,14 +42,14 @@ def wait_for_listener(truncate_wait_for_listener_log):
                 time_passed = time.time() - start_time
                 if dn in txt:
                     print(
-                        f"Listener_trigger finished handling {dn} after {time_passed:.1f} seconds."
+                        f"Listener_trigger finished handling {dn} after {time_passed:.1f} seconds.",
                     )
                     # truncate, so this function can be used multiple times in the same test
                     truncate_wait_for_listener_log()
                     break
                 if time_passed >= timeout:
                     print(
-                        f"Listener_trigger did NOT handle {dn} for {timeout:.1f} seconds."
+                        f"Listener_trigger did NOT handle {dn} for {timeout:.1f} seconds.",
                     )
                     break
                 pos_new = fp.tell()

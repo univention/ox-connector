@@ -44,7 +44,7 @@ def read_version_from_ci() -> str:
     with open("../.gitlab-ci.yml", "r") as f:
         ci = yaml.safe_load(f)
         return ci.get(
-            "variables", {"DOC_TARGET_VERSION": "2.2.7"}
+            "variables", {"DOC_TARGET_VERSION": "2.2.7"},
         ).get("DOC_TARGET_VERSION")
 
 
@@ -145,7 +145,7 @@ rst_epilog = """
 """
 
 intersphinx_mapping = {
-    "uv-manual": ("https://docs.software-univention.de/manual/5.0/en", None)
+    "uv-manual": ("https://docs.software-univention.de/manual/5.0/en", None),
 }
 
 latex_engine = 'lualatex'

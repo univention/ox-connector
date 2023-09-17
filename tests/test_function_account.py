@@ -155,7 +155,7 @@ def test_modify_functional_account(
     assert accounts[0].userId == ox_user1.id
 
     udm.modify("oxmail/functional_account", dn, {
-        "users": [user2.dn]
+        "users": [user2.dn],
     })
     wait_for_listener(dn)
     accounts = list_objs(context_id)
@@ -183,7 +183,7 @@ def test_empty_functional_account(
     assert len(accounts) == 1
 
     udm.modify("oxmail/functional_account", dn, {
-        "users": []
+        "users": [],
     })
     wait_for_listener(dn)
     accounts = list_objs(context_id)

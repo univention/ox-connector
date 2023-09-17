@@ -62,7 +62,7 @@ options = {
         short_description=short_description,
         default=True,
         objectClasses=['top', 'oxResourceObject'],
-    )
+    ),
 }
 
 property_descriptions = {
@@ -72,7 +72,7 @@ property_descriptions = {
         syntax=univention.admin.syntax.string_numbers_letters_dots_spaces,
         required=True,
         may_change=False,
-        identifies=True
+        identifies=True,
     ),
     'description': univention.admin.property(
         short_description=_('Description'),
@@ -84,7 +84,7 @@ property_descriptions = {
         long_description=_('Name of resource that will be shown in Open-Xchange'),
         syntax=univention.admin.syntax.string,
         required=True,
-        default='<name>'
+        default='<name>',
     ),
     'resourceadmin': univention.admin.property(
         short_description=_('Resource manager'),
@@ -106,7 +106,7 @@ layout = [
         Group(_('General'), layout=[
             ['name', 'displayname'],
             ['resourceadmin', 'description'],
-            ['resourceMailAddress']
+            ['resourceMailAddress'],
         ]),
     ]),
 ]

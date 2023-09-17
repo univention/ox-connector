@@ -173,11 +173,11 @@ class Session(object):
 
     def request(self, method, uri, data=None, expect_json=False, **headers):
         return self.make_request(
-            method, uri, data, expect_json=expect_json, **headers
+            method, uri, data, expect_json=expect_json, **headers,
         ).data
 
     def make_request(  # noqa: C901
-        self, method, uri, data=None, expect_json=False, **headers
+        self, method, uri, data=None, expect_json=False, **headers,
     ):
         if method in ("GET", "HEAD"):
             params = data
@@ -208,7 +208,7 @@ class Session(object):
                     raise
                 try:
                     retry_after = min(
-                        5, int(exc.response.headers.get("Retry-After", 1))
+                        5, int(exc.response.headers.get("Retry-After", 1)),
                     )
                 except ValueError:
                     retry_after = 1
@@ -218,7 +218,7 @@ class Session(object):
     def eval_response(self, response, expect_json=False):
         if response.status_code >= 299:
             msg = "{} {}: {}".format(
-                response.request.method, response.url, response.status_code
+                response.request.method, response.url, response.status_code,
             )
             try:
                 json = response.json()
@@ -323,17 +323,17 @@ class UDM(Client):
     def get_ldap_base(self):
         self.load()
         return Object.from_data(
-            self, self.client.resolve_relation(self.entry, "udm:ldap-base")
+            self, self.client.resolve_relation(self.entry, "udm:ldap-base"),
         ).dn
 
     def modules(self, name=None):
         self.load()
         for module in self.client.resolve_relations(self.entry, "udm:object-modules"):
             for module_info in self.client.get_relations(
-                module, "udm:object-types", name
+                module, "udm:object-types", name,
             ):
                 yield Module(
-                    self, module_info["href"], module_info["name"], module_info["title"]
+                    self, module_info["href"], module_info["name"], module_info["title"],
                 )
 
     def version(self, api_version):
@@ -345,7 +345,7 @@ class UDM(Client):
         return Object.from_data(
             self,
             self.client.resolve_relation(
-                self.entry, "udm:object/get-by-dn", template={"dn": dn}
+                self.entry, "udm:object/get-by-dn", template={"dn": dn},
             ),
         )
 
@@ -354,7 +354,7 @@ class UDM(Client):
         return Object.from_data(
             self,
             self.client.resolve_relation(
-                self.entry, "udm:object/get-by-uuid", template={"uuid": uuid}
+                self.entry, "udm:object/get-by-uuid", template={"uuid": uuid},
             ),
         )
 
@@ -364,7 +364,7 @@ class UDM(Client):
 
     def __repr__(self):
         return "UDM(uri={}, username={}, password=****, version={})".format(
-            self.uri, self.username, self._api_version
+            self.uri, self.username, self._api_version,
         )
 
 
@@ -395,7 +395,7 @@ class Module(Client):
             "template": template,
         }
         resp = self.client.resolve_relation(
-            self.relations, "create-form", template=data
+            self.relations, "create-form", template=data,
         )
         return Object.from_data(self.udm, resp)
 
@@ -473,7 +473,7 @@ class References(object):
         return [
             ShallowObject(self.obj.udm, x["name"], x["href"])
             for x in self.udm.get_relations(
-                self.obj.hal, "udm:object/property/reference/%s" % (item,)
+                self.obj.hal, "udm:object/property/reference/%s" % (item,),
             )
         ]
 
@@ -558,7 +558,7 @@ class Object(Client):
         )
 
     def __init__(
-        self, udm, representation, etag=None, last_modified=None, *args, **kwargs
+        self, udm, representation, etag=None, last_modified=None, *args, **kwargs,
     ):
         super(Object, self).__init__(udm.client, *args, **kwargs)
         self.udm = udm
@@ -571,7 +571,7 @@ class Object(Client):
 
     def __repr__(self):
         return "Object(module={}, dn={}, uri={})".format(
-            self.object_type, self.dn, self.uri
+            self.object_type, self.dn, self.uri,
         )
 
     def reload(self):
@@ -606,10 +606,10 @@ class Object(Client):
         )
 
         response = self.client.make_request(
-            "PUT", self.uri, data=self.representation, **headers
+            "PUT", self.uri, data=self.representation, **headers,
         )
         response = self._follow_redirection(
-            response
+            response,
         )  # move() causes multiple redirections!
         self._reload_from_response(response, reload)
         return response
@@ -617,7 +617,7 @@ class Object(Client):
     def _create(self, reload=True):
         uri = self.client.get_relation(self.hal, "create")
         response = self.client.make_request(
-            "POST", uri["href"], data=self.representation
+            "POST", uri["href"], data=self.representation,
         )
         response = self._follow_redirection(response)
         self._reload_from_response(response, reload)
@@ -642,10 +642,10 @@ class Object(Client):
         ):
             if response.response.headers.get("Retry-After", "").isdigit():
                 time.sleep(
-                    min(30, max(0, int(response.response.headers["Retry-After"]) - 1))
+                    min(30, max(0, int(response.response.headers["Retry-After"]) - 1)),
                 )
             response = self.client.make_request(
-                "GET", response.response.headers["Location"]
+                "GET", response.response.headers["Location"],
             )
         return response
 

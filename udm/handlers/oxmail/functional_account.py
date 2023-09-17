@@ -51,7 +51,7 @@ options = {
         short_description=short_description,
         default=True,
         objectClasses=['top', 'oxFunctionalAccount'],
-    )
+    ),
 }
 
 property_descriptions = {
@@ -63,7 +63,7 @@ property_descriptions = {
         multivalue=0,
         required=1,
         may_change=0,
-        identifies=1
+        identifies=1,
     ),
     'mailPrimaryAddress': univention.admin.property(
         short_description=_('Primary e-mail address'),
@@ -80,7 +80,7 @@ property_descriptions = {
         multivalue=0,
         required=0,
         may_change=1,
-        identifies=0
+        identifies=0,
     ),
     'personal': univention.admin.property(
         short_description=_('Personal'),
