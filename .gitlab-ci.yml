@@ -54,7 +54,7 @@ variables:
 .common-semantic-release:
   image: "registry.souvap-univention.de/souvap/tooling/images/semantic-release-patched@${IMAGE_HASH}"
   variables:
-    IMAGE_HASH: "sha256:da70137c84f27851fc756d5f7bacdeca701544cbfa423f29c37405be94544f92"
+    IMAGE_HASH: "sha256:693d502a0efb8a0efe3989a0ae2aa0f83b288442e39f39045848df5cf5310155"
     GIT_DEPTH: "500"
     GIT_STRATEGY: "clone"
     GIT_SUBMODULE_STRATEGY: "none"
