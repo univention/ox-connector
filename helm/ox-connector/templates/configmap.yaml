@@ -2,49 +2,49 @@
 {{ include "common.configMap" (dict "top" . "overrides" "oxConnector.configMap") }}
 
 {{- define "oxConnector.configMap" }}
+{{ with .top }}
 data:
-  {{ with .Values.oxConnector }}
 
   # CONTAINER LISTENER BASE (univention directory listener)
-  LDAP_HOST: "{{ .ldapHost }}"
-  LDAP_PORT: "{{ .ldapPort }}"
-  LDAP_BASE_DN: "{{ .ldapBaseDn }}"
-  LDAP_HOST_DN: "{{ .ldapHostDn }}"
-  NOTIFIER_SERVER: "{{ .notifierServer }}"
-  DEBUG_LEVEL: "{{ .debugLevel }}"
-  TLS_MODE: "{{ .tlsMode }}"
-  LDAP_PASSWORD: "{{ .ldapPassword }}"
-  CA_CERT_FILE: "{{ .caCertFile }}"
+  LDAP_HOST: "{{ .Values.oxConnector.ldapHost }}"
+  LDAP_PORT: "{{ .Values.oxConnector.ldapPort }}"
+  LDAP_BASE_DN: "{{ .Values.oxConnector.ldapBaseDn }}"
+  LDAP_HOST_DN: "{{ .Values.oxConnector.ldapHostDn }}"
+  NOTIFIER_SERVER: "{{ .Values.oxConnector.notifierServer }}"
+  DEBUG_LEVEL: "{{ .Values.oxConnector.debugLevel }}"
+  TLS_MODE: "{{ .Values.oxConnector.tlsMode }}"
+  LDAP_PASSWORD: "{{ .Values.oxConnector.ldapPassword }}"
+  CA_CERT_FILE: "{{ .Values.oxConnector.caCertFile }}"
 
   # OX CONNECTOR
   # OX-Mail-Domain to generate OX-email-addresses
-  DOMAINNAME: "{{ .domainName }}"
+  DOMAINNAME: "{{ .Values.oxConnector.domainName }}"
   # OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
-  OX_MASTER_ADMIN: "{{ .oxMasterAdmin }}"
+  OX_MASTER_ADMIN: "{{ .Values.oxConnector.oxMasterAdmin }}"
   # OX Admin password
-  OX_MASTER_PASSWORD: "{{ .oxMasterPassword }}"
+  OX_MASTER_PASSWORD: "{{ .Values.oxConnector.oxMasterPassword }}"
   # Default timezone for new users
-  LOCAL_TIMEZONE: "{{ .oxLocalTimezone }}"
+  LOCAL_TIMEZONE: "{{ .Values.oxConnector.oxLocalTimezone }}"
   # Default language for new users
-  OX_LANGUAGE: "{{ .oxLanguage }}"
+  OX_LANGUAGE: "{{ .Values.oxConnector.oxLanguage }}"
   # Default context for users (has to exist)
-  DEFAULT_CONTEXT: "{{ .oxDefaultContext }}"
+  DEFAULT_CONTEXT: "{{ .Values.oxConnector.oxDefaultContext }}"
   # Default SMTP server for new users (if not set explicitely there)
-  OX_SMTP_SERVER: "{{ .oxSmtpServer }}"
+  OX_SMTP_SERVER: "{{ .Values.oxConnector.oxSmtpServer }}"
   # Default IMAP server for new users (if not set explicitely there)
-  OX_IMAP_SERVER: "{{ .oxImapServer }}"
+  OX_IMAP_SERVER: "{{ .Values.oxConnector.oxImapServer }}"
   # The server where Open-Xchange is installed
-  OX_SOAP_SERVER: "{{ .oxSoapServer }}"
+  OX_SOAP_SERVER: "{{ .Values.oxConnector.oxSoapServer }}"
   # OX Connector log level
-  LOG_LEVEL: "{{ .logLevel }}"
+  LOG_LEVEL: "{{ .Values.oxConnector.logLevel }}"
 
   # TESTS
   # LDAP server for OX Connector test suite
-  LDAP_MASTER: "{{ .ldapHost }}"
+  LDAP_MASTER: "{{ .Values.oxConnector.ldapHost }}"
   # LDAP base distinguished name for OX Connector test suite
-  LDAP_BASE: "{{ .ldapBaseDn }}"
+  LDAP_BASE: "{{ .Values.oxConnector.ldapBaseDn }}"
 
-  {{ end }}
+{{- end }}
 {{- end }}
 
 ...
