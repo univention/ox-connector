@@ -64,7 +64,7 @@ def find_db_id(ox_context, username, build_cache, build_cache_size):
         try:
             empty_objs = User.service(ox_context).list_all()
         except NoContextAdminPassword:
-            logger.warning(f"... no password configured for context!")
+            logger.warning("... no password configured for context!")
         else:
             logger.info(f"Retrieved {len(empty_objs)} ids")
 
@@ -86,10 +86,10 @@ def find_db_id(ox_context, username, build_cache, build_cache_size):
     try:
         user = get_obj_by_name_from_ox(User, ox_context, username)
     except NoContextAdminPassword:
-        logger.warning(f"... no password configured for context!")
+        logger.warning("... no password configured for context!")
         return None
     if not user:
-        logger.warning(f"... not found!")
+        logger.warning("... not found!")
         return None
     return user.id
 
