@@ -75,12 +75,12 @@ main () {
 
 unregister_ldap_extension () {
   declare -a args=()
-  while [ "${1}" != -- ]; do
+  while [[ "${1}" != -- ]]; do
     args+=("${1}")
     shift
   done
   shift
-  while [ "${#}" -ge 1 ]; do
+  while [[ "${#}" -ge 1 ]]; do
     args+=("${1}")
     shift
   done
@@ -136,7 +136,7 @@ register_ldap () {
   export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.7'  # Version in meta-inf/*/oxseforucs_*.ini
   local PREFIX="/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/"
 
-  if [ "$(ucr get server/role)" = "domaincontroller_master" ]; then
+  if [[ "$(ucr get server/role)" = "domaincontroller_master" ]]; then
     ucr set ldap/refint=true
   else
     echo "WARNING: You are not on a Primary Node. Please make sure that your Primary Node's LDAP server"
@@ -166,7 +166,7 @@ register_ldap () {
 }
 register_ldap_extension () {
   declare -a args=()
-  while [ "${1}" != -- ]; do
+  while [[ "${1}" != -- ]]; do
     args+=("${1}")
     shift
   done
@@ -175,12 +175,16 @@ register_ldap_extension () {
   args+=(--ucsversionstart "4.4-3")
   args+=(--ucsversionend "5.99-0")
   shift
-  while [ "${#}" -ge 1 ]; do
+  while [[ "${#}" -ge 1 ]]; do
     case "${1}" in
     */syntax*.py) args+=(--udm_syntax "${1}") ;;
     */hook*.py) args+=(--udm_hook "${1}") ;;
     *.py) args+=(--udm_module "${1}") ;;
-    *.mo) [ -s "${1}" ] && args+=(--messagecatalog "${1}") ;;
+    *.mo)
+      if [[ -s "${1}" ]]; then
+        args+=(--messagecatalog "${1}")
+      fi
+      ;;
     *.acl) args+=(--acl "${1}") ;;
     *.schema) args+=(--schema "${1}") ;;
     *.png|*.svg) args+=(--icon "${1}") ;;
@@ -226,7 +230,7 @@ create_eas () {
   # create all default extended attributes
   python3 "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/createextattr.py" "${@}"  || die
 
-  if [ "${JS_LAST_EXECUTED_VERSION}" -lt 11 ]; then
+  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt 11 ]]; then
     # Bug #51456: Remove OX App from App-Tab to stabilize extended attributes ("display_name" etc)
     echo "Updating extended attributes..."
     python3 "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/createextattr.py" --update "${@}"  || die
@@ -287,7 +291,7 @@ _ldap_update () { # ${1}=attr ${2}=expected ${3}=replacement "${@}"
     ldapsearch-wrapper |
     ldapsearch-decode64 |
     sed -ne "s/^${attr}: //p")"
-  if [ "${value}" = "${expected}" ]; then
+  if [[ "${value}" = "${expected}" ]]; then
     udm settings/usertemplate modify "${@}" --dn "${dn}" --set "${replacement}"
   fi
 }
@@ -309,7 +313,7 @@ create_container () {
 }
 
 create_accessprofiles () {
-  if [ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]; then
+  if [[ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]]; then
     # new listener filter
     service univention-directory-listener restart
   fi
@@ -406,13 +410,13 @@ create_accessprofiles () {
 }
 
 migrate_user_oxAccessUSM() {
-  if [ "${JS_LAST_EXECUTED_VERSION}" -lt "9" ]; then
+  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt "9" ]]; then
     python3 "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/migrate-user-oxAccessUSM.py" --write --apply --file "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/migrate-user-oxAccessUSM-results" "${@}"  || die
   fi
 }
 
 migrate_user_access_profiles() {
-  if [ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]; then
+  if [[ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]]; then
     python3 "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/migrate-user-access-profiles-results" "${@}"  || die
   fi
 }

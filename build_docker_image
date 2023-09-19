@@ -28,24 +28,24 @@ BUILD_ARGS=""
 PROXY_ARGS=""
 RELEASE=0
 
-if [ "${1:-}" = "--release" ] || [ "${2:-}" = "--release" ] || [ "${3:-}" = "--release" ]; then
+if [[ "${1:-}" = "--release" ]] || [[ "${2:-}" = "--release" ]] || [[ "${3:-}" = "--release" ]]; then
   RELEASE=1
 fi
 
 PUSH_DEV=0
-if [ "${1:-}" = "--push" ] || [ "${2:-}" = "--push" ] || [ "${3:-}" = "--push" ]; then
+if [[ "${1:-}" = "--push" ]] || [[ "${2:-}" = "--push" ]] || [[ "${3:-}" = "--push" ]]; then
   PUSH_DEV=1
 fi
 PUSH_YES=0
-if [ "${1:-}" = "--yes" ] || [ "${2:-}" = "--yes" ] || [ "${3:-}" = "--yes" ]; then
+if [[ "${1:-}" = "--yes" ]] || [[ "${2:-}" = "--yes" ]] || [[ "${3:-}" = "--yes" ]]; then
   PUSH_YES=1
 fi
-if [ "${PUSH_DEV}" = 1 ] && [ "$(hostname -f)" != "${DOCKER_REGISTRY_SERVER}" ]; then
+if [[ "${PUSH_DEV}" = 1 ]] && [[ "$(hostname -f)" != "${DOCKER_REGISTRY_SERVER}" ]]; then
   echo "Pushing image to docker registry only possible on ${DOCKER_REGISTRY_SERVER}."
   exit 1
 fi
 
-if [ -n "${http_proxy:-}" ]; then
+if [[ -n "${http_proxy:-}" ]]; then
     PROXY_ARGS="--build-arg http_proxy=${http_proxy} --build-arg https_proxy=${http_proxy}"
 fi
 
@@ -59,27 +59,27 @@ echo "PROXY_ARGS: ${PROXY_ARGS}"
 echo "Updating base image..."
 docker pull "${BASE_IMG}"
 
-if [ "${RELEASE}" = 1 ]; then
+if [[ "${RELEASE}" = 1 ]]; then
   echo "Removing old final image..."
   docker rmi -f "${APP_IMG}" || true
 fi
 
 #echo "Updating 'appsuite' git repo submodule..."
-#if [ -e .git ]; then
+#if [[ -e .git ]]; then
 #  # developer system
 #  git "${GIT_ARGS}" submodule update --init --recursive
 #  (cd "${APPSUITE_REPO_DIR}" && git checkout "${APPSUITE_BRANCH}")
 #  git "${GIT_ARGS}" submodule foreach --recursive git pull
 #else
 #  # docker build host
-#  if ! [ -d "${APPSUITE_REPO_DIR}" ]; then
+#  if ! [[ -d "${APPSUITE_REPO_DIR}" ]]; then
 #    git "${GIT_ARGS}" clone --depth=1 -b "${APPSUITE_BRANCH}" "${GIT_REPO_URI}" "${APPSUITE_REPO_DIR}"
 #  fi
 #  (cd "${APPSUITE_REPO_DIR}" && git checkout "${APPSUITE_BRANCH}" && git "${GIT_ARGS}" pull)
 #fi
 
 echo "Building docker image..."
-if [ "${RELEASE}" = 1 ]; then
+if [[ "${RELEASE}" = 1 ]]; then
   BUILD_ARGS="--no-cache"
 fi
 docker build "${PROXY_ARGS}" "${BUILD_ARGS}" --target=test --build-arg version="${APP_VERSION}" -t "${APP_IMG}" .
@@ -87,8 +87,8 @@ docker build "${PROXY_ARGS}" "${BUILD_ARGS}" --target=test --build-arg version="
 echo "Local Docker images:"
 docker images "${APP_IMG_NO_VERSION}"
 
-if [ "${PUSH_DEV}" = 1 ]; then
-  if [ "${PUSH_YES}" = 0 ]; then
+if [[ "${PUSH_DEV}" = 1 ]]; then
+  if [[ "${PUSH_YES}" = 0 ]]; then
     read -p "Push 'Y' if you are sure you want to push '${APP_IMG}' to the docker registry. " -n 1 -r
   else
     REPLY="y"
