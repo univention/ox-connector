@@ -27,6 +27,13 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
+# Abort on nonzero exitstatus [-e]
+set -o errexit
+# Abort on unbound variable [-u]
+set -o nounset
+# Don't hide errors within pipes
+set -o pipefail
+
 APP_ID="ox-connector"
 
 download_univention-appcenter-control() {

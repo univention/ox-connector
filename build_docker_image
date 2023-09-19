@@ -1,7 +1,13 @@
 #!/bin/bash
 
-set -euxo pipefail
-
+# Abort on nonzero exitstatus [-e]
+set -o errexit
+# Abort on unbound variable [-u]
+set -o nounset
+# Don't hide errors within pipes
+set -o pipefail
+# Print all shell commands [-x]
+set -o xtrace
 
 APP_ID="ox-connector"
 APP_VERSION="$(grep -E '^Version' app/ini | cut -f 3 -d ' ')"

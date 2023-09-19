@@ -1,12 +1,11 @@
 #!/bin/bash
 
-# Abort on nonzero exitstatus
+# Abort on nonzero exitstatus [-e]
 set -o errexit
-# Abort on unbound variable
+# Abort on unbound variable [-u]
 set -o nounset
 # Don't hide errors within pipes
 set -o pipefail
-
 
 # Set sane defaults for some optional variables
 export DOMAINNAME="${DOMAINNAME:-}"

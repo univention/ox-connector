@@ -32,6 +32,13 @@
 # <http://www.gnu.org/licenses/>.
 #
 
+# Abort on nonzero exitstatus [-e]
+set -o errexit
+# Abort on unbound variable [-u]
+set -o nounset
+# Don't hide errors within pipes
+set -o pipefail
+
 APP_ID="ox-connector"
 
 univention-ldapsearch -LLL '(&(isOXUser=OK)(!(oxContextIDNum=*)))' entryUUID | sed -ne 's,entryUUID: ,,p' | xargs -I{} rm "/var/lib/univention-appcenter/apps/$APP_ID/data/listener/old/{}.json"
