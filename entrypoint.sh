@@ -67,10 +67,10 @@ chmod "0600" "${OX_CREDENTIALS_FILE}"
 echo "starting listener with access profiles and contexts"
 
 UDL_PID_FILE="/var/lib/univention-directory-listener/pid"
-[ -f "$UDL_PID_FILE" ] && rm -f "$UDL_PID_FILE"
+[ -f "${UDL_PID_FILE}" ] && rm -f "${UDL_PID_FILE}"
 
 LISTENER_STATUS_FILE="/var/lib/univention-directory-listener/handlers/listener_handler"
-[ -f "$LISTENER_STATUS_FILE" ] && rm -f "$LISTENER_STATUS_FILE"
+[ -f "${LISTENER_STATUS_FILE}" ] && rm -f "${LISTENER_STATUS_FILE}"
 
 /usr/sbin/univention-directory-listener \
   -x \
@@ -87,11 +87,11 @@ LISTENER_STATUS_FILE="/var/lib/univention-directory-listener/handlers/listener_h
 echo "waiting for contexts and access profiles to be initialized"
 while true; do
     LISTENER_STATUS="-1 (Univention Directory Listener not running yet)"
-  if [ -f "$LISTENER_STATUS_FILE" ]; then
+  if [ -f "${LISTENER_STATUS_FILE}" ]; then
     LISTENER_STATUS=$(cat /var/lib/univention-directory-listener/handlers/listener_handler)
   fi
-  echo "contexts and access profiles listener status: $LISTENER_STATUS"
-  if [ "$LISTENER_STATUS" = "3" ]; then
+  echo "contexts and access profiles listener status: ${LISTENER_STATUS}"
+  if [ "${LISTENER_STATUS}" = "3" ]; then
     echo "contexts and access profiles already initialized and ready"
     echo "####### logs from contexts and access profiles listener #######"
     cat /var/log/univention/listener.log
@@ -105,9 +105,9 @@ while true; do
 done
 
 echo "preinitialization listener finished"
-[ -f "$UDL_PID_FILE" ] && rm -f "$UDL_PID_FILE"
-[ -f "$LISTENER_STATUS_FILE" ] && rm -f "$LISTENER_STATUS_FILE"
+[ -f "${UDL_PID_FILE}" ] && rm -f "${UDL_PID_FILE}"
+[ -f "${LISTENER_STATUS_FILE}" ] && rm -f "${LISTENER_STATUS_FILE}"
 
 touch /tmp/initialized.lock
 
-exec "$@"
+exec "${@}"

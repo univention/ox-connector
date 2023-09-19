@@ -9,9 +9,9 @@ set -o pipefail
 
 APP_ID="ox-connector"
 
-if [ "$1" = "install" ]; then
-  default_context="$(univention-app configure "$APP_ID" --list | grep DEFAULT_CONTEXT: | awk '{ print $2 }')"
-  ucr set ox/context/id="$default_context"
-elif [ "$1" = "settings" ]; then
-  univention-app reinitialize "$APP_ID"
+if [ "${1}" = "install" ]; then
+  default_context="$(univention-app configure "${APP_ID}" --list | grep DEFAULT_CONTEXT: | awk '{ print $2 }')"
+  ucr set ox/context/id="${default_context}"
+elif [ "${1}" = "settings" ]; then
+  univention-app reinitialize "${APP_ID}"
 fi

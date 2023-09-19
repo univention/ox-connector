@@ -44,11 +44,11 @@ download_univention-appcenter-control() {
 }
 
 APP_VERSION="$(grep ^Version app/ini | awk '{ print $3 }')"
-APP_VERSION_STRING="5.0/$APP_ID=$APP_VERSION"
-echo "App version in source code is: '$APP_VERSION'."
-echo "The app version string used for the upload is '$APP_VERSION_STRING'."
+APP_VERSION_STRING="5.0/${APP_ID}=${APP_VERSION}"
+echo "App version in source code is: '${APP_VERSION}'."
+echo "The app version string used for the upload is '${APP_VERSION_STRING}'."
 
-if ! [[ -e "$HOME/.univention-appcenter-user" ]] || ! [[ -e "$HOME/.univention-appcenter-pwd" ]]; then
+if ! [[ -e "${HOME}/.univention-appcenter-user" ]] || ! [[ -e "${HOME}/.univention-appcenter-pwd" ]]; then
   echo -e "\nTo upload the files to the test appcenter you will now be asked for your"
   echo "username and password. Hint: create ~/.univention-appcenter-user and"
   echo "~/.univention-appcenter-pwd to skip the question."
@@ -63,4 +63,4 @@ find app/ -type f | sort
 read -n1 -r -p "Press any key to continue or Ctrl-C to abort."
 echo
 
-./univention-appcenter-control upload "$APP_VERSION_STRING" $(find app/ -type f | sort)
+./univention-appcenter-control upload "${APP_VERSION_STRING}" $(find app/ -type f | sort)

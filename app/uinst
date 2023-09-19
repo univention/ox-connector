@@ -50,34 +50,34 @@ joinscript_init
 eval "$(univention-config-registry shell)"
 
 purge_ox () {
-  purge_ea "$@"
-  purge_user_template "$@"
-  purge_umc "$@"
+  purge_ea "${@}"
+  purge_user_template "${@}"
+  purge_umc "${@}"
 }
 purge_ea () {
   # For App Center apps it is recommended to remove all extended
   # attributes upon removal of the app.
-  univention-directory-manager container/cn remove "$@" \
+  univention-directory-manager container/cn remove "${@}" \
     --recursive \
-    --dn "cn=open-xchange,cn=custom attributes,cn=univention,$ldap_base"
+    --dn "cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}"
 }
 purge_user_template () {
-  univention-directory-manager settings/usertemplate remove "$@" \
-    --dn "cn=open-xchange groupware account,cn=templates,cn=univention,$ldap_base"
+  univention-directory-manager settings/usertemplate remove "${@}" \
+    --dn "cn=open-xchange groupware account,cn=templates,cn=univention,${ldap_base}"
 }
 purge_umc () {
-  univention-directory-manager settings/umc_operationset remove "$@" \
-    --dn "cn=udm-oxcontext,cn=operations,cn=UMC,cn=univention,$ldap_base"
-  univention-directory-manager settings/umc_operationset remove "$@" \
-    --dn "cn=udm-oxmresources,cn=operations,cn=UMC,cn=univention,$ldap_base"
+  univention-directory-manager settings/umc_operationset remove "${@}" \
+    --dn "cn=udm-oxcontext,cn=operations,cn=UMC,cn=univention,${ldap_base}"
+  univention-directory-manager settings/umc_operationset remove "${@}" \
+    --dn "cn=udm-oxmresources,cn=operations,cn=UMC,cn=univention,${ldap_base}"
 }
 
-ucs_removeServiceFromLocalhost "${SERVICE}" "$@"
-if ucs_isServiceUnused "${SERVICE}" "$@"; then
-  purge_ox "$@"
+ucs_removeServiceFromLocalhost "${SERVICE}" "${@}"
+if ucs_isServiceUnused "${SERVICE}" "${@}"; then
+  purge_ox "${@}"
   stop_udm_cli_server
 fi
 
-joinscript_remove_script_from_status_file "$APP_ID"
+joinscript_remove_script_from_status_file "${APP_ID}"
 
 exit 0
