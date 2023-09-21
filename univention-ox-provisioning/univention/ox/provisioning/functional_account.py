@@ -27,7 +27,6 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-
 import logging
 from copy import deepcopy
 import re
@@ -35,7 +34,11 @@ import re
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.soap.config import FUNCTIONAL_ACCOUNT_LOGIN
 import univention.ox.provisioning.helpers
-from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox, get_db_id
+from univention.ox.provisioning.helpers import (
+    get_context_id,
+    get_obj_by_name_from_ox,
+    get_db_id,
+)
 
 FunctionalAccount = get_ox_integration_class("SOAP", "SecondaryAccount")
 logger = logging.getLogger("listener")
@@ -53,7 +56,7 @@ def configure_functional_account_login(app_setting):
     except ValueError as exc:
         raise InvalidSetting(
             "Invalid format of functional account login "
-            "template: {app_setting!r}"
+            "template: {app_setting!r}",
         ) from exc
     return sorted(functional_account_login_format, reverse=True)
 
@@ -65,17 +68,26 @@ def get_functional_account_login(dn, fa):
     value = FUNCTIONAL_ACCOUNT_LOGIN
     obj = univention.ox.provisioning.helpers.get_old_obj(dn)
     for span in functional_account_login_format:
-        attr_name = value[span[0]+2:span[1]-2]
+        attr_name = value[span[0] + 2 : span[1] - 2]
         if attr_name == "fa_entry_uuid":
-            value = value.replace(value[span[0]:span[1]], fa.entry_uuid)
+            value = value.replace(value[span[0] : span[1]], fa.entry_uuid)
         elif attr_name == "fa_email_address":
-            value = value.replace(value[span[0]:span[1]], fa.attributes["mailPrimaryAddress"])
+            value = value.replace(
+                value[span[0] : span[1]],
+                fa.attributes["mailPrimaryAddress"],
+            )
         elif attr_name == "entry_uuid":
-            value = value.replace(value[span[0]:span[1]], obj.entry_uuid)
+            value = value.replace(value[span[0] : span[1]], obj.entry_uuid)
         elif attr_name == "dn":
-            value = value.replace(value[span[0]:span[1]], obj.distinguished_name)
+            value = value.replace(
+                value[span[0] : span[1]],
+                obj.distinguished_name,
+            )
         else:
-            value = value.replace(value[span[0]:span[1]], obj.attributes[attr_name])
+            value = value.replace(
+                value[span[0] : span[1]],
+                obj.attributes[attr_name],
+            )
     logger.info(f"format functional account login value ({value})")
     return value
 
@@ -97,7 +109,11 @@ def update_functional_account(functional_account, attributes):
 def get_functional_account_id(attributes):
     context_id = get_context_id(attributes)
     name = attributes.get("name")
-    functional_account = get_obj_by_name_from_ox(FunctionalAccount, context_id, name)
+    functional_account = get_obj_by_name_from_ox(
+        FunctionalAccount,
+        context_id,
+        name,
+    )
     if functional_account:
         return functional_account.id
 
@@ -116,7 +132,9 @@ def create_functional_account(obj):
         functional_account.users = [get_db_id(dn)]
         functional_account.login = obj.entry_uuid
         functional_account.login = get_functional_account_login(dn, obj)
-        functional_account.groups = []  # groups are disabled in umc, this should be changed if it is enabled again.
+        # groups are disabled in umc,
+        # this should be changed if it is enabled again.
+        functional_account.groups = []
         if functional_account.users[0]:
             functional_account.create()
 
