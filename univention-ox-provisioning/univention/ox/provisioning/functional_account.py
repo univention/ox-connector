@@ -47,22 +47,24 @@ class InvalidSetting(Exception):
 
 def configure_functional_account_login(app_setting):
     try:
-        FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = [f.span() for f in re.finditer("{{\w+}}", app_setting)]
+        functional_account_login_format = [
+            f.span() for f in re.finditer("{{\w+}}", app_setting)
+        ]
     except ValueError as exc:
         raise InvalidSetting(
             "Invalid format of functional account login "
             "template: {app_setting!r}"
         ) from exc
-    return sorted(FUNCTIONAL_ACCOUNT_LOGIN_FORMAT, reverse=True)
-
-
-FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = configure_functional_account_login(FUNCTIONAL_ACCOUNT_LOGIN)
+    return sorted(functional_account_login_format, reverse=True)
 
 
 def get_functional_account_login(dn, fa):
+    functional_account_login_format = configure_functional_account_login(
+        FUNCTIONAL_ACCOUNT_LOGIN,
+    )
     value = FUNCTIONAL_ACCOUNT_LOGIN
     obj = univention.ox.provisioning.helpers.get_old_obj(dn)
-    for span in FUNCTIONAL_ACCOUNT_LOGIN_FORMAT:
+    for span in functional_account_login_format:
         attr_name = value[span[0]+2:span[1]-2]
         if attr_name == "fa_entry_uuid":
             value = value.replace(value[span[0]:span[1]], fa.entry_uuid)
