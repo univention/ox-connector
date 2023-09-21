@@ -51,7 +51,7 @@ class InvalidSetting(Exception):
 def configure_functional_account_login(app_setting):
     try:
         functional_account_login_format = [
-            f.span() for f in re.finditer("{{\w+}}", app_setting)
+            f.span() for f in re.finditer(r"{{\w+}}", app_setting)
         ]
     except ValueError as exc:
         raise InvalidSetting(
