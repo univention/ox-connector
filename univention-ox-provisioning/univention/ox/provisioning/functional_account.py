@@ -44,14 +44,15 @@ logger = logging.getLogger("listener")
 class InvalidSetting(Exception):
     """Raise when one app setting is invalid"""
 
-    pass
-
 
 def configure_functional_account_login(app_setting):
     try:
         FUNCTIONAL_ACCOUNT_LOGIN_FORMAT = [f.span() for f in re.finditer("{{\w+}}", app_setting)]
-    except ValueError:
-        raise InvalidSetting(INVALID_FORMAT_ERR_MSG)
+    except ValueError as exc:
+        raise InvalidSetting(
+            "Invalid format of functional account login "
+            "template: {app_setting!r}"
+        ) from exc
     return sorted(FUNCTIONAL_ACCOUNT_LOGIN_FORMAT, reverse=True)
 
 
