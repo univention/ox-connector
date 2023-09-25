@@ -293,7 +293,7 @@ release:
       - "CHANGELOG.md"
   script:
     - |
-      if [[ -f "${CI_PROJECT_DIR}/.releaserc"]]; then
+      if [[ -f "${CI_PROJECT_DIR}/.releaserc" ]]; then
         PLUGINS=
       else
         PLUGINS="--plugins @semantic-release/gitlab,@semantic-release/release-notes-generator,@semantic-release/changelog"
