@@ -28,7 +28,7 @@ recommended to keep an eye on it during development.
 
 6. In `helm/ox-connector/` copy `tilt_values.yaml.example` to `tilt_values.yaml` and add the missing secrets. (The example has been created by combining `values-oxconnector.yaml` and `values-oxconnector.gotmpl` from `sovereign-workplace/helmfile/apps/provisioning/`.)
 
-7. The standalone `ox-connector` image used in the stack does not 
+7. The standalone `ox-connector` image used in the stack does not
 include tests. Since it is a multi-staged build, there is a build-target to includ the
 tests. The Tiltfile defines a custom parameter to change the target to `test` with `tilt up --stream=true -- --target="test"`.
 (See all custom parameters with `tilt up --stream=true -- --help"`

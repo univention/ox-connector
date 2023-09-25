@@ -135,7 +135,7 @@ Changed
 -------
 
 Added helper script to remove old listener files from users with empty
-*oxContextIDNum* attribute. 
+*oxContextIDNum* attribute.
 
 Removed *bindpwd* uses from *createextattr.py* script (#55985).
 
