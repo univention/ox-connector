@@ -1,67 +1,73 @@
 # SouvAP provisioning
 
-## Testing ox-connector on SouvAP environment
+## Start a sovereign-workplace environment with deployed tests
 
 This process is expected to be run before releasing a new version. See the
 current tests status at the bottom of this file to compare your test run. It is
 recommended to keep an eye on it during development.
 
-First of all you will need a SouvAP deployment on a cluster. You can get one up
-and running [here](https://gitlab.souvap-univention.de/souvap/devops/sovereign-workplace/-/pipelines/new?ref=jconde/ox-connector-tests&var[NAMESPACE]=jconde&var[CLUSTER]=gaia&var[BASE_DOMAIN]=open-desk.cloud&var[DEPLOY_SERVICES]=yes&var[DEPLOY_KEYCLOAK]=yes&var[DEPLOY_UCS]=yes&var[DEPLOY_PROVISIONING]=yes&var[DEPLOY_OX]=yes&var[ENV_STOP_BEFORE]=yes&var[RUN_TESTS]=no).
-If the branch does not exist, you can create one yourself.
+1. Having [tilt](https://tilt.dev/) installed in your machine.
 
-1. Access to [DevOps gitlab](gitlab.souvap-univention.de) may need to be
-requested to @trossner or @dkaminski. This will enable access with your
-project's credentials.
-2. On [sovereign-workplace](https://gitlab.souvap-univention.de/souvap/devops/sovereign-workplace)
-you will need to create a branch (usually with no changes) to run a pipeline,
-since permissions for running the main branch are reserved.
-3. Run a pipeline on your branch with the following variable values:`
-    * `NAMESPACE`: `<your_username>`
+2. Configure `gaia` cluster in your `~/.kube/config`. Steps for doing so are in the DevOps Wiki at [K8s-cluster-legacy](https://gitlab.souvap-univention.de/groups/souvap/devops/-/wikis/K8s-cluster-legacy#gaia-development-cluster-for-univention-souvap-dev-team).
+
+3. Create your own branch `<username>/tests` in the [sovereign-workplace](https://gitlab.souvap-univention.de/souvap/devops/sovereign-workplace) repository.
+
+4. [Run a pipeline](https://gitlab.souvap-univention.de/souvap/devops/sovereign-workplace/-/pipelines/new?ref=<your-username>/tests&var[NAMESPACE]=uv-<your-username>&var[CLUSTER]=gaia&var[BASE_DOMAIN]=open-desk.cloud&var[ENV_STOP_BEFORE]=yes&var[DEPLOY_SERVICES]=yes&var[DEPLOY_UCS]=yes&var[DEPLOY_PROVISIONING]=yes&var[DEPLOY_KEYCLOAK]=yes&var[DEPLOY_OX]=yes&var[RUN_TESTS]=no) on your branch with the following variable values:
+    * `NAMESPACE`: `uv-<your-username>`
     * `CLUSTER`: `gaia` (this cluster is meant for SouvAP developers)
     * `BASE_DOMAIN`: `open-desk.cloud`
+    * `ENV_STOP_BEFORE`: `yes` (only if you want to fresh start and already have things on your namespace)
     * `DEPLOY_SERVICES`: `yes` this will deploy the basic services such as clamAV
-    * `DEPLOY_KEYCLOAK`: `yes`
     * `DEPLOY_UCS`: `yes`
     * `DEPLOY_PROVISIONING`: `yes` (this will deploy the `ox-connector`)
-    * `DEPLOY_OX`: `yes`
-    * `ENV_STOP_BEFORE`: `yes` (only if you want to fresh start and already have things on your namespace)`
+    * `DEPLOY_KEYCLOAK`: `yes`
+    * `DEPLOY_OX`: `yes``
     * `RUN_TESTS`: `no` (this would run the tests for everything deployed if enabled, but we will manually test our component)
-4. The `ox-connector` image used in the stack is standalone and does not 
-include tests. Since it is a multi-staged build, there is a tag including the
-tests. Therefore you will need to deploy the staged build with the tests
-included. You can use `tilt up` (see [more on tilt](https://tilt.dev/)) on this
-repository to do just that (first clone the [sovereign-workplace](https://gitlab.souvap-univention.de/souvap/devops/sovereign-workplace))
-on the parent folder (parallel to `provisioning` repository) and change
-`helmfile/apps/provisioning/values-oxconnector.yaml` with the full values
-including the templated ones under `values-oxconnector.gotmpl`. If you want to
-know some values and don't have access to the vault, ask @trossner or
-@jconde for them.
 
-> You can find the kubeconfig for gaia cluster and other documentation on
-[DevOps k8s docs](https://gitlab.souvap-univention.de/groups/souvap/devops/-/wikis/deployment/K8s-cluster#gaia-development-cluster-for-univention-souvap-dev-team)
-and [SouvAP](https://univention.gitpages.knut.univention.de/customers/dataport/team-souvap/onboarding/souvap-environment.html)
+5. Retrive secrets from the newly created deployment with `kubectl --namespace="uv-<your-username>" describe ConfigMap ox-connector > configmap.ox-connector.txt` or `helmfile-docker write-values --namespace="uv-<your-username>"` (in the `sovereign-workplace` repo)
+
+6. In `helm/ox-connector/` copy `tilt_values.yaml.example` to `tilt_values.yaml` and add the missing secrets. (The example has been created by combining `values-oxconnector.yaml` and `values-oxconnector.gotmpl` from `sovereign-workplace/helmfile/apps/provisioning/`.)
+
+7. The standalone `ox-connector` image used in the stack does not 
+include tests. Since it is a multi-staged build, there is a build-target to includ the
+tests. The Tiltfile defines a custom parameter to change the target to `test` with `tilt up --stream=true -- --target="test"`.
+(See all custom parameters with `tilt up --stream=true -- --help"`
+Instead of using paramters you could rename `tilt_config.json.example` to `tilt_config.json`. (see [more on tilt](https://tilt.dev/))
+
 
 ## Hotfix UCS container
 
 This needs to be run on every deployment to run the tests, since UDM REST API is causing issues on the UCS container due to the `oxContext` field. More debugging needs to be done here, but it is out of the scope for now.
 
-1. `vim /usr/lib/python3/dist-packages/univention/admin/rest/module.py`
-2. Edit the following on `def set_properties()` function:
-```python
-try:
-  MODULE.debug(representation['properties'])
-  properties = PropertiesSanitizer...
-  if isinstance(properties.get("oxContext"), bytes):
-       properties["oxContext"] = properties["oxContext"].decode()
-  MODULE.debug(properties)
+1. Make sure the right Kubernetes credentials are in `~/.kube/config`. See above!
+2. Find your Namespace with `kubectl get namespaces`
+3. Find the `univention-corporate-container` Pod with `kubectl --namespace=<your-namespace> get pods`
+4. Get a shell with `kubectl --namespace=uv-<your-username> exec --stdin --tty <pod-name> -- /bin/bash`
+5. Edit the `module.py` with `vim /usr/lib/python3/dist-packages/univention/admin/rest/module.py`
+6. Modify the `def set_properties()` function by adding two after line 3437 to decode bytes:
+```diff
+--- /usr/lib/python3/dist-packages/univention/admin/rest/module.py.orig
++++ /usr/lib/python3/dist-packages/univention/admin/rest/module.py
+@@ -3434,7 +3434,11 @@
+         if representation['policies']:
+             obj.policies = functools.reduce(lambda x, y: x + y, representation['policies'].values())
+         try:
++            MODULE.debug(representation['properties'])
+             properties = PropertiesSanitizer(_copy_value=False).sanitize(representation['properties'], module=module, obj=obj)
++            if isinstance(properties.get("oxContext"), bytes):
++                properties["oxContext"] = properties["oxContext"].decode()
++            MODULE.debug(properties)
+         except MultiValidationError as exc:
+             multi_error = exc
+             properties = representation['properties']
 ```
-3. `systemctl restart univention-directory-manager-rest`
+7. Restart the UDM-REST-Service with `systemctl restart univention-directory-manager-rest`
 
-> To help debugging tests, having a look at `/var/log/univention/directory-manager-rest.log` may come in handy.
+> To help debugging tests, having a look at `/var/log/univention/directory-manager-rest.log` may come in handy. Execute `tail --follow --lines=100 /var/log/univention/directory-manager-rest.log` on that pod.
 
 ## Running the tests
 
+1. Get a shell with `kubectl --namespace=uv-<your-username> exec --stdin --tty ox-connector-0 -- /bin/bash`
 1. You need a fresh `ModuleAccessDefinitions.properties` to run the tests, so do the following to keep the permissions untouched:
 `echo "" > /var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties`
 2. Run the tests as follows: `TESTS_UDM_ADMIN_USERNAME="someuser" TESTS_UDM_ADMIN_PASSWORD="somepassword" python3 -m pytest -l -vvv tests`
