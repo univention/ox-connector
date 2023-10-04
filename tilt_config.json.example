@@ -1,0 +1,4 @@
+{
+    "standalone-name": "ox-connector-standalone",
+    "target": "test"
+}
