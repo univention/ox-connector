@@ -1,0 +1,31 @@
+---
+
+ingress:
+  enabled: false
+
+oxConnector:
+  caCert: "ucctempldapstring"
+  ldapBaseDn: "dc=swp-ldap,dc=internal"
+  ldapPassword: "<value of LDAP_PASSWORD>"
+  ldapHost: "univention-corporate-container"
+  ldapHostDn: "cn=admin,dc=swp-ldap,dc=internal"
+  notifierServer: "univention-corporate-container"
+  tlsMode: "off"
+
+  domainName: "<value of DOMAINNAME>"
+  oxMasterAdmin: "oxadminmasters"
+  oxMasterPassword: "<value of OX_MASTER_PASSWORD>"
+  oxDefaultContext: "1"
+  oxSmtpServer: "smtp://127.0.0.1:587"
+  oxImapServer: "imap://127.0.0.1:143"
+  oxSoapServer: "<value of OX_SOAP_SERVER>"
+  logLevel: "DEBUG"
+
+image:
+  registry: "registry.souvap-univention.de"
+  repository: "souvap/tooling/images/ox-connector/ox-connector-standalone"
+  pullPolicy: "Always"
+  tag: "0.0.1-dev-tilt"
+  sha256: null
+
+...
