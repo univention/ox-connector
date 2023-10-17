@@ -117,5 +117,3 @@ if [[ -f "${LISTENER_STATUS_FILE}" ]]; then
 fi
 
 touch /tmp/initialized.lock
-
-exec "${@}"
