@@ -12,3 +12,4 @@ venv
 /docker-compose.override.yaml
 /secret
 /ssl
+/tilt_config.json
