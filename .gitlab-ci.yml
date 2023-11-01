@@ -2,11 +2,13 @@
 
 include:
   - project: "univention/customers/dataport/upx/common-ci"
+    ref: "v0.4.5"
     file:
       - "defaults/souvap-workflow.yaml"
-      - "templates/souvap.yaml"
-      - "templates/kaniko.yaml"
       - "jobs/package-and-publish-helm-charts.yaml"
+      - "templates/kaniko.yaml"
+      - "templates/souvap.yaml"
+      - "templates/semantic-release-env.yaml"
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
 
@@ -51,55 +53,12 @@ variables:
   SOUVAP_API_V4_URL: "https://gitlab.souvap-univention.de/api/v4"
   SOUVAP_HELM_PROJECT_ID: "128"
 
-.common-semantic-release:
-  image: "registry.souvap-univention.de/souvap/tooling/images/semantic-release-patched@${IMAGE_HASH}"
-  variables:
-    IMAGE_HASH: "sha256:693d502a0efb8a0efe3989a0ae2aa0f83b288442e39f39045848df5cf5310155"
-    GIT_DEPTH: "500"
-    GIT_STRATEGY: "clone"
-    GIT_SUBMODULE_STRATEGY: "none"
-
-prepare:
-  stage: ".pre"
-  extends: ".common-semantic-release"
-  artifacts:
-    reports:
-      dotenv: "${CI_PROJECT_DIR}/deploy.env"
-  script:
-    - |
-      if [[ -z "${GITLAB_TOKEN}" ]]; then
-        echo "ERROR: The variable GITLAB_TOKEN is not set"
-        exit 1
-      fi
-      echo "CI_COMMIT_REF_NAME is set to ${CI_COMMIT_REF_NAME}"
-      export SEMANTIC_VERSION=$(
-        semantic-release \
-          --dry-run \
-          --no-ci \
-          --branches "${CI_COMMIT_REF_NAME}" \
-          --plugins "@semantic-release/gitlab" |
-        grep --only-matching --perl-regexp "Published release [0-9]+\.[0-9]+\.[0-9]+ on" |
-        grep --only-matching --perl-regexp "[0-9]+\.[0-9]+\.[0-9]+"
-      )
-      if [[ -z "${SEMANTIC_VERSION}" ]]; then
-        echo "ERROR: Failed extract SEMANTIC_VERSION from semantic-release output"
-        # TODO: find source for ERELEASEBRANCHES on `5.0` branch and use exit again
-        export SEMANTIC_VERSION="0.0.1"
-        # exit 1
-      fi
-      echo "Using SEMANTIC_VERSION: ${SEMANTIC_VERSION}"
-      if [[ "${CI_COMMIT_REF_NAME:-}" != "${CI_DEFAULT_BRANCH:-}" ]]; then
-        export RELEASE_VERSION="${SEMANTIC_VERSION}-pre-${CI_COMMIT_REF_SLUG}"
-      else
-        export RELEASE_VERSION="${SEMANTIC_VERSION}"
-      fi
-      echo "Using RELEASE_VERSION: ${RELEASE_VERSION}"
-      echo "SEMANTIC_VERSION=${SEMANTIC_VERSION}" > ${CI_PROJECT_DIR}/deploy.env
-      echo "RELEASE_VERSION=${RELEASE_VERSION}" >> ${CI_PROJECT_DIR}/deploy.env
+pre-semantic-release:
+  extends: ".pre-semantic-release"
 
 package-helm-charts:
   needs:
-    - job: "prepare"
+    - job: "pre-semantic-release"
       artifacts: true
   before_script:
     - |
@@ -116,7 +75,7 @@ build-appcenter-job:
   stage: "build"
   extends: ".kaniko"
   needs:
-    - job: "prepare"
+    - job: "pre-semantic-release"
       artifacts: true
   variables:
     DOCKERFILE_PATH: "Dockerfile"
@@ -136,7 +95,7 @@ build-standalone-final-image:
   stage: "build"
   extends: ".kaniko"
   needs:
-    - job: "prepare"
+    - job: "pre-semantic-release"
       artifacts: true
   variables:
     DOCKERFILE_PATH: "Dockerfile.standalone"
@@ -148,7 +107,7 @@ build-standalone-test-image:
   stage: "build"
   extends: ".kaniko"
   needs:
-    - job: "prepare"
+    - job: "pre-semantic-release"
       artifacts: true
   variables:
     DOCKERFILE_PATH: "Dockerfile.standalone"
@@ -286,29 +245,14 @@ package-openDesk-dependencies:
   stage: "package"
   extends: ".kaniko"
   needs:
-    - job: "prepare"
+    - job: "pre-semantic-release"
       artifacts: true
   variables:
     DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-dependencies"
     VERSION: "${RELEASE_VERSION}"
 
-release:
-  stage: ".post"
-  extends: ".common-semantic-release"
-  rules:
-    - when: on_success
-      if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
-  artifacts:
-    paths:
-      - "CHANGELOG.md"
-  script:
-    - |
-      if [[ -f "${CI_PROJECT_DIR}/.releaserc" ]]; then
-        PLUGINS=
-      else
-        PLUGINS="--plugins @semantic-release/gitlab,@semantic-release/release-notes-generator,@semantic-release/changelog"
-      fi
-    - "semantic-release --branches ${CI_COMMIT_REF_NAME} ${PLUGINS}"
+post-semantic-release:
+  extends: ".post-semantic-release"
 
 ...
