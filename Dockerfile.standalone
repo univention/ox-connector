@@ -29,7 +29,7 @@ FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS debian-python-deps
 RUN \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive \
-    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
+    apt-get --assume-yes --verbose-versions --no-install-recommends install \
       # libgdbm.so.6 for python dbm.gnu
       libgdbm6=1.18.* \
       # pyasn1.error.PyAsn1Error for ${PYPKG}/ldap/controls/__init__.py
