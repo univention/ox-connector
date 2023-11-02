@@ -2,7 +2,7 @@
 
 include:
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v0.4.5"
+    ref: "pmacha/semantic-release-env-wet"
     file:
       - "defaults/souvap-workflow.yaml"
       - "jobs/package-and-publish-helm-charts.yaml"
@@ -251,8 +251,5 @@ package-openDesk-dependencies:
     DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
     CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-dependencies"
     VERSION: "${RELEASE_VERSION}"
-
-post-semantic-release:
-  extends: ".post-semantic-release"
 
 ...
