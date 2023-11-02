@@ -282,6 +282,17 @@ upload-docker-image:
     - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
       "docker push docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
 
+package-openDesk-dependencies:
+  stage: "package"
+  extends: ".kaniko"
+  needs:
+    - job: "prepare"
+      artifacts: true
+  variables:
+    DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
+    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-dependencies"
+    VERSION: "${RELEASE_VERSION}"
+
 release:
   stage: ".post"
   extends: ".common-semantic-release"
