@@ -1,10 +1,10 @@
 
-import univention.admin.types.TypeHint
+from univention.admin.types import TypeHint
 import univention.debug as ud
 from univention.admin.syntax import UDM_Objects, select, string
 
 
-class ExtendedAttributeIntegerType(univention.admin.types.TypeHint):
+class ExtendedAttributeIntegerType(TypeHint):
     _python_types = (int, string)
     _openapi_type = 'integer'
 
