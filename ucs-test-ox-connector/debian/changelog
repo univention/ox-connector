@@ -1,0 +1,5 @@
+ucs-test-ox-connector (1.0.0) unstable; urgency=medium
+
+  * Issue #39: add test for context.json
+
+ -- Pavlos Giannakis <pavlos.giannakis.extern@univention.de>  Thu, 09 Nov 2023 10:30:49 +0100

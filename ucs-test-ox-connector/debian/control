@@ -1,0 +1,22 @@
+Source: ucs-test-ox-connector
+Section: univention
+Priority: optional
+Maintainer: Univention GmbH <packages@univention.de>
+Build-Depends:
+ debhelper-compat (= 12),
+ dh-python,
+ python3-all,
+ ucslint,
+Standards-Version: 3.6.1
+
+Package: ucs-test-ox-connector
+Architecture: all
+Depends:
+ python3-pytest,
+ python3-requests,
+ ucs-test-framework (>= 10),
+ ${python3:Depends},
+Provides:
+ ucs-test-module
+ ${python3:Provides},
+Description: Additional tests for ox-connector
