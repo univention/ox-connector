@@ -730,3 +730,73 @@ def test_alias(
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     assert sorted(obj.aliases) == sorted(mail_addresses)
+
+
+def test_toggle_is_ox_user_property(
+        default_ox_context, new_user_name, udm, domainname, wait_for_listener
+):
+    """
+    Toggling isOxUser property should create or remove the user in OX accordingly.
+    Issue: https://git.knut.univention.de/univention/open-xchange/provisioning
+    /-/issues/54
+    """
+    # Initially, create a user with isOxUser=False
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context, enabled=False)
+    wait_for_listener(dn)
+    find_obj(default_ox_context, new_user_name, assert_empty=True)
+
+    # Toggle isOxUser to True and set a context
+    udm.modify("users/user", dn, {"isOxUser": True, "oxContext": default_ox_context})
+    wait_for_listener(dn)
+    obj = find_obj(default_ox_context, new_user_name, assert_empty=False)
+    assert obj.name == new_user_name
+
+    # Toggle isOxUser back to False, and the user should be removed from OX
+    udm.modify("users/user", dn, {"isOxUser": False})
+    wait_for_listener(dn)
+    find_obj(default_ox_context, new_user_name, assert_empty=True)
+
+
+def test_toggle_is_ox_user_property_no_change(
+        default_ox_context, new_user_name, udm, domainname, wait_for_listener
+):
+    """
+    Sad path (no change): Toggling isOxUser property should return isOxUser False as
+    there is no change.
+    Issue: https://git.knut.univention.de/univention/open-xchange/provisioning
+    /-/issues/54
+    """
+    # Initially, create a user with isOxUser=False
+    dn = create_obj(udm, new_user_name, domainname, None, enabled=False)
+    wait_for_listener(dn)  # Ensure we wait for the modification to take effect
+    find_obj(default_ox_context, new_user_name, assert_empty=True)
+
+    # Toggle isOxUser to False and it should still not be found in OX
+    udm.modify("users/user", dn, {"isOxUser": False, "description": random_string()})
+    wait_for_listener(dn)
+    find_obj(default_ox_context, new_user_name, assert_empty=True)
+
+
+def test_toggle_is_ox_user_property_new_context(
+        default_ox_context, new_user_name, udm, domainname, wait_for_listener, create_ox_context
+):
+    """
+    Sad path (invalid context): Toggling isOxUser property should fail to add the
+    user in OX as the context is invalid.
+    Issue: https://git.knut.univention.de/univention/open-xchange/provisioning
+    /-/issues/54
+    """
+    # Initially, create a user with isOxUser=False
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context, enabled=False)
+    wait_for_listener(dn)
+    find_obj(default_ox_context, new_user_name, assert_empty=True)
+
+    # Create new context and set it to user
+    new_context_id = create_ox_context()
+    udm.modify("users/user", dn, {"isOxUser": True, "oxContext": new_context_id})
+    wait_for_listener(dn)
+
+    # Ensure the user is not added to the old OX context
+    find_obj(default_ox_context, new_user_name, assert_empty=True)
+    # Ensure the user is added to the new OX context
+    find_obj(new_context_id, new_user_name, assert_empty=False)
