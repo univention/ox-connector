@@ -1,5 +1,5 @@
 <p>
-	Die OX Provisioning App wurde erfolgreich auf Ihrem System installiert.
+	Die OX Connector App wurde erfolgreich auf Ihrem System installiert.
 </p>
 <p>
 	Die folgenden UDM-Objekte werden auf dem eingerichteten OX-System synchronisiert:
@@ -22,7 +22,7 @@ Benutzer und Gruppen müssen explizit für OX freigeschaltet werden, ansonsten w
 <p>
 </p>
 <p>
-	Die OX Provisioning App geht davon aus, die OX-Kontexte selbst zu verwalten. Für Kontexte, die bereits zuvor angelegt worden sind, muss folgendes gemacht werden: Der Kontext-Admin muss  "oxadmin-context<i>$id</i>" heißen und das Passwort in diese Datei geschrieben werden: <i>/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context<i>$id</i></i>. Eine Ausnahme ist der Standard-Kontext, bei dem der Kontext-Admin "oxadmin" heißt. Das ist es, was die App macht und was sie auch erwartet.
+	Die OX Connector App geht davon aus, die OX-Kontexte selbst zu verwalten. Für Kontexte, die bereits zuvor angelegt worden sind, muss folgendes gemacht werden: Der Kontext-Admin muss  "oxadmin-context<i>$id</i>" heißen und das Passwort in diese Datei geschrieben werden: <i>/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context<i>$id</i></i>. Eine Ausnahme ist der Standard-Kontext, bei dem der Kontext-Admin "oxadmin" heißt. Das ist es, was die App macht und was sie auch erwartet.
 </p>
 <p>
 	Ein Standard-Kontext kann in den App-Einstellungen konfiguriert werden. Er wird für neue Benutzer und Ressourcen verwendet. Die App erstellt diesen Standard-Kontext allerdings nicht automatisch.

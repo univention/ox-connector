@@ -21,22 +21,16 @@ Description = Synchronize UCS Users and Groups to Open-Xchange
 SupportedUcsVersions = 5.0-0 errata174, 5.1-0, 5.2-0
 Website = https://docs.software-univention.de/ox-connector-app/latest/
 LongDescription = <p>
-		The OX Provisioning App synchronizes selected users and groups to a remote OX installation via OX' SOAP API
+		The OX Connector App synchronizes selected users and groups to a local or remote OX installation via OX' SOAP API.
 	</p>
 	<p>
+		To use the App, you need an Open-Xchange groupware installation such as the OX App Suite app from Univention App Center or a dedicated installation on a non-UCS system.
 	</p>
 	<p>
-		In order to use the App, you need a remote Open-Xchange groupware installation. Typically, this remote server is not a UCS system as the <b>Open-Xchange version in the App Center does not work well with this App</b>: It brings its own integration that may interfere with the one of the Provisioning App. If you seek for a out-of-the-box integration for OX, you may want to just install the corresponding App from the App Center and not install this App.
+		After the setup, the OX Connector App manages users, groups, resources such as conference rooms, and contexts. The UCS Identity management is the leading identity management system.
 	</p>
 	<p>
-		There are two prerequisites for this App to work: The remote OX installation needs to allow access to <i>/webservices</i> and you probably want to make sure that HTTPS connections from the App's container (it is a Docker based App) to the remote OX system works, i.e. you need a valid SSL certificate.
-		<br>
-	</p>
-	<p>
-		That set up, the OX Provisioning App manages users, groups, resources (conference rooms, etc.) and contexts. UCS' Identity management should be considered the leading IDM system.
-	</p>
-	<p>
-	  For documentation, see <a href="https://docs.software-univention.de/ox-connector-app/latest/" target="_blank">OX Connector app documentation</a>.
+		For more information, see <a href="https://docs.software-univention.de/ox-connector-app/latest/" target="_blank">OX Connector app documentation</a>.
 	</p>
 
 Logo = logo.svg
@@ -45,20 +39,16 @@ ListenerUDMVersion = 1
 [de]
 Description = UCS-Benutzer nach Open-Xchange synchronisieren
 LongDescription = <p>
-		Die OX Provisioning App synchronisiert ausgewählte Benutzer und Gruppen zu einem entfernten OX-System über die SOAP-API von OX.
+		Die OX Connector App synchronisiert ausgewählte Benutzer und Gruppen zu einem lokalen oder entfernten OX-System über die SOAP-API von OX.
 	</p>
 	<p>
 	</p>
 	<p>
-		Um diese App zu nutzen, brauchen Sie eine entfernte Open-Xchange-Installation. Typischerweise wird dies kein UCS-System sein, denn die Version von <b>Open-Xchange im App Center funktioniert nicht einwandfrei mit dieser App</b>: Da sie ihre eigene Integration mitbringt, kann es zu unerwünschten Überschneidungen mit der Provisioning App kommen. Falls Sie eine out-of-the-box-Integration für OX suchen, werden Sie eher Open-Xchange aus dem App Center installieren wollen, nicht diese App.
+		Um diese App zu nutzen, brauchen Sie eine Open-Xchange-Installation wie zum Beispiel die OX App Suite App aus dem Univention App Center oder eine dedizierte OX-Installation auf einem Nicht-UCS-System.
 	</p>
 	<p>
-		Es gibt zwei Voraussetzungen, damit die App funktionieren kann: Die entfernte OX-Installation muss Zugriff auf <i>/webservices</i> erlauben und eine HTTPS-Verbindung vom Container, den diese Docker-App mitbringt, zum entfernten System muss aufgebaut werden können (d.h. es braucht ein valides SSL-Zertifikat).
-		<br>
+		Nach der Installation, übernimmt die OX Connector App die Verwaltung von Benutzern, Gruppen, Ressourcen wie z.B. Konferenzräume, und Kontexten. Das Identity Management von UCS wird das führende Identity-Management-System.
 	</p>
 	<p>
-		Sobald die Installation erfolgreich war, übernimmt die OX Provisioning App das Management von Benutzern, Gruppen,  Ressourcen (z.B. Konferenzräume) und Kontexten. Das Identity Management von UCS sollte ab diesem Zeitpunkt das führende IDM-System sein.
-	</p>
-	<p>
-		Für Dokumentation, siehe <a href="https://docs.software-univention.de/ox-connector-app/latest/" target="_blank">OX Connector app documentation</a> (nur in English verfügbar).
+		Für weitere Informationen, siehe <a href="https://docs.software-univention.de/ox-connector-app/latest/" target="_blank">OX Connector app documentation</a> (nur in Englisch verfügbar).
 	</p>
