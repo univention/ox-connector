@@ -1,16 +1,19 @@
 ---
 
 include:
-  - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v0.5.0"
-    file:
-      - "defaults/souvap-workflow.yaml"
-      - "jobs/package-and-publish-helm-charts.yaml"
-      - "templates/kaniko.yaml"
-      - "templates/souvap.yaml"
-      - "templates/semantic-release-env.yaml"
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
+  - project: "univention/customers/dataport/upx/common-ci"
+    ref: "v1.9.8"
+    file:
+      - "defaults/stages.yaml"
+      - "defaults/souvap-workflow.yaml"
+      - "templates/souvap.yaml"
+      - "jobs/lint-pre-commit.yaml"
+      - "jobs/lint-commit-messages.yaml"
+      - "jobs/semantic-release-env.yaml"
+      - "jobs/container-build.yaml"
+      - "jobs/package-and-publish-helm-charts.yaml"
 
 workflow:
   rules:
@@ -18,14 +21,6 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED == "true"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "webide"'
-
-stages:
-  - "build"
-  - "package"
-  - "publish"
-  - "docs-build"
-  - "docs-merge"
-  - "docs-production"
 
 variables:
   APP_VERSION:
@@ -41,166 +36,85 @@ variables:
   DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOC_TARGET_VERSION}"
 
   # Variables for ".push-image-souvap" include
-  SOUVAP_DOCKER_ACCESS_USER: "gitlab-ci-knut"
-  #SOUVAP_DOCKER_ACCESS_TOKEN: "${SOUVAP_DOCKER_ACCESS_TOKEN}"
-  SOUVAP_REGISTRY_HOST: "registry.souvap-univention.de"
   SOUVAP_REGISTRY_PATH: "souvap/tooling/images/ox-connector"
   SOUVAP_REGISTRY_REPO: "${SOUVAP_REGISTRY_HOST}/${SOUVAP_REGISTRY_PATH}"
 
   # Variables for ".publish-helm-charts-souvap" include
-  SOUVAP_HELM_ACCESS_USER: "gitlab-ci-knut"
-  #SOUVAP_HELM_ACCESS_TOKEN: "${SOUVAP_HELM_ACCESS_TOKEN}"
   SOUVAP_API_V4_URL: "https://gitlab.souvap-univention.de/api/v4"
   SOUVAP_HELM_PROJECT_ID: "128"
 
-pre-semantic-release:
-  extends: ".pre-semantic-release"
+lint-pre-commit:
+  allow_failure: true
 
-package-helm-charts:
-  needs:
-    - job: "pre-semantic-release"
-      artifacts: true
-  before_script:
-    - |
-      echo "Starting before_script"
-      if [[ -z "${RELEASE_VERSION}" ]]; then
-        echo "Variable RELEASE_VERSION not set"
-        exit 1
-      else
-        echo "Variable RELEASE_VERSION is ${RELEASE_VERSION}"
-      fi
-      echo "Finishing before_script"
-
-build-appcenter-job:
-  stage: "build"
-  extends: ".kaniko"
-  needs:
-    - job: "pre-semantic-release"
-      artifacts: true
-  variables:
+.build-matrix: &build-matrix
+  - IMAGE_NAME: "ox-connector-appcenter"
     DOCKERFILE_PATH: "Dockerfile"
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter"
-    VERSION: "${RELEASE_VERSION}"
-  before_script:
-    - |
-      # The version build-arg needs to be pip-compataible
-      if [[ "${CI_COMMIT_REF_NAME:-}" != "${CI_DEFAULT_BRANCH:-}" ]]; then
-        export DOCKER_BUILD_VERSION="${DOC_TARGET_VERSION}-dev"
-      else
-        export DOCKER_BUILD_VERSION="${DOC_TARGET_VERSION}"
-      fi
-      export KANIKO_ARGS="--build-arg version=${DOCKER_BUILD_VERSION}"
-
-build-standalone-final-image:
-  stage: "build"
-  extends: ".kaniko"
-  needs:
-    - job: "pre-semantic-release"
-      artifacts: true
-  variables:
+    KANIKO_ARGS: "--build-arg version=${DOCKER_BUILD_VERSION}"
+  - IMAGE_NAME: "ox-connector-standalone"
     DOCKERFILE_PATH: "Dockerfile.standalone"
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone"
     KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION}"
-    VERSION: "${RELEASE_VERSION}"
-
-build-standalone-test-image:
-  stage: "build"
-  extends: ".kaniko"
-  needs:
-    - job: "pre-semantic-release"
-      artifacts: true
-  variables:
+  - IMAGE_NAME: "ox-connector-standalone-test"
     DOCKERFILE_PATH: "Dockerfile.standalone"
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test"
     KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION}"
-    VERSION: "${RELEASE_VERSION}"
+  - IMAGE_NAME: "ox-connector-dependencies"
+    DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
 
-push-image-souvap-appcenter-job:
-  stage: "publish"
-  needs:
-    - job: "build-appcenter-job"
-  extends: ".push-image-souvap"
-  variables:
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter"
-    SOUVAP_IMAGE_NAME: "ox-connector-appcenter"
+.post-build-matrix: &post-build-matrix
+  - IMAGE_NAME:
+      - "ox-connector-appcenter"
+      - "ox-connector-standalone"
+      - "ox-connector-standalone-test"
+      - "ox-connector-dependencies"
 
-push-image-souvap-standalone-job:
-  stage: "publish"
-  needs:
-    - job: "build-standalone-final-image"
-  extends: ".push-image-souvap"
+.publish-matrix: &publish-matrix
+  - IMAGE_NAME:
+      - "ox-connector-appcenter"
+      - "ox-connector-standalone"
+
+container-build:
+  parallel:
+    matrix: *build-matrix
   variables:
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone"
-    SOUVAP_IMAGE_NAME: "ox-connector-standalone"
+    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        DOCKER_BUILD_VERSION: "${DOC_TARGET_VERSION}-dev"
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        DOCKER_BUILD_VERSION: "${DOC_TARGET_VERSION}"
+
+container-generate-sbom:
+  parallel:
+    matrix: *post-build-matrix
+
+container-sign:
+  parallel:
+    matrix: *post-build-matrix
+
+container-security-scan:
+  parallel:
+    matrix: *post-build-matrix
+
+publish-images:
+  extends: .push-image-souvap
+  parallel:
+    matrix: *publish-matrix
 
 publish-helm-charts-souvap:
   extends: .publish-helm-charts-souvap
 
-docs-linkcheck:
-  stage: "docs-build"
-  extends: ".sphinx-linkcheck-template"
+trigger-docs:
+  stage: trigger
+  variables:
+    RELEASE_VERSION: "${RELEASE_VERSION}"
+  trigger:
+    strategy: depend
+    include:
+      - local: ".gitlab-ci.docs.yml"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
-
-docs-spelling:
-  stage: "docs-build"
-  extends: ".sphinx-spelling-template"
-  rules:
-    - changes:
-        - "$DOCS_DIR/**/*"
-
-docs-html:
-  stage: "docs-build"
-  extends: ".sphinx-html-template"
-  rules:
-    - changes:
-        - "$DOCS_DIR/**/*"
-
-docs-pdf:
-  stage: "docs-build"
-  extends: ".sphinx-pdf-template"
-  rules:
-    - changes:
-        - "$DOCS_DIR/**/*"
-
-docs-warnings:
-  stage: "docs-build"
-  extends: ".sphinx-warnings-template"
-  rules:
-    - changes:
-        - "$DOCS_DIR/**/*"
-
-docs-merge-to-one-artifact:
-  stage: "docs-merge"
-  extends: ".sphinx-merge-template"
-  needs:
-    - job: "docs-html"
-    - job: "docs-pdf"
-    - job: "docs-spelling"
-      artifacts: false
-    - job: "docs-linkcheck"
-      artifacts: false
-  rules:
-    - if: "$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH"
-      changes:
-        - "$DOCS_DIR/**/*"
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-      changes:
-        - "$DOCS_DIR/**/*"
-      when: "manual"
-
-# The template has inherit:variables:false to prevent the passing of pipeline
-# variables to downstream, and therefore $DOCS_DIR is not available here.
-docs-create-production-merge-request:
-  stage: "docs-production"
-  extends: ".sphinx-docs-merge-request-template"
-  needs:
-    - job: "docs-merge-to-one-artifact"
-  rules:
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-      changes:
-        - "docs/**/*"
 
 compute-image-name:
   stage: "build"
@@ -240,16 +154,5 @@ upload-docker-image:
       "docker tag ${BUILD_IMAGE_TAG} docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
     - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
       "docker push docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
-
-package-openDesk-dependencies:
-  stage: "package"
-  extends: ".kaniko"
-  needs:
-    - job: "pre-semantic-release"
-      artifacts: true
-  variables:
-    DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
-    CI_REGISTRY_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-dependencies"
-    VERSION: "${RELEASE_VERSION}"
 
 ...
