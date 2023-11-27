@@ -49,6 +49,7 @@ from univention.ox.soap.config import (
     IMAP_LOGIN,
     LOCAL_TIMEZONE,
     get_context_admin_user,
+    USER_IDENTIFIER,
 )
 
 User = get_ox_integration_class("SOAP", "User")
@@ -76,16 +77,23 @@ def str2isodate(text):  # type: (str) -> str
     )
 
 
-def user_from_attributes(attributes, old_attributes, user_id=None, initial_values=False):
+def user_from_attributes(attributes, old_attributes, username, user_id=None, initial_values=False):
     user = User(id=user_id)
     if attributes:
         context_id = get_context_id(attributes)
         user.context_id = context_id
-        update_user(user, attributes, old_attributes, initial_values)
+        update_user(user, attributes, old_attributes, username, initial_values)
     return user
 
 
-def update_user(user, attributes, old_attributes, initial_values=False):
+def get_user_username(user):
+    if USER_IDENTIFIER == "entryUUID":
+        return user.entry_uuid
+    else:
+        return user.attributes.get(USER_IDENTIFIER)
+
+
+def update_user(user, attributes, old_attributes, username, initial_values=False):
     old_user = None
     if user.id and not initial_values:
         try:
@@ -96,7 +104,7 @@ def update_user(user, attributes, old_attributes, initial_values=False):
         except:
             pass
     user.context_admin = False
-    user.name = attributes.get("username")
+    user.name = username
     user.display_name = attributes.get("oxDisplayName") or attributes.get("displayName")
     user.password = "dummy"
     user.given_name = attributes.get("firstname")
@@ -345,7 +353,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
     except Skip:
         logger.warning(f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.")
         return
-    user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None), initial_values=True)
+    user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None), get_user_username(obj), initial_values=True)
     if not user_copy_service:
         user.create()
     else:
@@ -354,10 +362,11 @@ def create_user(obj, user_copy_service=False, user_id=None):
         # Bug #56525 When changing the context and the username, the old
         # username is needed for the object search in the database because
         # the object hasn't been modified yet.
-        user = get_obj_by_name_from_ox(User, user.context_id, obj.old_attributes.get("username"))
-        update_user(user, obj.attributes, obj.old_attributes)
+        user = get_obj_by_name_from_ox(User, user.context_id, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"))
+        update_user(user, obj.attributes, obj.old_attributes, get_user_username(obj))
         user.modify()
     obj.set_attr("oxDbId", user.id)
+    obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
     logger.info("Looking for groups of this user to be created in the context id")
     for group in obj.attributes.get("groups", []):
@@ -436,14 +445,15 @@ def modify_user(obj):
             else:
                 create_user(obj, user_copy_service=UserCopy().service(old_context), user_id=user_id)
                 return delete_user(deepcopy(obj))
-        user = user_from_attributes(obj.old_attributes, obj.old_attributes, user_id)
+        user = user_from_attributes(obj.old_attributes, obj.old_attributes, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"), user_id)
         user.context_id = new_context
-        update_user(user, obj.attributes, obj.old_attributes)
+        update_user(user, obj.attributes, obj.old_attributes, get_user_username(obj))
     else:
         logger.info(f"{obj} has no old data. Resync?")
-        user = user_from_attributes(obj.attributes, None, user_id)
+        user = user_from_attributes(obj.attributes, None, get_user_username(obj), user_id)
     user.modify()
     obj.set_attr("oxDbId", user.id)
+    obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
 
 
@@ -456,7 +466,7 @@ def delete_user(obj):
     if not user_id:
         logger.info(f"{obj} does not exist. Doing nothing...")
         return
-    user = user_from_attributes(obj.old_attributes, None, user_id)
+    user = user_from_attributes(obj.old_attributes, None, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"), user_id)
     group_service = Group.service(user.context_id)
     soap_groups = group_service.list_groups_for_user({"id": user.id})
     user.remove()

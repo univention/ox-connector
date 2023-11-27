@@ -100,6 +100,7 @@ App Settings
         - String
         - :samp:`smtp://{$hostname}.{$domainname}:587`
 
+
 .. envvar:: DEFAULT_CONTEXT
 
    Defines the default context for users. The OX Connector doesn't create the
@@ -119,6 +120,7 @@ App Settings
         - Integer
         - ``10``
 
+
 .. envvar:: OX_LANGUAGE
 
    Defines the default language for new users
@@ -135,6 +137,7 @@ App Settings
         - String
         - ``de_DE``
 
+
 .. envvar:: LOCAL_TIMEZONE
 
    Defines the default timezone for new users
@@ -150,6 +153,7 @@ App Settings
       * - Yes
         - String
         - ``Europe/Berlin``
+
 
 .. envvar:: OX_MASTER_ADMIN
 
@@ -170,6 +174,7 @@ App Settings
         - String
         - ``oxadminmaster``
 
+
 .. envvar:: OX_MASTER_PASSWORD
 
    Defines the password for the *OX Admin user*.
@@ -185,6 +190,7 @@ App Settings
       * - No
         - Password
         - N/A
+
 
 .. envvar:: OX_IMAP_LOGIN
 
@@ -255,7 +261,6 @@ App Settings
             "{{username}}+{{fa_entry_uuid}}+{{dn}}" # username, functional account entry UUID and user dn separated by a '+'
             "{{fa_email_address}}*dovecotadmin" # Concatenation of functional account's mail address and the string *\*dovecotadmin
 
-
    .. note::
 
         In cases where SSO is to be used, this variable has to be appended with an asterisk
@@ -266,6 +271,54 @@ App Settings
         .. code-block:: console
 
             myfunctional_account@maildomain.de*dovecotadmin
+
+
+.. envvar:: OX_USER_IDENTIFIER
+
+   Defines which UDM user property is used as the unique user identifier for OX. If this app setting is not set the :program:`OX Connector`
+   will use the ``username`` property by default.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - String
+        - N/A
+
+    .. note::
+
+         Only a UDM user property that contains a **single value** which is **not None** is a valid option. In case a UDM user property
+         that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
+         to be resolved manually by simply setting a valid value.
+
+
+.. envvar:: OX_GROUP_IDENTIFIER
+
+   Defines which UDM group property is used as the unique group identifier for OX. If this app setting is not set the :program:`OX Connector`
+   will use the ``name`` property by default.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - String
+        - N/A
+
+    .. note::
+
+         Only a UDM group property that contains a **single value** which is **not None** is a valid option. In case a UDM group property
+         that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
+         to be resolved manually by simply setting a valid value.
 
 
 .. _ucr-variables:

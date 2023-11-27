@@ -67,6 +67,10 @@ def get_db_id(dn):
     if obj:
         return obj.attributes.get("oxDbId")
 
+def get_db_username(dn):
+    obj = get_old_obj(dn)
+    if obj:
+        return obj.attributes.get("oxDbId")
 
 def get_db_uid(dn):
     obj = get_old_obj(dn)

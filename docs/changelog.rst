@@ -15,7 +15,7 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 2.2.8
 =============
 
-Released: 15. December 2023
+Released: 6. January 2024
 
 Changed
 -------
@@ -24,6 +24,9 @@ The `meta.db` also stores the error message and the filename that causes the err
 Added
 -----
 The script `get_current_error.py` outputs a json with the contents of the `meta.db`. This json can be used to automate the app health checks.
+
+The app settings `OX_USER_IDENTIFIER` and `OX_GROUP_IDENTIFIER` have been added. They give control over which UDM property is used as the unique
+identifier for users and groups in OX.
 
 2.2.7
 =============

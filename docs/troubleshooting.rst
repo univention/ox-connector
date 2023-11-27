@@ -341,3 +341,77 @@ details about your case, so that the Univention Support team can help you:
 
 * Provide data from the provisioning that causes the error.
 
+Invalid values for OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER
+============================================================
+Only a UDM user property (or UDM group property in case of OX_GROUP_IDENTIFIER) that contains a **single value** which is **not None**
+is a valid option. In case a UDM property that contains an empty value or a list of values is specified, the :program:`OX Connector`
+will enter an error state which needs to be resolved manually by simply setting a valid value.
+
+Setting invalid values for the app settings `OX_USER_IDENTIFIER` or `OX_GROUP_IDENTIFIER` will
+lead to the following errors:
+
+.. code-block:: console
+
+    2024-01-11 13:57:39 WARNING Traceback (most recent call last):
+    2024-01-11 13:57:39 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 351, in run_on_files
+    2024-01-11 13:57:39 WARNING     function(obj)
+    2024-01-11 13:57:39 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 86, in run
+    2024-01-11 13:57:39 WARNING     modify_user(obj)
+    2024-01-11 13:57:39 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/users.py", line 454, in modify_user
+    2024-01-11 13:57:39 WARNING     user.modify()
+    2024-01-11 13:57:39 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/backend.py", line 475, in modify
+    2024-01-11 13:57:39 WARNING     super(SoapUser, self).modify()
+    2024-01-11 13:57:39 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/backend.py", line 176, in modify
+    2024-01-11 13:57:39 WARNING     assert self.name is not None
+
+.. code-block:: console
+
+    setting "users" udm property for groups
+    2024-01-11 13:59:36 WARNING Traceback (most recent call last):
+    2024-01-11 13:59:36 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 351, in run_on_files
+    2024-01-11 13:59:36 WARNING     function(obj)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 108, in run
+    2024-01-11 13:59:36 WARNING     modify_group(new_obj)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/groups.py", line 146, in modify_group
+    2024-01-11 13:59:36 WARNING     group.modify()
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/backend.py", line 180, in modify
+    2024-01-11 13:59:36 WARNING     self.service(self.context_id).change(obj)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/services.py", line 607, in change
+    2024-01-11 13:59:36 WARNING     return self._call_ox('change', grp=grp)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/services.py", line 194, in _call_ox
+    2024-01-11 13:59:36 WARNING     return getattr(service, func)(**kwargs)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/proxy.py", line 46, in __call__
+    2024-01-11 13:59:36 WARNING     return self._proxy._binding.send(
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/bindings/soap.py", line 123, in send
+    2024-01-11 13:59:36 WARNING     envelope, http_headers = self._create(
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/bindings/soap.py", line 73, in _create
+    2024-01-11 13:59:36 WARNING     serialized = operation_obj.create(*args, **kwargs)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/definitions.py", line 224, in create
+    2024-01-11 13:59:36 WARNING     return self.input.serialize(*args, **kwargs)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/wsdl/messages/soap.py", line 79, in serialize
+    2024-01-11 13:59:36 WARNING     self.body.render(body, body_value)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/element.py", line 232, in render
+    2024-01-11 13:59:36 WARNING     self._render_value_item(parent, value, render_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/element.py", line 256, in _render_value_item
+    2024-01-11 13:59:36 WARNING     return self.type.render(node, value, None, render_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/types/complex.py", line 307, in render
+    2024-01-11 13:59:36 WARNING     element.render(node, element_value, child_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/indicators.py", line 256, in render
+    2024-01-11 13:59:36 WARNING     element.render(parent, element_value, child_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/element.py", line 232, in render
+    2024-01-11 13:59:36 WARNING     self._render_value_item(parent, value, render_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/element.py", line 255, in _render_value_item
+    2024-01-11 13:59:36 WARNING     return value._xsd_type.render(node, value, xsd_type, render_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/types/complex.py", line 307, in render
+    2024-01-11 13:59:36 WARNING     element.render(node, element_value, child_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/indicators.py", line 256, in render
+    2024-01-11 13:59:36 WARNING     element.render(parent, element_value, child_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/element.py", line 232, in render
+    2024-01-11 13:59:36 WARNING     self._render_value_item(parent, value, render_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/elements/element.py", line 256, in _render_value_item
+    2024-01-11 13:59:36 WARNING     return self.type.render(node, value, None, render_path)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/types/simple.py", line 96, in render
+    2024-01-11 13:59:36 WARNING     node.text = value if isinstance(value, etree.CDATA) else self.xmlvalue(value)
+    2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/types/builtins.py", line 27, in _wrapper
+    2024-01-11 13:59:36 WARNING     raise ValueError(
+    2024-01-11 13:59:36 WARNING ValueError: The String type doesn't accept collections as value

@@ -74,3 +74,17 @@ Description[de] = Formatvorgabe für das Login-Feld von Funktionspostfächern mi
 Show = Install, Settings
 Type = String
 Required = False
+
+[OX_USER_IDENTIFIER]
+Description = UDM user property that is used as the unique user identifier for OX. Default: "username".
+Description[de] = UDM-User-Property, die als eindeutiger User-Identifier für OX verwendet wird. Default: "username".
+Show = Install, Settings
+Type = String
+Required = False
+
+[OX_GROUP_IDENTIFIER]
+Description = UDM group property that is used as the unique group identifier for OX. Default: "name".
+Description[de] = UDM-Group-Property, die als eindeutiger Group-Identifier für OX verwendet wird. Default: "name".
+Show = Install, Settings
+Type = String
+Required = False

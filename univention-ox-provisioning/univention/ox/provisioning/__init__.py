@@ -108,6 +108,8 @@ def run(obj):  # noqa: C901
                     modify_group(new_obj)
                 elif new_obj.was_deleted():
                     delete_group(new_obj)
+                if new_obj.was_enriched():
+                    obj.set_attr("oxDbGroupname", new_obj.attributes.get('oxDbGroupname'))
             except Skip as exc:
                 logger.warning(f"Skipping: {exc}")
             except NoContextAdminPassword as exc:
