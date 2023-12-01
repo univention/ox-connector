@@ -15,7 +15,7 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 2.2.8
 =============
 
-Released: 6. January 2024
+Released: 16. January 2024
 
 Changed
 -------
@@ -27,6 +27,8 @@ The script `get_current_error.py` outputs a json with the contents of the `meta.
 
 The app settings `OX_USER_IDENTIFIER` and `OX_GROUP_IDENTIFIER` have been added. They give control over which UDM property is used as the unique
 identifier for users and groups in OX.
+
+The script `check_sync_status.py` has been added. It can be used to identify data inconsistencies between UDM, OX and the listener files.
 
 2.2.7
 =============

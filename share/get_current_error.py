@@ -29,6 +29,7 @@
 # <http://www.gnu.org/licenses/>.
 
 import dbm.gnu
+import json
 from pathlib import Path
 
 APP = "ox-connector"
@@ -43,7 +44,7 @@ def main():
         while k is not None:
             content[k.decode("UTF-8")] = data_base.get(k).decode("UTF-8")
             k = data_base.nextkey(k)
-    return content
+    return json.dumps(content)
 
 
 if __name__ == "__main__":

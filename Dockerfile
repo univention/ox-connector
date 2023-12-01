@@ -87,6 +87,7 @@ RUN apk add --no-cache py3-multidict py3-yarl && \
 	python3 -c "from udm_rest_client.udm import UDM" && \
 	python3 -c "import openapi_client_udm; openapi_client_udm.OxmailOxcontext.dn"
 
+COPY share/check_sync_status.py /oxp/
 COPY univention-ox-provisioning/requirements_tests.txt tests/ /oxp/tests/
 RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt && \
 	python3 -m pytest --collect-only /oxp/tests && \

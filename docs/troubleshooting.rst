@@ -323,6 +323,75 @@ Add the following lines to the :file:`user.properties` file.
 .. note::
    This is configured by default in the *OX App Suite* installation from the App center.
 
+
+Traceback provisioning *groups*
+===============================
+
+When an ox group is synchronized, the :program:`OX Connector` obtains information about all
+its users by reading from the `listener/old` directory where the latest version of the objects
+that have already been synchronized is stored. If any user is part of such group but is not in
+`listener/old`, the :program:`OX Connector` will fail with a traceback like the following:
+
+.. code-block:: console
+
+   2023-11-17 09:21:20 INFO    Loading old object from /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/d52a12f0-2d89-103c-82b6-b945bc689f52.json
+   2023-11-17 09:21:20 INFO    Loading old object from /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/f029fd00-8247-103c-89e3-bd95c6adf546.json
+   2023-11-17 09:21:20 INFO    Error while processing /var/lib/univention-appcenter/apps/ox-connector/data/listener/2023-02-27-13-30-03-471251.json
+   2023-11-17 09:21:20 WARNING Traceback (most recent call last):
+   2023-11-17 09:21:20 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 341, in run_on_files
+   2023-11-17 09:21:20 WARNING     function(obj)
+   2023-11-17 09:21:20 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 103, in run
+   2023-11-17 09:21:20 WARNING     for new_obj in get_group_objs(obj):
+   2023-11-17 09:21:20 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 156, in get_group_objs
+   2023-11-17 09:21:20 WARNING     user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
+   2023-11-17 09:21:20 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 72, in _get_old_object
+   2023-11-17 09:21:20 WARNING     return object_from_path(path_to_old_user)
+   2023-11-17 09:21:20 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 261, in object_from_path
+   2023-11-17 09:21:20 WARNING     entry_uuid = content["id"]
+   2023-11-17 09:21:20 WARNING TypeError: 'NoneType' object is not subscriptable
+   2023-11-17 09:21:20 INFO    This is consecutive error #18
+   2023-11-17 09:21:20 INFO    Sleeping for 0 sec
+   2023-11-17 09:21:20 INFO    Successfully processed 0 files during this run
+
+You can check which users are missing in the old directory by running the next command. It
+will print the *DN* of the users that need to be provisioned again. Then you can follow
+the instructions here :ref:`queue-reprovision-one` to synchronize the missing users.
+
+.. code-block:: bash
+
+   univention-ldapsearch "(&(univentionObjectType=users/user)(isOxUser=OK))" entryUUID | sed -ne 's/entryUUID: //p' | xargs -I{} bash -c "test -e  /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/{}.json || univention-ldapsearch -LLL  entryUUID={} 1.1"
+
+
+Verify data consistency
+=======================
+
+In OX Connector version 2.2.8 a new script called `check_sync_status.py` can be used to verify that the data
+in *UDM*, the listener/old directory and the OX database are the same. If the App settings :envvar:`OX_USER_IDENTIFIER`,
+:envvar:`OX_GROUP_IDENTIFIER`, :envvar:`OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE`, :envvar:`OX_IMAP_LOGIN` are set to non default
+values, the script can detect and report inconsistencies between the OX database, listener files and UDM.
+
+.. code-block:: console
+
+   $ univention-app shell ox-connector
+   /oxp # ./check_sync_status.py --dn uid=qwert,cn=users,dc=test,dc=ucs --udm_admin_account administrator --udm_password_file udm.secret --udm_host https://master.master.ucs
+
+.. note::
+
+   /oxp # ./check_sync_status.py --help
+
+  --dn DN               Check the object with the specified dn
+  --udm_module UDM_MODULE
+                        Object's udm module. Required if the property is missing in the old/ directory object.
+  --ox_context OX_CONTEXT
+                        Object's ox context. Required if the property is missing in the old/ directory object.
+  --resync              Resync object data by creating a new file in the listener. Resynchronizing groups will only work if its users are correctly provisioned.
+  --udm_admin_account UDM_ADMIN_ACCOUNT
+                        Udm user used for connection.
+  --udm_password_file UDM_PASSWORD_FILE
+                        Udm password
+  --udm_host UDM_HOST   Udm host
+
+
 Collect information for support ticket
 ======================================
 
