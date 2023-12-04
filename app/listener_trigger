@@ -245,6 +245,14 @@ class KeyValueStore(object):
             else:
                 data_base[distinguished_name] = str(path)
 
+    def unset(self, distinguished_name):
+        """Remove item from DBM-Database"""
+        if distinguished_name is None:
+            return
+        with self.open() as data_base:
+            if distinguished_name in data_base:
+                del data_base[distinguished_name]
+
     def get(self, key):
         """Read value from DBM-Database"""
         with self.open() as data_base:
@@ -341,7 +349,7 @@ def run_on_files(
         logger.info("Handling %r", obj.path)
         try:
             function(obj)
-        except Exception:
+        except Exception as e:
             logger.warning("Error while processing %s", obj.path)
             traceback.print_exc()
             ret = -1
@@ -351,6 +359,8 @@ def run_on_files(
             else:
                 errors = int(errors) + 1
             meta.set("errors", str(errors))
+            meta.set("filename", str(obj.path))
+            meta.set("message", str(e))
             if stop_at_first_error:
                 if 0 < pause_after_errors_num <= errors:
                     logger.warning("This is consecutive error #%s", errors)
@@ -361,6 +371,8 @@ def run_on_files(
                 break
         else:
             meta.set("errors", "0")
+            meta.unset("filename")
+            meta.unset("message")
             seen += 1
     logger.info("Successfully processed %s files during this run", seen)
     if ret == -1:

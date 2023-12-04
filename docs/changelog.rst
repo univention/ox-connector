@@ -12,6 +12,19 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.2.8
+=============
+
+Released: 15. December 2023
+
+Changed
+-------
+The `meta.db` also stores the error message and the filename that causes the error.
+
+Added
+-----
+The script `get_current_error.py` outputs a json with the contents of the `meta.db`. This json can be used to automate the app health checks.
+
 2.2.7
 =============
 

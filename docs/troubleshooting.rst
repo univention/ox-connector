@@ -89,6 +89,28 @@ example:
 Such entries indicate that the provisioning has issues with processing the
 queue. For more information, see :ref:`trouble-queue`.
 
+You can use the script `get_current_error.py` to automate the health check
+on your prefered monitoring system.
+
+.. code-block:: console
+
+   univention-app shell ox-connector /usr/local/share/ox-connector/resources/get_current_error.py
+
+This script outputs a json with some information about the current state of the OX Connector.
+
+If there is an error:
+
+.. code-block:: console
+
+   {'errors': '10', 'message': "HTTPSConnectionPool(host='ucs11.ucs.net', port=443): Max retries exceeded with url: /webservices/OXContextService?wsdl (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f7b1083a610>: Failed to establish a new connection: [Errno 111] Connection refused'))", 'filename': '/var/lib/univention-appcenter/apps/ox-connector/data/listener/2023-12-11-11-22-22-856263.json'}
+
+If the ox-connector is working:
+
+.. code-block:: console
+
+   {'errors': '0'}
+
+
 .. _provision-stopped:
 
 Provisioning stops working
