@@ -1,10 +1,9 @@
 ---
-
 include:
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.9.9"
+    ref: "v1.11.1"
     file:
       - "defaults/stages.yaml"
       - "defaults/souvap-workflow.yaml"
@@ -12,7 +11,7 @@ include:
       - "jobs/lint-pre-commit.yaml"
       - "jobs/lint-commit-messages.yaml"
       - "jobs/semantic-release-env.yaml"
-      - "jobs/container-build.yaml"
+      - "jobs/container-build-souvap.yaml"
       - "jobs/package-and-publish-helm-charts.yaml"
 
 workflow:
@@ -23,17 +22,15 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "webide"'
 
 variables:
-  APP_VERSION:
-    value: ""
-    description: "Docker tag"
+  APPCENTER_VERSION: "2.2.8"
+
   # Variables for sphinx-docs
   DOCS_DIR: "docs"
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: "noninteractive"
   UNIVENTION_BASECONF: "/dev/null"
-  DOC_TARGET_VERSION: "2.2.8"
   DOC_TARGET_NAME: "ox-connector-app"
-  DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOC_TARGET_VERSION}"
+  DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${APPCENTER_VERSION}"
 
   # Variables for ".push-image-souvap" include
   SOUVAP_REGISTRY_PATH: "souvap/tooling/images/ox-connector"
@@ -58,6 +55,9 @@ lint-pre-commit:
     KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION}"
   - IMAGE_NAME: "ox-connector-dependencies"
     DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
+  - IMAGE_NAME: "ox-connector-test"
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--target=test --build-arg version=${APPCENTER_VERSION}"
 
 .post-build-matrix: &post-build-matrix
   - IMAGE_NAME:
@@ -79,10 +79,10 @@ container-build:
   rules:
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       variables:
-        DOCKER_BUILD_VERSION: "${DOC_TARGET_VERSION}-dev"
+        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
-        DOCKER_BUILD_VERSION: "${DOC_TARGET_VERSION}"
+        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
 
 container-generate-sbom:
   parallel:
@@ -96,63 +96,48 @@ container-security-scan:
   parallel:
     matrix: *post-build-matrix
 
-publish-images:
-  extends: .push-image-souvap
+push-image-souvap:
+  parallel:
+    matrix: *publish-matrix
+
+container-sign-souvap:
   parallel:
     matrix: *publish-matrix
 
 publish-helm-charts-souvap:
   extends: .publish-helm-charts-souvap
 
+# Uses APPCENTER_VERSION internally
 trigger-docs:
-  stage: trigger
-  variables:
-    RELEASE_VERSION: "${RELEASE_VERSION}"
+  stage: "trigger"
+  when: "manual"
   trigger:
-    strategy: depend
+    strategy: "depend"
     include:
       - local: ".gitlab-ci.docs.yml"
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
 
-compute-image-name:
-  stage: "build"
-  extends: ".kaniko_pre"
-  variables:
-    GIT_STRATEGY: none
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $APP_VERSION != ""
-
-build-docker-image:
-  stage: "build"
-  extends: ".kaniko"
-  variables:
-    DOCKERFILE_PATH: "Dockerfile"
-    KANIKO_ARGS: "--target=test --build-arg version=$DOC_TARGET_VERSION"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-
 upload-docker-image:
   stage: "publish"
-  needs:
-    - job: compute-image-name
-  rules:
-    - if: $APP_VERSION != ""
+  when: "manual"
   variables:
     GIT_STRATEGY: none
+    BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector:${RELEASE_VERSION}"
   image:
     name: "docker-registry.knut.univention.de/knut/ssh"
     entrypoint: [""]
   before_script:
     - chmod 0600 "${SSH_PRIVATE_KEY}"
   script:
-    - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
-      "docker pull ${BUILD_IMAGE_TAG}"
-    - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
-      "docker tag ${BUILD_IMAGE_TAG} docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
-    - ssh -o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de
-      "docker push docker-upload.software-univention.de/ox-connector:${APP_VERSION}"
+    - |
+      SSH_ARGS="-o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de"
+      PUB_REGISTRY_SERVER="docker-upload.software-univention.de"
+      PUB_IMAGE_NAME="ox-connector"
+      PUB_REGISTRY_PATH_AND_TAG="${PUB_REGISTRY_SERVER}/${PUB_IMAGE_NAME}:${APPCENTER_VERSION}"
+      ssh ${SSH_ARGS} "docker pull ${BUILD_IMAGE_PATH_AND_TAG}"
+      ssh ${SSH_ARGS} "docker tag ${BUILD_IMAGE_PATH_AND_TAG} ${PUB_REGISTRY_PATH_AND_TAG}"
+      ssh ${SSH_ARGS} "docker push ${PUB_REGISTRY_PATH_AND_TAG}"
 
 ...
