@@ -55,7 +55,7 @@ lint-pre-commit:
     KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION}"
   - IMAGE_NAME: "ox-connector-dependencies"
     DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
-  - IMAGE_NAME: "ox-connector-test"
+  - IMAGE_NAME: "ox-connector-appcenter-test"
     DOCKERFILE_PATH: "Dockerfile"
     KANIKO_ARGS: "--target=test --build-arg version=${APPCENTER_VERSION}"
 
@@ -124,7 +124,7 @@ upload-docker-image:
   when: "manual"
   variables:
     GIT_STRATEGY: none
-    BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector:${RELEASE_VERSION}"
+    BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter-test:${RELEASE_VERSION}"
   image:
     name: "docker-registry.knut.univention.de/knut/ssh"
     entrypoint: [""]
