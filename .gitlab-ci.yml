@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 ---
+
 include:
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
@@ -32,11 +33,7 @@ variables:
   DEBIAN_FRONTEND: "noninteractive"
   UNIVENTION_BASECONF: "/dev/null"
   DOC_TARGET_NAME: "ox-connector-app"
-  DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${APPCENTER_VERSION}"
   SOUVAP_HELM_PROJECT_ID: "128"
-
-lint-pre-commit:
-  allow_failure: true
 
 .build-matrix: &build-matrix
   - IMAGE_NAME: "ox-connector-appcenter"
@@ -52,7 +49,7 @@ lint-pre-commit:
     DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
   - IMAGE_NAME: "ox-connector-appcenter-test"
     DOCKERFILE_PATH: "Dockerfile"
-    KANIKO_ARGS: "--target=test --build-arg version=${APPCENTER_VERSION}"
+    KANIKO_ARGS: "--target=test --build-arg version=${DOCKER_BUILD_VERSION}"
 
 .post-build-matrix: &post-build-matrix
   - IMAGE_NAME:
@@ -66,18 +63,23 @@ lint-pre-commit:
       - "ox-connector-appcenter"
       - "ox-connector-standalone"
 
+.version-rules: &version-rules
+  - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+  - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+
+lint-pre-commit:
+  allow_failure: true
+
 container-build:
   parallel:
     matrix: *build-matrix
   variables:
     KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
-  rules:
-    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
-      variables:
-        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      variables:
-        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+  rules: *version-rules
 
 container-generate-sbom:
   parallel:
@@ -110,6 +112,14 @@ trigger-docs:
   rules:
     - changes:
         - "$DOCS_DIR/**/*"
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+  variables:
+    DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOCKER_BUILD_VERSION}"
 
 upload-docker-image:
   stage: "publish"
@@ -117,6 +127,7 @@ upload-docker-image:
   variables:
     GIT_STRATEGY: none
     BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter-test:${RELEASE_VERSION}"
+  rules: *version-rules
   image:
     name: "docker-registry.knut.univention.de/knut/ssh"
     entrypoint: [""]
@@ -127,7 +138,7 @@ upload-docker-image:
       SSH_ARGS="-o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de"
       PUB_REGISTRY_SERVER="docker-upload.software-univention.de"
       PUB_IMAGE_NAME="ox-connector"
-      PUB_REGISTRY_PATH_AND_TAG="${PUB_REGISTRY_SERVER}/${PUB_IMAGE_NAME}:${APPCENTER_VERSION}"
+      PUB_REGISTRY_PATH_AND_TAG="${PUB_REGISTRY_SERVER}/${PUB_IMAGE_NAME}:${DOCKER_BUILD_VERSION}"
       ssh ${SSH_ARGS} "docker pull ${BUILD_IMAGE_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker tag ${BUILD_IMAGE_PATH_AND_TAG} ${PUB_REGISTRY_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker push ${PUB_REGISTRY_PATH_AND_TAG}"
