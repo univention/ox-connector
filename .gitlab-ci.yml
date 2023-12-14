@@ -3,16 +3,15 @@ include:
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.11.1"
+    ref: "v1.12.0"
     file:
       - "defaults/stages.yaml"
       - "defaults/souvap-workflow.yaml"
-      - "templates/souvap.yaml"
       - "jobs/lint-pre-commit.yaml"
       - "jobs/lint-commit-messages.yaml"
       - "jobs/semantic-release-env.yaml"
       - "jobs/container-build-souvap.yaml"
-      - "jobs/package-and-publish-helm-charts.yaml"
+      - "jobs/package-and-publish-helm-charts-souvap.yaml"
 
 workflow:
   rules:
@@ -31,13 +30,6 @@ variables:
   UNIVENTION_BASECONF: "/dev/null"
   DOC_TARGET_NAME: "ox-connector-app"
   DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${APPCENTER_VERSION}"
-
-  # Variables for ".push-image-souvap" include
-  SOUVAP_REGISTRY_PATH: "souvap/tooling/images/ox-connector"
-  SOUVAP_REGISTRY_REPO: "${SOUVAP_REGISTRY_HOST}/${SOUVAP_REGISTRY_PATH}"
-
-  # Variables for ".publish-helm-charts-souvap" include
-  SOUVAP_API_V4_URL: "https://gitlab.souvap-univention.de/api/v4"
   SOUVAP_HELM_PROJECT_ID: "128"
 
 lint-pre-commit:
@@ -103,9 +95,6 @@ push-image-souvap:
 container-sign-souvap:
   parallel:
     matrix: *publish-matrix
-
-publish-helm-charts-souvap:
-  extends: .publish-helm-charts-souvap
 
 # Uses APPCENTER_VERSION internally
 trigger-docs:
