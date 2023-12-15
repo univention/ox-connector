@@ -26,11 +26,11 @@ def find_obj(context_id, name, assert_empty=False):
 
 
 def test_ignore_group(
-    create_ox_user,
-    default_ox_context,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_user,
+        default_ox_context,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     isOxGroup = Not should not create a group
@@ -42,12 +42,12 @@ def test_ignore_group(
 
 
 def test_enable_and_disable_group(
-    create_ox_context,
-    create_ox_user,
-    new_group_name,
-    ox_host,
-    udm,
-    wait_for_listener,
+        create_ox_context,
+        create_ox_user,
+        new_group_name,
+        ox_host,
+        udm,
+        wait_for_listener,
 ):
     """
     Changing isOxGroup from Not to OK should create a group
@@ -73,12 +73,12 @@ def test_enable_and_disable_group(
 
 
 def test_add_group_with_one_user(
-    create_ox_user,
-    default_ox_context,
-    new_user_name,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_user,
+        default_ox_context,
+        new_user_name,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     isOxGroup = OK should create a group
@@ -93,12 +93,12 @@ def test_add_group_with_one_user(
 
 
 def test_add_group_with_one_enabled_user_and_one_disabled(
-    create_ox_context,
-    create_ox_user,
-    ox_host,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_context,
+        create_ox_user,
+        ox_host,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     isOxGroup = OK should create a group
@@ -115,12 +115,12 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
 
 
 def test_change_context_for_group_multi_user(
-    create_ox_context,
-    create_ox_user,
-    ox_host,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_context,
+        create_ox_user,
+        ox_host,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     If a user changes the oxContext, the group needs to update its members
@@ -141,13 +141,13 @@ def test_change_context_for_group_multi_user(
 
 
 def test_change_context_for_group_user(
-    create_ox_context,
-    create_ox_user,
-    ox_host,
-    new_user_name,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_context,
+        create_ox_user,
+        ox_host,
+        new_user_name,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     If a user changes the oxContext, the group should be removed from the old
@@ -166,12 +166,12 @@ def test_change_context_for_group_user(
 
 
 def test_rename_group(
-    create_ox_user,
-    default_ox_context,
-    new_user_name,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_user,
+        default_ox_context,
+        new_user_name,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     Renaming a group should keep ID
@@ -188,12 +188,12 @@ def test_rename_group(
 
 
 def test_add_group_with_multiple_users_and_contexts(
-    create_ox_context,
-    create_ox_user,
-    new_group_name,
-    ox_host,
-    udm,
-    wait_for_listener,
+        create_ox_context,
+        create_ox_user,
+        new_group_name,
+        ox_host,
+        udm,
+        wait_for_listener,
 ):
     """
     Adding users from different OX contexts to a group should add the group to
@@ -215,12 +215,12 @@ def test_add_group_with_multiple_users_and_contexts(
 
 
 def test_modify_group(
-    create_ox_user,
-    default_ox_context,
-    new_user_name,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_user,
+        default_ox_context,
+        new_user_name,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     Modifications in UDM should be reflected in OX
@@ -235,12 +235,12 @@ def test_modify_group(
 
 
 def test_rename_user(
-    create_ox_user,
-    default_ox_context,
-    new_user_name,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_user,
+        default_ox_context,
+        new_user_name,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     Renaming user should keep User ID in groups member list
@@ -257,11 +257,11 @@ def test_rename_user(
 
 
 def test_remove_user(
-    create_ox_user,
-    default_ox_context,
-    new_group_name,
-    udm,
-    wait_for_listener,
+        create_ox_user,
+        default_ox_context,
+        new_group_name,
+        udm,
+        wait_for_listener,
 ):
     """
     Deleting one user from group should remove him from groups member list
@@ -283,13 +283,13 @@ def test_remove_user(
 
 
 def test_remove_group(
-    create_ox_context,
-    create_ox_user,
-    default_ox_context,
-    new_group_name,
-    udm,
-    ox_host,
-    wait_for_listener,
+        create_ox_context,
+        create_ox_user,
+        default_ox_context,
+        new_group_name,
+        udm,
+        ox_host,
+        wait_for_listener,
 ):
     """
     Deleting a group should delete it from all contexts
@@ -304,3 +304,62 @@ def test_remove_group(
     wait_for_listener(dn)
     find_obj(default_ox_context, new_group_name, assert_empty=True)
     find_obj(new_context_id, new_group_name, assert_empty=True)
+
+
+def test_remove_last_member_of_group_two_members(
+        create_ox_user,
+        default_ox_context,
+        new_group_name,
+        udm,
+        wait_for_listener,
+):
+    """
+    Removing the last member of a group should remove the group from the context,
+    with two members
+    Ticket: https://git.knut.univention.de/univention/open-xchange/provisioning
+    /-/issues/29
+    """
+    # Create a group with two users
+    user_dn1 = create_ox_user().dn
+    user_dn2 = create_ox_user().dn
+    group_dn = create_obj(udm, new_group_name, [user_dn1, user_dn2])
+    wait_for_listener(group_dn)
+    group = find_obj(default_ox_context, new_group_name)
+    assert len(group.members) == 2
+
+    # Remove a user
+    udm.remove("users/user", user_dn1)
+    wait_for_listener(group_dn)
+    updated_group = find_obj(default_ox_context, new_group_name)
+    assert len(updated_group.members) == 1
+
+    # Remove another user, this should as well remove the group
+    udm.remove("users/user", user_dn2)
+    wait_for_listener(group_dn)
+    find_obj(default_ox_context, new_group_name, assert_empty=True)
+
+
+def test_remove_last_member_of_group_one_member(
+        create_ox_user,
+        default_ox_context,
+        new_group_name,
+        udm,
+        wait_for_listener,
+):
+    """
+    Removing the last member of a group should remove the group from the context,
+    with one member
+    Ticket: https://git.knut.univention.de/univention/open-xchange/provisioning
+    /-/issues/29
+    """
+    # Create a group with one user
+    user_dn1 = create_ox_user().dn
+    group_dn = create_obj(udm, new_group_name, [user_dn1])
+    wait_for_listener(group_dn)
+    group = find_obj(default_ox_context, new_group_name)
+    assert len(group.members) == 1
+
+    # Remove the user, this should as well remove the group
+    udm.remove("users/user", user_dn1)
+    wait_for_listener(group_dn)
+    find_obj(default_ox_context, new_group_name, assert_empty=True)
