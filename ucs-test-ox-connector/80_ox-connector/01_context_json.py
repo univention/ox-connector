@@ -1,4 +1,7 @@
 #!/usr/share/ucs-test/runner pytest-3 -s -l -vv
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2023 Univention GmbH
+
 ## desc: Check context.json file
 ## tags: [apptest]
 ## roles: []

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2023 Univention GmbH
+
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 

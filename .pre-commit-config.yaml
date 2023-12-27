@@ -1,8 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2023 Univention GmbH
+
 ---
 
 repos:
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
-    rev: "v4.4.0"
+    rev: "v4.5.0"
     hooks:
       - id: "check-added-large-files"
         name: "check for added large files"
@@ -24,7 +27,7 @@ repos:
         name: "trim trailing whitespace"
 
   - repo: "https://github.com/compilerla/conventional-pre-commit"
-    rev: "v2.4.0"
+    rev: "v3.0.0"
     hooks:
       - id: "conventional-pre-commit"
         stages: ["commit-msg"]
@@ -42,7 +45,7 @@ repos:
           - "--ignore=E203"
 
   - repo: "https://github.com/psf/black"
-    rev: "23.9.1"
+    rev: "23.12.1"
     hooks:
       - id: "black"
         args:
@@ -51,7 +54,7 @@ repos:
           - "--target-version=py311"
 
   - repo: "https://github.com/astral-sh/ruff-pre-commit"
-    rev: "v0.0.291"
+    rev: "v0.1.9"
     hooks:
       - id: "ruff"
         name: "ruff"
@@ -71,13 +74,13 @@ repos:
         name: "flake8"
 
   - repo: "https://github.com/pylint-dev/pylint"
-    rev: "v2.17.6"
+    rev: "v3.0.3"
     hooks:
       - id: "pylint"
         name: "pylint"
 
   - repo: "https://gitlab.com/univention/pre-commit-hooks/pre-commit-shell"
-    rev: "v1.0.6"
+    rev: "v1.0.6+uv1"
     hooks:
       - id: "shell-lint"
         name: "Shell Syntax Check"
@@ -85,7 +88,7 @@ repos:
           - "--enable=all"
 
   - repo: "https://github.com/hadolint/hadolint"
-    rev: "v2.12.0"
+    rev: "v2.12.1-beta"
     hooks:
       - id: "hadolint"
         name: "Lint Dockerfiles"
@@ -99,20 +102,27 @@ repos:
         name: "Validate docker-compose files"
 
   - repo: "https://github.com/gruntwork-io/pre-commit"
-    rev: "v0.1.22"
+    rev: "v0.1.23"
     hooks:
       - id: "helmlint"
         name: "helmlint"
 
   - repo: "https://github.com/norwoodj/helm-docs"
-    rev: "v1.11.2"
+    rev: "v1.12.0"
     hooks:
       - id: "helm-docs"
         name: "Helm Docs"
         args:
           - "--chart-search-root=helm"
           - "--template-files=README.md.gotmpl"
+        always_run: true
       - id: "helm-docs-built"
         name: "Helm Docs Built"
+
+  - repo: "https://git.knut.univention.de/univention/dist/pre-commit-hooks/addlicense"
+    rev: "v1.0.1"
+    hooks:
+      - id: "addlicense"
+        name: "Check or add license headers to files"
 
 ...
