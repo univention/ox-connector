@@ -5,8 +5,6 @@
 
 # Abort on nonzero exitstatus [-e]
 set -o errexit
-# Abort on unbound variable [-u]
-set -o nounset
 # Don't hide errors within pipes
 set -o pipefail
 
