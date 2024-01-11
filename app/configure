@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Abort on nonzero exitstatus [-e]
 set -o errexit
