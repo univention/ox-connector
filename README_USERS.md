@@ -1,4 +1,4 @@
-# OX Provisioning App
+# OX Connector App
 
 **APP VERSION 2.2.8**
 **OX VERSION 7.10.6**
@@ -172,7 +172,7 @@ If you feel confident with the results, run the `python` command above again. Th
 
 ## Caveats
 
-* Installing the OX Provisioning App alongside Open Xchange in the same UCS domain may cause problems and/or confusion due to UDM modules being double registered
+* Installing the OX Connector App alongside Open Xchange in the same UCS domain may cause problems and/or confusion due to UDM modules being double registered
 * Groups and Functional accounts have an implicit context id. It depends on the users they include. If a user enters or leaves a group or if they change their context, this may have an impact on their groups and accounts. While groups are synced after such a change, Functional accounts are not! In order to correct things after such an event, you would need to resync the account. See the [Queue Tooling](#resync-of-one-specific-udm-object) section. Any manual change on the UDM object also works.
 
 # Troubleshooting
@@ -185,7 +185,7 @@ The App logs to this file (the file is log rotated)
 
 ## When the provisioning stops working
 
-This is likely caused by a previous change in UDM that just cannot be processed. In this case the Provisioning App does not know what to do and will just retry this one action over and over again until the problem is fixed.
+This is likely caused by a previous change in UDM that just cannot be processed. In this case the OX Connector App does not know what to do and will just retry this one action over and over again until the problem is fixed.
 
 You should find hints in the log file above. If this is not a temporary problem (network connection to the OX server is disrupted), you may have to take manual actions.
 

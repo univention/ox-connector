@@ -1,4 +1,4 @@
-# OX Provisioning App
+# OX Connector App
 
 A provisioning App that connects UCS' IDM with OX' database. This is done via the App Center's listener integration and OX' SOAP API.
 
