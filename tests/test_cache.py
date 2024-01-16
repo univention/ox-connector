@@ -76,12 +76,19 @@ def find_obj(context_id, name, assert_empty=False, print_obj=True) -> User:
         return obj
 
 
-def get_db_id(dn: str) -> str:
+def get_db_id(dn: str, max_retry: int=5) -> str:
     """
     Tests existance of an old JSON file
     Returns the oxDbId (if any)
     """
-    old_file_path = mapping.get(dn)
+    for i in range(max_retry):
+        try:
+            old_file_path = mapping.get(dn)
+        except Exception as e:
+            time.sleep(1)
+            if i < max_retry - 1: continue
+            else: raise e
+        break
     if old_file_path is None:
         return None
     with open(old_file_path) as fd:
