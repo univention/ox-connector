@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.3](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.2...v0.6.3) (2024-01-16)
+
+
+### Bug Fixes
+
+* **functional_account:** Correct escape sequence '\w' ([94b2f2c](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/94b2f2c059d84821b95d874601e4e3eb70faae73))
+* **functional_account:** Replace undefined variable 'INVALID_FORMAT_ERR_MSG' ([045595b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/045595bc81e70f9cd6e203a8f8f054232425268d))
+
 ## [0.6.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.1...v0.6.2) (2024-01-16)
 
 
