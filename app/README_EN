@@ -1,5 +1,5 @@
 <p>
-	The OX Connector App was successfully installed on your system.
+	The OX Connector app was successfully installed on your system.
 </p>
 <p>
 	The following UDM objects will be synchronized to the configured OX system:
@@ -22,14 +22,14 @@ Users and groups need to be explicitly enabled, otherwise they will not be synch
 <p>
 </p>
 <p>
-	The OX Connector App expects to manage the OX Contexts. For contexts that were already in place before the OX Connector took over, the following needs to be done for every context: The context admin has to be named &quot;oxadmin-context<i>$id</i>&quot; and the password has be written into <i>/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context<i>$id</i></i>. One exception is the default context, where the context admin name is &quot;oxadmin&quot;. This is what the App would do and what the App expects.
+	The OX Connector app expects to manage the OX Contexts. For contexts that were already in place before the OX Connector took over, the following needs to be done for every context: The context admin has to be named &quot;oxadmin-context<i>$id</i>&quot; and the password has be written into <i>/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context<i>$id</i></i>. One exception is the default context, where the context admin name is &quot;oxadmin&quot;. This is what the app would do and what the app expects.
 </p>
 <p>
-	A default context can be configured in the App Settings, used for new users and new resources. The App does not create that context automatically, though.
+	A default context can be configured in the app settings, used for new users and new resources. The app does not create that context automatically, though.
 </p>
 <p>
 	A user template is added that can (and should) be used for new users that shall be in OX. This template also holds the information about the default context. Should you need to change it, you would want change it in the template, too.
 </p>
 <p>
-	The log file  <i>/var/log/univention/listener_modules/ox-connector.log </i>should contain every information you need, should the provisioning stop working. The data files on which the App works are located here: <i>/var/lib/univention-appcenter/apps/ox-connector/data/listener/</i>.
+	The log file  <i>/var/log/univention/listener_modules/ox-connector.log </i>should contain every information you need, should the provisioning stop working. The data files on which the app works are located here: <i>/var/lib/univention-appcenter/apps/ox-connector/data/listener/</i>.
 </p>
