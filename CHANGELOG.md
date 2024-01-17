@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.3...v0.6.4) (2024-01-17)
+
+
+### Bug Fixes
+
+* **tests:** fix wait-for-listener timing issues ([805b4bd](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/805b4bd3aa9d79c938b93bf7c7fb196ceb9a1225))
+
 ## [0.6.3](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.2...v0.6.3) (2024-01-16)
 
 
