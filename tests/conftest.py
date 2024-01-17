@@ -59,7 +59,7 @@ def wait_for_listener(truncate_wait_for_listener_log):
                 if pos == pos_new:
                     time.sleep(0.1)
                 pos = pos_new
-
+        time.sleep(1)
     return _wait_for_dn
 
 
