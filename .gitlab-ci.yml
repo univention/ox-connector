@@ -2,12 +2,11 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 ---
-
 include:
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.16.1"
+    ref: "v1.16.2"
     file:
       - "defaults/stages.yaml"
       - "defaults/souvap-workflow.yaml"
@@ -20,6 +19,7 @@ include:
 
 workflow:
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_OPEN_MERGE_REQUESTS'
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED == "true"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
@@ -152,5 +152,5 @@ check-debian-updates:
   parallel:
     matrix: *publish-matrix
   variables:
-    TARGET_IMAGE: "${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:latest"
+    TARGET_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone:latest"
 ...
