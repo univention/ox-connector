@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.4...v0.7.0) (2024-01-18)
+
+
+### Features
+
+* **ci:** add debian update check jobs for scheduled pipeline ([93eccd0](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/93eccd0a17b5e67558b696b57a5f872f34d3030f))
+* **ci:** add debian update check jobs for scheduled pipeline ([9121c20](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/9121c2012414c7a81e1afd2718edbdacd2ee9959))
+
 ## [0.6.4](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.3...v0.6.4) (2024-01-17)
 
 
