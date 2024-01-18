@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.7.0...v0.7.1) (2024-01-18)
+
+
+### Bug Fixes
+
+* **docker/standalone:** update ucs-base from 5.0-5 to 5.0-6 ([e39e3b6](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/e39e3b6c311cfffd315ddbeb2eb9f8405cc7bb5e))
+
 ## [0.7.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.6.4...v0.7.0) (2024-01-18)
 
 
