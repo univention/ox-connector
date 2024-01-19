@@ -110,6 +110,31 @@ If the ox-connector is working:
 
    {'errors': '0'}
 
+The script `get_current_error.py` can easily be integrated into a Nagios plugin script, as shown in the following example:
+
+.. code-block:: bash
+    #!/bin/bash
+
+    nagiosCheck () {
+        result=$(/var/lib/univention-appcenter/apps/ox-connector/data/resources/get_current_error.py)
+        status=$(echo ${result} | jq ' if .errors == "0" then 0 else 1 end')
+
+        case $status in
+        0)
+            echo "OK: No errors found."
+            exit 0
+            ;;
+        1)
+            error_msg=$(echo ${result} | jq ' .message ')
+            error_file=$(echo ${result} | jq ' .filename ')
+            echo "WARNING: ${error_msg}. This error is caused by the listener file ${error_file}"
+            exit 1
+            ;;
+        esac
+    }
+
+    nagiosCheck
+
 
 .. _provision-stopped:
 
