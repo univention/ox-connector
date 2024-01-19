@@ -290,7 +290,7 @@ App Settings
         - String
         - N/A
 
-    .. note::
+   .. note::
 
          Only a UDM user property that contains a **single value** which is **not None** is a valid option. In case a UDM user property
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
@@ -314,7 +314,7 @@ App Settings
         - String
         - N/A
 
-    .. note::
+   .. note::
 
          Only a UDM group property that contains a **single value** which is **not None** is a valid option. In case a UDM group property
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs

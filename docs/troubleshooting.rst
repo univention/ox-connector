@@ -90,7 +90,7 @@ Such entries indicate that the provisioning has issues with processing the
 queue. For more information, see :ref:`trouble-queue`.
 
 You can use the script `get_current_error.py` to automate the health check
-on your prefered monitoring system.
+on your preferred monitoring system.
 
 .. code-block:: console
 
@@ -113,6 +113,7 @@ If the ox-connector is working:
 The script `get_current_error.py` can easily be integrated into a Nagios plugin script, as shown in the following example:
 
 .. code-block:: bash
+
     #!/bin/bash
 
     nagiosCheck () {
@@ -402,14 +403,14 @@ values, the script can detect and report inconsistencies between the OX database
 
 .. note::
 
-   /oxp # ./check_sync_status.py --help
+   `./check_sync_status.py --help`
 
   --dn DN               Check the object with the specified dn
   --udm_module UDM_MODULE
                         Object's udm module. Required if the property is missing in the old/ directory object.
   --ox_context OX_CONTEXT
                         Object's ox context. Required if the property is missing in the old/ directory object.
-  --resync              Resync object data by creating a new file in the listener. Resynchronizing groups will only work if its users are correctly provisioned.
+  --resync              Re-sync object data by creating a new file in the listener. Re-synchronizing groups will only work if its users are correctly provisioned.
   --udm_admin_account UDM_ADMIN_ACCOUNT
                         Udm user used for connection.
   --udm_password_file UDM_PASSWORD_FILE
