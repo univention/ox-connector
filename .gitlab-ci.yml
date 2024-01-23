@@ -33,7 +33,6 @@ variables:
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: "noninteractive"
   UNIVENTION_BASECONF: "/dev/null"
-  DOC_TARGET_NAME: "ox-connector-app"
   SOUVAP_HELM_PROJECT_ID: "128"
 
 .build-matrix: &build-matrix
@@ -106,8 +105,9 @@ container-sign-souvap:
 
 # Uses APPCENTER_VERSION internally
 trigger-docs:
-  stage: "trigger"
-  when: "manual"
+  stage: "build"
+  variables:
+    DOC_TARGET_NAME: "ox-connector-app"
   trigger:
     strategy: "depend"
     include:
@@ -115,16 +115,19 @@ trigger-docs:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: "never"
-    - changes:
-        - "$DOCS_DIR/**/*"
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       variables:
         DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+        DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOCKER_BUILD_VERSION}"
+      changes:
+        - "$DOCS_DIR/**/*"
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
         DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
-  variables:
-    DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOCKER_BUILD_VERSION}"
+        DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOCKER_BUILD_VERSION}"
+      changes:
+        - "$DOCS_DIR/**/*"
+      when: "manual"
 
 upload-docker-image:
   stage: "publish"
