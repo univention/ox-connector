@@ -80,7 +80,7 @@ echo "Building docker image..."
 if [[ "${RELEASE}" = 1 ]]; then
   BUILD_ARGS="--no-cache"
 fi
-docker build "${PROXY_ARGS}" "${BUILD_ARGS}" --target=test --build-arg version="${APP_VERSION}" -t "${APP_IMG}" .
+docker build ${PROXY_ARGS} ${BUILD_ARGS} --target=test --build-arg version="${APP_VERSION}" -t "${APP_IMG}" .
 
 echo "Local Docker images:"
 docker images "${APP_IMG_NO_VERSION}"

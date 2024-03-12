@@ -44,7 +44,7 @@ def read_version_from_ci() -> str:
     with open("../.gitlab-ci.yml", "r") as f:
         ci = yaml.safe_load(f)
         return ci.get(
-            "variables", {"APPCENTER_VERSION": "2.2.8"},
+            "variables", {"APPCENTER_VERSION": "2.2.9"},
         ).get("APPCENTER_VERSION")
 
 
@@ -165,5 +165,6 @@ git_untracked_show_sourcelink = True
 univention_feedback = True
 # Information about the license statement for the source files
 univention_pdf_show_source_license = True
-
 univention_doc_basename = "ox-connector-app"
+sitemap_url_scheme = "{link}"
+html_baseurl = f"https://docs.software-univention.de/{univention_doc_basename}/{release}/"

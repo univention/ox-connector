@@ -250,7 +250,7 @@ App Settings
         If the UCS OX App Suite is used, this app setting can be left empty, which is equivalent to using the
         value ``{{fa_entry_uuid}}{{username}}``.
 
-        OX-Connector installations that previously only used the functional account entry UUID should configure
+        OX Connector installations that previously only used the functional account entry UUID should configure
         this app setting to ``{{fa_entry_uuid}}``.
 
         Some examples:
@@ -350,3 +350,126 @@ App Settings
       Changing the value of the app setting :envvar:`DEFAULT_CONTEXT` does
       **neither** change :envvar:`ox/context/id` **nor** the extended attribute
       ``oxContext``.
+
+
+User Attribute Mapping
+======================
+
+Since version 2.2.9, it is possible to modify the mapping between `OX` and `UDM` properties using
+the script `change_attribute_mapping.py` provided with the app. The script creates a json file
+that stores information about the OX properties and other information useful for the user provisioning.
+This file is not intended to be modified manually, but with the script. It is located
+in :file:`/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json`. If this file does
+not exist, the OX Connector will use the default mapping defined in
+:file:`/usr/lib/python3.9/site-packages/univention/ox/provisioning/default_user_mapping.py` inside the container.
+
+The tool allows three operations:
+
+modify
+  performs operations that change the current mapping.
+
+restore_default
+  restores the default mapping.
+
+dump
+  writes to console the current json mapping.
+
+
+With the *modify* operation, the following operations are allowed:
+
+set
+  Changes the UDM property used for an OX property provisioning.
+
+  .. code-block:: console
+    :caption: Sets the mapping of the OX property ``userfield01`` to the UDM property ``description``.
+
+    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --set userfield01 description
+
+  It is possible to use the --set arguments multiple times in the same invocation
+
+  .. code-block:: console
+    :caption: Sets the mapping of the OX properties ``userfield01`` and ``given_name`` to the UDM properties ``description`` and ``custom_attribute``.
+
+    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --set userfield01 description --set given_name custom_attribute
+
+
+unset
+  Removes the OX property from the mapping if it is not marked as required. It can be used to remove properties from the synchronization.
+
+  .. code-block:: console
+    :caption: Unset the OX property ``userfield01``. It won't be used in the provisioning.
+
+    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --unset userfield01
+
+set_alternatives
+  Sets alternative UDM properties used for the synchronization if the main one is `None`
+
+  .. code-block:: console
+    :caption: Set the theoretical attributes ``CustomAttributeUserMail`` and ``CustomAttributeUserMail2`` as alternatives to the OX property ``email1``.
+
+    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --set_alternatives email1 CustomAttributeUserMail CustomAttributeUserMail2
+
+
+unset_alternatives
+  Unset the current alternatives for an OX property
+
+  .. code-block:: console
+    :caption: Unset the alternative attributes to the OX property ``email1``.
+
+    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --unset_alternatives email1
+
+
+If you were previously using the attribute mapping feature of the
+OX App Suite app from the App Center, it can be migrated by executing
+the following command on the server where the OX App Suite is
+installed. The output of the script is the command to be executed
+on the server where the OX Connector is running.
+
+.. code-block:: console
+
+  python3 <<EOF
+    from univention.config_registry import ConfigRegistry
+    ucr = ConfigRegistry()
+    ucr.load()
+
+    changed_mapping_single = {
+      'displayname': 'display_name',
+      'givenmame': 'given_name',
+      'surname': 'sur_name',
+      'categories': 'employee_type',
+      'quota': 'max_quota',
+      }
+
+    changed_mapping_multi = {
+      'telephone_business': ['telephone_business1', 'telephone_business2'],
+      'telephone_home': ['telephone_home1', 'telephone_home2'],
+    }
+
+
+    ucr_ldap2ox = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2ox', '').strip()
+    ucr_ldap2oxmulti = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2oxmulti', '').strip()
+    command = []
+    if ucr_ldap2ox:
+      for entry in ucr_ldap2ox.split():
+        value, key = entry.split(':', 1)
+        if value is None:
+          command.append(f"--unset {changed_mapping_single.get(key, key)}")
+        else:
+          command.append(f"--set {changed_mapping_single.get(key, key)} {value}")
+
+    if ucr_ldap2oxmulti:
+      ldap2oxmulti = {}
+      for entry in ucr_ldap2oxmulti.split():
+        value, key = entry.split(':', 1)
+        if value is None:
+          for v in changed_mapping_multi.get(key, [key]):
+            command.append(f"--unset {v}")
+        else:
+          for v in changed_mapping_multi.get(key, [key]):
+            command.append(f"--set {v} {value}")
+    if command:
+      print("Run the following command on the ox-connector server to update attribute mapping:")
+      print("python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify " + " ".join(command))
+    else:
+      print("Nothing to do.")
+  EOF

@@ -28,6 +28,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
+import json
 import datetime
 import logging
 from copy import deepcopy
@@ -36,6 +37,7 @@ import imghdr
 import base64
 
 import univention.ox.provisioning.helpers
+from univention.ox.provisioning.default_user_mapping import DEFAULT_USER_MAPPING
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
@@ -93,6 +95,91 @@ def get_user_username(user):
         return user.attributes.get(USER_IDENTIFIER)
 
 
+def get_user_mapping():
+    try:
+        with open('/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json', 'r') as fd:
+            return json.loads(fd.read())
+    except (OSError, ValueError, IOError):
+        logger.info("Using default user attribute mapping")
+        return DEFAULT_USER_MAPPING
+
+
+def set_ox_property(user, ox_property, mapping, attributes):
+    key = mapping.get("ldap_attribute")
+    special_handling = mapping.get("special_handling")
+    alternative_attributes = mapping.get("alternative_attributes")
+
+    def image_attibute(x):
+        if x:
+            byte_image = base64.b64decode(x.encode('utf8'))
+            content_type = imghdr.what(None, h=byte_image)
+            if content_type == 'jpeg':
+                content_type = 'image/jpeg'
+            else:
+                logger.warn(f"We only support jpeg images. Found {content_type!r}. Ignoring image...")
+                content_type = None
+            if content_type:
+                setattr(user, ox_property+"ContentType", content_type)
+
+        else:
+            setattr(user, ox_property+"ContentType", "")
+        return val
+
+    def imap_server(x):
+        imap_url = urlparse(DEFAULT_IMAP_SERVER)
+        user.imap_port = imap_url.port  # 143
+        user.imap_schema = imap_url.scheme + "://"  # "imap://"
+        return x or imap_url.hostname
+
+    def smtp_server(x):
+        smtp_url = urlparse(DEFAULT_SMTP_SERVER)
+        user.smtp_port = smtp_url.port  # 587
+        user.smtp_schema = smtp_url.scheme + "://"  # "smtp://"
+        return x or smtp_url.hostname
+
+    def position_handle(x):
+        pos = mapping.get("position")
+        if x and pos:
+            if len(x) > pos:
+                return x[pos]
+            else:
+                return None
+        return x
+
+    def multivalue_handle(x):
+        return x[0] if not mapping.get("multi_value") and isinstance(x, list) and x else x
+
+    if not key:
+        logger.info(f"ox property {ox_property} unset")
+        return
+
+    val = attributes.get(key)
+
+    if not val and alternative_attributes:
+        for attr in alternative_attributes:
+            val = attributes.get(attr)
+            if val:
+                logger.info(f"Attribute {ox_property}. Using alternative ldap mapping {key} ...")
+                break
+
+    if not val and not mapping.get("nillable"):
+        logger.warn(f"Attribute {ox_property} is None.")
+
+    val = position_handle(val)
+    val = multivalue_handle(val)
+
+    handle =  {
+        "DATE" : lambda x: str2isodate(x) if x else None,
+        "IMAGE" : image_attibute,
+        "IMAP_URL" : imap_server,
+        "SMTP_URL" : smtp_server,
+    }
+
+    if special_handling != "DEFAULT":
+        val = handle[special_handling](val)
+
+    setattr(user, ox_property, val)
+
 def update_user(user, attributes, old_attributes, username, initial_values=False):
     old_user = None
     if user.id and not initial_values:
@@ -101,197 +188,41 @@ def update_user(user, attributes, old_attributes, username, initial_values=False
                 old_user = User.from_ox(get_context_id(old_attributes), obj_id=user.id)
             else:
                 old_user = User.from_ox(user.context_id, obj_id=user.id)
-        except:
+        except Exception:
             pass
+
     user.context_admin = False
     user.name = username
-    user.display_name = attributes.get("oxDisplayName") or attributes.get("displayName")
     user.password = "dummy"
-    user.given_name = attributes.get("firstname")
-    user.sur_name = attributes.get("lastname")
-    user.email1 = attributes.get("mailPrimaryAddress")
+    user.gui_spam_filter_enabled = True
+
+    attribute_mapping = get_user_mapping()
+    for ox_property, mapping in attribute_mapping.items():
+        set_ox_property(user, ox_property, mapping, attributes)
+
+
     user.primary_email = user.email1
-    aliases = [user.email1] + attributes.get("mailAlternativeAddress", [])
-    user.aliases = aliases
+    user.aliases = [user.email1] + (user.aliases or [])
+    user.imap_login = IMAP_LOGIN.format(user.email1) if "{}" in IMAP_LOGIN else IMAP_LOGIN
     if old_user:
         user.default_sender_address = old_user.default_sender_address
     else:
         user.default_sender_address = user.primary_email
-    if user.default_sender_address not in aliases:
+    if user.default_sender_address not in user.aliases:
         # The SOAP API will fail if the value of the default_sender_address is not one
         # of all the user's email addresses. Make sure we comply with this requirement
         user.default_sender_address = user.primary_email
-    # user.assistant_name = attributes.get()
-    user.branches = attributes.get("oxBranches")
-    # user.business_category = attributes.get()
-    # user.categories = attributes.get()
-    user.cellular_telephone1 = attributes.get("oxMobileBusiness")
-    user.city_business = attributes.get("city")
-    user.city_home = attributes.get("oxCityHome")
-    user.city_other = attributes.get("oxCityOther")
-    user.commercial_register = attributes.get("oxCommercialRegister")
-    user.company = attributes.get("organisation")
-    user.country_business = attributes.get("oxCountryBusiness")
-    user.country_home = attributes.get("oxCountryHome")
-    user.country_other = attributes.get("oxCountryOther")
-    # user.drive_user_folder_mode = attributes.get()
-    # user.default_group = attributes.get()
-    user.department = attributes.get("oxDepartment")
-    user.imap_login = IMAP_LOGIN.format(user.email1) if "{}" in IMAP_LOGIN else IMAP_LOGIN
-    user.email2 = attributes.get("oxEmail2")
-    user.email3 = attributes.get("oxEmail3")
-    user.employee_type = attributes.get("employeeType")
-    user.fax_business = attributes.get("oxFaxBusiness")
-    user.fax_home = attributes.get("oxFaxHome")
-    user.fax_other = attributes.get("oxFaxOther")
-    # user.filestore_id = attributes.get()
-    # user.filestore_name = attributes.get()
-    # user.folder_tree = attributes.get()
-    # user.gui_preferences_for_soap = attributes.get()
-    user.gui_spam_filter_enabled = True
-    # user.info = attributes.get()
-    user.instant_messenger1 = attributes.get("oxInstantMessenger1")
-    user.instant_messenger2 = attributes.get("oxInstantMessenger2")
+
     if initial_values:
         user.language = DEFAULT_LANGUAGE
-    # user.mail_folder_confirmed_ham_name = attributes.get()
-    # user.mail_folder_confirmed_spam_name = attributes.get()
-    # user.mail_folder_drafts_name = attributes.get()
-    # user.mail_folder_sent_name = attributes.get()
-    # user.mail_folder_spam_name = attributes.get()
-    # user.mail_folder_trash_name = attributes.get()
-    # user.mail_folder_archive_full_name = attributes.get()
-    user.manager_name = attributes.get("oxManagerName")
-    user.marital_status = attributes.get("oxMarialStatus")
-    user.middle_name = attributes.get("oxMiddleName")
-    user.nickname = attributes.get("oxNickName")
-    user.note = attributes.get("oxNote")
-    user.number_of_children = attributes.get("oxNumOfChildren")
-    user.number_of_employee = attributes.get("employeeNumber")
-    # user.password_mech = attributes.get()
-    # user.password_expired = attributes.get()
-    user.position = attributes.get("oxPosition")
-    user.postal_code_business = attributes.get("postcode")
-    user.postal_code_home = attributes.get("oxPostalCodeHome")
-    user.postal_code_other = attributes.get("oxPostalCodeOther")
-    user.profession = attributes.get("oxProfession")
-    user.sales_volume = attributes.get("oxSalesVolume")
-    user.spouse_name = attributes.get("oxSpouseName")
-    user.state_business = attributes.get("oxStateBusiness")
-    user.state_home = attributes.get("oxStateHome")
-    user.state_other = attributes.get("oxStateOther")
-    user.street_business = attributes.get("street")
-    user.street_home = attributes.get("oxStreetHome")
-    user.street_other = attributes.get("oxStreetOther")
-    user.suffix = attributes.get("oxSuffix")
-    user.tax_id = attributes.get("oxTaxId")
-    user.telephone_assistant = attributes.get("oxTelephoneAssistant")
-    # user.telephone_callback = attributes.get()
-    user.telephone_car = attributes.get("oxTelephoneCar")
-    user.telephone_company = attributes.get("oxTelephoneCompany")
-    user.telephone_ip = attributes.get("oxTelephoneIp")
-    # user.telephone_isdn = attributes.get()
-    user.telephone_other = attributes.get("oxTelephoneOther")
-    # user.telephone_primary = attributes.get()
-    # user.telephone_radio = attributes.get()
-    user.telephone_telex = attributes.get("oxTelephoneTelex")
-    user.telephone_ttytdd = attributes.get("oxTelephoneTtydd")
     if initial_values:
         user.timezone = LOCAL_TIMEZONE
-    user.title = attributes.get("title")
-    # user.upload_file_size_limit = attributes.get()
-    # user.upload_file_size_limitPerFile = attributes.get()
-    user.url = attributes.get("oxUrl")
-    user.used_quota = attributes.get("oxUserQuota")  # TODO: or max_quota?
-    user.max_quota = attributes.get("oxUserQuota")  # TODO: or used_quota?
-    # user.user_attributes = attributes.get()
-    user.userfield01 = attributes.get("oxUserfield01")
-    user.userfield02 = attributes.get("oxUserfield02")
-    user.userfield03 = attributes.get("oxUserfield03")
-    user.userfield04 = attributes.get("oxUserfield04")
-    user.userfield05 = attributes.get("oxUserfield05")
-    user.userfield06 = attributes.get("oxUserfield06")
-    user.userfield07 = attributes.get("oxUserfield07")
-    user.userfield08 = attributes.get("oxUserfield08")
-    user.userfield09 = attributes.get("oxUserfield09")
-    user.userfield10 = attributes.get("oxUserfield10")
-    user.userfield11 = attributes.get("oxUserfield11")
-    user.userfield12 = attributes.get("oxUserfield12")
-    user.userfield13 = attributes.get("oxUserfield13")
-    user.userfield14 = attributes.get("oxUserfield14")
-    user.userfield15 = attributes.get("oxUserfield15")
-    user.userfield16 = attributes.get("oxUserfield16")
-    user.userfield17 = attributes.get("oxUserfield17")
-    user.userfield18 = attributes.get("oxUserfield18")
-    user.userfield19 = attributes.get("oxUserfield19")
-    user.userfield20 = attributes.get("oxUserfield20")
-    if attributes.get("jpegPhoto"):
-        byte_image = base64.b64decode(attributes.get("jpegPhoto").encode('utf8'))
-        content_type = imghdr.what(None, h=byte_image)
-        if content_type == 'jpeg':
-            content_type = 'image/jpeg'
-        else:
-            logger.warn(f"We only support jpeg images. Found {content_type!r}. Ignoring image...")
-            content_type = None
-        if content_type:
-            user.image1 = byte_image
-            user.image1ContentType = content_type
-    else:
-        user.image1 = b""
-        user.image1ContentType = ""
-    # user.primary_account_name = attributes.get()
-    # user.convert_drive_user_folders = attributes.get()
-    if attributes.get("roomNumber"):
-        user.room_number = attributes.get("roomNumber")[0]
-    else:
-        user.room_number = None
-    if attributes.get("mobileTelephoneNumber"):
-        user.cellular_telephone2 = attributes.get("mobileTelephoneNumber")[0]
-    else:
-        user.cellular_telephone2 = None
-    if attributes.get("pagerTelephoneNumber"):
-        user.telephone_pager = attributes.get("pagerTelephoneNumber")[0]
-    else:
-        user.telephone_pager = None
-    if attributes.get("oxAnniversary"):
-        user.anniversary = str2isodate(attributes.get("oxAnniversary"))
-    else:
-        user.anniversary = None
-    if attributes.get("birthday"):
-        user.birthday = str2isodate(attributes.get("birthday"))
-    else:
-        user.birthday = None
-    if len(attributes.get("phone", [])) >= 1:
-        user.telephone_business1 = attributes.get("phone")[0]
-    else:
-        user.telephone_business1 = None
-    if len(attributes.get("phone", [])) >= 2:
-        user.telephone_business2 = attributes.get("phone")[1]
-    else:
-        user.telephone_business2 = None
-    if len(attributes.get("homeTelephoneNumber", [])) >= 1:
-        user.telephone_home1 = attributes.get("homeTelephoneNumber")[0]
-    else:
-        user.telephone_home1 = None
-    if len(attributes.get("homeTelephoneNumber", [])) >= 2:
-        user.telephone_home2 = attributes.get("homeTelephoneNumber")[1]
-    else:
-        user.telephone_home2 = None
+
     if attributes.get("oxAccess", "none") != "none":
         user.mail_enabled = True
     else:
         user.mail_enabled = False
 
-    imap_url = urlparse(DEFAULT_IMAP_SERVER)
-    user.imap_port = imap_url.port  # 143
-    user.imap_schema = imap_url.scheme + "://"  # "imap://"
-    user.imap_server = attributes.get("mailHomeServer", imap_url.hostname)
-    # user.imap_server_string = attributes.get()
-    smtp_url = urlparse(DEFAULT_SMTP_SERVER)
-    user.smtp_port = smtp_url.port  # 587
-    user.smtp_schema = smtp_url.scheme + "://"  # "smtp://"
-    user.smtp_server = attributes.get("mailHomeServer", smtp_url.hostname)
-    # user.smtp_server_string = attributes.get()
 
 
 def set_user_rights(user, obj):
