@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.7.1...v0.8.0) (2024-04-12)
+
+
+### Features
+
+* add attribute mapping configuration to user sync ([c3997e5](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/c3997e5361580ad3984893268fcc14378a5b9138)), closes [#55861](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/55861)
+
 ## [0.7.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.7.0...v0.7.1) (2024-01-18)
 
 
