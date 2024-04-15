@@ -28,7 +28,6 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import asyncio
 import dbm.gnu
 import glob
 import json

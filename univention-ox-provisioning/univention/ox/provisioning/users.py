@@ -310,24 +310,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
         if group_obj.attributes.get("isOxGroup", "Not") == "Not":
             logger.warning(f"{group} is no OX group. Skipping...")
             continue
-        groupname = group_obj.attributes.get("name")
-        group = get_obj_by_name_from_ox(Group, user.context_id, groupname)
-        if not group:
-            logger.info(
-                f"Group {groupname} does not yet exist in {user.context_id}. Creating...",
-            )
-            group = Group(
-                context_id=user.context_id,
-                name=groupname,
-                display_name=groupname,
-                members=[user.id],
-            )
-            group.create()
-        else:
-            logger.info(f"Adding {user.id} to the members of {groupname}")
-            if user.id not in group.members:
-                group.members.append(user.id)
-                group.modify()
+        univention.ox.provisioning.helpers.update_group_queue(group_obj.entry_uuid)
 
 
 def modify_user(obj):
@@ -382,7 +365,12 @@ def modify_user(obj):
     else:
         logger.info(f"{obj} has no old data. Resync?")
         user = user_from_attributes(obj.attributes, None, get_user_username(obj), user_id)
-    user.modify()
+    try:
+        user.modify()
+    except Exception as exc:
+        if str(exc).startswith("No such "):
+            logger.info(f"Cannot modify {obj}. User not found in db. Creating instead.")
+            user.create()
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)

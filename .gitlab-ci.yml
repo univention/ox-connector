@@ -26,7 +26,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "webide"'
 
 variables:
-  APPCENTER_VERSION: "2.2.9"
+  APPCENTER_VERSION: "2.2.10"
 
   # Variables for sphinx-docs
   DOCS_DIR: "docs"

@@ -63,6 +63,8 @@ RUN export OX_PROVISIONING_VERSION="$version" &&\
   python3 -c "from univention.ox.soap.backend_base import get_ox_integration_class" && \
   rm -rf /tmp/*
 
+#RUN apk add py-spy  --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
 COPY app/listener_trigger /tmp/app/
 COPY tests /tmp/tests

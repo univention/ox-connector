@@ -32,8 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import get_context_id, get_db_id, get_db_username, get_obj_by_name_from_ox
-from univention.ox.provisioning.users import get_user_id
+from univention.ox.provisioning.helpers import get_db_id, get_obj_by_name_from_ox
 from univention.ox.soap.config import GROUP_IDENTIFIER
 
 Group = get_ox_integration_class("SOAP", "Group")
@@ -65,12 +64,7 @@ def update_group(group, attributes, group_name):
     logger.info("Retrieving members...")
     for user in attributes.get("users"):
         try:
-            username = user[4:].split(",")[0]  # TODO: make this more elegant
-            user_attributes = {}
-            user_attributes["oxContext"] = get_context_id(attributes)
-            user_attributes["oxDbId"] = get_db_id(user)
-            user_attributes["username"] = get_db_username(user) or username
-            user_id = get_user_id(user_attributes, lookup_ox=False)
+            user_id = get_db_id(user)
             if user_id:
                 logger.info(f"... found {user_id}")
                 members.append(user_id)

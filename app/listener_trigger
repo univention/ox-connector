@@ -39,8 +39,11 @@ import sys
 import time
 import traceback
 import os
+import shutil
+from datetime import datetime
 from contextlib import contextmanager
 from pathlib import Path
+from collections import defaultdict
 
 from univention.ox.provisioning import helpers, run
 
@@ -67,12 +70,28 @@ def _get_old_object(distinguished_name):
     path_to_old_user = mapping.get(distinguished_name)
     if not path_to_old_user:
         return None
-    path_to_old_user = Path(path_to_old_user.decode("utf-8"))
+    path_to_old_user = Path(path_to_old_user)
     logger.info("Loading old object from %s", path_to_old_user)
     return object_from_path(path_to_old_user)
 
 
 helpers.get_old_obj = _get_old_object
+
+
+def _update_group_queue(entry_uuid):
+    if entry_uuid not in GROUP_EUUID:
+        file_name = f"{entry_uuid}.json"
+        file_path =  OLD_FILES_DIR / file_name
+        #Make a copy of old in the queue
+        timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
+        new_file_path = NEW_FILES_DIR / f"{timestamp}.json"
+        shutil.copy(str(file_path), str(new_file_path))
+        logger.info("Added %s to the listener queue as %s", file_path, new_file_path)
+        #Register it so it is processed later
+        GROUP_EUUID.add(entry_uuid)
+
+
+helpers.update_group_queue = _update_group_queue
 
 
 def load_from_json_file(path):
@@ -157,7 +176,6 @@ class TriggerObject(object):
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
         old_path = self.get_old_file_path()
-        logger.info("Looking for old data in %s", old_path)
         content = load_from_json_file(old_path)
         if content:
             self.old_distinguished_name = content["dn"]
@@ -227,37 +245,47 @@ class KeyValueStore(object):
 
     def __init__(self, name):
         self.db_fname = str(NEW_FILES_DIR / name)
+        self.data = {}
+        self.changes = set()
+        with self.open() as data_base:
+            for k in data_base.keys():
+                self.data[k.decode("UTF-8")] = data_base[k].decode("UTF-8")
 
     @contextmanager
-    def open(self):
+    def open(self, flags="cs"):
         """Open DBM-Database and yield the handler"""
-        with dbm.gnu.open(self.db_fname, "cs") as data_base:
+        with dbm.gnu.open(self.db_fname, flags) as data_base:
             yield data_base
 
     def set(self, distinguished_name, path):
         """Write item to DBM-Database"""
         if distinguished_name is None:
             return
-        with self.open() as data_base:
-            if path is None:
-                if distinguished_name in data_base:
-                    del data_base[distinguished_name]
-            else:
-                data_base[distinguished_name] = str(path)
+        if path is None:
+            self.data[distinguished_name] = None
+        else:
+            self.data[distinguished_name] = str(path)
+        self.changes.add(distinguished_name)
 
     def unset(self, distinguished_name):
         """Remove item from DBM-Database"""
         if distinguished_name is None:
             return
-        with self.open() as data_base:
-            if distinguished_name in data_base:
-                del data_base[distinguished_name]
+        self.data[distinguished_name] = None
+        self.changes.add(distinguished_name)
 
     def get(self, key):
         """Read value from DBM-Database"""
-        with self.open() as data_base:
-            return data_base.get(key)
+        return self.data.get(key)
 
+    def commit(self):
+        with self.open(flags="cs") as data_base:
+            for dn in self.changes:
+                v = self.data[dn]
+                if v:
+                    data_base[dn] = v
+                elif dn in data_base:
+                    del data_base[dn]
 
 meta = KeyValueStore(
     "meta.db"
@@ -279,6 +307,9 @@ def object_from_path(path):
     return obj
 
 
+GROUP_EUUID = set()
+
+
 def objects_from_files(delete_files=True, move_files=False):
     """
     Iterates over all JSON files and yields a TriggerObject. After the
@@ -288,7 +319,12 @@ def objects_from_files(delete_files=True, move_files=False):
     attributes)
     """
     objs = []
+    obj_dict = defaultdict(list)
+    num_files = len(os.listdir(str(NEW_FILES_DIR)))
+    curr = 1
     for path in sorted(NEW_FILES_DIR.glob("*.json")):
+        if not curr % 10000:
+            logger.info(f"file {curr} of {num_files}" )
         obj = object_from_path(path)
         if move_files:
             obj.load_old()
@@ -297,23 +333,46 @@ def objects_from_files(delete_files=True, move_files=False):
             # "listener cycle" => nothing happened
             path.unlink()
         else:
-            idx = 0
-            for _obj, _ in objs:
-                if obj.ordering(_obj):
-                    break
-                idx += 1
-            objs.insert(idx, (obj, path))
+            obj_dict[obj.object_type].append(path)
+            if obj.object_type == "groups/group":
+                GROUP_EUUID.add(obj.entry_uuid)
+        curr += 1
 
-    for obj, path in objs:
+
+    #The order here is important
+    ################################
+    #join obj_dict sorted.
+    #oxcontext removal should be done at the end.
+    removed_ctxs = []
+    for path in obj_dict["oxmail/oxcontext"]:
+        if obj.attributes is None:
+            obj_dict["removed_ctxs"].append(path)
+        else:
+            objs.append(path)
+
+    objs.extend(obj_dict["oxmail/accessprofile"])
+    objs.extend(obj_dict["users/user"])
+    objs.extend(obj_dict["groups/group"])
+    objs.extend(obj_dict["oxmail/functional_account"])
+    objs.extend(obj_dict["oxresources/oxresources"])
+    objs.extend(removed_ctxs)
+
+    ################################
+
+    for path in objs:
+        #load the file again because storing all of them in objs can result in out of memory errors when provisioning hundred of thousand objects
+        obj = object_from_path(path)
+        if move_files:
+            obj.load_old()
         yield obj
         if move_files:
-            mapping.set(obj.old_distinguished_name, None)
             old_file_path = obj.get_old_file_path()
             if old_file_path.exists():
                 old_file_path.unlink()
             if obj.was_deleted():
                 logger.info("Object was deleted. Deleting %s", path)
                 path.unlink()
+                mapping.set(obj.old_distinguished_name, None)
                 mapping.set(obj.distinguished_name, None)
             else:
                 logger.info("mv %s -> %s", path, old_file_path)
@@ -324,6 +383,8 @@ def objects_from_files(delete_files=True, move_files=False):
                         "... not done yet; enriching object by rewriting JSON file..."
                     )
                     obj.dump(old_file_path)
+                if obj.old_distinguished_name != obj.distinguished_name:
+                    mapping.set(obj.old_distinguished_name, None)
                 mapping.set(obj.distinguished_name, old_file_path)
         elif delete_files:
             logger.info("Deleting %s", path)
@@ -388,6 +449,8 @@ def main():
         files_seen = run_on_files(
             objs, run, pause_after_errors_num=3, pause_after_errors_length=0
         )
+        mapping.commit()
+        meta.commit()
         if files_seen <= 0:
             return -files_seen
     # never reached
