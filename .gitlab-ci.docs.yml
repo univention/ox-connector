@@ -62,6 +62,15 @@ docs-merge-to-one-artifact:
         - "$DOCS_DIR/**/*"
       when: "manual"
 
+docs-review:
+  extends: ".sphinx-review-template"
+  stage: "merge"
+  needs:
+    - job: "docs-merge-to-one-artifact"
+  rules:
+    - changes:
+      - "$DOCS_DIR/**/*"
+
 # The template has inherit:variables:false to prevent the passing of pipeline
 # variables to downstream, and therefore $DOCS_DIR is not available here.
 docs-create-production-merge-request:
