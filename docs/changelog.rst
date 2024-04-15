@@ -19,7 +19,10 @@ Released: 12. April 2024
 
 Added
 -----
-It is now possible to change the attribute mapping between OX and UCS via the script `change_attribute_mapping.py`.
+
+It's now possible to change the attribute mapping between Open-Xchange and UCS
+through the script :program:`change_attribute_mapping.py`.
+For more information, see :ref:`conf-user-attribute-mapping`.
 
 2.2.8
 =============

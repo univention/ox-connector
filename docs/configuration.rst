@@ -351,125 +351,167 @@ App Settings
       **neither** change :envvar:`ox/context/id` **nor** the extended attribute
       ``oxContext``.
 
+.. _conf-user-attribute-mapping:
 
-User Attribute Mapping
+User attribute mapping
 ======================
 
-Since version 2.2.9, it is possible to modify the mapping between `OX` and `UDM` properties using
-the script `change_attribute_mapping.py` provided with the app. The script creates a json file
-that stores information about the OX properties and other information useful for the user provisioning.
-This file is not intended to be modified manually, but with the script. It is located
-in :file:`/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json`. If this file does
-not exist, the OX Connector will use the default mapping defined in
-:file:`/usr/lib/python3.9/site-packages/univention/ox/provisioning/default_user_mapping.py` inside the container.
+.. versionadded:: 2.2.9
 
-The tool allows three operations:
+   Modify the mapping between *Open-Xchange* and *UDM* properties.
 
-modify
-  performs operations that change the current mapping.
+Since version 2.2.9, you can modify the mapping
+between *Open-Xchange* and *UDM* properties
+using the script :program:`change_attribute_mapping.py` provided with the app.
+The script creates a JSON file
+that stores information about the Open-Xchange properties
+and other information useful for user provisioning.
 
-restore_default
-  restores the default mapping.
+Don't modify the file manually, but only with the script.
+The JSON file locates at
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json`.
+If the file doesn't exist,
+the OX Connector uses the default mapping defined in
+:file:`/usr/lib/python3.9/site-packages/univention/ox/provisioning/default_user_mapping.py`
+inside the Docker container of the app.
 
-dump
-  writes to console the current json mapping.
+.. program:: change_attribute_mapping.py
 
+The script allows the following operations:
 
-With the *modify* operation, the following operations are allowed:
+.. option:: modify
 
-set
-  Changes the UDM property used for an OX property provisioning.
+   performs operations that change the current mapping.
 
-  .. code-block:: console
-    :caption: Sets the mapping of the OX property ``userfield01`` to the UDM property ``description``.
+.. option:: restore_default
 
-    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --set userfield01 description
+   restores the default mapping.
 
-  It is possible to use the --set arguments multiple times in the same invocation
+.. option:: dump
 
-  .. code-block:: console
-    :caption: Sets the mapping of the OX properties ``userfield01`` and ``given_name`` to the UDM properties ``description`` and ``custom_attribute``.
-
-    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --set userfield01 description --set given_name custom_attribute
+   writes the current JSON mapping to console.
 
 
-unset
-  Removes the OX property from the mapping if it is not marked as required. It can be used to remove properties from the synchronization.
+With the *modify* operation, you can use the following additional operations:
 
-  .. code-block:: console
-    :caption: Unset the OX property ``userfield01``. It won't be used in the provisioning.
+.. option:: --set
 
-    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --unset userfield01
+   Changes the UDM property used for an Open-Xchange property provisioning.
+   :numref:`conf-user-mapping-set-listing` shows how to set the mapping
+   of the Open Xchange property ``userfield01`` to the UDM property ``description``.
 
-set_alternatives
-  Sets alternative UDM properties used for the synchronization if the main one is `None`
+   .. code-block:: console
+      :caption: Sets the mapping of an Open-Xchange property to an UDM property.
+      :name: conf-user-mapping-set-listing
 
-  .. code-block:: console
-    :caption: Set the theoretical attributes ``CustomAttributeUserMail`` and ``CustomAttributeUserMail2`` as alternatives to the OX property ``email1``.
+      $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
+         modify \
+         --set userfield01 description
 
-    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --set_alternatives email1 CustomAttributeUserMail CustomAttributeUserMail2
+   It's possible to use the :option:`--set` arguments multiple times in the same invocation.
+   :numref:`conf-user-mapping-multiple-set-listing` shows an example
+   that sets the mapping of the Open-Xchange properties ``userfield01`` and ``given_name``
+   to the UDM properties ``description`` and ``custom_attribute``.
+
+   .. code-block:: console
+      :caption: Sets the mapping of multiple Open-Xchange properties to multiple UDM properties.
+      :name: conf-user-mapping-multiple-set-listing
+
+      $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
+         modify \
+         --set userfield01 description \
+         --set given_name custom_attribute
+
+.. option:: --unset
+
+   Removes the Open-Xchange property from the mapping
+   if it isn't marked as required.
+   You can use it to remove properties from the synchronization.
+
+   .. code-block:: console
+      :caption: Unset the OX property ``userfield01``.
+
+      $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
+         modify \
+         --unset userfield01
+
+.. option:: --set_alternatives
+
+   Sets alternative UDM properties used for the synchronization if the main one is ``None``.
+   :numref:`conf-user-mapping-set-alternative-listing` shows an example
+   to set the theoretical attributes ``CustomAttributeUserMail`` and ``CustomAttributeUserMail2``
+   as alternatives to the Open-Xchange property ``email1``.
+
+   .. code-block:: console
+      :caption: Set theoretical attributes as alternatives to an Open-Xchange property.
+      :name: conf-user-mapping-set-alternative-listing
+
+      $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
+         modify \
+         --set_alternatives email1 CustomAttributeUserMail CustomAttributeUserMail2
+
+.. option:: unset_alternatives
+
+   Unset the current alternatives for an OX property
+
+   .. code-block:: console
+      :caption: Unset the alternative attributes to the OX property ``email1``.
+
+      $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
+         modify \
+         --unset_alternatives email1
+
+If you previously used the attribute mapping feature of the OX App Suite app from the App Center, 
+you can migrate it by running the following command
+on the UCS system where you installed the OX App Suite.
+You then use the output of the script as command and run it
+on the UCS system where the OX Connector is running.
+
+.. code-block:: python
+
+   python3 <<EOF
+     from univention.config_registry import ConfigRegistry
+     ucr = ConfigRegistry()
+     ucr.load()
+
+     changed_mapping_single = {
+       'displayname': 'display_name',
+       'givenmame': 'given_name',
+       'surname': 'sur_name',
+       'categories': 'employee_type',
+       'quota': 'max_quota',
+       }
+
+     changed_mapping_multi = {
+       'telephone_business': ['telephone_business1', 'telephone_business2'],
+       'telephone_home': ['telephone_home1', 'telephone_home2'],
+     }
 
 
-unset_alternatives
-  Unset the current alternatives for an OX property
+     ucr_ldap2ox = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2ox', '').strip()
+     ucr_ldap2oxmulti = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2oxmulti', '').strip()
+     command = []
+     if ucr_ldap2ox:
+       for entry in ucr_ldap2ox.split():
+         value, key = entry.split(':', 1)
+         if value is None:
+           command.append(f"--unset {changed_mapping_single.get(key, key)}")
+         else:
+           command.append(f"--set {changed_mapping_single.get(key, key)} {value}")
 
-  .. code-block:: console
-    :caption: Unset the alternative attributes to the OX property ``email1``.
-
-    $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify --unset_alternatives email1
-
-
-If you were previously using the attribute mapping feature of the
-OX App Suite app from the App Center, it can be migrated by executing
-the following command on the server where the OX App Suite is
-installed. The output of the script is the command to be executed
-on the server where the OX Connector is running.
-
-.. code-block:: console
-
-  python3 <<EOF
-    from univention.config_registry import ConfigRegistry
-    ucr = ConfigRegistry()
-    ucr.load()
-
-    changed_mapping_single = {
-      'displayname': 'display_name',
-      'givenmame': 'given_name',
-      'surname': 'sur_name',
-      'categories': 'employee_type',
-      'quota': 'max_quota',
-      }
-
-    changed_mapping_multi = {
-      'telephone_business': ['telephone_business1', 'telephone_business2'],
-      'telephone_home': ['telephone_home1', 'telephone_home2'],
-    }
-
-
-    ucr_ldap2ox = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2ox', '').strip()
-    ucr_ldap2oxmulti = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2oxmulti', '').strip()
-    command = []
-    if ucr_ldap2ox:
-      for entry in ucr_ldap2ox.split():
-        value, key = entry.split(':', 1)
-        if value is None:
-          command.append(f"--unset {changed_mapping_single.get(key, key)}")
-        else:
-          command.append(f"--set {changed_mapping_single.get(key, key)} {value}")
-
-    if ucr_ldap2oxmulti:
-      ldap2oxmulti = {}
-      for entry in ucr_ldap2oxmulti.split():
-        value, key = entry.split(':', 1)
-        if value is None:
-          for v in changed_mapping_multi.get(key, [key]):
-            command.append(f"--unset {v}")
-        else:
-          for v in changed_mapping_multi.get(key, [key]):
-            command.append(f"--set {v} {value}")
-    if command:
-      print("Run the following command on the ox-connector server to update attribute mapping:")
-      print("python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify " + " ".join(command))
-    else:
-      print("Nothing to do.")
-  EOF
+     if ucr_ldap2oxmulti:
+       ldap2oxmulti = {}
+       for entry in ucr_ldap2oxmulti.split():
+         value, key = entry.split(':', 1)
+         if value is None:
+           for v in changed_mapping_multi.get(key, [key]):
+             command.append(f"--unset {v}")
+         else:
+           for v in changed_mapping_multi.get(key, [key]):
+             command.append(f"--set {v} {value}")
+     if command:
+       print("Run the following command on the ox-connector server to update attribute mapping:")
+       print("python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify " + " ".join(command))
+     else:
+       print("Nothing to do.")
+   EOF
