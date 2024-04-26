@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.8.0...v0.8.1) (2024-04-26)
+
+
+### Bug Fixes
+
+* performance ([f308aa2](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/f308aa2b2bcd6e17437c2dc0c9b313edb50c0e7a))
+
 ## [0.8.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.7.1...v0.8.0) (2024-04-12)
 
 
