@@ -13,10 +13,7 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
 import sys
-# sys.path.insert(0, os.path.abspath('.'))
 
 from datetime import date
 from sphinx.locale import _
@@ -101,13 +98,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'univention_sphinx_book_theme'
 
-pdf_doc_base = 'ox-connector-app'
+doc_base = 'ox-connector-app'
 
 html_theme_options = {
     "pdf_download_filename": "ox-connector-app.pdf",
     "show_source_license": True,
     "typesense_search": True,
-    "typesense_document": pdf_doc_base,
+    "typesense_document": doc_base,
     "typesense_document_version": release,
     "univention_matomo_tracking": True,
 }
@@ -120,12 +117,6 @@ html_static_path = []  # value is usally ['_static']
 git_last_updated_timezone = "Europe/Berlin"
 
 numfig = True
-numfig_format = {
-    "figure": _("Figure %s"),
-    "table": _("Table %s"),
-    "code-block": _("Listing %s"),
-    "section": _("Section %s"),
-}
 
 suppress_warnings = ['git.too_shallow']
 
@@ -152,7 +143,7 @@ latex_engine = 'lualatex'
 latex_show_pagerefs = True
 latex_show_urls = "footnote"
 latex_documents = [
-    (root_doc, f'{pdf_doc_base}.tex', project, author, "manual", False)]
+    (root_doc, f'{doc_base}.tex', project, author, "manual", False)]
 latex_elements = {
     "papersize": "a4paper",
 }
@@ -165,6 +156,7 @@ git_untracked_show_sourcelink = True
 univention_feedback = True
 # Information about the license statement for the source files
 univention_pdf_show_source_license = True
-univention_doc_basename = "ox-connector-app"
-sitemap_url_scheme = "{link}"
-html_baseurl = f"https://docs.software-univention.de/{univention_doc_basename}/{release}/"
+univention_doc_basename = doc_base
+univention_use_doc_base = True
+univention_project_basename = doc_base
+univention_release_language_scheme = "{release}"
