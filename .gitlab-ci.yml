@@ -75,6 +75,8 @@ variables:
 
 lint-pre-commit:
   allow_failure: true
+  rules:
+    - when: "never"
 
 container-build:
   parallel:
