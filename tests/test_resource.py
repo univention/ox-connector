@@ -128,6 +128,7 @@ def test_remove_resource(
     create_ox_context(new_context_id)
     user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
+    wait_for_listener(dn)
     udm.remove("oxresources/oxresources", dn)
     wait_for_listener(dn)
     find_obj(new_context_id, new_resource_name, assert_empty=True)
@@ -314,6 +315,7 @@ def test_delete_already_deleted_resource(
     user = create_ox_user("test_user")
     dn = create_obj(udm, "resource_to_be_deleted", domainname,
                     default_ox_context, user)
+    wait_for_listener(dn)
     udm.remove("oxresources/oxresources", dn)
     wait_for_listener(dn)
 

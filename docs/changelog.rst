@@ -12,6 +12,15 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.2.11
+=============
+
+Released: 08. May 2024
+
+Changed
+-------
+Fixes a bug which prevents the removal of Open-Xchange contexts.
+
 2.2.10
 =============
 

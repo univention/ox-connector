@@ -51,7 +51,7 @@ def wait_for_listener(truncate_wait_for_listener_log):
                     truncate_wait_for_listener_log()
                     break
                 if time_passed >= timeout:
-                    print(
+                    pytest.fail(
                         f"Listener_trigger did NOT handle {dn} for {timeout:.1f} seconds.",
                     )
                     break
@@ -60,11 +60,15 @@ def wait_for_listener(truncate_wait_for_listener_log):
                     time.sleep(0.1)
                 pos = pos_new
         time.sleep(1)
+
     return _wait_for_dn
 
 
 def _new_id(cache):
-    value = cache.get("newobjects/id", int(os.environ["DEFAULT_CONTEXT"]) + 100)
+    value = cache.get(
+        "newobjects/id",
+        int(os.environ["DEFAULT_CONTEXT"]) + 100,
+    )
     value += 1
     cache.set("newobjects/id", value)
     return value
@@ -250,12 +254,24 @@ def create_ox_context(udm, new_context_id_generator, wait_for_listener):
         if wait:
             wait_for_listener(dn)
         return context_id
+
     return _func
 
 
 @pytest.fixture
-def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context, wait_for_listener):
-    def _func(name=None, context_id=default_ox_context, enabled=True, wait=True):
+def create_ox_user(
+    udm,
+    new_user_name_generator,
+    domainname,
+    default_ox_context,
+    wait_for_listener,
+):
+    def _func(
+        name=None,
+        context_id=default_ox_context,
+        enabled=True,
+        wait=True,
+    ):
         name = name or new_user_name_generator()
         dn = udm.create(
             "users/user",
@@ -276,4 +292,5 @@ def create_ox_user(udm, new_user_name_generator, domainname, default_ox_context,
             wait_for_listener(dn)
         for user in udm.search("users/user", "uid={}".format(name)):
             return user.open()
+
     return _func

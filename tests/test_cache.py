@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from univention.ox.soap.backend_base import User, get_ox_integration_class
+from univention.ox.soap.config import _CREDENTIALS
 
 
 # copied from app/listener_trigger to test the cache dbs
@@ -41,6 +42,7 @@ def create_context(udm, ox_host, context_id, wait_for_listener) -> str:
             "name": "context{}".format(context_id),
         },
     )
+    _CREDENTIALS.clear()
     wait_for_listener(dn)
     return dn
 

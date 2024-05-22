@@ -88,12 +88,12 @@ def test_rename_user(
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     old_id = obj.id
-    udm.modify(
+    new_dn = udm.modify(
         "users/user",
         dn,
         {"username": "new" + new_user_name},
     )
-    wait_for_listener(dn)
+    wait_for_listener(new_dn)
     obj = find_obj(default_ox_context, "new" + new_user_name)
     assert old_id == obj.id
 
@@ -587,6 +587,7 @@ def test_remove_user(
     """
     new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
+    wait_for_listener(dn)
     udm.remove("users/user", dn)
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name, assert_empty=True)

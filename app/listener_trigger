@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Univention GmbH
 #
@@ -81,13 +80,17 @@ helpers.get_old_obj = _get_old_object
 def _update_group_queue(entry_uuid):
     if entry_uuid not in GROUP_EUUID:
         file_name = f"{entry_uuid}.json"
-        file_path =  OLD_FILES_DIR / file_name
-        #Make a copy of old in the queue
+        file_path = OLD_FILES_DIR / file_name
+        # Make a copy of old in the queue
         timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
         new_file_path = NEW_FILES_DIR / f"{timestamp}.json"
         shutil.copy(str(file_path), str(new_file_path))
-        logger.info("Added %s to the listener queue as %s", file_path, new_file_path)
-        #Register it so it is processed later
+        logger.info(
+            "Added %s to the listener queue as %s",
+            file_path,
+            new_file_path,
+        )
+        # Register it so it is processed later
         GROUP_EUUID.add(entry_uuid)
 
 
@@ -143,21 +146,18 @@ class TriggerObject(object):
             "oxmail/functional_account",
             "oxresources/oxresources",
         ]
-        if (
-            (self.object_type == "oxmail/oxcontext")
-            and (self.attributes is None)
+        if (self.object_type == "oxmail/oxcontext") and (
+            self.attributes is None
         ):
             # deleting a context should always come last
             return False
-        if (
-            (other.object_type == "oxmail/oxcontext")
-            and (other.attributes is None)
+        if (other.object_type == "oxmail/oxcontext") and (
+            other.attributes is None
         ):
             # deleting a context should always come last
             return True
-        if (
-            (self.object_type == "oxmail/accessprofile")
-            or (other.object_type == "oxmail/accessprofile")
+        if (self.object_type == "oxmail/accessprofile") or (
+            other.object_type == "oxmail/accessprofile"
         ):
             # do not change order in accessprofiles
             return False
@@ -287,9 +287,8 @@ class KeyValueStore(object):
                 elif dn in data_base:
                     del data_base[dn]
 
-meta = KeyValueStore(
-    "meta.db"
-)  # arbitrary data, at the moment only stores consecutive errors
+
+meta = KeyValueStore("meta.db")  # store consecutive errors
 mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
 
@@ -302,7 +301,12 @@ def object_from_path(path):
     attributes = content["object"]
     options = content["options"]
     obj = TriggerObject(
-        entry_uuid, object_type, distinguished_name, attributes, options, path
+        entry_uuid,
+        object_type,
+        distinguished_name,
+        attributes,
+        options,
+        path,
     )
     return obj
 
@@ -324,7 +328,7 @@ def objects_from_files(delete_files=True, move_files=False):
     curr = 1
     for path in sorted(NEW_FILES_DIR.glob("*.json")):
         if not curr % 10000:
-            logger.info(f"file {curr} of {num_files}" )
+            logger.info(f"file {curr} of {num_files}")
         obj = object_from_path(path)
         if move_files:
             obj.load_old()
@@ -338,15 +342,14 @@ def objects_from_files(delete_files=True, move_files=False):
                 GROUP_EUUID.add(obj.entry_uuid)
         curr += 1
 
-
-    #The order here is important
+    # The order here is important
     ################################
-    #join obj_dict sorted.
-    #oxcontext removal should be done at the end.
+    # join obj_dict sorted.
+    # oxcontext removal should be done at the end.
     removed_ctxs = []
     for path in obj_dict["oxmail/oxcontext"]:
         if obj.attributes is None:
-            obj_dict["removed_ctxs"].append(path)
+            removed_ctxs.append(path)
         else:
             objs.append(path)
 
@@ -360,7 +363,7 @@ def objects_from_files(delete_files=True, move_files=False):
     ################################
 
     for path in objs:
-        #load the file again because storing all of them in objs can result in out of memory errors when provisioning hundred of thousand objects
+        # load the file again because storing all of them in objs can result in out of memory errors when provisioning hundred of thousand objects
         obj = object_from_path(path)
         if move_files:
             obj.load_old()
@@ -380,7 +383,7 @@ def objects_from_files(delete_files=True, move_files=False):
                 path.replace(old_file_path)
                 if obj.was_enriched():
                     logger.info(
-                        "... not done yet; enriching object by rewriting JSON file..."
+                        "... not done yet; enriching object by rewriting JSON file...",
                     )
                     obj.dump(old_file_path)
                 if obj.old_distinguished_name != obj.distinguished_name:
@@ -426,7 +429,8 @@ def run_on_files(
                 if 0 < pause_after_errors_num <= errors:
                     logger.warning("This is consecutive error #%s", errors)
                     logger.warning(
-                        "Sleeping for %s sec", pause_after_errors_length
+                        "Sleeping for %s sec",
+                        pause_after_errors_length,
                     )
                     time.sleep(pause_after_errors_length)
                 break
@@ -447,7 +451,10 @@ def main():
     while True:
         objs = objects_from_files(delete_files=False, move_files=True)
         files_seen = run_on_files(
-            objs, run, pause_after_errors_num=3, pause_after_errors_length=0
+            objs,
+            run,
+            pause_after_errors_num=3,
+            pause_after_errors_length=0,
         )
         mapping.commit()
         meta.commit()

@@ -1,6 +1,6 @@
 # OX Connector App
 
-**APP VERSION 2.2.10**
+**APP VERSION 2.2.11**
 **OX VERSION 7.10.6**
 
 This App connects to UCS' Identity Management with OX' database.

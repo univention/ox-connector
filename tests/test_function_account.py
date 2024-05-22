@@ -239,7 +239,6 @@ def test_remove_user(
 
     udm.remove("users/user", user.dn)
     wait_for_listener(user.dn)
-    wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 0
 
