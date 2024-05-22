@@ -15,7 +15,7 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 2.2.11
 =============
 
-Released: 08. May 2024
+Released: 23. May 2024
 
 Changed
 -------
