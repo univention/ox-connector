@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.8.1...v0.8.2) (2024-05-22)
+
+
+### Bug Fixes
+
+* Fix the context removal process ([5c27927](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/5c27927fc2ac3d2c5861f4c881971dbbdf573457)), closes [univention/dev-issues/dev-incidents#2](https://git.knut.univention.de/univention/dev-issues/dev-incidents/issues/2)
+
 ## [0.8.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.8.0...v0.8.1) (2024-04-26)
 
 
