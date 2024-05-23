@@ -1,3 +1,5 @@
+_[TOC]_
+
 # OX Connector App
 
 A provisioning App that connects UCS' IDM with OX' database. This is done via the App Center's listener integration and OX' SOAP API.
@@ -123,9 +125,48 @@ When the app was installed, the SSL CA certificate of the OX server must be impo
 Now when users are created on the host with the OX connector app, they will have a mailbox on it, and
 OX will use it.
 
+### Workflow for changes
+
+- create new app version in the provider portal with a new version
+- create a new merge request
+- update all the version strings in the repo (README_USERS.md, app/ini,
+  app/inst, docs/changelog.rst, .gitlab-ci.yml, README.md)
+- set the docker image in app/ini to:
+  `docker.software-univention.de/ox-connector:$NEW_VERSION-dev`
+- run the script `push_config_to_appcenter` in the repository root to upload the ini file changes to the test app
+
+Once the preparation is done you can
+- make your changes to the code
+- run the (manual) pipeline job `upload-docker-image` for you MR, this will
+  create the `docker.software-univention.de/ox-connector:$NEW_VERSION-dev`
+- By default the job
+  https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/
+  will install the apps from the test appcenter and you can check your changes
+
+The ox-appsuite and ox-connector Jenkins jobs also support setting an
+docker image as `APP_DOCKER_IMAGE` for the test run. This image will be
+used during the installation of the app.
+
+TODO: check which workflow works best and document one here.
+
 ### Build
 
-How to build the container. On a UCS:
+How to build the container.
+
+#### Pipeline
+
+The pipeline creates images for you MR changes or the main branch on gitlab
+(gitregistry.knut.univention.de/univention/open-xchange/provisioning/ox-connector-appcenter-\*).
+With the manual pipeline job `upload-docker-image` this image is transferd to
+our external docker registry, as
+`docker-upload.software-univention.de/ox-connector:$APP_VERSION-dev` (MR) or
+`docker-upload.software-univention.de/ox-connector:$APP_VERSION` (main branch)
+
+After creating a new test version in the provider portal the job
+https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/
+can be used to test the new image or to create a test environment.
+
+#### On a UCS
 
 ```
 GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
@@ -172,45 +213,42 @@ python3 -m pytest -l -v tests
 Besides the necessary steps for an app update, make sure to apply the following
 steps **before** release of a new app version for the OX Connect app.
 
-1. [ ] - Update the `DOC_TARGET_VERSION` variable in
-   [.gitlab-ci.yml](.gitlab-ci.yml) to the new app version. The variable makes
-   sure that the new app version has a dedicated documentation.
+Please copy this block to your release issue:
 
-2. [ ] - Add an appropriate changelog entry to
-   [docs/changelog.rst](docs/changelog.rst) and follow the recommendation at
-   https://keepachangelog.com/en/1.0.0/.
+(changes can be made on the main branch)
 
-3. [ ] - Update the link to the app documentation in the app description to the
-   appropriate version link.
-
-4. [ ] - Push the updated documentation to the docs.univention.de repository.
-   Manually trigger the *production* in the docs pipeline.
-
-5. [ ] - After running the *production* job for the documentation in the
-   pipeline, update the symlink `latest` the new version in the
+- [ ] create a new MR for the release
+  - [ ] remove `-dev` from the `DockerImage` in app/ini
+  - [ ] check that all appcenter versions strings have been updated (e.g. [.gitlab-ci.yml](.gitlab-ci.yml))
+  - [ ] Add an appropriate changelog entry to [docs/changelog.rst](docs/changelog.rst) and follow the recommendation at https://keepachangelog.com/en/1.0.0/.
+  - [ ] update CHANGELOG.md in root directory
+  - [ ] apply merge request
+- [ ] update the app in the test appcenter with `push_config_to_appcenter` (uploads app/ini etc to test appcenter)
+- [ ] Run `upload-docker-image` in the pipeline for the main branch, make sure `docker-upload.software-univention.de/ox-connector:APP_VERSION` exists on the docker registry
+  - pre-condition is to start the `trigger-docs` pipeline job!
+  - and the `docs-merge-to-one-artifact`, this jobs create a MR in the docs.univention.de repo, go to this merge request and set automerge to false
+  - **TODO: improve the pipeline so that we can run upload-docker-image before docs-merge-to-one-artifact**
+- [ ] Run the product tests -> https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/ and `COMPONENT_VERSION=testing`
+- [ ] Documentation
+  - [ ] Update the symlink `latest` the new version in the
    [ox-connector-app directory of the docs.univention.de
-   repository](https://git.knut.univention.de/univention/docs.univention.de/-/tree/master/ox-connector-app).
+   repository](https://git.knut.univention.de/univention/docs.univention.de/-/tree/master/ox-connector-app) in the merge request creates by `docs-merge-to-one-artifact`
+  - [ ] Apply the merge request to release the documentation
+- [ ] Release the app on omar (copy_from_appcenter.test.sh, sudo update_mirror.sh -v appcenter)
+- [ ] Optional: check released -> https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/ and `COMPONENT_VERSION=public`
+- [ ] Write mail to app-announcement@univention.de
+  ```
+  Subject: App Center: ox-connector $version
+  Body:
 
-6. [ ] - To deploy the documentation, trigger the *deploy* job in the pipeline
-   of the docs.univention.de repository.
+  Hi,
 
+  the OX Connector app version $version has been released for the UCS 5 App Center.
 
-Build and push the container:
+  Here is what's new:
 
-```bash
-$ make clean
-$ rsync -av -n --delete --exclude .git --exclude appsuite --exclude __pycache__ ./ --exclude venv --exclude .pytest_cache --exclude requirements_all.txt docker.knut.univention.de:ox-provisioning/
-# All OK? Then repeat the above command with the '-n'.
-$ ssh docker.knut.univention.de
-$ cd ox-provisioning
-$ ./build_docker_image --release --push
-```
-
-Transfer Appcenter configuration to App Provider Portal:
-
-```bash
-./push_config_to_appcenter
-```
+  - Fixed a bug which prevents the removal of Open-Xchange contexts. (Bug 57258)
+  ```
 
 ## Standalone Service
 

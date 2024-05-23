@@ -40,9 +40,7 @@ def read_version_from_ci() -> str:
 
     with open("../.gitlab-ci.yml", "r") as f:
         ci = yaml.safe_load(f)
-        return ci.get(
-            "variables", {"APPCENTER_VERSION": "2.2.11"},
-        ).get("APPCENTER_VERSION")
+        return ci.get("variables").get("APPCENTER_VERSION")
 
 
 release = read_version_from_ci()
