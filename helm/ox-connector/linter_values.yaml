@@ -8,26 +8,22 @@
 
 
 ## Application-specific
+# OX CONNECTOR
 oxConnector:
-  # CONTAINER LISTENER BASE (univention directory listener)
-  ldapHost: "ldap.example.org"
-  ldapHostIp: ""
-  ldapBaseDn: "dc=example,dc=org"
-  ldapHostDn: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
-  notifierServer: "domain.example.org"
-  tlsMode: "unvalidated"
-  ldapPassword: "s3cr3t"
-  ldapPasswordFile: "/var/secrets/ldap_secret"
-  caCert: "s3cr3t"
-  caCertFile: "/var/secrets/ca_cert"
-
-  # OX CONNECTOR
   domainName: "example.org"
   oxMasterAdmin: "oxadminmaster"
   oxMasterPassword: "s3cr3t"
   oxSmtpServer: "smtp://example.org:587"
   oxImapServer: "imap://example.org:143"
   oxSoapServer: "https://ox.example.org"
+
+# Provisioning API.
+provisioningApi:
+  connection:
+    baseUrl: ""
+  auth:
+    username: "ox-connector"
+    password: ""
 
 ## Docker image
 image:

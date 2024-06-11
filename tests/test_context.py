@@ -62,6 +62,7 @@ def test_modify_context(new_context_id, udm, ox_host, wait_for_listener):
     (currently only holds for quota)
     """
     dn = create_context(udm, ox_host, new_context_id)
+    wait_for_listener(dn)
     udm.modify("oxmail/oxcontext", dn, {"oxQuota": 2000})
     wait_for_listener(dn)
     Context = get_ox_integration_class("SOAP", "Context")

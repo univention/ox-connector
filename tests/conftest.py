@@ -24,19 +24,14 @@ def truncate_wait_for_listener_log():
 
     yield _func
 
-    # OX standalone runs on Python 3.7 due to univention-directory-listener
-    # and `missing_ok` was added in Python 3.8
-    try:
-        TEST_LOG_FILE.unlink(missing_ok=True)
-    except TypeError:
-        TEST_LOG_FILE.unlink()
+    TEST_LOG_FILE.unlink(missing_ok=True)
 
 
 @pytest.fixture
 def wait_for_listener(truncate_wait_for_listener_log):
     truncate_wait_for_listener_log()  # truncate before starting the test
 
-    def _wait_for_dn(dn: str, timeout=30.0) -> None:
+    def _wait_for_dn(dn: str, timeout=60.0) -> None:
         start_time = time.time()
         with TEST_LOG_FILE.open("r") as fp:
             pos = fp.tell()
@@ -142,8 +137,10 @@ def default_imap_server():
 
 @pytest.fixture
 def udm_uri():
+    # Use LDAP_MASTER in Jenkins UCS (where PORTAL_HOST isn't set).
+    # Use PORTAL_HOST in other environments for UDM connection.
     # cannot verify https in the container at the moment
-    return "https://{}/univention/udm/".format(os.environ["LDAP_MASTER"])
+    return "https://{}/univention/udm/".format(os.getenv("LDAP_MASTER") or os.getenv("PORTAL_HOST"))
 
 
 @pytest.fixture

@@ -33,7 +33,7 @@ def test_ignore_group(
     wait_for_listener,
 ):
     """
-    isOxGroup = Not should not create a group
+    isOxGroup = False (Not) should not create a group
     """
     user_dn = create_ox_user().dn
     dn = create_obj(udm, new_group_name, [user_dn], enabled=False)
@@ -50,8 +50,8 @@ def test_enable_and_disable_group(
     wait_for_listener,
 ):
     """
-    Changing isOxGroup from Not to OK should create a group
-    Changing isOxGroup from OK to Not should delete a group
+    Changing isOxGroup from False (Not) to True (OK) should create a group
+    Changing isOxGroup from True (OK) to False (Not) should delete a group
     """
     new_context_id = create_ox_context()
     user_dn1 = create_ox_user(context_id=new_context_id).dn
@@ -86,7 +86,7 @@ def test_add_group_with_one_user(
     wait_for_listener,
 ):
     """
-    isOxGroup = OK should create a group
+    isOxGroup = True (OK) should create a group
     UDM attributes should be reflected in OX
     """
     user_dn = create_ox_user().dn
@@ -106,7 +106,7 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     wait_for_listener,
 ):
     """
-    isOxGroup = OK should create a group
+    isOxGroup = True (OK) should create a group
     UDM attributes should be reflected in OX
     """
     new_context_id = create_ox_context()

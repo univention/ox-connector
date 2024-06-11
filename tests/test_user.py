@@ -58,7 +58,7 @@ def test_ignore_user(
     default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
-    isOxUser = Not should not create a user
+    isOxUser = False (Not) should not create a user
     """
     dn = create_obj(udm, new_user_name, domainname, None, enabled=False)
     wait_for_listener(dn)
@@ -102,7 +102,7 @@ def test_add_user(
     create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
-    isOxUser = OK should create a user
+    isOxUser = True (OK) should create a user
     """
     new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, new_context_id)
@@ -598,8 +598,8 @@ def test_enable_and_disable_user(
 ):
     """
     Add a new UDM user (not yet active in OX)
-    Setting isOxUser = OK should create the user
-    Setting isOxUser = Not should delete the user
+    Setting isOxUser = True (OK) should create the user
+    Setting isOxUser = False (Not) should delete the user
     """
     new_context_id = create_ox_context()
     dn = create_obj(udm, new_user_name, domainname, None, enabled=False)
@@ -607,6 +607,7 @@ def test_enable_and_disable_user(
     # BUG: some hook seems to remove the ox specific attributes when enabling the user
     # BUG: so we have to do it in two steps: Bug #50469
     udm.modify("users/user", dn, {"isOxUser": True})
+    wait_for_listener(dn)
     udm.modify(
         "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name},
     )

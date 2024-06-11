@@ -28,36 +28,8 @@ extraVolumes: []
 # -- Optionally specify an extra list of additional volumeMounts.
 extraVolumeMounts: []
 
+# Configuration for OX CONNECTOR
 oxConnector:
-  # CONTAINER LISTENER BASE (univention directory listener)
-  # -- CA root certificate. Optional; will be written to "caCertFile" if set.
-  caCert: null
-  # -- Where to search for the CA Certificate file.
-  caCertFile: "/var/secrets/ca_cert"
-  # -- Listener Debug Level
-  debugLevel: "5"
-  # -- LDAP Base Distinguished Name
-  ldapBaseDn: null
-  # -- LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set.
-  ldapPassword: null
-  # -- The path to the "ldapPasswordFile" docker secret or a plain file
-  ldapPasswordFile: "/var/secrets/ldap_secret"
-  # -- LDAP Hostname
-  ldapHost: null
-  # -- LDAP Host Distinguished Name
-  ldapHostDn: null
-  # -- Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set
-  ldapHostIp: null
-  # -- LDAP Server Port
-  ldapPort: "389"
-  # -- Defaults to "ldapHost" if not set.
-  notifierServer: null
-  # -- Whether to start encryption and validate certificates.
-  # Chose from "off", "unvalidated" and "secure".
-  tlsMode: "secure"
-
-
-  # OX CONNECTOR
   # -- OX-Mail-Domain to generate OX-email-addresses
   domainName: null
   # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
@@ -80,6 +52,22 @@ oxConnector:
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
 
+# Configuration for the communication with the provisioning API.
+provisioningApi:
+  config:
+    # -- The maximum number of retries for acknowledging a message
+    maxAcknowledgementRetries: 3
+  # -- Connection parameters
+  connection:
+    # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+    baseUrl: ""
+  # -- Authentication parameters
+  auth:
+    # -- The username to authenticate with.
+    username: "ox-connector"
+    # -- The password to authenticate with.
+    password: ""
+
 # -- Kubernetes ingress
 ingress:
   # -- Set this to `true` in order to enable the installation on Ingress related objects.
@@ -93,6 +81,12 @@ image:
   tag: "latest"
   # -- Define image sha256 as an alternative to `tag`
   sha256: null
+
+  waitForDependency:
+    registry: "artifacts.software-univention.de"
+    imagePullPolicy: "IfNotPresent"
+    repository: "nubus/images/wait-for-dependency"
+    tag: "0.25.0@sha256:71a4d66fd67db6f92212b1936862b2b0d5a678d412213d74452a9195c2fe67f7"
 
 ## Container deployment probes
 probes:
@@ -120,6 +114,9 @@ resources:
   limits:
     memory: "4Gi"
     cpu: "4"
+
+# -- Deployment resources for the dependency waiters
+resourcesWaitForDependency: {}
 
 serviceAccount:
   # Specifies whether a service account should be created

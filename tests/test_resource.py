@@ -99,6 +99,7 @@ def test_modify_resource(
     create_ox_context(new_context_id)
     user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
+    wait_for_listener(dn)
     new_attrs = {
         "description": f"foo {new_resource_name} bar",
         "displayname": "New Display",
@@ -153,9 +154,11 @@ def test_change_context_resource(
     create_ox_context(new_context_id)
     user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
+    wait_for_listener(dn)
     new_context_id2 = new_context_id_generator()
     create_ox_context(new_context_id2)
     udm.modify("oxresources/oxresources", dn, {"description": "Soon in a new context"})
+    wait_for_listener(dn)
     udm.modify(
         "oxresources/oxresources",
         dn,

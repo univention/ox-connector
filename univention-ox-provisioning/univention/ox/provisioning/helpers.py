@@ -26,6 +26,7 @@
 # License with the Debian GNU/Linux or Univention distribution in file
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
+from typing import Dict, Any
 
 from zeep.exceptions import Fault
 
@@ -40,7 +41,9 @@ def get_obj_by_name_from_ox(klass, context_id, name):
     try:
         return klass.from_ox(context_id, name=name)
     except Fault as exc:
-        if str(exc).startswith("com.openexchange.admin.rmi.exceptions.NoSuchObjectException"):
+        if str(exc).startswith(
+            "com.openexchange.admin.rmi.exceptions.NoSuchObjectException",
+        ):
             return None
         if str(exc).startswith("No such "):
             return None
@@ -70,3 +73,13 @@ def get_db_id(dn):
 
 def update_group_queue(dn):
     raise NotImplementedError("Needs to be overwritten by another function")
+
+
+def is_ox_group(attr: Dict[str, Any]) -> bool:
+    value = attr.get("isOxGroup")
+    return value in {"OK", True}
+
+
+def is_ox_user(attr: Dict[str, Any]) -> bool:
+    value = attr.get("isOxUser")
+    return value in {"OK", True}

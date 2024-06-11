@@ -37,13 +37,21 @@ import imghdr
 import base64
 
 import univention.ox.provisioning.helpers
-from univention.ox.provisioning.default_user_mapping import DEFAULT_USER_MAPPING
+from univention.ox.provisioning.default_user_mapping import (
+    DEFAULT_USER_MAPPING,
+)
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
     get_access_profile,
 )
-from univention.ox.provisioning.helpers import Skip, get_context_id, get_obj_by_name_from_ox
+from univention.ox.provisioning.helpers import (
+    Skip,
+    get_context_id,
+    get_obj_by_name_from_ox,
+    is_ox_group,
+    is_ox_user,
+)
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
@@ -119,10 +127,10 @@ def set_ox_property(user, ox_property, mapping, attributes):
                 logger.warn(f"We only support jpeg images. Found {content_type!r}. Ignoring image...")
                 content_type = None
             if content_type:
-                setattr(user, ox_property+"ContentType", content_type)
+                setattr(user, ox_property + "ContentType", content_type)
 
         else:
-            setattr(user, ox_property+"ContentType", "")
+            setattr(user, ox_property + "ContentType", "")
         return val
 
     def imap_server(x):
@@ -147,7 +155,9 @@ def set_ox_property(user, ox_property, mapping, attributes):
         return x
 
     def multivalue_handle(x):
-        return x[0] if not mapping.get("multi_value") and isinstance(x, list) and x else x
+        if not mapping.get("multi_value") and isinstance(x, list):
+            return x[0] if x else None
+        return x
 
     if not key:
         logger.info(f"ox property {ox_property} unset")
@@ -159,7 +169,9 @@ def set_ox_property(user, ox_property, mapping, attributes):
         for attr in alternative_attributes:
             val = attributes.get(attr)
             if val:
-                logger.info(f"Attribute {ox_property}. Using alternative ldap mapping {key} ...")
+                logger.info(
+                    f"Attribute {ox_property}. Using alternative ldap mapping {key} ...",
+                )
                 break
 
     if not val and not mapping.get("nillable"):
@@ -168,11 +180,11 @@ def set_ox_property(user, ox_property, mapping, attributes):
     val = position_handle(val)
     val = multivalue_handle(val)
 
-    handle =  {
-        "DATE" : lambda x: str2isodate(x) if x else None,
-        "IMAGE" : image_attibute,
-        "IMAP_URL" : imap_server,
-        "SMTP_URL" : smtp_server,
+    handle = {
+        "DATE": lambda x: str2isodate(x) if x else None,
+        "IMAGE": image_attibute,
+        "IMAP_URL": imap_server,
+        "SMTP_URL": smtp_server,
     }
 
     if special_handling != "DEFAULT":
@@ -200,7 +212,6 @@ def update_user(user, attributes, old_attributes, username, initial_values=False
     for ox_property, mapping in attribute_mapping.items():
         set_ox_property(user, ox_property, mapping, attributes)
 
-
     user.primary_email = user.email1
     user.aliases = [user.email1] + (user.aliases or [])
     user.imap_login = IMAP_LOGIN.format(user.email1) if "{}" in IMAP_LOGIN else IMAP_LOGIN
@@ -222,7 +233,6 @@ def update_user(user, attributes, old_attributes, username, initial_values=False
         user.mail_enabled = True
     else:
         user.mail_enabled = False
-
 
 
 def set_user_rights(user, obj):
@@ -269,7 +279,7 @@ def get_user_id(attributes, lookup_ox=True):
 
 def create_user(obj, user_copy_service=False, user_id=None):
     logger.info(f"Creating {obj}")
-    if obj.attributes.get("isOxUser", "Not") == "Not":
+    if not is_ox_user(obj.attributes):
         logger.info(f"{obj} is no OX user. Deleting instead...")
         return delete_user(obj)
     try:
@@ -307,7 +317,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
                 f"Dont know anything about {group}. Does it exist? Is it to be deleted? Skipping...",
             )
             continue
-        if group_obj.attributes.get("isOxGroup", "Not") == "Not":
+        if not is_ox_group(group_obj.attributes):
             logger.warning(f"{group} is no OX group. Skipping...")
             continue
         univention.ox.provisioning.helpers.update_group_queue(group_obj.entry_uuid)
@@ -315,7 +325,7 @@ def create_user(obj, user_copy_service=False, user_id=None):
 
 def modify_user(obj):
     logger.info(f"Modifying {obj}")
-    if obj.attributes.get("isOxUser", "Not") == "Not":
+    if not is_ox_user(obj.attributes):
         logger.info(f"{obj} is no OX user. Deleting instead...")
         return delete_user(obj)
     try:
@@ -331,7 +341,7 @@ def modify_user(obj):
         logger.info(f"{obj} does not yet exist. Creating instead...")
         return create_user(obj)
     if obj.old_attributes:
-        if obj.old_attributes.get("isOxUser", "Not") == "Not":
+        if not is_ox_user(obj.old_attributes):
             logger.warning(
                 f"{obj} was no OX user before... that should not be the case. Modifying anyway...",
             )

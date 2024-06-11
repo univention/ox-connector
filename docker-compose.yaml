@@ -15,19 +15,13 @@ services:
       args:
         - "version=2.2.2"
     environment:
-      # -- CONTAINER LISTENER BASE (univention directory listener)
-      LDAP_HOST: "ox-connector-ldap-server"
-      LDAP_PORT: 389
-      LDAP_BASE_DN: "dc=example,dc=org"
-      LDAP_HOST_DN: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
-      NOTIFIER_SERVER: "ox-connector-ldap-notifier"
-
-      DEBUG_LEVEL: 5
-      # Whenever to start encryption and validate certificates.
-      # Chose from "off", "unvalidated" and "secure".
-      TLS_MODE: "off"
-      LDAP_PASSWORD: "ldap-password"
-      LDAP_PASSWORD_FILE: "/var/secrets/ldap_secret"
+      # -- Provisioning API
+      # The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+      PROVISIONING_API_BASE_URL: ""
+      # The username to authenticate with
+      PROVISIONING_API_USERNAME: "ox-connector"
+      # The password to authenticate with
+      PROVISIONING_API_PASSWORD: ""
 
       # -- OX CONNECTOR
       # OX-Mail-Domain to generate OX-email-addresses
@@ -50,15 +44,6 @@ services:
       OX_SOAP_SERVER: "https://ox.example.org"
       # Log level: DEBUG, INFO, WARNING, ERROR
       LOG_LEVEL: "DEBUG"
-      LDAP_MASTER: "ox-connector-ldap-server"
-      LDAP_BASE: "dc=example,dc=org"
-    volumes:
-      - "ox-connector-standalone-data:/var/lib/univention-directory-listener/:rw"
-    depends_on:
-      ldap-notifier:
-        condition: "service_healthy"
-      ldap-server:
-        condition: "service_healthy"
 
   ldap-notifier:
     container_name: "ox-connector-ldap-notifier"
@@ -161,9 +146,6 @@ services:
       start_period: "5s"
 
 volumes:
-  # OX only
-  ox-connector-standalone-data:
-
   # Notifier + OpenLDAP
   ldap-shared-data:
   ldap-shared-run:

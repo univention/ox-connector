@@ -43,8 +43,16 @@ from univention.ox.provisioning.contexts import (
     delete_context,
     modify_context,
 )
-from univention.ox.provisioning.groups import create_group, delete_group, modify_group
-from univention.ox.provisioning.helpers import Skip, get_context_id
+from univention.ox.provisioning.groups import (
+    create_group,
+    delete_group,
+    modify_group,
+)
+from univention.ox.provisioning.helpers import (
+    Skip,
+    get_context_id,
+    is_ox_group,
+)
 from univention.ox.provisioning.resources import (
     create_resource,
     delete_resource,
@@ -55,7 +63,11 @@ from univention.ox.provisioning.functional_account import (
     delete_functional_account,
     modify_functional_account,
 )
-from univention.ox.provisioning.users import create_user, delete_user, modify_user
+from univention.ox.provisioning.users import (
+    create_user,
+    delete_user,
+    modify_user,
+)
 from univention.ox.soap.config import NoContextAdminPassword
 
 logger = logging.getLogger("listener")
@@ -109,7 +121,10 @@ def run(obj):  # noqa: C901
                 elif new_obj.was_deleted():
                     delete_group(new_obj)
                 if new_obj.was_enriched():
-                    obj.set_attr("oxDbGroupname", new_obj.attributes.get('oxDbGroupname'))
+                    obj.set_attr(
+                        "oxDbGroupname",
+                        new_obj.attributes.get('oxDbGroupname'),
+                    )
             except Skip as exc:
                 logger.warning(f"Skipping: {exc}")
             except NoContextAdminPassword as exc:
@@ -143,12 +158,12 @@ def get_group_objs(obj):  # noqa: C901
     ignored_group = True
     if obj.old_attributes:
         users.extend(obj.old_attributes.get("users"))
-        if obj.old_attributes.get("isOxGroup", "Not") != "Not":
+        if is_ox_group(obj.old_attributes):
             logger.info(f"Group {obj.old_attributes['name']} was OX Group")
             ignored_group = False
     if obj.attributes:
         users.extend(obj.attributes.get("users"))
-        if obj.attributes.get("isOxGroup", "Not") != "Not":
+        if is_ox_group(obj.attributes):
             logger.info(f"Group {obj.attributes['name']} will be OX Group")
             ignored_group = False
     if ignored_group:
@@ -172,10 +187,14 @@ def get_group_objs(obj):  # noqa: C901
         new_obj = deepcopy(obj)
         if new_obj.old_attributes:
             new_obj.old_attributes["oxContext"] = context
-            new_obj.old_attributes["users"] = sorted(set(users) & set(new_obj.old_attributes.get("users")))
+            new_obj.old_attributes["users"] = sorted(
+                set(users) & set(new_obj.old_attributes.get("users")),
+            )
         if new_obj.attributes:
             new_obj.attributes["oxContext"] = context
-            new_obj.attributes["users"] = sorted(set(users) & set(new_obj.attributes.get("users")))
+            new_obj.attributes["users"] = sorted(
+                set(users) & set(new_obj.attributes.get("users")),
+            )
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj
 
@@ -213,7 +232,10 @@ def get_account_objs(obj):  # noqa: C901
             continue
         for new_obj in get_group_objs(group_obj):
             context = new_obj.attributes.get("oxContext")
-            users_in_context, groups_in_context = contexts.get(context, ([], []))
+            users_in_context, groups_in_context = contexts.get(
+                context,
+                ([], []),
+            )
             groups_in_context.append(group)
             contexts[context] = users_in_context, groups_in_context
     for context, (users, groups) in contexts.items():
@@ -222,7 +244,11 @@ def get_account_objs(obj):  # noqa: C901
             new_obj.old_attributes["oxContext"] = context
         if new_obj.attributes:
             new_obj.attributes["oxContext"] = context
-            new_obj.attributes["users"] = sorted(set(users) & set(new_obj.attributes.get("users")))
-            new_obj.attributes["groups"] = sorted(set(groups) & set(new_obj.attributes.get("groups")))
+            new_obj.attributes["users"] = sorted(
+                set(users) & set(new_obj.attributes.get("users")),
+            )
+            new_obj.attributes["groups"] = sorted(
+                set(groups) & set(new_obj.attributes.get("groups")),
+            )
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj

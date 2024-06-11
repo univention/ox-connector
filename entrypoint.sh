@@ -45,8 +45,6 @@ check_required_variables() {
 check_required_variables
 
 mkdir -p "/var/lib/univention-appcenter/apps/ox-connector/data/listener"
-chown -R "listener:root" "/var/lib/univention-appcenter/apps/ox-connector/data"
-chmod -R "0744" "/var/lib/univention-appcenter/apps/ox-connector/data"
 
 # Write credentials file for univention/ox/soap/config.py
 JSON_STRING=$(
@@ -61,60 +59,3 @@ if [[ ! -f "${OX_CREDENTIALS_FILE}" ]]; then
   mkdir --parents "/etc/ox-secrets"
   echo "${JSON_STRING}" > "${OX_CREDENTIALS_FILE}"
 fi
-chown "listener:root" "${OX_CREDENTIALS_FILE}"
-chmod "0600" "${OX_CREDENTIALS_FILE}"
-
-
-echo "starting listener with access profiles and contexts"
-
-UDL_PID_FILE="/var/lib/univention-directory-listener/pid"
-if [[ -f "${UDL_PID_FILE}" ]]; then
-  rm -f "${UDL_PID_FILE}"
-fi
-
-LISTENER_STATUS_FILE="/var/lib/univention-directory-listener/handlers/listener_handler"
-if [[ -f "${LISTENER_STATUS_FILE}" ]]; then
-  rm -f "${LISTENER_STATUS_FILE}"
-fi
-
-/usr/sbin/univention-directory-listener \
-  -x \
-  -d "${DEBUG_LEVEL}" \
-  -b "${LDAP_BASE_DN}" \
-  -D "cn=admin,${LDAP_BASE_DN}" \
-  -n "${NOTIFIER_SERVER}" \
-  -m "/usr/lib/univention-directory-listener/system" \
-  -c "/var/lib/univention-directory-listener" \
-  -y "${LDAP_PASSWORD_FILE}" \
-  -g \
-  "${TLS_START_FLAGS}"
-
-echo "waiting for contexts and access profiles to be initialized"
-while true; do
-    LISTENER_STATUS="-1 (Univention Directory Listener not running yet)"
-  if [[ -f "${LISTENER_STATUS_FILE}" ]]; then
-    LISTENER_STATUS=$(cat /var/lib/univention-directory-listener/handlers/listener_handler)
-  fi
-  echo "contexts and access profiles listener status: ${LISTENER_STATUS}"
-  if [[ "${LISTENER_STATUS}" = "3" ]]; then
-    echo "contexts and access profiles already initialized and ready"
-    echo "####### logs from contexts and access profiles listener #######"
-    cat /var/log/univention/listener.log
-    echo "####### end of logs from contexts and access profiles listener #######"
-    pkill -f univention-directory-listener
-    break
-  else
-    echo "contexts and access profiles not initialized yet"
-    sleep 1
-  fi
-done
-
-echo "preinitialization listener finished"
-if [[ -f "${UDL_PID_FILE}" ]]; then
-  rm -f "${UDL_PID_FILE}"
-fi
-if [[ -f "${LISTENER_STATUS_FILE}" ]]; then
-  rm -f "${LISTENER_STATUS_FILE}"
-fi
-
-touch /tmp/initialized.lock

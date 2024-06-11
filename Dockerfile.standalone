@@ -5,57 +5,47 @@
 # Always build this image with `DOCKER_BUILDKIT=1`
 # Without it the wrong .dockerignore file will be used
 
-ARG UCS_BASE_IMAGE_TAG=0.11.0
-ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-506
+ARG UCS_BASE_IMAGE_TAG=0.13.1-build-2024-07-04
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
 ###############################################################################
 # Reference ox-connector as source for listener_trigger dependencies
 # based on alpine:3.14
 # hadolint ignore=DL3007
-FROM gitregistry.knut.univention.de/univention/open-xchange/provisioning/ox-connector-appcenter:latest AS ox-connector
+# TODO: return back image tag before merging
+FROM gitregistry.knut.univention.de/univention/open-xchange/provisioning/ox-connector-appcenter:0.11.0-pre-acaceres-migrate-ox-connector-to-provisioning-service AS ox-connector
+
 
 ###############################################################################
-# Reference listener-base as source for the univention-directory-listener client
-# based on debian:buster-slim (10)
-FROM gitregistry.knut.univention.de/univention/customers/dataport/upx/container-listener-base/listener-base:v0.4.1 AS listener-base
-
-###############################################################################
-# Reference UCS 5.0-5 image as source for python dependencies
-# This needs to use the old debian release because the binary
-# /usr/sbin/univention-directory-listener from the listener-base image
-# depends on python 3.7
+# Reference UCS image as source for python dependencies
 
 FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS debian-python-deps
 
 RUN \
-  apt-get update && \
   DEBIAN_FRONTEND=noninteractive \
     apt-get --assume-yes --verbose-versions --no-install-recommends install \
       # libgdbm.so.6 for python dbm.gnu
-      libgdbm6=1.18.* \
+      libgdbm6=1.23-3* \
       # pyasn1.error.PyAsn1Error for ${PYPKG}/ldap/controls/__init__.py
       python3-pyasn1=0.4.* \
       # for python3-zeep
       python3-cached-property=1.5.* \
       # defusedxml.lxml.fromstring for python3-zeep
-      python3-defusedxml=0.5.* \
+      python3-defusedxml=0.7.* \
       # for dbm.gnu used by app/listener_trigger
-      python3-gdbm=3.7.* \
+      python3-gdbm=3.11.* \
       # for python isodate used by zeep
       python3-isodate=0.6.* \
-      # dependency ldap.filter.filter_format of ${PYPKG}/univention/admin/__init__.py
-      python3-ldap=3.1.* \
+      python3-pyasn1-modules \
       # dependency lxml.etree of ${PYPKG}/zeep/utils.py
-      python3-lxml=4.3.* \
+      python3-lxml=4.9.* \
       # dependency pytz of ${PYPKG}/zeep/xsd/types/builtins.py
-      python3-tz=2019.* \
-      # dependency unidecode of ${PYPKG}/univention/admin/__init__.py
-      python3-unidecode=1.0.* \
+      python3-tz=2022.7.* \
       # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
-      python3-zeep=3.2.* \
+      python3-zeep=4.2.* \
       # python3-minimal \
       # python3.9-minimal
-      # libicui18n.so.63 for python lxml.etree
-      libicu63=63.* \
+      # libicui18n.so.72 for python lxml.etree
+      libicu72=72.* \
       # libxml2.so.2 for python lxml.etree
       libxml2=2.9.* \
       # libxslt.so.1 for python lxml.etree and ${PYPKG}/zeep/utils.py
@@ -68,11 +58,8 @@ FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS final
 
 SHELL ["/bin/sh", "-eux", "-c"]
 
-# debian:buster
-ARG PYPKG=/usr/local/lib/python3.7/dist-packages
-
-# listener-base
-ARG LBPKG=/usr/lib/python3/dist-packages
+# debian:bookworm
+ARG PYPKG=/usr/local/lib/python3.11/dist-packages
 
 # debian-python-deps
 ARG PDPKG=/usr/lib/python3/dist-packages
@@ -84,47 +71,32 @@ LABEL \
   "version"="$version"
 
 RUN \
-  apt-get update && \
   DEBIAN_FRONTEND=noninteractive \
     apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
       # for dbm.gnu used by app/listener_trigger
       # python3-gdbm
-      ca-certificates=2020* \
-      libpython3.7=3.7.* \
-      libpython3.7-minimal=3.7.* \
-      libpython3.7-stdlib=3.7.* \
-      python3-minimal=3.7.* \
-      python3.7-minimal=3.7.* \
+      ca-certificates=2023* \
+      libpython3.11=3.11.* \
+      libpython3.11-minimal=3.11.* \
+      libpython3.11-stdlib=3.11.* \
+      python3-minimal=3.11.* \
+      python3.11-minimal=3.11.* \
       jq=1.* \
-      procps=2:3.3.* && \
+      procps=2:4.0.* \
+      python3-pip=23.0.* && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \
-    && \
-    \
-    # dependency of ${PYPKG}/univention/config_registry/handler.py
-    mkdir --parents "/var/cache/univention-config/" && \
-    touch "/var/cache/univention-config/cache" && \
-    \
-    # dependency of /usr/sbin/univention-directory-listener:getpwnam
-    echo "listener:x:102:65534::/var/lib/univention-directory-listener:/usr/sbin/nologin" >> "/etc/passwd" && \
-    \
-    # Avoid unused dependency on PIL
-    mkdir --parents "${PYPKG}/univention/admin/" && \
-    echo "" > "${PYPKG}/univention/admin/license.py" && \
-    \
     # Avoid unused dependency on PIL
     echo "" > "${PYPKG}/PIL.py" && \
-    \
-    # requiered by os.mkdir(log_dir) of ${PYPKG}/univention/listener/handler_logging.py
-    mkdir "/var/log/univention"
+    pip3 install --break-system-packages --no-cache-dir \
+        nubus-provisioning-consumer==0.33.1 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
+        appdirs==1.4.* \
+        platformdirs==2.6.*
 
 # install appcenter listener script to use as package
 COPY app/listener_trigger ${PYPKG}/listener_trigger.py
 
-# glue-code to let the listener directly execute the listener_trigger
-COPY standalone-files/listener_handler.py /usr/lib/univention-directory-listener/system/
-
-COPY --from=listener-base /command.sh /
-COPY --from=listener-base /entrypoint.d/50-listener-base-entrypoint.envsh /entrypoint.d/50-listener-base-entrypoint.envsh
+# glue-code to let the consumer directly execute the listener_trigger
+COPY ./standalone-files /
 
 # dependency univention.ox.provisioning.helpers of ${PYPKG}/listener_trigger.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/univention/ox/provisioning/ ${PYPKG}/univention/ox/provisioning/
@@ -135,19 +107,6 @@ COPY --from=debian-python-deps ${PDPKG}/zeep/ ${PYPKG}/zeep/
 # dependency zeep of ${PYPKG}/zeep/settings.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/attr/ ${PYPKG}/attr/
 
-# dependency of /listener-base-entrypoint.sh
-COPY --from=listener-base /etc/ldap/ldap.conf /etc/ldap/
-
-COPY --from=listener-base \
-  # dependency of /listener-base-entrypoint.sh
-  /usr/sbin/ucr \
-  /usr/sbin/univention-config-registry \
-
-  # dependency of /command.sh
-  /usr/sbin/univention-directory-listener \
-
-  /usr/sbin/
-
 COPY --from=ox-connector \
   # dependency six of /usr/sbin/ucr
   /usr/lib/python3.9/site-packages/six.py \
@@ -157,77 +116,26 @@ COPY --from=ox-connector \
 
   ${PYPKG}/
 
-# dependency univention.config_registry of /usr/sbin/ucr
-COPY --from=listener-base ${LBPKG}/univention/config_registry/ ${PYPKG}/univention/config_registry/
-
-# dependency lazy_object_proxy of ${PYPKG}/univention/config_registry/__init__.py
-COPY --from=listener-base ${LBPKG}/lazy_object_proxy/ ${PYPKG}/lazy_object_proxy/
-
-COPY --from=listener-base \
-  # dependency univention.debhelper of ${PYPKG}/univention/config_registry/handler.py
-  ${LBPKG}/univention/debhelper.py \
-
-  # dependency univention.config_registry_info of ${PYPKG}/univention/config_registry/frontend.py
-  ${LBPKG}/univention/config_registry_info.py \
-
-  # dependency univention.info_tools of ${PYPKG}/univention/config_registry_info.py
-  ${LBPKG}/univention/info_tools.py \
-
-  # dependency univention.debug of ${PYPKG}/univention/admin/__init__.py
-  ${LBPKG}/univention/_debug.cpython-37m-x86_64-linux-gnu.so \
-  ${LBPKG}/univention/debug.py \
-
-  # dependency univention.uldap of ${PYPKG}/univention/uldap.py
-  ${LBPKG}/univention/uldap.py \
-
-  ${PYPKG}/univention/
-
-COPY --from=listener-base \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libuniventiondebug.so.1.0.0 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libuniventionconfig.so.0.0.1 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libicuuc.so.63.1 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libuniventionpolicy.so.0.0.1 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libldap_r-2.4.so.2.10.10 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/liblber-2.4.so.2.10.10 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/liblmdb.so.0.0.0 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libicudata.so.63.1 \
-  # dependency of /usr/sbin/univention-directory-listener
-  /usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25 \
-  /usr/lib/x86_64-linux-gnu/
-
 COPY --from=debian-python-deps \
-  # dependency dbm.gnu of /usr/local/lib/python3.7/dist-packages/listener_trigger.py
+  # dependency dbm.gnu of /usr/local/lib/python3.11/dist-packages/listener_trigger.py
   /usr/lib/x86_64-linux-gnu/libgdbm.so.6.0.0 \
   # dependency lxml.etree of ${PYPKG}zeep/utils.py
-  /usr/lib/x86_64-linux-gnu/libxslt.so.1.1.32 \
+  /usr/lib/x86_64-linux-gnu/libxslt.so.1.1.35 \
   /usr/lib/x86_64-linux-gnu/libexslt.so.0.8.20 \
-  /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.4 \
-  /usr/lib/x86_64-linux-gnu/libicui18n.so.63.1 \
+  /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14 \
+  /usr/lib/x86_64-linux-gnu/libicui18n.so.72.1 \
+  /usr/lib/x86_64-linux-gnu/libicuuc.so.72.1 \
+  /usr/lib/x86_64-linux-gnu/libicudata.so.72.1 \
   /usr/lib/x86_64-linux-gnu/
 
 RUN \
-  ln --symbolic --force libexslt.so.0.8.20 /usr/lib/x86_64-linux-gnu/libexslt.so.0 && \
   ln --symbolic --force libgdbm.so.6.0.0 /usr/lib/x86_64-linux-gnu/libgdbm.so.6 && \
-  ln --symbolic --force libicudata.so.63.1 /usr/lib/x86_64-linux-gnu/libicudata.so.63 && \
-  ln --symbolic --force libicui18n.so.63.1 /usr/lib/x86_64-linux-gnu/libicui18n.so.63 && \
-  ln --symbolic --force libicuuc.so.63.1 /usr/lib/x86_64-linux-gnu/libicuuc.so.63 && \
-  ln --symbolic --force liblber-2.4.so.2.10.10 /usr/lib/x86_64-linux-gnu/liblber-2.4.so.2 && \
-  ln --symbolic --force libldap_r-2.4.so.2.10.10 /usr/lib/x86_64-linux-gnu/libldap_r-2.4.so.2 && \
-  ln --symbolic --force liblmdb.so.0.0.0 /usr/lib/x86_64-linux-gnu/liblmdb.so.0 && \
-  ln --symbolic --force libsasl2.so.2.0.25 /usr/lib/x86_64-linux-gnu/libsasl2.so.2 && \
-  ln --symbolic --force libuniventionconfig.so.0.0.1 /usr/lib/x86_64-linux-gnu/libuniventionconfig.so.0 && \
-  ln --symbolic --force libuniventiondebug.so.1.0.0 /usr/lib/x86_64-linux-gnu/libuniventiondebug.so.1 && \
-  ln --symbolic --force libuniventionpolicy.so.0.0.1 /usr/lib/x86_64-linux-gnu/libuniventionpolicy.so.0 && \
-  ln --symbolic --force libxml2.so.2.9.4 /usr/lib/x86_64-linux-gnu/libxml2.so.2 && \
-  ln --symbolic --force libxslt.so.1.1.32 /usr/lib/x86_64-linux-gnu/libxslt.so.1
+  ln --symbolic --force libxslt.so.1.1.35 /usr/lib/x86_64-linux-gnu/libxslt.so.1 && \
+  ln --symbolic --force libexslt.so.0.8.20 /usr/lib/x86_64-linux-gnu/libexslt.so.0 && \
+  ln --symbolic --force libxml2.so.2.9.14 /usr/lib/x86_64-linux-gnu/libxml2.so.2 && \
+  ln --symbolic --force libicui18n.so.72.1 /usr/lib/x86_64-linux-gnu/libicui18n.so.72 && \
+  ln --symbolic --force libicuuc.so.72.1 /usr/lib/x86_64-linux-gnu/libicuuc.so.72 && \
+  ln --symbolic --force libicudata.so.72.1 /usr/lib/x86_64-linux-gnu/libicudata.so.72
 
 COPY --from=ox-connector \
   # dependency univention.ox.soap.backend_base of ${PYPKG}/univention/ox/provisioning/contexts.py
@@ -250,8 +158,6 @@ COPY --from=ox-connector \
 
   ${PYPKG}/univention/ox/soap/
 
-
-
 # dependency requests of ${PYPKG}/zeep/transports.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/requests ${PYPKG}/requests
 
@@ -264,26 +170,18 @@ COPY --from=ox-connector /usr/lib/python3.9/site-packages/certifi ${PYPKG}/certi
 # dependency lxml.etree of ${PYPKG}/zeep/utils.py
 COPY --from=debian-python-deps ${PDPKG}/lxml/ ${PYPKG}/lxml/
 
-# dependency dbm.gnu of /usr/local/lib/python3.7/dist-packages/listener_trigger.py
-COPY --from=debian-python-deps /usr/lib/python3.7/lib-dynload/_gdbm.cpython-37m-x86_64-linux-gnu.so /usr/lib/python3.7/lib-dynload/
+# dependency dbm.gnu of /usr/local/lib/python3.11/dist-packages/listener_trigger.py
+COPY --from=debian-python-deps /usr/lib/python3.11/lib-dynload/_gdbm.cpython-311-x86_64-linux-gnu.so /usr/lib/python3.11/lib-dynload/
 
-# dependency charset_normalizer of /usr/local/lib/python3.7/dist-packages/requests/compat.py
+# dependency charset_normalizer of /usr/local/lib/python3.11/dist-packages/requests/compat.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/charset_normalizer/ ${PYPKG}/charset_normalizer/
 
-# dependency idna of /usr/local/lib/python3.7/dist-packages/requests/packages.py
+# dependency idna of /usr/local/lib/python3.11/dist-packages/requests/packages.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/idna/ ${PYPKG}/idna/
 
 COPY --from=debian-python-deps \
   # dependency cached_property.threaded_cached_property of ${PYPKG}/zeep/xsd/elements/indicators.py
   ${PDPKG}/cached_property.py \
-
-  # dependency appdirs of ${PYPKG}/zeep/cache.py [python3-appdirs]
-  ${PDPKG}/appdirs.py \
-
-  # dependency ldap.filter.filter_format of /usr/local/lib/python3.7/dist-packages/univention/admin/__init__.py
-  ${PDPKG}/_ldap.cpython-37m-x86_64-linux-gnu.so \
-  ${PDPKG}/ldapurl.py \
-  ${PDPKG}/ldif.py \
 
   ${PYPKG}/
 
@@ -299,65 +197,15 @@ COPY --from=debian-python-deps ${PDPKG}/defusedxml/ ${PYPKG}/defusedxml/
 # dependency requests_toolbelt of ${PYPKG}/zeep/wsdl/bindings/soap.py
 COPY --from=debian-python-deps ${PDPKG}/requests_toolbelt/ ${PYPKG}/requests_toolbelt/
 
-# dependency univention.listener of /usr/lib/univention-directory-listener/system/listener_handler.py [univention-directory-listener]
-COPY --from=listener-base ${LBPKG}/univention/listener/ ${PYPKG}/univention/listener/
-
-# dependency univention.admin of /usr/local/lib/python3.7/dist-packages/univention/listener/handler.py [python3-univention-directory-manager]
-COPY --from=listener-base ${LBPKG}/univention/admin/ ${PYPKG}/univention/admin/
-
-# dependency unidecode of ${PYPKG}/univention/admin/__init__.py
-COPY --from=debian-python-deps ${PDPKG}/unidecode/ ${PYPKG}/unidecode/
-
-# dependency ldap.filter.filter_format of /usr/local/lib/python3.7/dist-packages/univention/admin/__init__.py
-COPY --from=debian-python-deps ${PDPKG}/ldap/ ${PYPKG}/ldap/
-
 # dependency pyasn1.error.PyAsn1Error of ${PYPKG}/ldap/controls/__init__.py
 COPY --from=debian-python-deps ${PDPKG}/pyasn1/ ${PYPKG}/pyasn1/
 COPY --from=debian-python-deps ${PDPKG}/pyasn1_modules/ ${PYPKG}/pyasn1_modules/
 
-COPY --from=listener-base \
-  # python3-univention-lib: dependency univention.lib.i18n.Translation of ${PYPKG}/univention/admin/localization.py
-  ${LBPKG}/univention/lib/i18n.py \
-  # dependency univention.lib.ucs of /usr/local/lib/python3.7/dist-packages/univention/admin/syntax.py
-  ${LBPKG}/univention/lib/ucs.py \
-  ${PYPKG}/univention/lib/
-
-COPY \
-  # dependency univention.lib.umc_module of /usr/local/lib/python3.7/dist-packages/univention/admin/syntax.py
-  standalone-files/umc_module.py \
-  # Avoid unused dependency on samba and other libs
-  standalone-files/admember.py \
-  # dependency univention.lib.misc of univention/admin/license.py
-  standalone-files/misc.py \
-  ${PYPKG}/univention/lib/
-
-COPY standalone-files/ox_mappings.py ${PYPKG}/ox_mappings.py
-
-# dependency dateutil of /usr/local/lib/python3.7/dist-packages/univention/admin/syntax.py
-COPY --from=ox-connector /usr/lib/python3.9/site-packages/dateutil/ ${PYPKG}/dateutil/
-
-# dependency univention.admindiary.client of ${PYPKG}/univention/admin/handlers/__init__.py [python3-univention-admin-diary]
-COPY --from=listener-base ${LBPKG}/univention/admindiary/  ${PYPKG}/univention/admindiary/
-
-# dependency listener of ${PYPKG}/univention/listener/handler.py [univention-directory-listener]
-COPY --from=listener-base ${LBPKG}/listener.py ${PYPKG}/
-
-COPY --from=listener-base /etc/univention/base-forced.conf /etc/univention/
-
-RUN \
-  touch /usr/local/lib/python3.7/dist-packages/univention/license.py && \
-  /usr/bin/python3.7 -m compileall -b \
-    "/etc/python3.7/sitecustomize.py" \
-    "/usr/lib/python3.7/" \
-    "/usr/lib/univention-directory-listener/system/listener_handler.py" \
-    "${PYPKG}/" \
-    "/usr/share"
+ENV PYTHON_DIST_PACKAGES="/usr/local/lib/python3.11/dist-packages"
 
 COPY entrypoint.sh /entrypoint.d/75-entrypoint.sh
 
-ENV PYTHON_DIST_PACKAGES="/usr/local/lib/python3.7/dist-packages"
-
-CMD ["/command.sh"]
+CMD ["/usr/bin/python3", "consumer.py"]
 
 ###############################################################################
 # A separate stage for tests
@@ -373,10 +221,10 @@ COPY tests /tests
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive \
     apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-      procps=2:3.3.* \
-      python3-pip=18.* && \
+      procps \
+      python3-pip && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* && \
-    pip3 install --no-cache-dir \
+    pip3 install --break-system-packages --no-cache-dir \
       uritemplate==4.1.1 \
       iniconfig==2.0.0 \
       exceptiongroup==1.1.3 \

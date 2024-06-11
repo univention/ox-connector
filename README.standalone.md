@@ -70,7 +70,9 @@ This needs to be run on every deployment to run the tests, since UDM REST API is
 1. Get a shell with `kubectl --namespace=uv-<your-username> exec --stdin --tty ox-connector-0 -- /bin/bash`
 1. You need a fresh `ModuleAccessDefinitions.properties` to run the tests, so do the following to keep the permissions untouched:
 `echo "" > /var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties`
-2. Run the tests as follows: `TESTS_UDM_ADMIN_USERNAME="someuser" TESTS_UDM_ADMIN_PASSWORD="somepassword" python3 -m pytest -l -vvv tests`
+2. Run the tests as follows: 
+#### For Jenkins UCS, or use PORTAL_HOST instead of LDAP_MASTER for other environments
+`TESTS_UDM_ADMIN_USERNAME="someuser" TESTS_UDM_ADMIN_PASSWORD="somepassword" LDAP_MASTER="" LDAP_BASE="dc=swp-ldap,dc=internal" python3 -m pytest -l -vvv tests`
 3. Inspect the listener logs if failures take place: `/var/log/univention/listener_modules/listener_handler.log`
 4. Empty the file and re-run until needed: `echo "" > /var/log/univention/listener_modules/listener_handler.log`
 
@@ -79,21 +81,11 @@ This needs to be run on every deployment to run the tests, since UDM REST API is
 ## Tests status
 
 Currently known to fail tests are:
-- `tests/test_user.py`
-    - `test_rename_user`
-    - `test_remove_user`
-    - `test_enable_and_disable_user`
-    - `test_change_context`
-    - `test_existing_user_in_different_context`
-- `tests/test_resource.py`
-    - `test_modify_resource`
-    - `test_remove_resource`
-    - `test_change_context_resource`
 - `tests/test_group.py`
-    - `test_modify_group`
-    - `test_rename_user`
     - `test_change_context_for_group_user`
     - `test_change_context_for_group_multi_user`
+- `tests/test_cache.py`
+- `tests/test_user_attribute_mapping.py`
 
 > This fails are due to OX configuration on SouvAP deployment not allowing
 > for usernames to be changed, as well as displaynames (since they are already

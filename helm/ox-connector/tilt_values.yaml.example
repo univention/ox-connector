@@ -4,14 +4,6 @@ ingress:
   enabled: false
 
 oxConnector:
-  caCert: "ucctempldapstring"
-  ldapBaseDn: "dc=swp-ldap,dc=internal"
-  ldapPassword: "<value of LDAP_PASSWORD>"
-  ldapHost: "univention-corporate-container"
-  ldapHostDn: "cn=admin,dc=swp-ldap,dc=internal"
-  notifierServer: "univention-corporate-container"
-  tlsMode: "off"
-
   domainName: "<value of DOMAINNAME>"
   oxMasterAdmin: "oxadminmasters"
   oxMasterPassword: "<value of OX_MASTER_PASSWORD>"
@@ -21,11 +13,24 @@ oxConnector:
   oxSoapServer: "<value of OX_SOAP_SERVER>"
   logLevel: "DEBUG"
 
+provisioningApi:
+  connection:
+    baseUrl: "<value of PROVISIONING_API_BASE_URL>"
+  auth:
+    username: "ox-connector"
+    password: "password"
+
 image:
   registry: "registry.souvap-univention.de"
   repository: "souvap/tooling/images/ox-connector/ox-connector-standalone"
   pullPolicy: "Always"
   tag: "0.0.1-dev-tilt"
   sha256: null
+
+  waitForDependency:
+    registry: "artifacts.software-univention.de"
+    imagePullPolicy: "IfNotPresent"
+    repository: "nubus/images/wait-for-dependency"
+    tag: "0.25.0@sha256:71a4d66fd67db6f92212b1936862b2b0d5a678d412213d74452a9195c2fe67f7"
 
 ...

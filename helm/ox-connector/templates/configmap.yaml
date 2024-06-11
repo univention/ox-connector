@@ -8,16 +8,13 @@
 {{ with .top }}
 data:
 
-  # CONTAINER LISTENER BASE (univention directory listener)
-  LDAP_HOST: "{{ .Values.oxConnector.ldapHost }}"
-  LDAP_PORT: "{{ .Values.oxConnector.ldapPort }}"
-  LDAP_BASE_DN: "{{ .Values.oxConnector.ldapBaseDn }}"
-  LDAP_HOST_DN: "{{ .Values.oxConnector.ldapHostDn }}"
-  NOTIFIER_SERVER: "{{ .Values.oxConnector.notifierServer }}"
-  DEBUG_LEVEL: "{{ .Values.oxConnector.debugLevel }}"
-  TLS_MODE: "{{ .Values.oxConnector.tlsMode }}"
-  LDAP_PASSWORD: "{{ .Values.oxConnector.ldapPassword }}"
-  CA_CERT_FILE: "{{ .Values.oxConnector.caCertFile }}"
+  # Provisioning API
+  # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+  PROVISIONING_API_BASE_URL: {{ .Values.provisioningApi.connection.baseUrl | quote }}
+  # -- The username to authenticate with.
+  PROVISIONING_API_USERNAME: {{ .Values.provisioningApi.auth.username | quote }}
+  # -- The maximum number of retries for acknowledging a message
+  MAX_ACKNOWLEDGEMENT_RETRIES: {{ required "The parameter \".Values.provisioningApi.config.maxAcknowledgementRetries\" is required." .Values.provisioningApi.config.maxAcknowledgementRetries | quote }}
 
   # OX CONNECTOR
   # OX-Mail-Domain to generate OX-email-addresses
@@ -40,12 +37,14 @@ data:
   OX_SOAP_SERVER: "{{ .Values.oxConnector.oxSoapServer }}"
   # OX Connector log level
   LOG_LEVEL: "{{ .Values.oxConnector.logLevel }}"
+  wait-for-api.sh: |
+    #!/bin/bash
+    until curl -s ${PROVISIONING_API_BASE_URL} > /dev/null; do
+      echo "Waiting for API"
+      sleep 2
+    done
 
-  # TESTS
-  # LDAP server for OX Connector test suite
-  LDAP_MASTER: "{{ .Values.oxConnector.ldapHost }}"
-  # LDAP base distinguished name for OX Connector test suite
-  LDAP_BASE: "{{ .Values.oxConnector.ldapBaseDn }}"
+    echo "Success, the Provisioning API is available"
 
 {{- end }}
 {{- end }}
