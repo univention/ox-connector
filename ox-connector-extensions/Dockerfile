@@ -1,18 +1,30 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
-FROM scratch
+ARG UCS_BASE_IMAGE_TAG=0.12.0
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
 
-WORKDIR /dependencies
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG}
+
+# TODO: A sane user should be configured in the base image already.
+RUN adduser app
+USER app
+
+
+WORKDIR /
 
 # UDM hooks, syntax and handlers
-COPY udm /dependencies/
+COPY udm/handlers /plugins/udm-handlers
+COPY udm/hooks.d /plugins/udm-hooks.d
+COPY udm/syntax.d /plugins/udm-syntax.d
 
 # UMC icons and po/xml
-COPY umc /dependencies/
+COPY umc/icons /plugins/umc-icons/
+COPY umc/ox-common.xml /plugins/umc-modules/
 
 # LDAP schemas
-COPY ldap /dependencies/
+COPY ldap /plugins/ldap-schema
 
-# Extended attributes
-COPY share/attrlist.csv /dependencies/share/attrlist.csv
+COPY ox-connector-extensions/loader.sh /bin/loader
+
+CMD ["/bin/loader"]
