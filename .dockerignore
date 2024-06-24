@@ -3,7 +3,7 @@
 !/app/listener_trigger
 !/bin/
 !/ldap/
-!/ox-connector-extensions
+!/ox-extension
 !/LICENSE
 !/Makefile
 !/requirements_all.txt

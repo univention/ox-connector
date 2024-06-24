@@ -25,6 +25,6 @@ COPY umc/ox-common.xml /plugins/umc-modules/
 # LDAP schemas
 COPY ldap /plugins/ldap-schema
 
-COPY ox-connector-extensions/loader.sh /bin/loader
+COPY ox-extension/loader.sh /bin/loader
 
 CMD ["/bin/loader"]

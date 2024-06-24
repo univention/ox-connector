@@ -45,8 +45,8 @@ variables:
   - IMAGE_NAME: "ox-connector-standalone-test"
     DOCKERFILE_PATH: "Dockerfile.standalone"
     KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION}"
-  - IMAGE_NAME: "ox-connector-dependencies"
-    DOCKERFILE_PATH: "ox-connector-extensions/Dockerfile"
+  - IMAGE_NAME: "ox-extension"
+    DOCKERFILE_PATH: "ox-extension/Dockerfile"
   - IMAGE_NAME: "ox-connector-appcenter-test"
     DOCKERFILE_PATH: "Dockerfile"
     KANIKO_ARGS: "--target=test --build-arg version=${DOCKER_BUILD_VERSION}"
@@ -56,7 +56,7 @@ variables:
       - "ox-connector-appcenter"
       - "ox-connector-standalone"
       - "ox-connector-standalone-test"
-      - "ox-connector-dependencies"
+      - "ox-extension"
 
 .publish-matrix: &publish-matrix
   - IMAGE_NAME:
