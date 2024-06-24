@@ -82,8 +82,8 @@ ingress:
 
 ## Docker image
 image:
-  registry: "registry.souvap-univention.de"
-  repository: "souvap/tooling/images/ox-connector/ox-connector-standalone"
+  registry: "artifacts.software-univention.de"
+  repository: "nubus-dev/images/ox-connector-standalone"
   pullPolicy: "Always"
   tag: "latest"
   # -- Define image sha256 as an alternative to `tag`

@@ -6,15 +6,15 @@ include:
   - project: "univention/documentation/sphinx-docker"
     file: "pipeline/sphinx.yml"
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.16.2"
+    ref: "v1.31.1"
     file:
       - "defaults/stages.yaml"
-      - "defaults/souvap-workflow.yaml"
+      - "defaults/nubus-workflow.yaml"
       - "jobs/lint-pre-commit.yaml"
       - "jobs/lint-commit-messages.yaml"
       - "jobs/semantic-release-env.yaml"
-      - "jobs/container-build-souvap.yaml"
-      - "jobs/package-and-publish-helm-charts-souvap.yaml"
+      - "jobs/container-build-external.yaml"
+      - "jobs/package-and-publish-helm-charts-external.yaml"
       - "jobs/check-debian-updates.yaml"
 
 workflow:
@@ -62,6 +62,7 @@ variables:
   - IMAGE_NAME:
       - "ox-connector-appcenter"
       - "ox-connector-standalone"
+      - "ox-extension"
 
 .version-rules: &version-rules
   - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -89,19 +90,11 @@ container-generate-sbom:
   parallel:
     matrix: *post-build-matrix
 
-container-sign:
-  parallel:
-    matrix: *post-build-matrix
-
-container-security-scan:
-  parallel:
-    matrix: *post-build-matrix
-
-push-image-souvap:
+push-image-external:
   parallel:
     matrix: *publish-matrix
 
-container-sign-souvap:
+container-sign-external:
   parallel:
     matrix: *publish-matrix
 
