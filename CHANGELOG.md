@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.8.2...v0.9.0) (2024-06-25)
+
+
+### Features
+
+* Migrate images to harbor ([3eca01d](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/3eca01d34dc701bf69547717a1160cccf3251c61))
+* Move extensions image from ox-connector-extensions to ox-extension ([f3a5ef6](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/f3a5ef63fb9b0454ea22d6e61c2cb37facba8d4e))
+
+
+### Bug Fixes
+
+* package ldap schemas and udm extensions ([5e1a3ab](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/5e1a3ab211326e8f24b4e6896dcbb11b0009a504))
+* unify loader script to the rest of containers plugin loaders ([ad0633a](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/ad0633a1bba0ff1bb73de44df2ba18f9d9619f52))
+
 ## [0.8.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.8.1...v0.8.2) (2024-05-22)
 
 
