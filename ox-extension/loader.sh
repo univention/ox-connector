@@ -14,6 +14,6 @@ do
         echo "COPY - Plugin type ${plugin_type} in /target, copying files."
         cp -av "${source}" /target
     else
-        echo "SKIP - Plugin type ${plugin_type} no in /target, skipping."
+        echo "SKIP - Plugin type ${plugin_type} not in /target, skipping."
     fi
 done
