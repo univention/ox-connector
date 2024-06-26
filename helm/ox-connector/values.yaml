@@ -22,6 +22,11 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
 
+# -- Optionally specify an extra list of additional volumes.
+extraVolumes: []
+
+# -- Optionally specify an extra list of additional volumeMounts.
+extraVolumeMounts: []
 
 oxConnector:
   # CONTAINER LISTENER BASE (univention directory listener)

@@ -63,12 +63,18 @@ spec:
               mountPath: /etc/ox-secrets
             - name: {{ include "common.names.fullname" . }}-appcenter
               mountPath: /var/lib/univention-appcenter/apps/ox-connector
+            {{- if .Values.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-      - name: secrets
-        secret:
-          secretName: {{ include "common.names.fullname" . | quote }}
+        - name: secrets
+          secret:
+            secretName: {{ include "common.names.fullname" . | quote }}
+        {{- if .Values.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
