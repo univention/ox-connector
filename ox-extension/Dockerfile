@@ -14,9 +14,9 @@ USER app
 WORKDIR /
 
 # UDM hooks, syntax and handlers
-COPY udm/handlers /plugins/admin-handlers/udm-handlers
-COPY udm/hooks.d /plugins/admin-hooks.d/udm-hooks.d
-COPY udm/syntax.d /plugins/admin-syntax.d/udm-syntax.d
+COPY udm/handlers /plugins/udm-handlers
+COPY udm/hooks.d /plugins/udm-hooks.d
+COPY udm/syntax.d /plugins/udm-syntax.d
 
 # UMC icons and po/xml
 COPY umc/icons /plugins/umc-icons
