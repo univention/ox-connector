@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.9.0...v0.9.1) (2024-06-28)
+
+
+### Bug Fixes
+
+* change loader script ([3f116c9](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/3f116c96fc040e1e32445753452f63fa3a50997c))
+* fixup typo ([7047857](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/7047857e48e5be85ca1c59c2e476b2e9b5b05a9b))
+* fixup! remove wrong paths ([1bbb2d9](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/1bbb2d9e080569f46b15bf00ec18d6b03ed7c2b8))
+
 ## [0.9.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.8.2...v0.9.0) (2024-06-25)
 
 
