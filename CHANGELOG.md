@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.9.1...v0.10.0) (2024-07-02)
+
+
+### Features
+
+* **helm/ox-connector:** Add extraVolumes and extraVolumeMounts template ([8ed72f6](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/8ed72f6db6ab8705a5cc4f2601dc8ca6550baad9))
+
 ## [0.9.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.9.0...v0.9.1) (2024-06-28)
 
 
