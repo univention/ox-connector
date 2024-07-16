@@ -17,7 +17,7 @@ ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources, users/user, grou
 DockerShellCommand = /bin/ash
 DockerImage = docker.software-univention.de/ox-connector:2.2.11
 DockerScriptConfigure = /tmp/ox-connector.configure
-Description = Synchronize UCS Users and Groups to Open-Xchange
+Description = Synchronize Nubus Users and Groups to Open-Xchange
 SupportedUcsVersions = 5.0-0 errata174, 5.1-0, 5.2-0
 Website = https://docs.software-univention.de/ox-connector-app/latest/
 LongDescription = <p>
@@ -27,17 +27,20 @@ LongDescription = <p>
 		To use the App, you need an Open-Xchange groupware installation such as the OX App Suite app from Univention App Center or a dedicated installation on a non-UCS system.
 	</p>
 	<p>
-		After the setup, the OX Connector App manages users, groups, resources such as conference rooms, and contexts. The UCS Identity management is the leading identity management system.
+		After the setup, the OX Connector App manages users, groups, resources such as conference rooms, and contexts. The Nubus Identity management is the leading identity management system and decides about which objects are synced to OX. A Single Sign On between Keycloak of Nubus and OX can be configured.
+		<br>
 	</p>
 	<p>
-		For more information, see <a href="https://docs.software-univention.de/ox-connector-app/latest/" target="_blank">OX Connector app documentation</a>.
+		For more information, see <a href="https://docs.software-univention.de/ox-connector-app/latest/">OX Connector app documentation</a>.
 	</p>
 
 Logo = logo.svg
 ListenerUDMVersion = 1
+AppCategories = Identity Management, Collaboration & Groupware
+LogoDetailPage = logo_detail_page.svg
 
 [de]
-Description = UCS-Benutzer nach Open-Xchange synchronisieren
+Description = Nubus Benutzer und Gruppen nach Open-Xchange synchronisieren
 LongDescription = <p>
 		Die OX Connector App synchronisiert ausgewählte Benutzer und Gruppen zu einem lokalen oder entfernten OX-System über die SOAP-API von OX.
 	</p>
@@ -47,8 +50,10 @@ LongDescription = <p>
 		Um diese App zu nutzen, brauchen Sie eine Open-Xchange-Installation wie zum Beispiel die OX App Suite App aus dem Univention App Center oder eine dedizierte OX-Installation auf einem Nicht-UCS-System.
 	</p>
 	<p>
-		Nach der Installation, übernimmt die OX Connector App die Verwaltung von Benutzern, Gruppen, Ressourcen wie z.B. Konferenzräume, und Kontexten. Das Identity Management von UCS wird das führende Identity-Management-System.
+		Nach der Installation, übernimmt die OX Connector App die Verwaltung von Benutzern, Gruppen, Ressourcen wie z.B. Konferenzräume, und Kontexten. Das Identity Management von Nubus wird das führende Identity-Management-System und entscheidet darüber, welche Objekte nach OX synchronisiert werden. Für EndanwenderInnen kann ein Single Sign-On zwischen dem in Nubus enthaltenen Keycloak und OX eingerichtet werden.
+		<br>
 	</p>
 	<p>
-		Für weitere Informationen, siehe <a href="https://docs.software-univention.de/ox-connector-app/latest/" target="_blank">OX Connector app documentation</a> (nur in Englisch verfügbar).
+		Für weitere Informationen, siehe <a href="https://docs.software-univention.de/ox-connector-app/latest/">OX Connector app documentation</a> (nur in Englisch verfügbar).
 	</p>
+
