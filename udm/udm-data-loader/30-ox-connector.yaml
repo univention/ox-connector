@@ -1,0 +1,3013 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2023 Univention GmbH
+
+
+# Create extended attributes
+---
+action: create
+module: container/cn
+position: cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: open-xchange
+
+# All Python EA generated from the csv file
+# https://git.knut.univention.de/univention/open-xchange/provisioning/-/blob/ucs5.0/share/createextattr.py?ref_type=heads
+# https://git.knut.univention.de/univention/open-xchange/provisioning/-/blob/ucs5.0/share/attrlist.csv?ref_type=heads
+# They are 78 attributes :)
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: "isOxUser"
+  default: OK
+  module: [users/user]
+  ldapMapping: isOxUser
+  objectClass: oxUserObject
+  shortDescription: Activate User in OX (unchecking will delete!)
+  longDescription: Activate User in OX (unchecking will delete!)
+  translationShortDescription:
+    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
+  translationLongDescription:
+    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
+  tabName: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: isOxUser
+  syntax: OkOrNot
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook: oxUserDefaults
+  groupName: Open-Xchange
+  groupPosition: 1
+
+# TODO: Check if empty value in properties.default works
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxContextUser
+  default:
+  module: [users/user]
+  ldapMapping: oxContextIDNum
+  objectClass: oxUserObject
+  shortDescription: OX context
+  longDescription: OX context, the user will be created in
+  translationShortDescription:
+    de_DE: OX-Kontext
+  translationLongDescription:
+    de_DE: OX-Kontext, in dem der Benutzer angelegt wird
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxContext
+  syntax: oxContextSelect
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: False
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: True
+  hook: oxContextRW
+  groupName: Open-Xchange
+  groupPosition: 1
+  disableUDMWeb: False
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxAccess
+  default: premium
+  module: [users/user]
+  ldapMapping: oxAccess
+  objectClass: oxUserObject
+  shortDescription: OX Access
+  longDescription: OX Access
+  translationShortDescription:
+    de_DE: OX-Berechtigung
+  translationLongDescription:
+    de_DE: OX-Berechtigung
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxAccess
+  syntax: oxaccess
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 4
+  overwritePosition:
+  doNotSearch: False
+  hook: oxAccess
+  groupName: Open-Xchange
+  groupPosition: 1
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxDisplayName
+  default: <firstname> <lastname>
+  module: [users/user]
+  ldapMapping: oxDisplayName
+  objectClass: oxUserObject
+  shortDescription: OX Display Name
+  longDescription: Name as shown in OX
+  translationShortDescription:
+    de_DE: OX Anzeigename
+  translationLongDescription:
+    de_DE: Name wie er in OX angezeigt wird
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxDisplayName
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 3
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxLanguage
+  default:
+  module: [users/user]
+  ldapMapping: oxLanguage
+  objectClass: oxUserObject
+  shortDescription: Default language
+  longDescription: Default language
+  translationShortDescription:
+    de_DE: Sprache
+  translationLongDescription:
+    de_DE: Sprache
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxLanguage
+  syntax: oxlanguage
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 5
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+  disableUDMWeb: True
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTimeZone
+  default:
+  module: [users/user]
+  ldapMapping: oxTimeZone
+  objectClass: oxUserObject
+  shortDescription: Default timezone
+  longDescription: Default timezone
+  translationShortDescription:
+    de_DE: Zeitzone
+  translationLongDescription:
+    de_DE: Zeitzone
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTimeZone
+  syntax: oxtimezone
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 6
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+  disableUDMWeb: True
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserQuota
+  default: "-1"
+  module: [users/user]
+  ldapMapping: oxUserQuota
+  objectClass: oxUserObject
+  shortDescription: OX Drive quota
+  longDescription: Quota of disk space the user may use
+  translationShortDescription:
+    de_DE: OX-Quota
+  translationLongDescription:
+    de_DE: Quota des Festplattenplatzes, den ein Benutzer verwenden darf
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserQuota
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: False
+  tabPosition: 8
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+  disableUDMWeb: True
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxMiddleName
+  default:
+  module: [users/user]
+  ldapMapping: oxMiddleName
+  objectClass: oxUserObject
+  shortDescription: Middle name
+  longDescription: Middle name
+  translationShortDescription:
+    de_DE: Zweiter Vorname
+  translationLongDescription:
+    de_DE: Zweiter Vorname
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxMiddleName
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxSuffix
+  default: ""
+  module: [users/user]
+  ldapMapping: oxSuffix
+  objectClass: oxUserObject
+  shortDescription: Name suffix
+  longDescription: Name suffix
+  translationShortDescription:
+    de_DE: Namenssuffix
+  translationLongDescription:
+    de_DE: Namenssuffix
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxSuffix
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxNickName
+  default: ""
+  module: [users/user]
+  ldapMapping: oxNickName
+  objectClass: oxUserObject
+  shortDescription: Nickname
+  longDescription: Nickname
+  translationShortDescription:
+    de_DE: Spitzname
+  translationLongDescription:
+    de_DE: Spitzname
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxNickName
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 3
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxNote
+  default: ""
+  module: [users/user]
+  ldapMapping: oxNote
+  objectClass: oxUserObject
+  shortDescription: Comments
+  longDescription: Comments
+  translationShortDescription:
+    de_DE: Bemerkungen
+  translationLongDescription:
+    de_DE: Bemerkungen
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxNote
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 4
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxMobileBusiness
+  default: ""
+  module: [users/user]
+  ldapMapping: oxMobileBusiness
+  objectClass: oxUserObject
+  shortDescription: Mobile business
+  longDescription: Mobile business
+  translationShortDescription:
+    de_DE: Mobiltelefon geschäftlich
+  translationLongDescription:
+    de_DE: Mobiltelefon geschäftlich
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxMobileBusiness
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 5
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxFaxBusiness
+  default: ""
+  module: [users/user]
+  ldapMapping: oxFaxBusiness
+  objectClass: oxUserObject
+  shortDescription: Fax business
+  longDescription: Fax business
+  translationShortDescription:
+    de_DE: Fax geschäftlich
+  translationLongDescription:
+    de_DE: Fax geschäftlich
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxFaxBusiness
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 6
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxInstantMessenger1
+  default: ""
+  module: [users/user]
+  ldapMapping: oxInstantMessenger1
+  objectClass: oxUserObject
+  shortDescription: IM business
+  longDescription: IM business
+  translationShortDescription:
+    de_DE: IM Firma
+  translationLongDescription:
+    de_DE: IM Firma
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxInstantMessenger1
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 7
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneCompany
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneCompany
+  objectClass: oxUserObject
+  shortDescription: Telephone exchange
+  longDescription: Telephone exchange
+  translationShortDescription:
+    de_DE: Telefon Zentrale
+  translationLongDescription:
+    de_DE: Telefon Zentrale
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneCompany
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 8
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneIp
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneIp
+  objectClass: oxUserObject
+  shortDescription: VoIP
+  longDescription: VoIP
+  translationShortDescription:
+    de_DE: VoIP
+  translationLongDescription:
+    de_DE: VoIP
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneIp
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 9
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneCar
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneCar
+  objectClass: oxUserObject
+  shortDescription: Car phone
+  longDescription: Car phone
+  translationShortDescription:
+    de_DE: Autotelefon
+  translationLongDescription:
+    de_DE: Autotelefon
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneCar
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 10
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneTelex
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneTelex
+  objectClass: oxUserObject
+  shortDescription: Telex
+  longDescription: Telex
+  translationShortDescription:
+    de_DE: Telex
+  translationLongDescription:
+    de_DE: Telex
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneTelex
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 11
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneTtydd
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneTtydd
+  objectClass: oxUserObject
+  shortDescription: Text phone
+  longDescription: Text phone
+  translationShortDescription:
+    de_DE: Texttelefon
+  translationLongDescription:
+    de_DE: Texttelefon
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneTtydd
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 12
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxStateBusiness
+  default: ""
+  module: [users/user]
+  ldapMapping: oxStateBusiness
+  objectClass: oxUserObject
+  shortDescription: State business
+  longDescription: State business
+  translationShortDescription:
+    de_DE: Bundesland Firma
+  translationLongDescription:
+    de_DE: Bundesland Firma
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxStateBusiness
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 13
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxCountryBusiness
+  default: ""
+  module: [users/user]
+  ldapMapping: oxCountryBusiness
+  objectClass: oxUserObject
+  shortDescription: Country business
+  longDescription: Country business
+  translationShortDescription:
+    de_DE: Land Firma
+  translationLongDescription:
+    de_DE: Land Firma
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxCountryBusiness
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 14
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxPosition
+  default: ""
+  module: [users/user]
+  ldapMapping: oxPosition
+  objectClass: oxUserObject
+  shortDescription: Position
+  longDescription: Position
+  translationShortDescription:
+    de_DE: Position
+  translationLongDescription:
+    de_DE: Position
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxPosition
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 15
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxDepartment
+  default: ""
+  module: [users/user]
+  ldapMapping: oxDepartment
+  objectClass: oxUserObject
+  shortDescription: Department
+  longDescription: Department
+  translationShortDescription:
+    de_DE: Abteilung
+  translationLongDescription:
+    de_DE: Abteilung
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxDepartment
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 16
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxBranches
+  default: ""
+  module: [users/user]
+  ldapMapping: oxBranches
+  objectClass: oxUserObject
+  shortDescription: Branches
+  longDescription: Branches
+  translationShortDescription:
+    de_DE: Branchen
+  translationLongDescription:
+    de_DE: Branchen
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxBranches
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 17
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxManagerName
+  default: ""
+  module: [users/user]
+  ldapMapping: oxManagerName
+  objectClass: oxUserObject
+  shortDescription: Manager
+  longDescription: Manager
+  translationShortDescription:
+    de_DE: Manager
+  translationLongDescription:
+    de_DE: Manager
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxManagerName
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 18
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneAssistant
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneAssistant
+  objectClass: oxUserObject
+  shortDescription: Assistant
+  longDescription: Assistant
+  translationShortDescription:
+    de_DE: Assistent
+  translationLongDescription:
+    de_DE: Assistent
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneAssistant
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 19
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTaxId
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTaxId
+  objectClass: oxUserObject
+  shortDescription: Tax ID
+  longDescription: Tax ID
+  translationShortDescription:
+    de_DE: Steuernummer
+  translationLongDescription:
+    de_DE: Steuernummer
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTaxId
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 20
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxCommercialRegister
+  default: ""
+  module: [users/user]
+  ldapMapping: oxCommercialRegister
+  objectClass: oxUserObject
+  shortDescription: Commercial Register
+  longDescription: Commercial Register
+  translationShortDescription:
+    de_DE: Handelsregister
+  translationLongDescription:
+    de_DE: Handelsregister
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxCommercialRegister
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 21
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxSalesVolume
+  default: ""
+  module: [users/user]
+  ldapMapping: oxSalesVolume
+  objectClass: oxUserObject
+  shortDescription: Sales volume
+  longDescription: Sales volume
+  translationShortDescription:
+    de_DE: Umsatz
+  translationLongDescription:
+    de_DE: Umsatz
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxSalesVolume
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 22
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUrl
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUrl
+  objectClass: oxUserObject
+  shortDescription: URL
+  longDescription: URL
+  translationShortDescription:
+    de_DE: URL
+  translationLongDescription:
+    de_DE: URL
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUrl
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 23
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Geschäftlich
+  groupName: Business
+  groupPosition: 2
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxStreetHome
+  default: ""
+  module: [users/user]
+  ldapMapping: oxStreetHome
+  objectClass: oxUserObject
+  shortDescription: Street private
+  longDescription: Street private
+  translationShortDescription:
+    de_DE: Straße privat
+  translationLongDescription:
+    de_DE: Straße privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxStreetHome
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxPostalCodeHome
+  default: ""
+  module: [users/user]
+  ldapMapping: oxPostalCodeHome
+  objectClass: oxUserObject
+  shortDescription: Post code private
+  longDescription: Post code private
+  translationShortDescription:
+    de_DE: PLZ privat
+  translationLongDescription:
+    de_DE: PLZ privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxPostalCodeHome
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxCityHome
+  default: ""
+  module: [users/user]
+  ldapMapping: oxCityHome
+  objectClass: oxUserObject
+  shortDescription: City private
+  longDescription: City private
+  translationShortDescription:
+    de_DE: Stadt privat
+  translationLongDescription:
+    de_DE: Stadt privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxCityHome
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 3
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxStateHome
+  default: ""
+  module: [users/user]
+  ldapMapping: oxStateHome
+  objectClass: oxUserObject
+  shortDescription: State private
+  longDescription: State private
+  translationShortDescription:
+    de_DE: Bundesland privat
+  translationLongDescription:
+    de_DE: Bundesland privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxStateHome
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 4
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxCountryHome
+  default: ""
+  module: [users/user]
+  ldapMapping: oxCountryHome
+  objectClass: oxUserObject
+  shortDescription: Country private
+  longDescription: Country private
+  translationShortDescription:
+    de_DE: Land privat
+  translationLongDescription:
+    de_DE: Land privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxCountryHome
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 5
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxEmail2
+  default: ""
+  module: [users/user]
+  ldapMapping: oxEmail2
+  objectClass: oxUserObject
+  shortDescription: Email private
+  longDescription: Email private
+  translationShortDescription:
+    de_DE: E-Mail privat
+  translationLongDescription:
+    de_DE: E-Mail privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxEmail2
+  syntax: emailAddress
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 6
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxFaxHome
+  default: ""
+  module: [users/user]
+  ldapMapping: oxFaxHome
+  objectClass: oxUserObject
+  shortDescription: Fax private
+  longDescription: Fax private
+  translationShortDescription:
+    de_DE: Fax privat
+  translationLongDescription:
+    de_DE: Fax privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxFaxHome
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 7
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxInstantMessenger2
+  default: ""
+  module: [users/user]
+  ldapMapping: oxInstantMessenger2
+  objectClass: oxUserObject
+  shortDescription: IM private
+  longDescription: IM private
+  translationShortDescription:
+    de_DE: IM privat
+  translationLongDescription:
+    de_DE: IM privat
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxInstantMessenger2
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 8
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxAnniversary
+  default: ""
+  module: [users/user]
+  ldapMapping: oxAnniversary
+  objectClass: oxUserObject
+  shortDescription: Anniversary (YYYY-MM-DD)
+  longDescription: Anniversary (YYYY-MM-DD)
+  translationShortDescription:
+    de_DE: Jahrestag (TT.MM.JJJJ)
+  translationLongDescription:
+    de_DE: Jahrestag (TT.MM.JJJJ)
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxAnniversary
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 10
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxNumOfChildren
+  default: ""
+  module: [users/user]
+  ldapMapping: oxNumOfChildren
+  objectClass: oxUserObject
+  shortDescription: Children
+  longDescription: Children
+  translationShortDescription:
+    de_DE: Kinder
+  translationLongDescription:
+    de_DE: Kinder
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxNumOfChildren
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 11
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxMarialStatus
+  default: ""
+  module: [users/user]
+  ldapMapping: oxMarialStatus
+  objectClass: oxUserObject
+  shortDescription: Marital status
+  longDescription: Marital status
+  translationShortDescription:
+    de_DE: Familienstand
+  translationLongDescription:
+    de_DE: Familienstand
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxMarialStatus
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 12
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxSpouseName
+  default: ""
+  module: [users/user]
+  ldapMapping: oxSpouseName
+  objectClass: oxUserObject
+  shortDescription: Spouse`s name
+  longDescription: Spouse`s name
+  translationShortDescription:
+    de_DE: Name des Ehegatten
+  translationLongDescription:
+    de_DE: Name des Ehegatten
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxSpouseName
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 13
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxProfession
+  default: ""
+  module: [users/user]
+  ldapMapping: oxProfession
+  objectClass: oxUserObject
+  shortDescription: Profession
+  longDescription: Profession
+  translationShortDescription:
+    de_DE: Beruf
+  translationLongDescription:
+    de_DE: Beruf
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxProfession
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 14
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Privat
+  groupName: Private
+  groupPosition: 3
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxStreetOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxStreetOther
+  objectClass: oxUserObject
+  shortDescription: Street other
+  longDescription: Street other
+  translationShortDescription:
+    de_DE: Straße weitere
+  translationLongDescription:
+    de_DE: Straße weitere
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxStreetOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxPostalCodeOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxPostalCodeOther
+  objectClass: oxUserObject
+  shortDescription: Postalcode other
+  longDescription: Postalcode other
+  translationShortDescription:
+    de_DE: Postleitzahl weitere
+  translationLongDescription:
+    de_DE: Postleitzahl weitere
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxPostalCodeOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxCityOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxCityOther
+  objectClass: oxUserObject
+  shortDescription: City other
+  longDescription: City other
+  translationShortDescription:
+    de_DE: Stadt weitere
+  translationLongDescription:
+    de_DE: Stadt weitere
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxCityOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 3
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxStateOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxStateOther
+  objectClass: oxUserObject
+  shortDescription: State other
+  longDescription: State other
+  translationShortDescription:
+    de_DE: Bundesland weiteres
+  translationLongDescription:
+    de_DE: Bundesland weiteres
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxStateOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 4
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxCountryOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxCountryOther
+  objectClass: oxUserObject
+  shortDescription: Country other
+  longDescription: Country other
+  translationShortDescription:
+    de_DE: Land weiteres
+  translationLongDescription:
+    de_DE: Land weiteres
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxCountryOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 5
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxTelephoneOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxTelephoneOther
+  objectClass: oxUserObject
+  shortDescription: Telephone other
+  longDescription: Telephone other
+  translationShortDescription:
+    de_DE: Telefon weiteres
+  translationLongDescription:
+    de_DE: Telefon weiteres
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTelephoneOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 6
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxFaxOther
+  default: ""
+  module: [users/user]
+  ldapMapping: oxFaxOther
+  objectClass: oxUserObject
+  shortDescription: Fax other
+  longDescription: Fax other
+  translationShortDescription:
+    de_DE: Fax weiteres
+  translationLongDescription:
+    de_DE: Fax weiteres
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxFaxOther
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 7
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxEmail3
+  default: ""
+  module: [users/user]
+  ldapMapping: oxEmail3
+  objectClass: oxUserObject
+  shortDescription: Email other
+  longDescription: Email other
+  translationShortDescription:
+    de_DE: E-Mail weitere
+  translationLongDescription:
+    de_DE: E-Mail weitere
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxEmail3
+  syntax: emailAddress
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 8
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Kontakt Weiteres
+  groupName: Contact other
+  groupPosition: 4
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield01
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield01
+  objectClass: oxUserObject
+  shortDescription: Optional 1
+  longDescription: Optional 1
+  translationShortDescription:
+    de_DE: Optional 1
+  translationLongDescription:
+    de_DE: Optional 1
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield01
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield02
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield02
+  objectClass: oxUserObject
+  shortDescription: Optional 2
+  longDescription: Optional 2
+  translationShortDescription:
+    de_DE: Optional 2
+  translationLongDescription:
+    de_DE: Optional 2
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield02
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield03
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield03
+  objectClass: oxUserObject
+  shortDescription: Optional 3
+  longDescription: Optional 3
+  translationShortDescription:
+    de_DE: Optional 3
+  translationLongDescription:
+    de_DE: Optional 3
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield03
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 3
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield04
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield04
+  objectClass: oxUserObject
+  shortDescription: Optional 4
+  longDescription: Optional 4
+  translationShortDescription:
+    de_DE: Optional 4
+  translationLongDescription:
+    de_DE: Optional 4
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield04
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 4
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield05
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield05
+  objectClass: oxUserObject
+  shortDescription: Optional 5
+  longDescription: Optional 5
+  translationShortDescription:
+    de_DE: Optional 5
+  translationLongDescription:
+    de_DE: Optional 5
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield05
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 5
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield06
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield06
+  objectClass: oxUserObject
+  shortDescription: Optional 6
+  longDescription: Optional 6
+  translationShortDescription:
+    de_DE: Optional 6
+  translationLongDescription:
+    de_DE: Optional 6
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield06
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 6
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield07
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield07
+  objectClass: oxUserObject
+  shortDescription: Optional 7
+  longDescription: Optional 7
+  translationShortDescription:
+    de_DE: Optional 7
+  translationLongDescription:
+    de_DE: Optional 7
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield07
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 7
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield08
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield08
+  objectClass: oxUserObject
+  shortDescription: Optional 8
+  longDescription: Optional 8
+  translationShortDescription:
+    de_DE: Optional 8
+  translationLongDescription:
+    de_DE: Optional 8
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield08
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 8
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield09
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield09
+  objectClass: oxUserObject
+  shortDescription: Optional 9
+  longDescription: Optional 9
+  translationShortDescription:
+    de_DE: Optional 9
+  translationLongDescription:
+    de_DE: Optional 9
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield09
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 9
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield10
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield10
+  objectClass: oxUserObject
+  shortDescription: Optional 10
+  longDescription: Optional 10
+  translationShortDescription:
+    de_DE: Optional 10
+  translationLongDescription:
+    de_DE: Optional 10
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield10
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 10
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield11
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield11
+  objectClass: oxUserObject
+  shortDescription: Optional 11
+  longDescription: Optional 11
+  translationShortDescription:
+    de_DE: Optional 11
+  translationLongDescription:
+    de_DE: Optional 11
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield11
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 11
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield12
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield12
+  objectClass: oxUserObject
+  shortDescription: Optional 12
+  longDescription: Optional 12
+  translationShortDescription:
+    de_DE: Optional 12
+  translationLongDescription:
+    de_DE: Optional 12
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield12
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 12
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield13
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield13
+  objectClass: oxUserObject
+  shortDescription: Optional 13
+  longDescription: Optional 13
+  translationShortDescription:
+    de_DE: Optional 13
+  translationLongDescription:
+    de_DE: Optional 13
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield13
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 13
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield14
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield14
+  objectClass: oxUserObject
+  shortDescription: Optional 14
+  longDescription: Optional 14
+  translationShortDescription:
+    de_DE: Optional 14
+  translationLongDescription:
+    de_DE: Optional 14
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield14
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 14
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield15
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield15
+  objectClass: oxUserObject
+  shortDescription: Optional 15
+  longDescription: Optional 15
+  translationShortDescription:
+    de_DE: Optional 15
+  translationLongDescription:
+    de_DE: Optional 15
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield15
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 15
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield16
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield16
+  objectClass: oxUserObject
+  shortDescription: Optional 16
+  longDescription: Optional 16
+  translationShortDescription:
+    de_DE: Optional 16
+  translationLongDescription:
+    de_DE: Optional 16
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield16
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 16
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield17
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield17
+  objectClass: oxUserObject
+  shortDescription: Optional 17
+  longDescription: Optional 17
+  translationShortDescription:
+    de_DE: Optional 17
+  translationLongDescription:
+    de_DE: Optional 17
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield17
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 17
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield18
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield18
+  objectClass: oxUserObject
+  shortDescription: Optional 18
+  longDescription: Optional 18
+  translationShortDescription:
+    de_DE: Optional 18
+  translationLongDescription:
+    de_DE: Optional 18
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield18
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 18
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield19
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield19
+  objectClass: oxUserObject
+  shortDescription: Optional 19
+  longDescription: Optional 19
+  translationShortDescription:
+    de_DE: Optional 19
+  translationLongDescription:
+    de_DE: Optional 19
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield19
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 19
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxUserfield20
+  default: ""
+  module: [users/user]
+  ldapMapping: oxUserfield20
+  objectClass: oxUserObject
+  shortDescription: Optional 20
+  longDescription: Optional 20
+  translationShortDescription:
+    de_DE: Optional 20
+  translationLongDescription:
+    de_DE: Optional 20
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxUserfield20
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 20
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  translationGroupName:
+    de_DE: Optionale Einstellungen
+  groupName: Optional settings
+  groupPosition: 5
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: isOxGroup
+  default: OK
+  module: [groups/group]
+  ldapMapping: isOxGroup
+  objectClass: oxGroup
+  shortDescription: Activate Group in OX (unchecking will delete!)
+  longDescription: Activate Group in OX (unchecking will delete!)
+  translationShortDescription:
+    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
+  translationLongDescription:
+    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: isOxGroup
+  syntax: OkOrNot
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook: oxGroupHook
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxContextGroup
+  default: ""
+  module: [groups/group]
+  ldapMapping: oxContextIDNum
+  objectClass: oxGroup
+  shortDescription: OX context
+  longDescription: OX context, the group will be created in
+  translationShortDescription:
+    de_DE: OX-Kontext
+  translationLongDescription:
+    de_DE: OX-Kontext, in dem die Gruppe angelegt wird
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxContext
+  syntax: oxContextSelect
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: False
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: False
+  hook: oxContextRW
+  translationGroupName:
+    de_DE: Gruppen-Konto
+  groupName: Group account
+  groupPosition: 1
+  disableUDMWeb: True
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: templateOxAccess
+  default: premium
+  module: [settings/usertemplate]
+  ldapMapping: oxAccess
+  objectClass: oxUserObject
+  shortDescription: OX Access
+  longDescription: OX Access
+  translationShortDescription:
+    de_DE: OX-Berechtigung
+  translationLongDescription:
+    de_DE: OX-Berechtigung
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxAccess
+  syntax: oxaccess
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 2
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: templateOxDisplayName
+  default: ""
+  module: [settings/usertemplate]
+  ldapMapping: oxDisplayName
+  objectClass: oxUserObject
+  shortDescription: OX Display Name
+  longDescription: Name as shown in OX
+  translationShortDescription:
+    de_DE: OX Anzeigename
+  translationLongDescription:
+    de_DE: Name wie er in OX angezeigt wird
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxDisplayName
+  syntax: string
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: templateOxLanguage
+  default: ""
+  module: [settings/usertemplate]
+  ldapMapping: oxLanguage
+  objectClass: oxUserObject
+  shortDescription: Default language
+  longDescription: Default language
+  translationShortDescription:
+    de_DE: Sprache
+  translationLongDescription:
+    de_DE: Sprache
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxLanguage
+  syntax: oxlanguage
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 3
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+  disableUDMWeb: True
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: templateOxTimeZone
+  default: ""
+  module: [settings/usertemplate]
+  ldapMapping: oxTimeZone
+  objectClass: oxUserObject
+  shortDescription: Default timezone
+  longDescription: Default timezone
+  translationShortDescription:
+    de_DE: Zeitzone
+  translationLongDescription:
+    de_DE: Zeitzone
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxTimeZone
+  syntax: oxtimezone
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: True
+  tabPosition: 4
+  overwritePosition:
+  doNotSearch: False
+  hook:
+  groupName: Open-Xchange
+  groupPosition: 1
+  disableUDMWeb: True
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: oxContextResource
+  default: "{{ oxDefaultContext }}"
+  module: [oxresources/oxresources]
+  ldapMapping: oxContextIDNum
+  objectClass: oxResourceObject
+  shortDescription: OX context
+  longDescription: OX context, the resource will be created in
+  translationShortDescription:
+    de_DE: OX-Kontext
+  translationLongDescription:
+    de_DE: OX-Kontext, in dem die Resource angelegt wird
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: False
+  CLIName: oxContext
+  syntax: oxContextSelect
+  tabAdvanced:
+  mayChange: True
+  multivalue: False
+  deleteObjectClass: False
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: False
+  hook: oxContextRW
+  disableUDMWeb: False
+  notEditable: False
+
+
+## Create user template (see 65-usertemplate.yaml)
+#---
+#action: create
+#module: settings/usertemplate
+#position: cn=templates,cn=univention,{{ ldapBaseDn }}
+#properties:
+#  name: openDesk User
+#  isOxUser: True
+#  oxContext: {{ oxDefaultContext }}
+#  mailPrimaryAddress: <username>@{{ externalMailDomain }}
+#  e-mail: [<username>@{{ externalMailDomain }}]
+#  unixhome: /home/<username>
+#  oxDisplayName: <firstname> <lastname>
+#  oxAccess: premium
+#  primaryGroup: cn=Domain Users,cn=groups,{{ ldapBaseDn }}
+
+# Create container
+---
+action: create
+module: container/cn
+position: {{ ldapBaseDn }}
+properties:
+  name: open-xchange
+---
+action: create
+module: container/cn
+position: cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: functional_accounts
+---
+action: create
+module: container/cn
+position: cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: oxresources
+---
+action: create
+module: container/cn
+position: cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: accessprofiles
+
+# Create access profiles
+# NOTE: they are checking the filter running at this point is changed and then
+# they restart the listener with the new filter in place
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: none
+  displayName: Login disabled
+
+# This is openDesk specific.
+#---
+#action: create
+#module: oxmail/accessprofile
+#position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+#properties:
+#  name: opendesk_standard
+#  displayName: openDesk Standard
+#  calendar: True
+#  collectemailaddresses: True
+#  contacts: True
+#  delegatetask: True
+#  editgroup: True
+#  editpassword: True
+#  editpublicfolders: True
+#  editresource: True
+#  globaladdressbookdisabled: True
+#  ical: True
+#  multiplemailaccounts: True
+#  readcreatesharedfolders: True
+#  subscription: True
+#  tasks: True
+#  vcard: True
+#  webdav: True
+#  webmail: True
+
+# The following profiles are the OX-Connectors default profiles, they are not
+# needed in openDesk and therefore commented out. Might be of use for other
+# more standard rollouts.
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "webmail"
+  displayName: "Webmail"
+  contacts: True
+  webmail: True
+  collectemailaddresses: True
+  multiplemailaccounts: True
+  subscription: True
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "webmail_drive"
+  displayName: "Webmail, Drive"
+  contacts: True
+  infostore: True
+  webmail: True
+  collectemailaddresses: True
+  multiplemailaccounts: True
+  subscription: True
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "pim"
+  displayName: "Webmail, PIM"
+  calendar: True
+  contacts: True
+  delegatetask: True
+  tasks: True
+  webmail: True
+  collectemailaddresses: True
+  multiplemailaccounts: True
+  subscription: True
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "pim_drive"
+  displayName: "Webmail, PIM, Drive"
+  calendar: True
+  contacts: True
+  delegatetask: True
+  infostore: True
+  tasks: True
+  webmail: True
+  collectemailaddresses: True
+  multiplemailaccounts: True
+  subscription: True
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "groupware"
+  displayName: "Webmail, PIM, Groupware"
+  calendar: True
+  contacts: True
+  delegatetask: True
+  editpublicfolders: True
+  infostore: True
+  readcreatesharedfolders: True
+  tasks: True
+  webmail: True
+  collectemailaddresses: True
+  multiplemailaccounts: True
+  subscription: True
+---
+action: create
+module: oxmail/accessprofile
+position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "premium"
+  displayName: "Webmail, PIM, Groupware, WebDAV"
+  calendar: True
+  contacts: True
+  delegatetask: True
+  editpublicfolders: True
+  ical: True
+  infostore: True
+  readcreatesharedfolders: True
+  tasks: True
+  vcard: True
+  webdav: True
+  webdavxml: True
+  webmail: True
+  collectemailaddresses: True
+  multiplemailaccounts: True
+  subscription: True
+  usm: True
+---
+# Create default context
+action: create
+module: oxmail/oxcontext
+position: cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  contextid: {{ oxDefaultContext }}
+  name: "{{ oxDefaultContext }}"
+
+# Setup UMC
+---
+# Init
+action: create
+module: container/cn
+position: cn=univention,{{ ldapBaseDn }}
+properties:
+  name: UMC
+---
+action: create
+module: container/cn
+position: cn=policies,{{ ldapBaseDn }}
+properties:
+  name: UMC
+  policyPath: True
+---
+action: create
+module: container/cn
+position: cn=UMC,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: operations
+# Create context and resources objects (see umc-policies.yaml)

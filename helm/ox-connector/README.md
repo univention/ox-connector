@@ -1,6 +1,6 @@
 # ox-connector
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 A Helm chart for the ox-connector
 
@@ -22,10 +22,12 @@ A Helm chart for the ox-connector
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | environment | object | `{}` |  |
+| extraVolumeMounts | list | `[]` | Optionally specify an extra list of additional volumeMounts. |
+| extraVolumes | list | `[]` | Optionally specify an extra list of additional volumes. |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"Always"` |  |
-| image.registry | string | `"registry.souvap-univention.de"` |  |
-| image.repository | string | `"souvap/tooling/images/ox-connector/ox-connector-standalone"` |  |
+| image.registry | string | `"artifacts.software-univention.de"` |  |
+| image.repository | string | `"nubus-dev/images/ox-connector-standalone"` |  |
 | image.sha256 | string | `nil` | Define image sha256 as an alternative to `tag` |
 | image.tag | string | `"latest"` |  |
 | ingress | object | `{"enabled":false}` | Kubernetes ingress |

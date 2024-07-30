@@ -17,6 +17,7 @@ WORKDIR /
 COPY udm/handlers /plugins/udm-handlers
 COPY udm/hooks.d /plugins/udm-hooks.d
 COPY udm/syntax.d /plugins/udm-syntax.d
+COPY udm/udm-data-loader /plugins/udm-data-loader
 
 # UMC icons and po/xml
 COPY umc/icons /plugins/umc-icons

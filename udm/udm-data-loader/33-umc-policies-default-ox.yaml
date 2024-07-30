@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2023 Univention GmbH
+
+---
+  action: create
+  module: policies/umc
+  position: cn=UMC,cn=policies,{{ ldapBaseDn }}
+  properties:
+    name: default-umc-all
+    allow:
+      - cn=ox-functional-accounts,cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+      - cn=ox-resources,cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+---
+  action: ensure_list_contains
+  module: policies/umc
+  position: cn=default-umc-all,cn=UMC,cn=policies,{{ ldapBaseDn }}
+  properties:
+    allow:
+      - cn=ox-functional-accounts,cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+      - cn=ox-resources,cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+---
+action: ensure_list_contains
+module: groups/group
+position: cn=Domain Admins,cn=groups,{{ ldapBaseDn }}
+policies:
+  policies/umc:
+    - cn=default-umc-all,cn=UMC,cn=policies,{{ ldapBaseDn }}
