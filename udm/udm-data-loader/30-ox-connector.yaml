@@ -32,21 +32,20 @@ properties:
     de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
   tabName: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: isOxUser
   syntax: OkOrNot
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook: oxUserDefaults
   groupName: Open-Xchange
   groupPosition: 1
 
-# TODO: Check if empty value in properties.default works
 ---
 action: create
 module: settings/extended_attribute
@@ -67,20 +66,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxContext
   syntax: oxContextSelect
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: False
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: false
   tabPosition: 2
   overwritePosition:
-  doNotSearch: True
+  doNotSearch: true
   hook: oxContextRW
   groupName: Open-Xchange
   groupPosition: 1
-  disableUDMWeb: False
+  disableUDMWeb: false
 
 ---
 action: create
@@ -102,16 +101,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxAccess
   syntax: oxaccess
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 4
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook: oxAccess
   groupName: Open-Xchange
   groupPosition: 1
@@ -136,16 +135,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxDisplayName
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 3
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
@@ -170,20 +169,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxLanguage
   syntax: oxlanguage
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 5
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
-  disableUDMWeb: True
+  disableUDMWeb: true
 
 ---
 action: create
@@ -205,20 +204,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTimeZone
   syntax: oxtimezone
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 6
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
-  disableUDMWeb: True
+  disableUDMWeb: true
 
 ---
 action: create
@@ -240,20 +239,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserQuota
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: False
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: false
   tabPosition: 8
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
-  disableUDMWeb: True
+  disableUDMWeb: true
 
 ---
 action: create
@@ -275,16 +274,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxMiddleName
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -311,16 +310,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxSuffix
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 2
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -347,16 +346,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxNickName
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 3
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -383,16 +382,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxNote
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 4
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -419,16 +418,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxMobileBusiness
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 5
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -455,16 +454,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxFaxBusiness
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 6
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -491,16 +490,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxInstantMessenger1
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 7
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -527,16 +526,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneCompany
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 8
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -563,16 +562,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneIp
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 9
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -599,16 +598,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneCar
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 10
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -635,16 +634,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneTelex
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 11
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -671,16 +670,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneTtydd
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 12
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -707,16 +706,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxStateBusiness
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 13
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -743,16 +742,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxCountryBusiness
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 14
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -779,16 +778,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxPosition
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 15
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -815,16 +814,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxDepartment
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 16
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -851,16 +850,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxBranches
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 17
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -887,16 +886,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxManagerName
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 18
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -923,16 +922,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneAssistant
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 19
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -959,16 +958,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTaxId
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 20
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -995,16 +994,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxCommercialRegister
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 21
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -1031,16 +1030,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxSalesVolume
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 22
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -1067,16 +1066,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUrl
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 23
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Geschäftlich
@@ -1103,16 +1102,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxStreetHome
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1139,16 +1138,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxPostalCodeHome
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 2
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1175,16 +1174,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxCityHome
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 3
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1211,16 +1210,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxStateHome
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 4
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1247,16 +1246,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxCountryHome
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 5
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1283,16 +1282,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxEmail2
   syntax: emailAddress
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 6
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1319,16 +1318,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxFaxHome
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 7
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1355,16 +1354,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxInstantMessenger2
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 8
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1391,16 +1390,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxAnniversary
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 10
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1427,16 +1426,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxNumOfChildren
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 11
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1463,16 +1462,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxMarialStatus
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 12
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1499,16 +1498,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxSpouseName
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 13
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1535,16 +1534,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxProfession
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 14
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Privat
@@ -1571,16 +1570,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxStreetOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1607,16 +1606,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxPostalCodeOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 2
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1643,16 +1642,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxCityOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 3
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1679,16 +1678,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxStateOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 4
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1715,16 +1714,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxCountryOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 5
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1751,16 +1750,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTelephoneOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 6
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1787,16 +1786,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxFaxOther
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 7
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1823,16 +1822,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxEmail3
   syntax: emailAddress
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 8
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Kontakt Weiteres
@@ -1859,16 +1858,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield01
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -1895,16 +1894,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield02
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 2
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -1931,16 +1930,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield03
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 3
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -1967,16 +1966,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield04
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 4
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2003,16 +2002,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield05
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 5
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2039,16 +2038,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield06
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 6
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2075,16 +2074,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield07
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 7
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2111,16 +2110,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield08
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 8
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2147,16 +2146,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield09
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 9
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2183,16 +2182,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield10
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 10
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2219,16 +2218,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield11
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 11
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2255,16 +2254,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield12
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 12
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2291,16 +2290,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield13
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 13
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2327,16 +2326,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield14
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 14
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2363,16 +2362,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield15
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 15
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2399,16 +2398,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield16
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 16
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2435,16 +2434,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield17
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 17
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2471,16 +2470,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield18
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 18
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2507,16 +2506,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield19
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 19
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2543,16 +2542,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxUserfield20
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 20
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   translationGroupName:
     de_DE: Optionale Einstellungen
@@ -2579,16 +2578,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: isOxGroup
   syntax: OkOrNot
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook: oxGroupHook
 
 ---
@@ -2611,22 +2610,22 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxContext
   syntax: oxContextSelect
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: False
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: false
   tabPosition: 2
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook: oxContextRW
   translationGroupName:
     de_DE: Gruppen-Konto
   groupName: Group account
   groupPosition: 1
-  disableUDMWeb: True
+  disableUDMWeb: true
 
 ---
 action: create
@@ -2648,16 +2647,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxAccess
   syntax: oxaccess
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 2
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
@@ -2682,16 +2681,16 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxDisplayName
   syntax: string
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
@@ -2716,20 +2715,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxLanguage
   syntax: oxlanguage
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 3
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
-  disableUDMWeb: True
+  disableUDMWeb: true
 
 ---
 action: create
@@ -2751,20 +2750,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxTimeZone
   syntax: oxtimezone
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: True
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: true
   tabPosition: 4
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook:
   groupName: Open-Xchange
   groupPosition: 1
-  disableUDMWeb: True
+  disableUDMWeb: true
 
 ---
 action: create
@@ -2786,36 +2785,20 @@ properties:
   translationTabName:
     de_DE: OX App Suite
   overwriteTab:
-  valueRequired: False
+  valueRequired: false
   CLIName: oxContext
   syntax: oxContextSelect
   tabAdvanced:
-  mayChange: True
-  multivalue: False
-  deleteObjectClass: False
+  mayChange: true
+  multivalue: false
+  deleteObjectClass: false
   tabPosition: 1
   overwritePosition:
-  doNotSearch: False
+  doNotSearch: false
   hook: oxContextRW
-  disableUDMWeb: False
-  notEditable: False
+  disableUDMWeb: false
+  notEditable: false
 
-
-## Create user template (see 65-usertemplate.yaml)
-#---
-#action: create
-#module: settings/usertemplate
-#position: cn=templates,cn=univention,{{ ldapBaseDn }}
-#properties:
-#  name: openDesk User
-#  isOxUser: True
-#  oxContext: {{ oxDefaultContext }}
-#  mailPrimaryAddress: <username>@{{ externalMailDomain }}
-#  e-mail: [<username>@{{ externalMailDomain }}]
-#  unixhome: /home/<username>
-#  oxDisplayName: <firstname> <lastname>
-#  oxAccess: premium
-#  primaryGroup: cn=Domain Users,cn=groups,{{ ldapBaseDn }}
 
 # Create container
 ---
@@ -2854,31 +2837,6 @@ properties:
   name: none
   displayName: Login disabled
 
-# This is openDesk specific.
-#---
-#action: create
-#module: oxmail/accessprofile
-#position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
-#properties:
-#  name: opendesk_standard
-#  displayName: openDesk Standard
-#  calendar: True
-#  collectemailaddresses: True
-#  contacts: True
-#  delegatetask: True
-#  editgroup: True
-#  editpassword: True
-#  editpublicfolders: True
-#  editresource: True
-#  globaladdressbookdisabled: True
-#  ical: True
-#  multiplemailaccounts: True
-#  readcreatesharedfolders: True
-#  subscription: True
-#  tasks: True
-#  vcard: True
-#  webdav: True
-#  webmail: True
 
 # The following profiles are the OX-Connectors default profiles, they are not
 # needed in openDesk and therefore commented out. Might be of use for other
@@ -2890,11 +2848,11 @@ position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: "webmail"
   displayName: "Webmail"
-  contacts: True
-  webmail: True
-  collectemailaddresses: True
-  multiplemailaccounts: True
-  subscription: True
+  contacts: true
+  webmail: true
+  collectemailaddresses: true
+  multiplemailaccounts: true
+  subscription: true
 ---
 action: create
 module: oxmail/accessprofile
@@ -2902,12 +2860,12 @@ position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: "webmail_drive"
   displayName: "Webmail, Drive"
-  contacts: True
-  infostore: True
-  webmail: True
-  collectemailaddresses: True
-  multiplemailaccounts: True
-  subscription: True
+  contacts: true
+  infostore: true
+  webmail: true
+  collectemailaddresses: true
+  multiplemailaccounts: true
+  subscription: true
 ---
 action: create
 module: oxmail/accessprofile
@@ -2915,14 +2873,14 @@ position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: "pim"
   displayName: "Webmail, PIM"
-  calendar: True
-  contacts: True
-  delegatetask: True
-  tasks: True
-  webmail: True
-  collectemailaddresses: True
-  multiplemailaccounts: True
-  subscription: True
+  calendar: true
+  contacts: true
+  delegatetask: true
+  tasks: true
+  webmail: true
+  collectemailaddresses: true
+  multiplemailaccounts: true
+  subscription: true
 ---
 action: create
 module: oxmail/accessprofile
@@ -2930,15 +2888,15 @@ position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: "pim_drive"
   displayName: "Webmail, PIM, Drive"
-  calendar: True
-  contacts: True
-  delegatetask: True
-  infostore: True
-  tasks: True
-  webmail: True
-  collectemailaddresses: True
-  multiplemailaccounts: True
-  subscription: True
+  calendar: true
+  contacts: true
+  delegatetask: true
+  infostore: true
+  tasks: true
+  webmail: true
+  collectemailaddresses: true
+  multiplemailaccounts: true
+  subscription: true
 ---
 action: create
 module: oxmail/accessprofile
@@ -2946,17 +2904,17 @@ position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: "groupware"
   displayName: "Webmail, PIM, Groupware"
-  calendar: True
-  contacts: True
-  delegatetask: True
-  editpublicfolders: True
-  infostore: True
-  readcreatesharedfolders: True
-  tasks: True
-  webmail: True
-  collectemailaddresses: True
-  multiplemailaccounts: True
-  subscription: True
+  calendar: true
+  contacts: true
+  delegatetask: true
+  editpublicfolders: true
+  infostore: true
+  readcreatesharedfolders: true
+  tasks: true
+  webmail: true
+  collectemailaddresses: true
+  multiplemailaccounts: true
+  subscription: true
 ---
 action: create
 module: oxmail/accessprofile
@@ -2964,22 +2922,22 @@ position: cn=accessprofiles,cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: "premium"
   displayName: "Webmail, PIM, Groupware, WebDAV"
-  calendar: True
-  contacts: True
-  delegatetask: True
-  editpublicfolders: True
-  ical: True
-  infostore: True
-  readcreatesharedfolders: True
-  tasks: True
-  vcard: True
-  webdav: True
-  webdavxml: True
-  webmail: True
-  collectemailaddresses: True
-  multiplemailaccounts: True
-  subscription: True
-  usm: True
+  calendar: true
+  contacts: true
+  delegatetask: true
+  editpublicfolders: true
+  ical: true
+  infostore: true
+  readcreatesharedfolders: true
+  tasks: true
+  vcard: true
+  webdav: true
+  webdavxml: true
+  webmail: true
+  collectemailaddresses: true
+  multiplemailaccounts: true
+  subscription: true
+  usm: true
 ---
 # Create default context
 action: create
@@ -3003,7 +2961,7 @@ module: container/cn
 position: cn=policies,{{ ldapBaseDn }}
 properties:
   name: UMC
-  policyPath: True
+  policyPath: true
 ---
 action: create
 module: container/cn
