@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.11.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.10.0...v0.11.0) (2024-08-14)
+
+
+### Features
+
+* added content for the data-loader ([aa81c11](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/aa81c11a0b35a6d022d86081a22e4e17eb752732))
+
+
+### Bug Fixes
+
+* qa fixes ([4d236d5](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/4d236d546a0cf83c18cd5189ec25efe1268d0656))
+
 ## [0.10.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.9.1...v0.10.0) (2024-07-02)
 
 
