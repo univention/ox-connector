@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.11.0...v0.12.0) (2024-08-21)
+
+
+### Features
+
+* **ox-connector:** migrate OX connector-standalone to Provisioning service ([e92d87f](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/e92d87fc33eb011822516c66ec41f59f02cec2bf)), closes [univention/customers/dataport/team-souvap#369](https://git.knut.univention.de/univention/customers/dataport/team-souvap/issues/369)
+
 ## [0.11.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.10.0...v0.11.0) (2024-08-14)
 
 
