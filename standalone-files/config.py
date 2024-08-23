@@ -9,7 +9,7 @@ Loglevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class OXConsumerSettings(BaseSettings):
-    log_level: Loglevel = "INFO"
+    log_level: Loglevel
     default_context: str = "10"
 
 

@@ -88,8 +88,7 @@ RUN \
     # Avoid unused dependency on PIL
     echo "" > "${PYPKG}/PIL.py" && \
     pip3 install --break-system-packages --no-cache-dir \
-        # TODO: revert back to main branch version after the provisioning MR has also been merged
-        nubus-provisioning-consumer==0.37.1.dev0+pre-acaceres-do-not-leak-secrets-in-logs.4704c6f8 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
+        nubus-provisioning-consumer==0.33.1 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
         appdirs==1.4.* \
         platformdirs==2.6.*
 
