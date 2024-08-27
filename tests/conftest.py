@@ -144,6 +144,11 @@ def udm_uri():
 
 
 @pytest.fixture
+def umc_uri():
+    return "https://{}/univention/".format(os.environ["LDAP_MASTER"])
+
+
+@pytest.fixture
 def udm_admin_username():
     return os.environ.get("TESTS_UDM_ADMIN_USERNAME", "Administrator")
 

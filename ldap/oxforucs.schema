@@ -915,3 +915,18 @@ objectclass ( 1.3.6.1.4.1.31353.2.1.17 NAME 'oxFunctionalAccount' SUP top STRUCT
 		oxPersonal $
 		uniqueMember
 	) )
+
+
+# default account for oxmail/function_account
+attributetype ( 1.3.6.1.4.1.31353.2.2.156 NAME ( 'oxFunctionalAccountDefaultContainer' )
+       DESC 'is standard container for ox functional accounts'
+       EQUALITY caseIgnoreMatch
+       SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+       )
+
+objectclass ( 1.3.6.1.4.1.31353.2.1.18 NAME 'oxDefaultContainers' SUP top AUXILIARY
+       DESC 'Open-Xchange default containers'
+       MAY (
+               oxFunctionalAccountDefaultContainer
+               )
+       )

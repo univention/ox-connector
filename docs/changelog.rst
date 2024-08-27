@@ -12,6 +12,18 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.2.12
+=============
+
+Released: TODO
+
+Changed
+-------
+You can now add LDAP containers to the list of default containers for
+functional accounts and select the container before creating a new
+functional account in UMC, see the :ref:`usage-functional-accounts` for more
+information.
+
 2.2.11
 =============
 

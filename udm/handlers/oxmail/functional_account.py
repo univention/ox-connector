@@ -127,6 +127,7 @@ mapping.register('personal', 'oxPersonal', None, univention.admin.mapping.ListTo
 
 class object(univention.admin.handlers.simpleLdap):
     module = module
+    default_containers_attribute_name = 'ox_functional_accounts'
 
     def open(self):
         super(object, self).open()

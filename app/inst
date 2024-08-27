@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=11
+VERSION=12
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -127,11 +127,11 @@ setup_vars () {
 
   #Using the unviention-ox package to replace the schema in updates.
   PACKAGE_NAME="univention-ox"
-  PACKAGE_VERSION="12.0.35"  #This number should be updated when the schema is modified or when we change any ldap_extension
+  PACKAGE_VERSION="12.0.36"  #This number should be updated when the schema is modified or when we change any ldap_extension
 }
 
 register_ldap () {
-  export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.11'  # Version in meta-inf/*/oxseforucs_*.ini
+  export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.12'  # Version in meta-inf/*/oxseforucs_*.ini
   local PREFIX="/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/"
 
   if [[ "$(ucr get server/role)" = "domaincontroller_master" ]]; then

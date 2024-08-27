@@ -184,6 +184,26 @@ same functional account share the read status. Emails to addresses of functional
 accounts show up in the OX Mail view for every user where administrators granted
 the permission.
 
+Default LDAP position for functional accounts
+---------------------------------------------
+
+.. versionadded:: 2.2.12
+
+When you create a new ``oxmail/functional_account`` object in |UMC| the
+default position for these new objects in the directory tree is
+``cn=functional_accounts,cn=open-xchange,$LDAP_BASE``.
+
+However, you can add additional default containers for the
+``oxmail/functional_account`` so that |UMC| will ask for a position before
+creating the new object.
+
+In the UMC module :guilabel:`LDAP directory` open the container ``univention``
+in the tree view (left) and then open the object ``default containers`` in
+the object list (right). Click on ``OX App suite`` and add additional default
+containers to the list of ``Default container for OX functional accounts``.
+The values are LDAP DNs of existing container objects in your LDAP directory,
+which must include the LDAP base DN.
+
 .. _usage-resources:
 
 Resources

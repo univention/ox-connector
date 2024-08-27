@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
+import pytest
+
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 
 
-def create_obj(udm, name, domainname, personal, users, groups):
+def create_obj(udm, name, domainname, personal, users, groups, position="cn=functional_accounts,cn=open-xchange"):
     dn = udm.create(
         "oxmail/functional_account",
-        "cn=functional_accounts,cn=open-xchange",
+        position,
         {
             "name": name,
             "mailPrimaryAddress": "{}@{}".format(name, domainname),
@@ -30,7 +32,9 @@ def get_user_from_ox(username, context_id):
     User = get_ox_integration_class("SOAP", "User")
     return get_obj_by_name_from_ox(User, context_id, username)
 
+POSITIONS = ["cn=functional_accounts,cn=open-xchange", "cn=users"]
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_add_functional_account_with_user(
     create_ox_context,
     create_ox_user,
@@ -38,13 +42,14 @@ def test_add_functional_account_with_user(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Creating a functional account should create it in contexts of the user
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 1
@@ -53,6 +58,7 @@ def test_add_functional_account_with_user(
     assert account.userId == ox_user.id
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_add_functional_account_with_2_of_5_users(
     create_ox_context,
     create_ox_user,
@@ -60,6 +66,7 @@ def test_add_functional_account_with_2_of_5_users(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Creating a functional account with 2 of 5 users should exactly create 2 accounts
@@ -70,7 +77,7 @@ def test_add_functional_account_with_2_of_5_users(
     user2 = create_ox_user(context_id=context_id)
     create_ox_user(context_id=context_id)
     create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user1.dn, user2.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user1.dn, user2.dn], [], position=position)
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 2
@@ -79,6 +86,7 @@ def test_add_functional_account_with_2_of_5_users(
     assert sorted([account.userId for account in accounts]) == sorted([ox_user1.id, ox_user2.id])
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_multiple_functional_accounts_same_user(
     create_ox_context,
     create_ox_user,
@@ -86,15 +94,16 @@ def test_multiple_functional_accounts_same_user(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Having two functional accounts with the same user must work
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn1 = create_obj(udm, new_functional_account_name + "-1", domainname, "Personal", [user.dn], [])
+    dn1 = create_obj(udm, new_functional_account_name + "-1", domainname, "Personal", [user.dn], [], position=position)
     wait_for_listener(dn1)
-    dn2 = create_obj(udm, new_functional_account_name + "-2", domainname, "Personal", [user.dn], [])
+    dn2 = create_obj(udm, new_functional_account_name + "-2", domainname, "Personal", [user.dn], [], position=position)
     wait_for_listener(dn2)
     accounts = list_objs(context_id)
     assert len(accounts) == 2
@@ -103,6 +112,7 @@ def test_multiple_functional_accounts_same_user(
         assert account.userId == ox_user.id
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_multiple_functional_accounts_different_user(
     create_ox_context,
     create_ox_user,
@@ -110,6 +120,7 @@ def test_multiple_functional_accounts_different_user(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Having two functional accounts with one user each must work
@@ -117,9 +128,9 @@ def test_multiple_functional_accounts_different_user(
     context_id = create_ox_context()
     user1 = create_ox_user(context_id=context_id)
     user2 = create_ox_user(context_id=context_id)
-    dn1 = create_obj(udm, new_functional_account_name + "-1", domainname, "Personal", [user1.dn], [])
+    dn1 = create_obj(udm, new_functional_account_name + "-1", domainname, "Personal", [user1.dn], [], position=position)
     wait_for_listener(dn1)
-    dn2 = create_obj(udm, new_functional_account_name + "-2", domainname, "Personal", [user2.dn], [])
+    dn2 = create_obj(udm, new_functional_account_name + "-2", domainname, "Personal", [user2.dn], [], position=position)
     wait_for_listener(dn2)
     accounts = list_objs(context_id)
     assert len(accounts) == 2
@@ -134,6 +145,7 @@ def test_multiple_functional_accounts_different_user(
             raise RuntimeError("Who is that? " + account.name)
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_modify_functional_account(
     create_ox_context,
     create_ox_user,
@@ -141,6 +153,7 @@ def test_modify_functional_account(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Creating a functional account with 2 of 5 users should exactly create 2 accounts
@@ -148,7 +161,7 @@ def test_modify_functional_account(
     context_id = create_ox_context()
     user1 = create_ox_user(context_id=context_id)
     user2 = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user1.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user1.dn], [], position=position)
     wait_for_listener(dn)
     ox_user1 = get_user_from_ox(user1.properties["username"], context_id)
     ox_user2 = get_user_from_ox(user2.properties["username"], context_id)
@@ -166,6 +179,7 @@ def test_modify_functional_account(
     assert accounts[0].userId == ox_user2.id
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_empty_functional_account(
     create_ox_context,
     create_ox_user,
@@ -173,13 +187,14 @@ def test_empty_functional_account(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     When a UDM functional_account has no users, no SecondaryAccount should exist
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
@@ -193,6 +208,7 @@ def test_empty_functional_account(
     assert len(accounts) == 0
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_remove_functional_account(
     create_ox_context,
     create_ox_user,
@@ -200,13 +216,14 @@ def test_remove_functional_account(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Removing a functional account needs to remove the SecondaryAccount
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
@@ -218,6 +235,7 @@ def test_remove_functional_account(
     assert len(accounts) == 0
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_remove_user(
     create_ox_context,
     create_ox_user,
@@ -225,13 +243,14 @@ def test_remove_user(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Removing a user which has been part of a functional account needs to work
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
@@ -243,6 +262,7 @@ def test_remove_user(
     assert len(accounts) == 0
 
 
+@pytest.mark.parametrize('position', POSITIONS)
 def test_modify_user(
     create_ox_context,
     create_ox_user,
@@ -250,13 +270,14 @@ def test_modify_user(
     udm,
     domainname,
     wait_for_listener,
+    position,
 ):
     """
     Removing a user which has been part of a functional account needs to work
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [])
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position)
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
