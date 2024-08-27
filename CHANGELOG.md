@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.12.0...v0.13.0) (2024-08-27)
+
+
+### Features
+
+* **ox-connector:** Default containers for functional accounts ([034d808](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/034d808eb69f25726ccbddcfb25885efffabd550)), closes [univention/open-xchange/provisioning#95](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/95)
+
 ## [0.12.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.11.0...v0.12.0) (2024-08-21)
 
 
