@@ -15,7 +15,7 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 2.2.12
 =============
 
-Released: TODO
+Released: 28. Aug 2024
 
 Changed
 -------
