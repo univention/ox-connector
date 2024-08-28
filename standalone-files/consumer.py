@@ -13,7 +13,7 @@ from univention.provisioning.consumer import (
     MessageHandler,
     ProvisioningConsumerClient,
 )
-from univention.provisioning.models import Message
+from univention.provisioning.models import ProvisioningMessage
 
 # internal
 from config import (
@@ -111,16 +111,23 @@ class OXConsumer:
         async with provisioning_client() as client:
             await message_handler(client, [self.handle_message]).run()
 
-    async def handle_message(self, message: Message):
-        if message.topic not in self.topics:
+    async def handle_message(self, message: ProvisioningMessage):
+        topic = message.topic
+        if topic not in self.topics:
             logger.warning(
                 "Ignoring a message in the queue with the wrong topic: %r",
-                message.topic,
+                topic,
             )
             return
 
         body = message.body
-        logger.debug("Received message with body: %r", body)
+        logger.info(
+            "Received message with topic: %s, sequence_number: %d, num_delivered: %d",
+            topic,
+            message.sequence_number,
+            message.num_delivered,
+        )
+        logger.debug("Message body: %r", body)
 
         new_obj = body.new
         old_obj = body.old
