@@ -6,7 +6,7 @@
 # Without it the wrong .dockerignore file will be used
 
 ARG UCS_BASE_IMAGE_TAG=0.13.1-post-main-build-2024-09-09
-ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-506
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
 ###############################################################################
 # Reference ox-connector as source for listener_trigger dependencies
 # based on alpine:3.14
