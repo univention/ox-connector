@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.13.0...v0.14.0) (2024-09-16)
+
+
+### Features
+
+* update UCS base image to 2024-09-09 ([88fc913](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/88fc9134e3a089c7bcb41575e930bc8abbbfbbe4))
+* upgrade docker standalone UCS base to 5.2-0 ([8b2c2cf](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/8b2c2cf944df08de7f2788483cc081ddcc604cc1))
+* upgrade wait-for-dependency ([653229c](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/653229c7ea589a423add56bcc0b03a161169fd7e))
+
 ## [0.13.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.12.0...v0.13.0) (2024-08-27)
 
 
