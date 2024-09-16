@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.0...v0.14.1) (2024-09-16)
+
+
+### Bug Fixes
+
+* set default_sender_address to primary_email during user modify if primary_email changed and was the former default_sender_address (Issue univention/open-xchange/provisioning[#96](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/96)) ([cef9178](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/cef9178561445bcd8c3bc80862cd78cf8fb00722))
+
 ## [0.14.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.13.0...v0.14.0) (2024-09-16)
 
 
