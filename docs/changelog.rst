@@ -12,6 +12,20 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+2.2.13
+=============
+
+Released: 17. Sep 2024
+
+Changed
+-------
+When changing an OX user in UDM, the OX attribute `default_sender_address` was
+left untouched. That is because it is a user preference, not "core data". Now,
+if an OX user is changed in UDM so that the `primaryMailAddress` changes and
+this has been the user's `default_sender_address`, it is overwritten to the new
+mail address - as this makes sense in next to all scenarios and would be
+considered an error if not done automatically.
+
 2.2.12
 =============
 

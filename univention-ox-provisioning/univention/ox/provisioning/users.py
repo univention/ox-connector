@@ -215,7 +215,10 @@ def update_user(user, attributes, old_attributes, username, initial_values=False
     user.primary_email = user.email1
     user.aliases = [user.email1] + (user.aliases or [])
     user.imap_login = IMAP_LOGIN.format(user.email1) if "{}" in IMAP_LOGIN else IMAP_LOGIN
-    if old_user:
+    if old_user and not (old_user.primary_email != user.primary_email and old_user.default_sender_address == old_user.primary_email):
+        # default_sender_address is a user setting, not "core data". so we better not touch this and leave as is (see the code line).
+        # UNLESS the primary_email changed and that was the default_sender_address.
+        #  => in this case, setting the default_sender_address to the new primary_email is the sane thing to do (see the else code).
         user.default_sender_address = old_user.default_sender_address
     else:
         user.default_sender_address = user.primary_email

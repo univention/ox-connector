@@ -805,3 +805,20 @@ def test_toggle_is_ox_user_property_new_context(
     find_obj(default_ox_context, new_user_name, assert_empty=True)
     # Ensure the user is added to the new OX context
     find_obj(new_context_id, new_user_name, assert_empty=False)
+
+
+def test_default_sender_address(default_ox_context, new_user_name, domainname, udm, wait_for_listener):
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context)
+    wait_for_listener(dn)
+    obj = find_obj(default_ox_context, new_user_name)
+    assert obj.default_sender_address == obj.primary_email
+    udm_obj = list(udm.search("users/user", f"username={new_user_name}"))[0].open()
+    new_lastname = udm_obj.properties["lastname"] + "-Schmidt"
+    old_primary_email = udm_obj.properties["mailPrimaryAddress"]
+    old_primary_email_part1, old_primary_email_part2 = old_primary_email.split("@")
+    new_primary_email = f"{old_primary_email_part1}-schmidt@{old_primary_email_part2}"
+    udm.modify("users/user", dn, {"mailPrimaryAddress": new_primary_email, "mailAlternativeAddress": [old_primary_email]})
+    wait_for_listener(dn)
+    obj = find_obj(default_ox_context, new_user_name)
+    assert obj.primary_email == new_primary_email
+    assert obj.default_sender_address == obj.primary_email
