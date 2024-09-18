@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.1...v0.14.2) (2024-09-18)
+
+
+### Bug Fixes
+
+* update nubus-provisioning-consumer and ox-connector-appcenter image tag ([b825e4b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/b825e4b251039bca9465722c255540e443f61c64)), closes [univention/customers/dataport/team-souvap#811](https://git.knut.univention.de/univention/customers/dataport/team-souvap/issues/811)
+
 ## [0.14.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.0...v0.14.1) (2024-09-16)
 
 
