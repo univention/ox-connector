@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.3](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.2...v0.14.3) (2024-09-19)
+
+
+### Bug Fixes
+
+* consumer path and provisioning debugging ([aec02eb](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/aec02ebc4dde53dc0dbfd40680d8fe1d16eebb2c))
+
 ## [0.14.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.1...v0.14.2) (2024-09-18)
 
 
