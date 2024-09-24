@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.4](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.3...v0.14.4) (2024-09-24)
+
+
+### Bug Fixes
+
+* bump Provisioning client version, adapt to new endpoint names ([8004f74](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/8004f748d861555e43cea3ca84629d5af4bb624e))
+
 ## [0.14.3](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.2...v0.14.3) (2024-09-19)
 
 
