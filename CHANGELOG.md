@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.5](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.4...v0.14.5) (2024-09-26)
+
+
+### Bug Fixes
+
+* bump Provisioning client version, adapt to new subscriptions format ([c168455](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/c1684557fe797175ed7fead9a7d02fc749949d7c))
+
 ## [0.14.4](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.3...v0.14.4) (2024-09-24)
 
 
