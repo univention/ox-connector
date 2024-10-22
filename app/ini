@@ -1,7 +1,7 @@
 [Application]
 ID = ox-connector
 Code = 31
-Version = 2.2.13
+Version = 2.2.14
 Name = OX Connector
 Vendor = Univention
 Contact = feedback@univention.de
@@ -15,7 +15,7 @@ DockerScriptUpdateRelease =
 DockerScriptSetup =
 ListenerUDMModules = oxmail/oxcontext, oxresources/oxresources, users/user, groups/group, oxmail/accessprofile, oxmail/functional_account
 DockerShellCommand = /bin/ash
-DockerImage = docker.software-univention.de/ox-connector:2.2.13
+DockerImage = docker.software-univention.de/ox-connector:2.2.14
 DockerScriptConfigure = /tmp/ox-connector.configure
 Description = Synchronize Nubus Users and Groups to Open-Xchange
 SupportedUcsVersions = 5.0-8 errata1107, 5.1-0, 5.2-0

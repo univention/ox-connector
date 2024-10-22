@@ -123,7 +123,8 @@ _profiles = OrderedDict()
 def get_access_profiles(force_reload):
     if not _profiles or force_reload:
         _profiles.clear()
-        regex = re.compile(r"^(\w+)=(.+)")
+        # regex = re.compile(r"^(\w+)=(.+)")
+        regex = re.compile(r"^(.*)=(.+)")
         try:
             with open(access_definitions_file) as fd:
                 for line in fd:

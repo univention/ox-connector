@@ -49,7 +49,6 @@ def find_access(context_id, name, assert_empty=False, print_obj=True):
             print("Found", obj)
         return obj.service(obj.context_id).get_module_access({"id": obj.id})
 
-
 @pytest.mark.parametrize(
     "right,right_soap",
     [
@@ -119,3 +118,46 @@ def test_every_one_right_access_profile(
     with open(fname) as fd:
         content = fd.read()
         assert f"{ox_access}={right}\n" not in content
+
+
+@pytest.mark.parametrize(
+    "special_character",
+    [
+        '!', '#', '$', '%', '&', "'", '*', '-', '.', '/', ':', '?', '@', '[', ']', '^', '_', '`', '{', '|', '}', '~'
+    ],
+)
+def test_accessprofile_with_special_characters(
+    udm, default_ox_context, new_user_name, wait_for_listener, domainname, special_character
+):
+    """
+    Create an access profile with special characters and test existance.
+    """
+    ox_access = f"accessprofile_{special_character}"
+    assert get_access_profile(ox_access) is None
+    dn = create_obj(udm, ox_access, "usm")
+    wait_for_listener(dn)
+    fname = "/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties"
+    with open(fname) as fd:
+        content = fd.read()
+        assert f"{ox_access}=usm\n" in content
+    get_access_profiles(force_reload=True)
+    profile = get_access_profile(ox_access)
+    assert profile == ["USM"]
+    user_dn = create_user(udm, new_user_name, domainname, default_ox_context, ox_access)
+    wait_for_listener(user_dn)
+    access = find_access(default_ox_context, new_user_name)
+    assert access["USM"] is True
+    for _right in access:
+        if _right == "OLOX20" or _right == "publication":  # deprecated rights
+            continue
+        if _right != "USM":
+            assert access[_right] is False
+
+    udm.remove("users/user", user_dn)  # needs to be removed before accessprofile
+    udm.remove("oxmail/accessprofile", dn)
+    wait_for_listener(dn)
+    get_access_profiles(force_reload=True)
+    assert get_access_profile(ox_access) is None
+    with open(fname) as fd:
+        content = fd.read()
+        assert f"{ox_access}=usm\n" not in content
