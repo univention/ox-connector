@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.6](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.5...v0.14.6) (2024-10-24)
+
+
+### Bug Fixes
+
+* **accessprofile:** support special characters in accessprofile name and ([f7790f3](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/f7790f3ccaba197d28f842f4e39d9a8226c0bfaa)), closes [univention/open-xchange/provisioning#100](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/100)
+
 ## [0.14.5](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.4...v0.14.5) (2024-09-26)
 
 
