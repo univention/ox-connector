@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.7](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.6...v0.14.7) (2024-10-29)
+
+
+### Bug Fixes
+
+* **changelog:** change release date ([dfaa982](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/dfaa982cf312fb302ef7bfc2c4a4914999b95a54))
+
 ## [0.14.6](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.5...v0.14.6) (2024-10-24)
 
 
