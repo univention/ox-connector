@@ -56,7 +56,8 @@ def get_group_name(group):
     if GROUP_IDENTIFIER == "entryUUID":
         return group.entry_uuid
     else:
-        return group.attributes.get(GROUP_IDENTIFIER)
+        # fall back to group's name if GROUP_IDENTIFIER is None
+        return group.attributes.get(GROUP_IDENTIFIER) or group.attributes.get('name')
 
 
 def update_group(group, attributes, group_name):
