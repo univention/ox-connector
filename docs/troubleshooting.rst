@@ -211,16 +211,22 @@ following snippet provisions one user object:
 .. code-block:: bash
    :caption: Re-provision one UDM object
 
-   DN="uid=user100,cn=users,$(ucr get ldap/base)"
-   ENTRY_UUID="$(univention-ldapsearch -b "$DN" + | grep entryUUID | awk '{ print $2 }')"
-   cat > /var/lib/univention-appcenter/listener/ox-connector/$(date +%Y-%m-%d-%H-%M-%S).json <<- EOF
+   dn="uid=ox1,cn=users,dc=example,dc=com" # -> CHANGE to the actual dn
+
+   entry_uuid="$(univention-ldapsearch -b "$dn" + | grep entryUUID | awk '{ print $2 }')"
+   if [ -n "$entry_uuid" ]; then
+       cat > /var/lib/univention-appcenter/listener/ox-connector/$(date +%Y-%m-%d-%H-%M-%S).json <<- EOF
    {
-       "entry_uuid": "$ENTRY_UUID",
-       "dn": "$DN",
+       "entry_uuid": "$entry_uuid",
+       "dn": "$dn",
        "object_type": "users/user",
        "command": "modify"
    }
    EOF
+   else
+       echo "$dn no longer exists, deleting from ox-connector db"
+       univention-app shell ox-connector remove-from-ox-db-cache "$dn"
+   fi
 
 .. _queue-reprovision-all:
 
@@ -360,33 +366,28 @@ that have already been synchronized is stored. If any user is part of such group
 
 .. code-block:: console
 
-   2023-11-17 09:21:20 INFO    Loading old object from /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/d52a12f0-2d89-103c-82b6-b945bc689f52.json
-   2023-11-17 09:21:20 INFO    Loading old object from /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/f029fd00-8247-103c-89e3-bd95c6adf546.json
-   2023-11-17 09:21:20 INFO    Error while processing /var/lib/univention-appcenter/apps/ox-connector/data/listener/2023-02-27-13-30-03-471251.json
-   2023-11-17 09:21:20 WARNING Traceback (most recent call last):
-   2023-11-17 09:21:20 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 341, in run_on_files
-   2023-11-17 09:21:20 WARNING     function(obj)
-   2023-11-17 09:21:20 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 103, in run
-   2023-11-17 09:21:20 WARNING     for new_obj in get_group_objs(obj):
-   2023-11-17 09:21:20 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 156, in get_group_objs
-   2023-11-17 09:21:20 WARNING     user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
-   2023-11-17 09:21:20 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 72, in _get_old_object
-   2023-11-17 09:21:20 WARNING     return object_from_path(path_to_old_user)
-   2023-11-17 09:21:20 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 261, in object_from_path
-   2023-11-17 09:21:20 WARNING     entry_uuid = content["id"]
-   2023-11-17 09:21:20 WARNING TypeError: 'NoneType' object is not subscriptable
-   2023-11-17 09:21:20 INFO    This is consecutive error #18
-   2023-11-17 09:21:20 INFO    Sleeping for 0 sec
-   2023-11-17 09:21:20 INFO    Successfully processed 0 files during this run
+   2024-11-15 16:06:33 INFO    Group oxgroup will be OX Group
+   2024-11-15 16:06:33 INFO    Error while processing /var/lib/univention-appcenter/apps/ox-connector/data/listener/2024-11-15-15-51-31-669745.json
+   2024-11-15 16:06:33 INFO    This is consecutive error #11
+   2024-11-15 16:06:33 INFO    Sleeping for 0 sec
+   2024-11-15 16:06:33 WARNING Traceback (most recent call last):
+   2024-11-15 16:06:33 INFO    Successfully processed 0 files during this run
+   2024-11-15 16:06:33 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 419, in run_on_files
+   2024-11-15 16:06:33 WARNING     function(obj)
+   2024-11-15 16:06:33 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 115, in run
+   2024-11-15 16:06:33 WARNING     for new_obj in get_group_objs(obj):
+   2024-11-15 16:06:33 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 173, in get_group_objs
+   2024-11-15 16:06:33 WARNING     user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
+   2024-11-15 16:06:33 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 76, in _get_old_object
+   2024-11-15 16:06:33 WARNING     raise Exception(f"Old object file {path_to_old_user} for {distinguished_name} does not exist!\nYou need to re-provision \"{distinguished_name}\" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting  .html#traceback-provisioning-groups).")
+   2024-11-15 16:06:33 WARNING Exception: Old object file /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/d10338de-3144-103f-8ea2-f39fa7a811dd.json for uid=oxuser1,cn=users,dc=example,dc=com does not exist!
+   2024-11-15 16:06:33 WARNING You need to re-provision "uid=oxuser1,cn=users,dc=example,dc=com" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#traceback-provisioning-groups).
 
-You can check which users are missing in the old directory by running the next command. It
-will print the *DN* of the users that need to be provisioned again. Then you can follow
-the instructions here :ref:`queue-reprovision-one` to synchronize the missing users.
-
-.. code-block:: bash
-
-   univention-ldapsearch "(&(univentionObjectType=users/user)(isOxUser=OK))" entryUUID | sed -ne 's/entryUUID: //p' | xargs -I{} bash -c "test -e  /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/{}.json || univention-ldapsearch -LLL  entryUUID={} 1.1"
-
+You need to re-provision the user object
+(*uid=oxuser1,cn=users,dc=example,dc=com* in this case) manually. Follow the
+instructions in :ref:`queue-reprovision-one` to synchronize the missing users.
+After this manual intervention the connector automatically continues with the
+synchronization of the group object.
 
 Verify data consistency
 =======================

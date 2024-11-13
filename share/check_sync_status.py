@@ -28,23 +28,20 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import dbm.gnu
 import glob
 import json
-import os
 import shutil
 import subprocess
 import sys
 from argparse import ArgumentParser
-from contextlib import contextmanager
 from datetime import date, datetime
 from pathlib import Path
 
-import univention.ox.provisioning.helpers
-from tests import udm_rest
-from univention.ox.provisioning.helpers import get_context_id, get_db_id, get_obj_by_name_from_ox
+from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
+from univention.ox.provisioning.key_value_store import KeyValueStore
 from univention.ox.soap.backend_base import get_ox_integration_class
-from univention.ox.soap.config import DEFAULT_CONTEXT
+
+from tests import udm_rest
 
 User = get_ox_integration_class("SOAP", "User")
 Group = get_ox_integration_class("SOAP", "Group")
@@ -67,26 +64,14 @@ DATA_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data")
 NEW_FILES_DIR = DATA_DIR / "listener"
 OLD_FILES_DIR = NEW_FILES_DIR / "old"
 
-class KeyValue(object):
-    def __init__(self, name):
-        self.db_fname = str(NEW_FILES_DIR / name)
-    @contextmanager
-    def open(self):
-        """Open DBM-Database and yield the handler"""
-        with dbm.gnu.open(self.db_fname, "cs") as data_base:
-            yield data_base
-    def get(self, key):
-        """Read value from DBM-Database"""
-        with self.open() as data_base:
-            return data_base.get(key)
+mapping = KeyValueStore(str(NEW_FILES_DIR / "old.db"))
 
-mapping = KeyValue("old.db")
 
 def _get_old_object(distinguished_name):
     path_to_old_user = mapping.get(distinguished_name)
     if not path_to_old_user:
         return None
-    path_to_old_user = Path(path_to_old_user.decode("utf-8"))
+    path_to_old_user = Path(path_to_old_user)
     if not path_to_old_user.exists():
         return None
     with path_to_old_user.open() as file_handler:

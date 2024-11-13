@@ -22,6 +22,8 @@ Changed
 Improved error message in case app settings `OX_USER_IDENTIFIER` or
 `OX_GROUP_IDENTIFIER` are not correctly configured.
 
+Improve error message in case re-provisioning for a object is required.
+
 2.2.14
 =============
 

@@ -31,20 +31,19 @@
 Entry point for listener_trigger script.
 """
 
-import dbm.gnu
 import json
 import logging
+import os
+import shutil
 import sys
 import time
 import traceback
-import os
-import shutil
-from datetime import datetime
-from contextlib import contextmanager
-from pathlib import Path
 from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
 
 from univention.ox.provisioning import helpers, run
+from univention.ox.provisioning.key_value_store import KeyValueStore
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -70,6 +69,8 @@ def _get_old_object(distinguished_name):
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user)
+    if not os.path.isfile(path_to_old_user):
+        raise Exception(f"Old object file {path_to_old_user} for {distinguished_name} does not exist!\nYou need to re-provision \"{distinguished_name}\" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#traceback-provisioning-groups).")
     logger.info("Loading old object from %s", path_to_old_user)
     return object_from_path(path_to_old_user)
 
@@ -237,59 +238,8 @@ class TriggerObject(object):
         return f"Object({self.object_type!r}, {self.distinguished_name!r})"
 
 
-class KeyValueStore(object):
-    """
-    Database about meta information on this listener.
-    Particularly the number of consecutive errors.
-    """
-
-    def __init__(self, name):
-        self.db_fname = str(NEW_FILES_DIR / name)
-        self.data = {}
-        self.changes = set()
-        with self.open() as data_base:
-            for k in data_base.keys():
-                self.data[k.decode("UTF-8")] = data_base[k].decode("UTF-8")
-
-    @contextmanager
-    def open(self, flags="cs"):
-        """Open DBM-Database and yield the handler"""
-        with dbm.gnu.open(self.db_fname, flags) as data_base:
-            yield data_base
-
-    def set(self, distinguished_name, path):
-        """Write item to DBM-Database"""
-        if distinguished_name is None:
-            return
-        if path is None:
-            self.data[distinguished_name] = None
-        else:
-            self.data[distinguished_name] = str(path)
-        self.changes.add(distinguished_name)
-
-    def unset(self, distinguished_name):
-        """Remove item from DBM-Database"""
-        if distinguished_name is None:
-            return
-        self.data[distinguished_name] = None
-        self.changes.add(distinguished_name)
-
-    def get(self, key):
-        """Read value from DBM-Database"""
-        return self.data.get(key)
-
-    def commit(self):
-        with self.open(flags="cs") as data_base:
-            for dn in self.changes:
-                v = self.data[dn]
-                if v:
-                    data_base[dn] = v
-                elif dn in data_base:
-                    del data_base[dn]
-
-
-meta = KeyValueStore("meta.db")  # store consecutive errors
-mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
+meta = KeyValueStore(str(NEW_FILES_DIR / "meta.db"))  # store consecutive errors
+mapping = KeyValueStore(str(NEW_FILES_DIR / "old.db"))  # stores dn -> path to last json file
 
 
 def object_from_path(path):
