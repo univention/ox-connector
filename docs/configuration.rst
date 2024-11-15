@@ -292,7 +292,7 @@ App Settings
 
    .. note::
 
-         Only a UDM user property that contains a **single value** which is **not None** is a valid option. In case a UDM user property
+         Only a UDM user property that contains a **single value** which is **not None** (mandatory UDM property) is a valid option. In case a UDM user property
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
          to be resolved manually by simply setting a valid value.
 
@@ -316,7 +316,7 @@ App Settings
 
    .. note::
 
-         Only a UDM group property that contains a **single value** which is **not None** is a valid option. In case a UDM group property
+         Only a UDM group property that contains a **single value** which is **not None** (mandatory UDM property) is a valid option. In case a UDM group property
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
          to be resolved manually by simply setting a valid value.
 

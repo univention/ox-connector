@@ -12,6 +12,16 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+TODO
+====
+
+Released: TODO
+
+Changed
+-------
+Improved error message in case app settings `OX_USER_IDENTIFIER` or
+`OX_GROUP_IDENTIFIER` are not correctly configured.
+
 2.2.14
 =============
 

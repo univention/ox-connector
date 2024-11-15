@@ -458,6 +458,10 @@ lead to the following errors:
     2024-01-11 13:57:39 WARNING     super(SoapUser, self).modify()
     2024-01-11 13:57:39 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/soap/backend.py", line 176, in modify
     2024-01-11 13:57:39 WARNING     assert self.name is not None
+    2024-01-11 13:57:39 WARNING No name for this attribute. Missing or misconfigured identifier app settings
+    2024-01-11 13:57:39 WARNING (OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER) might be the reason, see
+    2024-01-11 13:57:39 WARNING https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#invalid-values-for-ox-user-identifier-or-ox-group-identifier
+    2024-01-11 13:57:39 WARNING for more information.
 
 .. code-block:: console
 

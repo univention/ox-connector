@@ -52,6 +52,12 @@ class SoapBackend(object):
     _service_objs = {}
     _base2soap = {}
     _mandatory_creation_attr = ()
+    _msg_name_missing = """
+No name for this attribute. Missing or misconfigured identifier app settings
+(OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER) might be the reason, see
+https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#invalid-values-for-ox-user-identifier-or-ox-group-identifier
+for more information.\
+"""
 
     def __repr__(self):
         attrs = list(self._base2soap) + ['id', 'name', 'context_id']
@@ -173,7 +179,7 @@ class SoapBackend(object):
         :return: None
         """
         assert self.id is not None
-        assert self.name is not None
+        assert self.name is not None, self._msg_name_missing
 
         obj_kwargs = self._base_obj2soap_obj()
         obj = self.service(self.context_id).Type(**obj_kwargs)
@@ -187,7 +193,8 @@ class SoapBackend(object):
 
         :return: None
         """
-        assert self.id is not None or self.name is not None
+        assert self.id is not None
+        assert self.name is not None, self._msg_name_missing
 
         obj = self.service(self.context_id).Type(id=self.id, name=self.name)
         self.service(self.context_id).delete(obj)
