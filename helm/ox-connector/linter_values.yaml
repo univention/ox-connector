@@ -29,12 +29,9 @@ provisioningApi:
 image:
   tag: "latest"
 
-## Container deployment probes
-probes:
-  liveness:
-    enabled: false
-
-  readiness:
-    enabled: false
+service:
+  ports:
+    http:
+      containerPort: 123
 
 ...

@@ -33,7 +33,7 @@ A Helm chart for the ox-connector
 | image.waitForDependency.imagePullPolicy | string | `"IfNotPresent"` |  |
 | image.waitForDependency.registry | string | `"artifacts.software-univention.de"` |  |
 | image.waitForDependency.repository | string | `"nubus/images/wait-for-dependency"` |  |
-| image.waitForDependency.tag | string | `"0.25.0@sha256:71a4d66fd67db6f92212b1936862b2b0d5a678d412213d74452a9195c2fe67f7"` |  |
+| image.waitForDependency.tag | string | `"0.26.0"` |  |
 | ingress | object | `{"enabled":false}` | Kubernetes ingress |
 | ingress.enabled | bool | `false` | Set this to `true` in order to enable the installation on Ingress related objects. |
 | nameOverride | string | `""` |  |
@@ -74,7 +74,14 @@ A Helm chart for the ox-connector
 | resources.requests.cpu | string | `"250m"` |  |
 | resources.requests.memory | string | `"512Mi"` |  |
 | resourcesWaitForDependency | object | `{}` | Deployment resources for the dependency waiters |
-| securityContext | object | `{}` |  |
+| securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| securityContext.privileged | bool | `false` |  |
+| securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| securityContext.runAsGroup | int | `1000` |  |
+| securityContext.runAsNonRoot | bool | `true` |  |
+| securityContext.runAsUser | int | `1000` |  |
+| securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
