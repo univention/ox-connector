@@ -72,26 +72,8 @@ spec:
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
             {{- end }}
-          {{- if .Values.probes.liveness.enabled }}
-          livenessProbe:
-            tcpSocket:
-              port: {{ .Values.service.ports.http.containerPort }}
-            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
-            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
-            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
-            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
-            successThreshold: {{ .Values.probes.liveness.successThreshold }}
-          {{- end }}
-          {{- if .Values.probes.readiness.enabled }}
-          readinessProbe:
-            tcpSocket:
-              port: {{ .Values.service.ports.http.containerPort }}
-            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
-            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
-            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
-            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
-            successThreshold: {{ .Values.probes.readiness.successThreshold }}
-          {{- end }}
+          livenessProbe: {{- toYaml .Values.probes.liveness | nindent 12 }}
+          readinessProbe: {{- toYaml .Values.probes.readiness | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
