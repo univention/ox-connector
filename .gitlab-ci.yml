@@ -64,6 +64,10 @@ variables:
       - "ox-connector-standalone"
       - "ox-extension"
 
+container-malware-scan:
+  parallel:
+    matrix: *publish-matrix
+
 .version-rules: &version-rules
   - if: '$CI_PIPELINE_SOURCE == "schedule"'
     when: "never"
