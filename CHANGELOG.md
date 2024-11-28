@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.14.8](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.7...v0.14.8) (2024-11-28)
+
+
+### Bug Fixes
+
+* kyverno lint ([122fd61](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/122fd6196e4bc9f9b31cbbcd157e9d8eb2eac568))
+* **listener:** better error message in case old json is missing ([af9a11b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/af9a11baf3f49febc20a997bebc199b8c4c0176c)), closes [univention/open-xchange/provisioning#97](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/97)
+* malware scan CI configuration ([fddd4af](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/fddd4afc1741f12a72187b3db850f7c645f78dad))
+* probes ([56ae9ed](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/56ae9ed4c30e80746fc54c352b5076036013178d))
+* simplify statefulset template ([36dbb7f](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/36dbb7f6d4ddee00348b52060985a878725f8a94))
+* **soap backend:** better error message in case identifier is None ([a485ee5](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/a485ee5f1eb51f948dd46ecf4027f0e1ebcb35c8))
+
 ## [0.14.7](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.6...v0.14.7) (2024-10-29)
 
 
