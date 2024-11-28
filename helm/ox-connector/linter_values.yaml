@@ -29,9 +29,4 @@ provisioningApi:
 image:
   tag: "latest"
 
-service:
-  ports:
-    http:
-      containerPort: 123
-
 ...
