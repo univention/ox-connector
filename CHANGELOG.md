@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.9](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.8...v0.14.9) (2024-12-02)
+
+
+### Bug Fixes
+
+* ci malware scan configuration ([c96795e](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/c96795e9092014a220d76f6edef16f3543b4e7c1))
+
 ## [0.14.8](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.7...v0.14.8) (2024-11-28)
 
 
