@@ -98,3 +98,9 @@ results:
     kind: "StatefulSet"
     rule: "template-replicas"
     result: "pass"
+  - resources:
+      - "release-name-ox-connector"
+    policy: "require-requests-limits"
+    kind: "StatefulSet"
+    rule: "validate-resources"
+    result: "pass"
