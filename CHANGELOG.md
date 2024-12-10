@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.10](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.9...v0.14.10) (2024-12-10)
+
+
+### Bug Fixes
+
+* kyverno lint for ox-connector ([a3e3315](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/a3e33150bee2faaf9812ec19e6015e7063096b76))
+
 ## [0.14.9](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.8...v0.14.9) (2024-12-02)
 
 
