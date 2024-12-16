@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.11](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.10...v0.14.11) (2024-12-16)
+
+
+### Bug Fixes
+
+* hotfix typo in values ([44aea1b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/44aea1b7133163680f96c51e57b25e431727c69f))
+
 ## [0.14.10](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.9...v0.14.10) (2024-12-10)
 
 
