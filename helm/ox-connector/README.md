@@ -50,17 +50,17 @@ A Helm chart for the ox-connector
 | oxConnector.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
-| probes.liveness.command[0] | string | `"/bin/sh"` |  |
-| probes.liveness.command[1] | string | `"-c"` |  |
-| probes.liveness.command[2] | string | `"exit 0\n"` |  |
+| probes.liveness.exec.command[0] | string | `"/bin/sh"` |  |
+| probes.liveness.exec.command[1] | string | `"-c"` |  |
+| probes.liveness.exec.command[2] | string | `"exit 0\n"` |  |
 | probes.liveness.failureThreshold | int | `3` |  |
 | probes.liveness.initialDelaySeconds | int | `120` |  |
 | probes.liveness.periodSeconds | int | `30` |  |
 | probes.liveness.successThreshold | int | `1` |  |
 | probes.liveness.timeoutSeconds | int | `3` |  |
-| probes.readiness.command[0] | string | `"/bin/sh"` |  |
-| probes.readiness.command[1] | string | `"-c"` |  |
-| probes.readiness.command[2] | string | `"exit 0\n"` |  |
+| probes.readiness.exec.command[0] | string | `"/bin/sh"` |  |
+| probes.readiness.exec.command[1] | string | `"-c"` |  |
+| probes.readiness.exec.command[2] | string | `"exit 0\n"` |  |
 | probes.readiness.failureThreshold | int | `30` |  |
 | probes.readiness.initialDelaySeconds | int | `30` |  |
 | probes.readiness.periodSeconds | int | `15` |  |

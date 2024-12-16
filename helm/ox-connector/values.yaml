@@ -96,11 +96,12 @@ probes:
     periodSeconds: 30
     failureThreshold: 3
     successThreshold: 1
-    command:
-      - /bin/sh
-      - -c
-      - |
-        exit 0
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - |
+          exit 0
 
   readiness:
     initialDelaySeconds: 30
@@ -108,11 +109,12 @@ probes:
     periodSeconds: 15
     failureThreshold: 30
     successThreshold: 1
-    command:
-      - /bin/sh
-      - -c
-      - |
-        exit 0
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - |
+          exit 0
 
 ## Deployment resources
 resources:
