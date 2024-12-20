@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.11...v0.15.0) (2024-12-20)
+
+
+### Features
+
+* upgrade UCS base image to 2024-12-12 ([4395288](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/4395288f1cdff99f362625daebc67bdad0bfdbaf))
+
 ## [0.14.11](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.10...v0.14.11) (2024-12-16)
 
 
