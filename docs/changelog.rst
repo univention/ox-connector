@@ -31,23 +31,28 @@ Fixed
 The documentation wasn't explicit about setting the administrative password
 in the app settings for the *OX Connector App*.
 
+.. _app-changelog-v2.2.14:
 
-2.2.14
-=============
+v2.2.14
+=======
 
 Released: 29. Oct 2024
 
 Changed
 -------
+
 Allow special characters for the name of the access profile.
 
-2.2.13
-=============
+.. _app-changelog-v2.2.13:
+
+v2.2.13
+=======
 
 Released: 17. Sep 2024
 
 Changed
 -------
+
 When changing an OX user in UDM, the OX attribute `default_sender_address` was
 left untouched. That is because it is a user preference, not "core data". Now,
 if an OX user is changed in UDM so that the `primaryMailAddress` changes and
@@ -55,38 +60,49 @@ this has been the user's `default_sender_address`, it is overwritten to the new
 mail address - as this makes sense in next to all scenarios and would be
 considered an error if not done automatically.
 
-2.2.12
-=============
+.. _app-changelog-v2.2.12:
+
+v2.2.12
+=======
 
 Released: 28. Aug 2024
 
 Changed
 -------
+
 You can now add LDAP containers to the list of default containers for
 functional accounts and select the container before creating a new
 functional account in UMC, see the :ref:`usage-functional-accounts` for more
 information.
 
-2.2.11
-=============
+.. _app-changelog-v2.2.11:
+
+v2.2.11
+=======
 
 Released: 23. May 2024
 
 Changed
 -------
+
 Fixes a bug which prevents the removal of Open-Xchange contexts.
 
-2.2.10
-=============
+.. _app-changelog-v2.2.10:
+
+v2.2.10
+=======
 
 Released: 26. April 2024
 
 Changed
 -------
+
 The performance of the OX Connector has been improved.
 
-2.2.9
-=============
+.. _app-changelog-v2.2.9:
+
+v2.2.9
+======
 
 Released: 12. April 2024
 
@@ -97,17 +113,21 @@ It's now possible to change the attribute mapping between Open-Xchange and UCS
 through the script :program:`change_attribute_mapping.py`.
 For more information, see :ref:`conf-user-attribute-mapping`.
 
-2.2.8
-=============
+.. _app-changelog-v2.2.8:
+
+v2.2.8
+======
 
 Released: 16. January 2024
 
 Changed
 -------
+
 The `meta.db` also stores the error message and the filename that causes the error.
 
 Added
 -----
+
 The script `get_current_error.py` outputs a json with the contents of the `meta.db`. This json can be used to automate the app health checks.
 
 The app settings `OX_USER_IDENTIFIER` and `OX_GROUP_IDENTIFIER` have been added. They give control over which UDM property is used as the unique
@@ -115,8 +135,10 @@ identifier for users and groups in OX.
 
 The script `check_sync_status.py` has been added. It can be used to identify data inconsistencies between UDM, OX and the listener files.
 
-2.2.7
-=============
+.. _app-changelog-v2.2.7:
+
+v2.2.7
+======
 
 Released: 7. September 2023
 
@@ -133,8 +155,10 @@ Fix `OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE` empty app setting handling (Bug #5652
 Fix error in context change when modifying the context and the username in the same operation (Bug #56525).
 
 
-2.2.6
-=============
+.. _app-changelog-v2.2.6:
+
+v2.2.6
+======
 
 Released: 18. August 2023
 
@@ -144,8 +168,10 @@ Changed
 The Functional Account login field is now configurable via the app setting `OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE`.
 
 
-2.2.5
-=============
+.. _app-changelog-v2.2.5:
+
+v2.2.5
+======
 
 Released: 16. August 2023
 
@@ -154,8 +180,10 @@ Changed
 
 User context change uses the `UserCopy` service.
 
-2.2.4
-=============
+.. _app-changelog-v2.2.4:
+
+v2.2.4
+======
 
 Released: 13. July 2023
 
@@ -164,8 +192,10 @@ Changed
 
 The `imaplogin` field is now configurable via the app setting `OX_IMAP_LOGIN`.
 
-2.2.3
-=============
+.. _app-changelog-v2.2.3:
+
+v2.2.3
+======
 
 Released: 27. June 2023
 
@@ -174,8 +204,10 @@ Fixed
 
 Corrected a typo in the `listener_trigger` script.
 
-2.2.2
-=============
+.. _app-changelog-v2.2.2:
+
+v2.2.2
+======
 
 Released: 22. June 2023
 
@@ -184,8 +216,10 @@ Fixed
 
 The OX-Connector now prevents a scenario in which values set by users in the App Suite app were overwritten in a wrong way.
 
-2.2.1
-=============
+.. _app-changelog-v2.2.1:
+
+v2.2.1
+======
 
 Released: 07. June 2023
 
@@ -194,8 +228,10 @@ Changed
 
 The OX-Context of a group is no longer modifiable in the groups module of UMC since the OX-Context of a group is always derived from the OX-Contexts of its users.
 
-2.2.0
-=============
+.. _app-changelog-v2.2.0:
+
+v2.2.0
+======
 
 Released: 01. June 2023
 
@@ -218,20 +254,25 @@ Deprecated
 
 *oxDisplayName* still exists and is evaluated. At some later version, we will use the original *displayName* of a user.
 
-2.1.4
-=====
+.. _app-changelog-v2.1.4:
+
+v2.1.4
+======
 
 Released: 31. May 2023
 
 **This version has been revoked**
 
-2.1.3
-=====
+.. _app-changelog-v2.1.3:
+
+v2.1.3
+======
 
 Released: 21. April 2023
 
 Fixed
--------
+-----
+
 Changes to the *oxAccessUSM* attribute are now considered by the provisioning logic.
 
 Changed
@@ -242,8 +283,10 @@ Added helper script to remove old listener files from users with empty
 
 Removed *bindpwd* uses from *createextattr.py* script (#55985).
 
-2.1.2
-=====
+.. _app-changelog-v2.1.2:
+
+v2.1.2
+======
 
 Released: 4. April 2023
 
@@ -252,8 +295,10 @@ Changed
 
 Changes in inst script for compatibility with App Center's OX App Suite.
 
-2.1.1
-=====
+.. _app-changelog-v2.1.1:
+
+v2.1.1
+======
 
 Released: 9. December 2022
 
@@ -262,8 +307,10 @@ Fixed
 
 Fixed bug that prevented users from creating OX users from |UMC|.
 
-2.1.0
-=====
+.. _app-changelog-v2.1.0:
+
+v2.1.0
+======
 
 Released: 14. November 2022
 
@@ -291,8 +338,10 @@ Added
 
 Prepare support for Univention OX App suite.
 
-2.0.1
-=====
+.. _app-changelog-v2.0.1:
+
+v2.0.1
+======
 
 Released: 9. September 2022
 
@@ -305,8 +354,10 @@ double checking.
 
 Avoid 500 log messages in OX by guarding user look-ups by an `exists` call.
 
-2.0.0
-=====
+.. _app-changelog-v2.0.0:
+
+v2.0.0
+======
 
 Released: 26. April 2022
 
@@ -323,9 +374,10 @@ functional mailboxes among other users in the same context.
 
 For more information, see :ref:`usage-functional-accounts`.
 
+.. _app-changelog-v1.1.0:
 
-1.1.0
-=====
+v1.1.0
+======
 
 Added
 -----
