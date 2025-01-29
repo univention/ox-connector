@@ -19,10 +19,18 @@ Released: TODO
 
 Changed
 -------
+
 Improved error message in case app settings `OX_USER_IDENTIFIER` or
 `OX_GROUP_IDENTIFIER` are not correctly configured.
 
 Improve error message in case re-provisioning for a object is required.
+
+Fixed
+-----
+
+The documentation wasn't explicit about setting the administrative password
+in the app settings for the *OX Connector App*.
+
 
 2.2.14
 =============

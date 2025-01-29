@@ -16,21 +16,26 @@ administrator need to know the following limitations.
 Integration of OX Connector and OX App Suite app
 ================================================
 
-Starting with version 2.1.2, Univention does support the use of :program:`OX
-Connector` towards the :program:`OX App Suite` app from Univention App Center.
-The :program:`OX Connector` takes over the provisioning, the :program:`OX App
-Suite` ships the actual groupware.
+Starting with version 2.1.2,
+Univention supports the use of the :program:`OX Connector`
+for the :program:`OX App Suite` app from Univention App Center.
+The :program:`OX Connector` handles the provisioning,
+while the :program:`OX App Suite` delivers the actual groupware.
 
-However, the OX Connector needs administrative credentials to create context
-objects in OX' database. The installation process doesn't know these
-credentials. Thus, you may need to reconfigure the :program:`OX Connector` after
-you installed :program:`OX App Suite` successfully. The reconfiguration runs
-automatically, if, and only if, both apps locate on the same UCS system.
+However, the OX Connector needs administrative credentials
+to create context objects in the database for the :program:`OX App Suite`.
+The installation process doesn't know these credentials.
+Therefore, you need to verify the configuration of the :program:`OX Connector`
+after you have successfully installed :program:`OX App Suite`.
+The reconfiguration runs automatically
+if, and only if, both apps locate on the same UCS system.
 
-If not, you find the password on the UCS system that runs :program:`OX App
-Suite` in the file :file:`/etc/ox-secrets/master.secret`. The username of the
-administrative account is ``oxadminmaster``. You can set the credentials in the
-app settings of the :program:`OX Connecor`, see :ref:`app-configuration`.
+If not,
+you find the password in the file :file:`/etc/ox-secrets/master.secret`
+on the UCS system running :program:`OX App Suite`.
+The username of the administrative account is ``oxadminmaster``.
+You need to set the credentials in the app settings of the :program:`OX Connecor`,
+see :ref:`app-configuration`.
 
 .. _limit-stop-at-conflict:
 
