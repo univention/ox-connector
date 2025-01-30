@@ -52,7 +52,7 @@ module: settings/extended_attribute
 position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
 properties:
   name: oxContextUser
-  default:
+  default: "{{ oxDefaultContext }}"
   module: [users/user]
   ldapMapping: oxContextIDNum
   objectClass: oxUserObject
@@ -80,6 +80,7 @@ properties:
   groupName: Open-Xchange
   groupPosition: 1
   disableUDMWeb: false
+
 
 ---
 action: create
@@ -2596,7 +2597,7 @@ module: settings/extended_attribute
 position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
 properties:
   name: oxContextGroup
-  default: ""
+  default: "{{ oxDefaultContext }}"
   module: [groups/group]
   ldapMapping: oxContextIDNum
   objectClass: oxGroup

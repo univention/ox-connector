@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2024 Univention GmbH
+
+global:
+  extensions:
+    - name: "ox"
+      image:
+        registry: "artifacts.software-univention.de"
+        repository: "nubus-dev/images/ox-extension"
+        tag: "0.16.0"
+        imagePullPolicy: "IfNotPresent"
+
+nubusStackDataUms:
+  templateContext:
+    oxSystemUserPassword: "<your-oxUser-password>"
+    portalOxLinkBase: "https://ox.<your-domain>"
+    oxDefaultContext: "<your-default-context>"

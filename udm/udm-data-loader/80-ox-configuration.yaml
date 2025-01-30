@@ -1,0 +1,161 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025 Univention GmbH
+
+
+# Create system user
+action: create
+module: users/ldap
+position: cn=users,{{ ldapBaseDn }}
+properties:
+  username: "oxSystemUser"
+  lastname: "LDAP-system-User"
+  password: {{ oxSystemUserPassword }}
+  overridePWHistory: true
+  overridePWLength: true
+---
+# Create Ox portal tile for Domain Users
+action: create_or_modify
+module: portals/entry
+position: cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: "ox_mail"
+  icon: "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI0LjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzNi4xIDI4LjMiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDM2LjEgMjguMzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiMyODRENzM7fQoJLnN0MXtmaWxsOiMzQzNDM0I7fQoJLnN0MntmaWxsOiNGRkZGRkY7fQoJLnN0M3tmaWxsOiM4Nzg3ODc7fQo8L3N0eWxlPgo8cGF0aCBjbGFzcz0ic3QyIiBkPSJNMzMuNSwyNS4xVjkuN2MtMC40LDAuNS0wLjksMC45LTEuNCwxLjNjLTMuNiwyLjgtNi41LDUtOC42LDYuOGMtMC43LDAuNi0xLjIsMS0xLjcsMS4zcy0xLDAuNi0xLjcsMQoJYy0wLjcsMC4zLTEuNCwwLjUtMi4xLDAuNWgwYy0wLjYsMC0xLjMtMC4yLTIuMS0wLjVzLTEuMy0wLjctMS43LTFzLTEtMC44LTEuNy0xLjNjLTIuMS0xLjgtNS00LTguNi02LjhjLTAuNS0wLjQtMS0wLjgtMS40LTEuMwoJdjE1LjVjMCwwLjIsMC4xLDAuMywwLjIsMC41YzAuMSwwLjEsMC4zLDAuMiwwLjUsMC4yaDI5LjZjMC4yLDAsMC4zLTAuMSwwLjUtMC4yQzMzLjQsMjUuNSwzMy41LDI1LjMsMzMuNSwyNS4xeiBNMzMuNSw0VjMuNWwwLTAuMwoJTDMzLjQsM2wtMC4xLTAuMmwtMC4yLTAuMmwtMC4zLTAuMUgzLjJDMywyLjYsMi45LDIuNiwyLjgsMi44UzIuNiwzLDIuNiwzLjJjMCwyLjMsMSw0LjIsMyw1LjdjMi42LDIsNS4zLDQuMiw4LjEsNi40CgljMC4xLDAuMSwwLjMsMC4zLDAuNywwLjZjMC40LDAuMywwLjcsMC42LDAuOSwwLjhjMC4yLDAuMiwwLjUsMC40LDAuOSwwLjZjMC40LDAuMiwwLjcsMC40LDEsMC42UzE3LjgsMTgsMTgsMThoMAoJYzAuMywwLDAuNi0wLjEsMC45LTAuMnMwLjYtMC4zLDEtMC42YzAuNC0wLjIsMC43LTAuNSwwLjktMC42YzAuMi0wLjIsMC41LTAuNCwwLjktMC44czAuNi0wLjUsMC43LTAuNmMyLjgtMi4yLDUuNS00LjMsOC4xLTYuNAoJYzAuNy0wLjYsMS40LTEuNCwyLTIuM0MzMy4yLDUuNiwzMy41LDQuOCwzMy41LDR6IE0zNi4xLDMuMnYyMS45YzAsMC45LTAuMywxLjYtMC45LDIuM3MtMS40LDAuOS0yLjMsMC45SDMuMgoJYy0wLjksMC0xLjYtMC4zLTIuMy0wLjlTMCwyNiwwLDI1LjFWMy4yYzAtMC45LDAuMy0xLjYsMC45LTIuM1MyLjMsMCwzLjIsMGgyOS42YzAuOSwwLDEuNiwwLjMsMi4zLDAuOVMzNi4xLDIuMywzNi4xLDMuMnoiLz4KPC9zdmc+Cg=="
+  link:
+    - - en_US
+      - {{ portalOxLinkBase }}/appsuite/#app=io.ox/mail
+  allowedGroups:
+    - 'cn=Domain Users,cn=groups,{{ ldapBaseDn }}'
+  linkTarget: newwindow
+  description:
+    de_DE: E-Mails senden und empfangen
+    en_US: Send and receive emails
+  displayName:
+    de_DE: Open-Xchange
+    en_US: Open-Xchange
+---
+# Create Ox functional account portal tile for Domain Admins
+action: create_or_modify
+module: portals/entry
+position: cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+properties:
+  activated: true
+  name: "ox_functional_admin"
+  icon: "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI0LjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzNi4xIDI4LjMiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDM2LjEgMjguMzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiMyODRENzM7fQoJLnN0MXtmaWxsOiMzQzNDM0I7fQoJLnN0MntmaWxsOiNGRkZGRkY7fQoJLnN0M3tmaWxsOiM4Nzg3ODc7fQo8L3N0eWxlPgo8cGF0aCBjbGFzcz0ic3QyIiBkPSJNMzMuNSwyNS4xVjkuN2MtMC40LDAuNS0wLjksMC45LTEuNCwxLjNjLTMuNiwyLjgtNi41LDUtOC42LDYuOGMtMC43LDAuNi0xLjIsMS0xLjcsMS4zcy0xLDAuNi0xLjcsMQoJYy0wLjcsMC4zLTEuNCwwLjUtMi4xLDAuNWgwYy0wLjYsMC0xLjMtMC4yLTIuMS0wLjVzLTEuMy0wLjctMS43LTFzLTEtMC44LTEuNy0xLjNjLTIuMS0xLjgtNS00LTguNi02LjhjLTAuNS0wLjQtMS0wLjgtMS40LTEuMwoJdjE1LjVjMCwwLjIsMC4xLDAuMywwLjIsMC41YzAuMSwwLjEsMC4zLDAuMiwwLjUsMC4yaDI5LjZjMC4yLDAsMC4zLTAuMSwwLjUtMC4yQzMzLjQsMjUuNSwzMy41LDI1LjMsMzMuNSwyNS4xeiBNMzMuNSw0VjMuNWwwLTAuMwoJTDMzLjQsM2wtMC4xLTAuMmwtMC4yLTAuMmwtMC4zLTAuMUgzLjJDMywyLjYsMi45LDIuNiwyLjgsMi44UzIuNiwzLDIuNiwzLjJjMCwyLjMsMSw0LjIsMyw1LjdjMi42LDIsNS4zLDQuMiw4LjEsNi40CgljMC4xLDAuMSwwLjMsMC4zLDAuNywwLjZjMC40LDAuMywwLjcsMC42LDAuOSwwLjhjMC4yLDAuMiwwLjUsMC40LDAuOSwwLjZjMC40LDAuMiwwLjcsMC40LDEsMC42UzE3LjgsMTgsMTgsMThoMAoJYzAuMywwLDAuNi0wLjEsMC45LTAuMnMwLjYtMC4zLDEtMC42YzAuNC0wLjIsMC43LTAuNSwwLjktMC42YzAuMi0wLjIsMC41LTAuNCwwLjktMC44czAuNi0wLjUsMC43LTAuNmMyLjgtMi4yLDUuNS00LjMsOC4xLTYuNAoJYzAuNy0wLjYsMS40LTEuNCwyLTIuM0MzMy4yLDUuNiwzMy41LDQuOCwzMy41LDR6IE0zNi4xLDMuMnYyMS45YzAsMC45LTAuMywxLjYtMC45LDIuM3MtMS40LDAuOS0yLjMsMC45SDMuMgoJYy0wLjksMC0xLjYtMC4zLTIuMy0wLjlTMCwyNiwwLDI1LjFWMy4yYzAtMC45LDAuMy0xLjYsMC45LTIuM1MyLjMsMCwzLjIsMGgyOS42YzAuOSwwLDEuNiwwLjMsMi4zLDAuOVMzNi4xLDIuMywzNi4xLDMuMnoiLz4KPC9zdmc+Cg=="
+  link:
+    - - en_US
+      - /univention/management/?header=try-hide&overview=false&menu=false#module=udm:oxmail/functional_account
+  allowedGroups:
+    - 'cn=Domain Admins,cn=groups,{{ ldapBaseDn }}'
+  linkTarget: newwindow
+  description:
+    de_DE: Verwaltung von Funktionspostfächern
+    en_US: Manage functional mailboxes
+  displayName:
+    de_DE: Funktionspostfächer
+    en_US: Functional mailboxes
+---
+# Create Ox resources portal tile for Domain Admins
+action: create_or_modify
+module: portals/entry
+position: cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+properties:
+  activated: true
+  name: "ox_resources_admin"
+  icon: "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI1LjQuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzODQgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAzODQgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6I0ZGRkZGRjt9Cjwvc3R5bGU+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0zNjkuOSw5Ny45TDI4NiwxNGMtOS05LTIxLjItMTQuMS0zMy45LTE0LjFINDhDMjEuNSwwLDAsMjEuNSwwLDQ4djQxNmMwLDI2LjUsMjEuNSw0OCw0OCw0OGwwLDBoMjg4CgljMjYuNSwwLDQ4LTIxLjUsNDgtNDhsMCwwVjEzMS45QzM4NCwxMTkuMSwzNzguOSwxMDYuOSwzNjkuOSw5Ny45eiBNMzQ3LjMsMTIwLjZjMi4xLDIsMy41LDQuNiw0LjIsNy40SDI1NlYzMi41CgljMi44LDAuNyw1LjQsMi4xLDcuNCw0LjJMMzQ3LjMsMTIwLjZ6IE0zMzYsNDgwSDQ4Yy04LjgsMC0xNi03LjItMTYtMTZWNDhjMC04LjgsNy4yLTE2LDE2LTE2aDE3NnYxMDRjMCwxMy4yLDEwLjcsMjQsMjMuOSwyNAoJYzAsMCwwLjEsMCwwLjEsMGgxMDR2MzA0QzM1Miw0NzIuOCwzNDQuOCw0ODAsMzM2LDQ4MHogTTI4OCwzMDB2OGMwLDYuNi01LjQsMTItMTIsMTJoLTY4djY4YzAsNi42LTUuNCwxMi0xMiwxMmgtOAoJYy02LjYsMC0xMi01LjQtMTItMTJ2LTY4aC02OGMtNi42LDAtMTItNS40LTEyLTEydi04YzAtNi42LDUuNC0xMiwxMi0xMmg2OHYtNjhjMC02LjYsNS40LTEyLDEyLTEyaDhjNi42LDAsMTIsNS40LDEyLDEydjY4aDY4CglDMjgyLjYsMjg4LDI4OCwyOTMuNCwyODgsMzAweiIvPgo8L3N2Zz4K"
+  link:
+    - - en_US
+      - /univention/management/?header=try-hide&overview=false&menu=false#module=udm:oxresources/oxresources
+  allowedGroups:
+    - 'cn=Domain Admins,cn=groups,{{ ldapBaseDn }}'
+  linkTarget: newwindow
+  description:
+    de_DE: Verwaltung von Kalender-Ressourcen
+    en_US: Manage calendar resources
+  displayName:
+    de_DE: Ressourcen
+    en_US: Resources
+---
+# Create Ox context portal tile for Domain Admins
+action: create_or_modify
+module: portals/entry
+position: cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+properties:
+  activated: true
+  name: "ox_context_admin"
+  icon: "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"
+  link:
+    - - en_US
+      - /univention/management/?header=try-hide&overview=false&menu=false#module=udm:oxmail/oxcontext
+  allowedGroups:
+    - 'cn=Domain Admins,cn=groups,{{ ldapBaseDn }}'
+  linkTarget: newwindow
+  description:
+   de_DE: Verwaltung von Groupware-Kontexten
+   en_US: Manage contexts for groupware
+  displayName:
+   de_DE: OX-Kontext-Objekte
+   en_US: OX-Contexts
+---
+action: ensure_list_contains
+module: portals/category
+position: cn=domain-service,cn=category,cn=portals,cn=univention,{{ ldapBaseDn }}
+properties:
+  entries:
+  - cn=ox_mail,cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+  - cn=ox_functional_admin,cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+  - cn=ox_context_admin,cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+  - cn=ox_resources_admin,cn=entry,cn=portals,cn=univention,{{ ldapBaseDn }}
+---
+action: create
+module: settings/umc_operationset
+position: cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: "ox-functional-accounts"
+  description: Administration for OX functional mailboxes
+  flavor: oxmail/functional_account
+  hosts: []
+  objectFlag: []
+  operation:
+    - command: "udm/*"
+      option: "objectType=users/user"
+    - command: "udm/*"
+      option: "objectType=oxmail/functional_account"
+---
+action: create
+module: settings/umc_operationset
+position: cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: "ox-resources"
+  description: Administration for OX resources
+  flavor: oxresources/oxresources
+  hosts: []
+  objectFlag: []
+  operation:
+    - command: "udm/*"
+      option: "objectType=oxresources/*"
+    - command: "udm/properties"
+      option: "objectType=policies/*"
+    - command: "udm/layout"
+      option: "objectType=policies/*"
+    - command: "udm/query"
+      option: "objectType=policies/*"
+---
+action: create
+module: settings/umc_operationset
+position: cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: "ox-context"
+  description: Administration for OX contexts
+  flavor: oxmail/oxcontext
+  hosts: []
+  objectFlag: []
+  operation:
+    - command: "udm/*"
+      option: "objectType=oxmail/*"
+    - command: "udm/properties"
+      option: "objectType=policies/*"
+    - command: "udm/layout"
+      option: "objectType=policies/*"
+    - command: "udm/query"
+      option: "objectType=policies/*"
+...
