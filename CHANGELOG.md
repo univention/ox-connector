@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.15.0...v0.15.1) (2025-02-10)
+
+
+### Bug Fixes
+
+* add .kyverno to helmignore ([70b5724](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/70b57244cde9e9f934aa0ea162be81ccee479813))
+* **docs:** Password setting requirement in OX Connector ([0fe8a24](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/0fe8a24e3dd9dcccfc1d9fd49f463019f116b353)), closes [univention/open-xchange/provisioning#103](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/103) [#57908](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/57908)
+
 ## [0.15.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.14.11...v0.15.0) (2024-12-20)
 
 
