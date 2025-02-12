@@ -2626,7 +2626,7 @@ properties:
     de_DE: Gruppen-Konto
   groupName: Group account
   groupPosition: 1
-  disableUDMWeb: true
+  disableUDMWeb: false
 
 ---
 action: create
