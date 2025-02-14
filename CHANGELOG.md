@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.16.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.15.1...v0.16.0) (2025-02-14)
+
+
+### Features
+
+* added system user creation and portal tile creation ([38dc86b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/38dc86b9281d01c0bc76e781f6a50e1619961a25))
+
+
+### Bug Fixes
+
+* add OX Context to UMC policies ([da27141](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/da27141a8a05809758ad9a487f75f635abea129c))
+* **ox-extension:** Add functional accounts icon ([a6379cb](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/a6379cb95fc19ef14edeacc8abc69b1bcea67bd6))
+* **ox-extension:** Prepare to add translation file ([5e4cc53](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/5e4cc53f6319130c23127a41cdbdbd9efbbade8a))
+* remove tiles not needed ([bc5262b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/bc5262b0e183a9e9ff2b885e9a8622a66186af70))
+
 ## [0.15.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.15.0...v0.15.1) (2025-02-10)
 
 
