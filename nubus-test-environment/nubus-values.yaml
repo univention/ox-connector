@@ -6,7 +6,7 @@ global:
     - name: "ox"
       image:
         registry: "artifacts.software-univention.de"
-        repository: "nubus-dev/images/ox-extension"
+        repository: "nubus/images/ox-extension"
         tag: "0.16.0"
         imagePullPolicy: "IfNotPresent"
 
