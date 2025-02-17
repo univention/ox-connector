@@ -172,7 +172,7 @@ can be used to test the new image or to create a test environment.
 GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
 cd provisioning
 ./build_docker_image
-# creates docker-test-upload.software-univention.de/ox-connector:2.2.14
+# creates docker-test-upload.software-univention.de/ox-connector:2.2.15
 ```
 
 (This checks out certain submodules. There are some flaws when the submodules branch changes. You may need to remove and re-clone the whole repository sometimes?)

@@ -35,6 +35,34 @@ def get_user_from_ox(username, context_id):
 POSITIONS = ["cn=functional_accounts,cn=open-xchange", "cn=users"]
 
 @pytest.mark.parametrize('position', POSITIONS)
+def test_add_functional_account_with_user_different_case_in_dn(
+    create_ox_context,
+    create_ox_user,
+    new_functional_account_name,
+    udm,
+    domainname,
+    wait_for_listener,
+    position,
+):
+    """
+    Check if functional account is created if user.dn does not match case of dn on user object
+    Creating a functional account should create it in contexts of the user
+    """
+    context_id = create_ox_context()
+    user = create_ox_user(context_id=context_id)
+    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn.upper()], [], position=position)
+    wait_for_listener(dn)
+    accounts = list_objs(context_id)
+    assert len(accounts) == 1
+    ox_user = get_user_from_ox(user.properties["username"], context_id)
+    account = accounts[0]
+    print(account)
+    assert account.userId == ox_user.id
+    udm.remove("oxmail/functional_account", dn)
+    wait_for_listener(dn)
+
+
+@pytest.mark.parametrize('position', POSITIONS)
 def test_add_functional_account_with_user(
     create_ox_context,
     create_ox_user,

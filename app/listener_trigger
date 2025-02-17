@@ -65,7 +65,10 @@ logger.addHandler(handler)
 
 
 def _get_old_object(distinguished_name):
-    path_to_old_user = mapping.get(distinguished_name)
+    path_to_old_user = mapping.get(distinguished_name.lower())
+    # be backwards compatible
+    if not path_to_old_user:
+        path_to_old_user = mapping.get(distinguished_name)
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user)
@@ -325,8 +328,9 @@ def objects_from_files(delete_files=True, move_files=False):
             if obj.was_deleted():
                 logger.info("Object was deleted. Deleting %s", path)
                 path.unlink()
-                mapping.set(obj.old_distinguished_name, None)
-                mapping.set(obj.distinguished_name, None)
+                if obj.old_distinguished_name:
+                    mapping.set(obj.old_distinguished_name.lower(), None)
+                mapping.set(obj.distinguished_name.lower(), None)
             else:
                 logger.info("mv %s -> %s", path, old_file_path)
                 old_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -336,9 +340,9 @@ def objects_from_files(delete_files=True, move_files=False):
                         "... not done yet; enriching object by rewriting JSON file...",
                     )
                     obj.dump(old_file_path)
-                if obj.old_distinguished_name != obj.distinguished_name:
-                    mapping.set(obj.old_distinguished_name, None)
-                mapping.set(obj.distinguished_name, old_file_path)
+                if obj.old_distinguished_name and obj.old_distinguished_name != obj.distinguished_name:
+                    mapping.set(obj.old_distinguished_name.lower(), None)
+                mapping.set(obj.distinguished_name.lower(), old_file_path)
         elif delete_files:
             logger.info("Deleting %s", path)
             path.unlink()

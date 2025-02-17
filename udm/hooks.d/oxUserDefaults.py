@@ -102,7 +102,7 @@ class oxUserDefaults(simpleHook):
             ox_display_name_new = ucs_user_template_replace(self.oxDisplayName_template(module), module.info)
             if ox_display_name_old == module.info.get('oxDisplayName') and ox_display_name_new != module.info.get('oxDisplayName'):
                 ud.debug(
-                    ud.ADMIN, ud.ERROR,
+                    ud.ADMIN, ud.INFO,
                     "oxUserDefaults.hook_ldap_pre_modify() setting "
                     "module['oxDisplayName']={!r} , module['isOxUser']={!r}".format(
                         ox_display_name_new, module['isOxUser']),

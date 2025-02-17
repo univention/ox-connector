@@ -12,8 +12,10 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-TODO
-====
+.. _app-changelog-v2.2.15:
+
+v2.2.15
+=======
 
 Released: TODO
 
@@ -30,6 +32,9 @@ Fixed
 
 The documentation wasn't explicit about setting the administrative password
 in the app settings for the *OX Connector App*.
+
+The internal key value store for tracking user objects handles the key (dn)
+case insensitive now.
 
 .. _app-changelog-v2.2.14:
 
