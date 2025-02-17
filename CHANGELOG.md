@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.16.0...v0.16.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* handle dn case insensitive for old db ([65d7ddb](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/65d7ddb47497bf87269de3f546b9da05fb9d6b20))
+
 ## [0.16.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.15.1...v0.16.0) (2025-02-14)
 
 
