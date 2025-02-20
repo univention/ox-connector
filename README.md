@@ -234,6 +234,8 @@ Please copy this block to your release issue:
    [ox-connector-app directory of the docs.univention.de
    repository](https://git.knut.univention.de/univention/docs.univention.de/-/tree/master/ox-connector-app) in the merge request creates by `docs-merge-to-one-artifact`
   - [ ] Apply the merge request to release the documentation
+  - [ ] Update search index
+  - [ ] Update docs navigation
 - [ ] Release the app on omar (copy_from_appcenter.test.sh, sudo update_mirror.sh -v appcenter)
 - [ ] Optional: check released -> https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/ and `COMPONENT_VERSION=public`
 - [ ] Write mail to app-announcement@univention.de
