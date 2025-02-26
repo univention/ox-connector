@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.16.1...v0.17.0) (2025-02-26)
+
+
+### Features
+
+* Bump ucs-base-image to use released apt sources ([40bb712](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/40bb712322349834f176315284481e4a34a264bf))
+
 ## [0.16.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.16.0...v0.16.1) (2025-02-17)
 
 
