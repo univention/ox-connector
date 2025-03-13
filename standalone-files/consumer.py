@@ -7,6 +7,7 @@ import logging
 import time
 from importlib.metadata import version
 from typing import Any, Dict
+from pathlib import Path
 
 # 3rd party
 from univention.provisioning.consumer import (
@@ -26,13 +27,16 @@ from univention.ox.provisioning import helpers, run
 LOG_FORMAT = "%(asctime)s %(levelname)-5s [%(module)s.%(funcName)s:%(lineno)d] %(message)s"
 logger = logging.getLogger(__name__)
 
+DATA_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data")
+NEW_FILES_DIR = DATA_DIR / "listener"
+
 # FIXME: ox-connector needs to locally keep track of the previous objects
 # ox-context id and uid (username). This was previously not needed since it
 # was requested to OX when needed, but it slowed down the processing.
 # We are using their KeyValueStore (dbm.gnu) to store the values.
-ox_contexts = KeyValueStore("contexts.db")
-ox_db_id = KeyValueStore("ox_db_id.db")
-usernames = KeyValueStore("usernames.db")
+ox_contexts = KeyValueStore(str(NEW_FILES_DIR / "contexts.db"))
+ox_db_id = KeyValueStore(str(NEW_FILES_DIR / "ox_db_id.db"))
+usernames = KeyValueStore(str(NEW_FILES_DIR / "usernames.db"))
 
 
 class FakeObject:
