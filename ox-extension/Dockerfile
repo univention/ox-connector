@@ -6,10 +6,9 @@ ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base
 
 FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG}
 
-# TODO: See below
-# RUN apt-get --assume-yes --verbose-versions --no-install-recommends install \
-#     gettext && \
-#     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+RUN apt-get --assume-yes --verbose-versions --no-install-recommends install \
+    gettext && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 WORKDIR /
 
@@ -23,14 +22,13 @@ COPY udm/udm-data-loader /plugins/udm-data-loader
 COPY umc/icons /plugins/umc-icons
 COPY umc/ox-common.xml /plugins/umc-modules/
 
-# TODO: Translation files need to go into /usr/share/univention-management-console/i18n
-# which we do not mount at the moment into the umc-server.
-# RUN mkdir -p /tmp/translations /plugins/umc-modules/i18n
-# COPY udm/handlers/oxmail/de.po /tmp/translations/oxmail.po
-# COPY udm/handlers/oxresources/de.po /tmp/translations/oxresources.po
-# RUN msgcat --use-first /tmp/translations/oxmail.po /tmp/translations/oxresources.po -o /tmp/translations/merged.po
-# RUN msgfmt /tmp/translations/merged.po -o /plugins/umc-modules/i18n/ox-common.mo
-# RUN rm -rf /tmp/translations
+# UDM install translations 
+RUN mkdir -p /tmp/translations /plugins/umc-modules/i18n
+COPY udm/handlers/oxmail/de.po /tmp/translations/oxmail.po
+COPY udm/handlers/oxresources/de.po /tmp/translations/oxresources.po
+RUN msgcat --use-first /tmp/translations/oxmail.po /tmp/translations/oxresources.po -o /tmp/translations/merged.po
+RUN msgfmt /tmp/translations/merged.po -o /plugins/umc-modules/i18n/ox-common.mo
+RUN rm -rf /tmp/translations
 
 # LDAP schemas
 COPY ldap /plugins/ldap-schema
