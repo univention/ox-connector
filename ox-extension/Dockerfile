@@ -4,11 +4,21 @@
 ARG UCS_BASE_IMAGE_TAG=0.16.1-build-2025-02-20
 ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
 
-FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG}
+######################
+# Build Stage
+######################
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS build
 
-RUN apt-get --assume-yes --verbose-versions --no-install-recommends install \
-    gettext && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+RUN apt-get --assume-yes --no-install-recommends install gettext
+
+COPY umc/ox-common.po /tmp/translations/
+RUN mkdir -p /plugins/umc-i18n/de && \
+    msgfmt /tmp/translations/ox-common.po -o /plugins/umc-i18n/de/ox-common.mo
+
+######################
+# Final Stage
+######################
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG}
 
 WORKDIR /
 
@@ -18,21 +28,17 @@ COPY udm/hooks.d /plugins/udm-hooks.d
 COPY udm/syntax.d /plugins/udm-syntax.d
 COPY udm/udm-data-loader /plugins/udm-data-loader
 
-# UMC icons and po/xml
+# UMC icons and module description
 COPY umc/icons /plugins/umc-icons
 COPY umc/ox-common.xml /plugins/umc-modules/
 
-# UDM install translations 
-RUN mkdir -p /tmp/translations /plugins/umc-modules/i18n
-COPY udm/handlers/oxmail/de.po /tmp/translations/oxmail.po
-COPY udm/handlers/oxresources/de.po /tmp/translations/oxresources.po
-RUN msgcat --use-first /tmp/translations/oxmail.po /tmp/translations/oxresources.po -o /tmp/translations/merged.po
-RUN msgfmt /tmp/translations/merged.po -o /plugins/umc-modules/i18n/ox-common.mo
-RUN rm -rf /tmp/translations
+# Translations (from build stage)
+COPY --from=build /plugins/umc-i18n /plugins/umc-i18n
 
 # LDAP schemas
 COPY ldap /plugins/ldap-schema
 
+# Loader
 COPY ox-extension/loader.sh /bin/loader
 
 RUN adduser app
