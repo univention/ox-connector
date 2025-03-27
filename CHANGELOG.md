@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.17.1...v0.18.0) (2025-03-27)
+
+
+### Features
+
+* include i18n translations in ox-extension image ([ec5b7e2](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/ec5b7e2f33494990f4ffbec27e12c75ce11cf22e)), closes [univention/dev/internal/team-nubus#1048](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1048)
+* include i18n translations in ox-extension image / enabled multi stage build ([1715d64](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/1715d6477f7da955483ed1e8c5febdb14751d03a)), closes [univention/dev/internal/team-nubus#1048](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1048)
+
 ## [0.17.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.17.0...v0.17.1) (2025-03-27)
 
 
