@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.17.0...v0.17.1) (2025-03-27)
+
+
+### Bug Fixes
+
+* ox-connector standalone image build fix ([035b107](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/035b107ec3fc8695f7eca11be092638dfa8307d4))
+
 ## [0.17.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.16.1...v0.17.0) (2025-02-26)
 
 
