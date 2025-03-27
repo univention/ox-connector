@@ -36,6 +36,7 @@ from urllib.parse import urlparse
 import imghdr
 import base64
 
+import zeep.exceptions
 import univention.ox.provisioning.helpers
 from univention.ox.provisioning.default_user_mapping import (
     DEFAULT_USER_MAPPING,
@@ -280,7 +281,7 @@ def get_user_id(attributes, lookup_ox=True):
         return user.id
 
 
-def create_user(obj, user_copy_service=False, user_id=None):
+def create_user(obj, user_copy_service=None, user_id=None):
     logger.info(f"Creating {obj}")
     if not is_ox_user(obj.attributes):
         logger.info(f"{obj} is no OX user. Deleting instead...")
@@ -306,7 +307,14 @@ def create_user(obj, user_copy_service=False, user_id=None):
         # Bug #56525 When changing the context and the username, the old
         # username is needed for the object search in the database because
         # the object hasn't been modified yet.
-        user = get_obj_by_name_from_ox(User, user.context_id, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"))
+        try:
+            user = User.from_ox(
+                user.context_id,
+                name=obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"),
+            )
+        except zeep.exceptions.Fault as exc:
+            logger.error("Failed to query the old user from OX before moving it: %s", exc)
+            raise
         update_user(user, obj.attributes, obj.old_attributes, get_user_username(obj))
         user.modify()
     obj.set_attr("oxDbId", user.id)
@@ -368,9 +376,15 @@ def modify_user(obj):
                 logger.warning(
                     f"{obj} was found in context {old_context} with ID {user_id} and in {new_context} with {already_existing_user_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
                 )
-                delete_user(deepcopy(obj))
+                try:
+                    delete_user(deepcopy(obj))
+                except zeep.exceptions.Fault as exc:
+                    logger.warning("Encountered an error while trying to clean up the user in the old context. Exception: %s", exc)
             else:
-                create_user(obj, user_copy_service=UserCopy().service(old_context), user_id=user_id)
+                try:
+                    create_user(obj, user_copy_service=UserCopy().service(old_context), user_id=user_id)
+                except zeep.exceptions.Fault as exc:
+                    logger.warning("Encountered an error while trying to copy the user in the old context. Exception: %s", exc)
                 return delete_user(deepcopy(obj))
         user = user_from_attributes(obj.old_attributes, obj.old_attributes, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"), user_id)
         user.context_id = new_context
@@ -381,6 +395,7 @@ def modify_user(obj):
     try:
         user.modify()
     except Exception as exc:
+        logger.debug("Modifying user failed: %s", exc)
         if str(exc).startswith("No such "):
             logger.info(f"Cannot modify {obj}. User not found in db. Creating instead.")
             user.create()
