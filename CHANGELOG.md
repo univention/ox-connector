@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.18.0...v0.18.1) (2025-03-28)
+
+
+### Bug Fixes
+
+* Recover from inconsistent state after moving a user failed. ([06d8349](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/06d8349f469e60bd333f38dbe4fa7154e59f929c)), closes [univention/open-xchange/provisioning#109](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/109)
+
 ## [0.18.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.17.1...v0.18.0) (2025-03-27)
 
 
