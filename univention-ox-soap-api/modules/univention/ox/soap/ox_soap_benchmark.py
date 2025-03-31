@@ -57,7 +57,7 @@ from zeep.transports import Transport
 from univention.ox.listener_tools import get_credentials_for_context, get_master_credentials
 
 
-WS_BASE_URL = 'http://127.0.0.1/webservices'
+WS_BASE_URL = 'https://127.0.0.1/webservices'
 WS_CONTEXT_URL = '{}/OXContextService?wsdl'.format(WS_BASE_URL)
 WS_GROUP_URL = '{}/OXGroupService?wsdl'.format(WS_BASE_URL)
 WS_USER_URL = '{}/OXUserService?wsdl'.format(WS_BASE_URL)

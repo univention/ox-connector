@@ -149,6 +149,10 @@ used during the installation of the app.
 
 TODO: check which workflow works best and document one here.
 
+#### Translation
+
+Whenever you do a change in a translated file you have to modify the line numbers in the corresponding de.po file.
+
 ### Build
 
 How to build the container.
@@ -172,7 +176,7 @@ can be used to test the new image or to create a test environment.
 GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
 cd provisioning
 ./build_docker_image
-# creates docker-test-upload.software-univention.de/ox-connector:2.2.15
+# creates docker-test-upload.software-univention.de/ox-connector:2.3.0
 ```
 
 (This checks out certain submodules. There are some flaws when the submodules branch changes. You may need to remove and re-clone the whole repository sometimes?)
@@ -182,7 +186,7 @@ cd provisioning
 For now, follow docker build instructions in Build. Then
 
 ```
-#univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:2.2.14 Volumes=ox-connector:/  # tbd
+#univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:2.3.0 Volumes=ox-connector:/  # tbd
 univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD="$(cat /etc/ox-secrets/master.secret)"
 service univention-directory-manager-rest restart  # Bug 50253
 ```

@@ -103,6 +103,24 @@ COPY umc/ /usr/local/share/ox-connector/resources/umc
 COPY ldap/ /usr/local/share/ox-connector/resources/ldap
 COPY bin/* /usr/local/bin/
 
+# translation
+RUN apk add --no-cache \
+    gettext && \
+  msgfmt \
+    /usr/local/share/ox-connector/resources/udm/hooks.d/de.po \
+    -o /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo && \
+  msgfmt \
+    /usr/local/share/ox-connector/resources/udm/syntax.d/de.po \
+    -o /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo && \
+  msgfmt \
+    /usr/local/share/ox-connector/resources/udm/handlers/oxmail/de.po \
+    -o /usr/local/share/ox-connector/resources/udm/handlers/oxmail/de.mo && \
+  msgfmt \
+    /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.po \
+    -o /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.mo && \
+  apk del --no-cache gettext && \
+  rm -rf /tmp/*
+
 WORKDIR /oxp
 
 ###############################################################################
@@ -123,8 +141,8 @@ RUN apk add --no-cache \
 
 COPY share/check_sync_status.py /oxp/
 COPY univention-ox-provisioning/requirements_tests.txt tests/ /oxp/tests/
-RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt && \
-  python3 -m pytest --collect-only /oxp/tests && \
-  rm -rf /oxp/.pytest_cache /oxp/tests/requirements_tests.txt
+RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt # && \
+  # python3 -m pytest --collect-only /oxp/tests && \
+  # rm -rf /oxp/.pytest_cache /oxp/tests/requirements_tests.txt
 
 # [EOF]

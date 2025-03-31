@@ -2564,6 +2564,44 @@ action: create
 module: settings/extended_attribute
 position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
 properties:
+  name: oxDeputyPermissionGivenTo
+  default: 1
+  module: [users/user]
+  ldapMapping: oxDeputyPermissionGivenTo
+  objectClass: oxUserObject
+  shortDescription: Deputy Permission given to another account
+  longDescription: Deputy Permission given to another account
+  translationShortDescription:
+    de_DE: Stellvertreterberechtigung an ein anderes Konto vergeben
+  translationLongDescription:
+    de_DE: Stellvertreterberechtigung an ein anderes Konto vergeben
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: false
+  CLIName: oxDeputyPermissionGiventTo
+  syntax: oxDeputyPermissionUserMapping
+  tabAdvanced:
+  mayChange: true
+  multivalue: true
+  deleteObjectClass: false
+  tabPosition: 0
+  overwritePosition:
+  doNotSearch: false
+  hook: oxDeputyPermissionHook
+  disableUDMWeb: false
+  notEditable: false
+  groupName: Deputy permission
+  translationGroupName:
+    de_DE: Stellvertreterberechtigung
+  groupPosition: 6
+
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
   name: isOxGroup
   default: OK
   module: [groups/group]
@@ -2799,7 +2837,6 @@ properties:
   hook: oxContextRW
   disableUDMWeb: false
   notEditable: false
-
 
 # Create container
 ---

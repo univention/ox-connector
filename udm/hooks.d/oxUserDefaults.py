@@ -5,7 +5,7 @@
 UDM-hook to set default values for user accounts not created using the ox
 user template
 """
-# Copyright 2016-2021 Univention GmbH
+# Copyright 2016-2025 Univention GmbH
 #
 # http://www.univention.de/
 #

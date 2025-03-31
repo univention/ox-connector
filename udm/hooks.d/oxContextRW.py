@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017-2021 Univention GmbH
+# Copyright (C) 2017-2025 Univention GmbH
 #
 # http://www.univention.de/
 #
@@ -40,7 +39,9 @@ import univention.admin.uexceptions
 import univention.admin.localization
 from univention.admin.hook import simpleHook
 
-translation = univention.admin.localization.translation('univention.admin.hooks.d.ox')
+translation = univention.admin.localization.translation(
+    'univention.admin.hooks.oxContextRW'
+)
 _ = translation.translate
 
 
@@ -48,16 +49,27 @@ class oxContextRW(simpleHook):
     type = 'oxContextRW'
 
     def is_cli(self):
-        return sys.modules.get('univention.management.console.modules.udm') is None
+        return (
+            sys.modules.get('univention.management.console.modules.udm')
+            is None
+        )
 
     @staticmethod
     def log_info(msg):
-        univention.debug.debug(univention.debug.ADMIN, univention.debug.INFO, 'oxContextRW: %s' % msg)
+        univention.debug.debug(
+            univention.debug.ADMIN,
+            univention.debug.INFO,
+            'oxContextRW: %s' % msg,
+        )
 
     def hook_open(self, module):
         if self.is_cli():
             self.log_info('_open: running via CLI')
-            for module_name in ('users/user', 'groups/group', 'oxresources/oxresources'):
+            for module_name in (
+                'users/user',
+                'groups/group',
+                'oxresources/oxresources',
+            ):
                 imodule = univention.admin.modules.get(module_name)
                 if imodule is None:
                     continue
@@ -65,5 +77,8 @@ class oxContextRW(simpleHook):
                     if iprop in ('oxContext',):
                         imodule.property_descriptions[iprop].editable = True
                         # imodule.property_descriptions[iprop].may_change = True
-                        self.log_info('_open: property %r found in module %r: switched to editable=True' % (iprop, module_name))
+                        self.log_info(
+                            '_open: property %r found in module %r: switched to editable=True'
+                            % (iprop, module_name)
+                        )
         self.log_info('_open: done')

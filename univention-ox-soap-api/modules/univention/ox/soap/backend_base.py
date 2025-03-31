@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # OX-UCS integration backend base class
 #
@@ -30,6 +29,7 @@
 # <http://www.gnu.org/licenses/>.
 
 import logging
+
 try:
     from typing import Dict, List, Optional, Type, Union
     import datetime
@@ -37,8 +37,12 @@ except ImportError:
     pass
 
 
-__ox_integration_backend_class_registry = dict()  # type: Dict[str, Dict[str, Type["OxObject"]]]
-__ox_integration_backend_object_cache = {}  # type: Dict[str, Dict[str, "OxObject"]]
+__ox_integration_backend_class_registry = (
+    dict()
+)  # type: Dict[str, Dict[str, Type["OxObject"]]]
+__ox_integration_backend_object_cache = (
+    {}
+)  # type: Dict[str, Dict[str, "OxObject"]]
 
 
 def register_ox_integration_backend_class(backend, object_type, cls):
@@ -51,20 +55,26 @@ def register_ox_integration_backend_class(backend, object_type, cls):
     :param cls: Type - the class that should be registered (a subclass of OxObject or one)
     :return: None
     """
-    __ox_integration_backend_class_registry.setdefault(backend, {})[object_type] = cls
+    __ox_integration_backend_class_registry.setdefault(backend, {})[
+        object_type
+    ] = cls
 
 
-def get_ox_integration_class(backend, object_type):  # type: (str, str) -> Type["OxObject"]
+def get_ox_integration_class(
+    backend, object_type
+):  # type: (str, str) -> Type["OxObject"]
     """
     Get a class implementing OX object manipulation.
 
     :param backend: str - either 'CSV' or 'SOAP'
-    :param object_type: str - one of 'Context', 'Group', 'Resource', 'User', 'Account'
+    :param object_type: str - one of 'Context', 'Group', 'Resource', 'User', 'Account', 'DeputyPermission'
     :return: Type - a subclass of OxObject
     """
     if backend == 'SOAP':
         import univention.ox.soap.backend  # load meta classes
-    return __ox_integration_backend_class_registry.get(backend, {}).get(object_type)
+    return __ox_integration_backend_class_registry.get(backend, {}).get(
+        object_type
+    )
 
 
 class BackendMetaClass(type):
@@ -72,16 +82,28 @@ class BackendMetaClass(type):
     Meta class for ox integration backend classes. All concrete classes should
     use this as a metaclass to automatically register themselves.
     """
+
     logger = logging.getLogger(__name__)
 
     def __new__(cls, clsname, bases, attrs):
-        kls = super(BackendMetaClass, cls).__new__(cls, clsname, bases, attrs)  # type: Type["OxObject"]
-        if issubclass(kls, OxObject) and getattr(kls, '_backend') and getattr(kls, '_object_type'):
+        kls = super(BackendMetaClass, cls).__new__(
+            cls, clsname, bases, attrs
+        )  # type: Type["OxObject"]
+        if (
+            issubclass(kls, OxObject)
+            and getattr(kls, '_backend')
+            and getattr(kls, '_object_type')
+        ):
             if not kls.logger:
                 kls.logger = cls.logger.getChild(clsname)
-            register_ox_integration_backend_class(kls._backend, kls._object_type, kls)
-            cls.logger.debug('Registered class {!r} of backend {!r} for object type {!r}.'.format(
-                cls.__name__, kls._backend, kls._object_type))
+            register_ox_integration_backend_class(
+                kls._backend, kls._object_type, kls
+            )
+            cls.logger.debug(
+                'Registered class {!r} of backend {!r} for object type {!r}.'.format(
+                    cls.__name__, kls._backend, kls._object_type
+                )
+            )
         return kls
 
 
@@ -94,6 +116,7 @@ class OxObject(object):
     Both `id` and `name` are sufficient to identify an OX object in a context.
     `context_id` must be set (except for Context, where it's the same as `id`).
     """
+
     _backend = None  # type: str
     _object_type = None  # type: str
 
@@ -102,7 +125,9 @@ class OxObject(object):
     context_id = None  # type: int
 
     def __init__(self, *args, **kwargs):  # type: (*str, **str) -> None
-        self.logger = logging.getLogger('{}.{}'.format(__name__, self.__class__.__name__))
+        self.logger = logging.getLogger(
+            '{}.{}'.format(__name__, self.__class__.__name__)
+        )
         self.kwargs2attr(**kwargs)
         self.backend_init(*args, **kwargs)
 
@@ -173,6 +198,7 @@ class Context(OxObject):
     When implementing a class derived from this, use BackendMetaClass as its
     metaclass.
     """
+
     _object_type = 'Context'
 
     average_size = None  # type: int
@@ -183,13 +209,17 @@ class Context(OxObject):
     max_quota = None  # type: int
     read_database = None  # type: Dict[str, str]
     used_quota = None  # type: int
-    user_attributes = None  # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
+    user_attributes = (
+        None
+    )  # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
     write_database = None  # type: Dict[str, str]
 
     def __init__(self, *args, **kwargs):  # type: (*str, **str) -> None
         super(Context, self).__init__(*args, **kwargs)
         self.id = self.context_id = self.context_id or self.id
-        self.id = self.context_id = kwargs.get('context_id') or kwargs.get('id')
+        self.id = self.context_id = kwargs.get('context_id') or kwargs.get(
+            'id'
+        )
 
 
 class Group(OxObject):
@@ -199,6 +229,7 @@ class Group(OxObject):
     When implementing a class derived from this, use BackendMetaClass as its
     metaclass.
     """
+
     _object_type = 'Group'
 
     display_name = None  # type: str
@@ -212,6 +243,7 @@ class Resource(OxObject):
     When implementing a class derived from this, use BackendMetaClass as its
     metaclass.
     """
+
     _object_type = 'Resource'
 
     available = True
@@ -227,6 +259,7 @@ class SecondaryAccount(OxObject):
     When implementing a class derived from this, use BackendMetaClass as its
     metaclass.
     """
+
     _object_type = 'SecondaryAccount'
 
     email = None  # type: str
@@ -244,6 +277,7 @@ class UserCopy(OxObject):
     When implementing a class derived from this, use BackendMetaClass as its
     metaclass.
     """
+
     _object_type = 'UserCopy'
 
 
@@ -254,6 +288,7 @@ class User(OxObject):
     When implementing a class derived from this, use BackendMetaClass as its
     metaclass.
     """
+
     _object_type = 'User'
 
     aliases = []  # type: List[str]
@@ -275,9 +310,10 @@ class User(OxObject):
     country_home = None  # type: str
     country_other = None  # type: str
     drive_user_folder_mode = None  # type: str
-    default_sender_address = None   # type: str
+    default_sender_address = None  # type: str
     default_group = None  # type: Group
     department = None  # type: str
+    deputy_permission = None
     display_name = None  # type: str
     email1 = None  # type: str
     email2 = None  # type: str
@@ -364,7 +400,9 @@ class User(OxObject):
     upload_file_size_limitPerFile = None  # type: int
     url = None  # type: str
     used_quota = None  # type: int
-    user_attributes = None  # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
+    user_attributes = (
+        None
+    )  # type: Dict[str, Dict[str, Union[str, Dict[str, str]]]]
     userfield01 = None  # type: str
     userfield02 = None  # type: str
     userfield03 = None  # type: str
@@ -396,4 +434,53 @@ class User(OxObject):
 
         :return: list of Groups
         """
-        raise NotImplementedError()
+
+
+class DeputyPermission(OxObject):
+    """
+    Representation of a OX DeputyPermission module.
+
+    When implementing a class derived from this, use BackendMetaClass as its
+    metaclass.
+    """
+
+    _object_type = 'DeputyPermission'
+
+    user_id = None  # type: int
+    send_on_behalf_of = None  # type: bool
+    module_permissions = None  # type: ModulePermission
+
+class ActiveDeputyPermission(OxObject):
+    """
+    Representation of a OX DeputyPermission module.
+
+    When implementing a class derived from this, use BackendMetaClass as its
+    metaclass.
+    """
+
+    _object_type = 'ActiveDeputyPermission'
+
+    user_id = None  # type: int
+    send_on_behalf_of = None  # type: bool
+    module_permissions = None  # type: ModulePermission
+    deputy_id = None  # type: str
+    grantor_id = None  # type: str
+    context_id = None  # type: str
+
+class ModulePermission(OxObject):
+    """
+    Representation of a OX ModulePermission module.
+
+    When implementing a class derived from this, use BackendMetaClass as its
+    metaclass.
+    """
+
+    _object_type = 'ModulePermission'
+
+    module_id = None  # type: str
+    folder_ids = None  # type: str
+    admin = None  # type: bool
+    folder_permission = None  # type: int
+    read_permission = None  # type: int
+    write_permission = None  # type: int
+    delete_permission = None  # type: int

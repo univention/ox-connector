@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2021 Univention GmbH <http://www.univention.de/>
+# Copyright (C) 2010-2025 Univention GmbH <http://www.univention.de/>
 #
 msgid ""
 msgstr ""
@@ -13,13 +13,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: oxAccess.py:78 oxGroupHook.py:56
+#: oxAccess.py:97 oxGroupHook.py:73
 msgid "The mail address' domain does not match any mail domain object."
 msgstr ""
 "Der Domänenteil der Mailadresse ist nicht in der Liste der eingerichteten "
 "Maildomänen enthalten."
 
-#: oxAccess.py:82
+#: oxAccess.py:105
 msgid ""
 "The primary mail address is required for Open-Xchange users. Currently the "
 "users' primary mail address is not set."
@@ -27,31 +27,16 @@ msgstr ""
 "Für Open-Xchange-Benutzer wird eine primäre Mailadresse benötigt, welche "
 "aktuell nicht gesetzt ist."
 
-#: oxAccess.py:105
-#, python-format
-msgid "OX Display name \"%s\" is already in use."
-msgstr "Der OX Anzeigename \"%s\" wird bereits verwendet."
-
-#: oxAccess.py:107
-msgid "OX Display name has to be set for open-xchange users."
-msgstr "Der OX Anzeigename muss für Open-Xchange-Benutzer gesetzt werden."
-
-#: oxAccess.py:126
-msgid "Birthday must be in format 'YYYY-MM-DD' or 'TT-MM-JJJJ'"
-msgstr ""
-"Der Geburtstag muss im Format 'YYYY-MM-DD' oder 'TT-MM-JJJJ' angegeben "
-"werden."
-
-#: oxAccess.py:131
+#: oxAccess.py:127
 msgid "Anniversary must be in format 'YYYY-MM-DD' or 'TT-MM-JJJJ'"
 msgstr ""
 "Jahrestage müssen im format 'YYYY-MM-DD' oder 'TT-MM-JJJJ' angegeben werden."
 
-#: oxAccess.py:168 oxAccess.py:189
+#: oxAccess.py:174 oxAccess.py:193
 msgid "First name has to be set for open-xchange users."
 msgstr "Der Vorname muss für Open-Xchange-Benutzer gesetzt werden."
 
-#: oxAccess.py:203
+#: oxAccess.py:205
 #, python-format
 msgid ""
 "The user %s cannot be removed because he is admin of the following "
@@ -60,8 +45,14 @@ msgstr ""
 "Der Benutzer %s kann nicht gelöscht werden, da er Administrator der "
 "folgenden OX-Resourcen ist: %s"
 
-msgid ""
-"Open-Xchange users must have POSIX and Samba account options enabled."
-msgstr ""
-"Open-Xchange Benutzer müssen die Optionen POSIX-Konto und Samba-Konto "
-"aktiviert haben."
+#: oxDeputyPermissionHook.py:151
+msgid "The deputy permission cannot be granted for the same object."
+msgstr "Die Berechtigung kann nicht für dasselbe Objekt vergeben werden."
+
+#: oxDeputyPermissionHook.py:158
+msgid "The permission can only be granted once between the same accounts."
+msgstr "Die Berechtigung kann nur einmal zwischen denselben Accounts vergeben werden."
+
+#: oxDeputyPermissionHook.py:177
+msgid "Deputy permissions can only be granted for users in the same OX context."
+msgstr "Berechtigungen können nur für Nutzer im selben OX-Kontext vergeben werden."

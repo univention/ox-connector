@@ -4,12 +4,14 @@
 import os
 import time
 from pathlib import Path
+import json
 
 import pytest
 
 from udm_rest import UDM
 
 from univention.ox.soap.config import _CREDENTIALS
+from univention.ox.provisioning.key_value_store import KeyValueStore
 
 TEST_LOG_FILE = Path("/tmp/test.log")
 
@@ -66,7 +68,7 @@ def _new_id(cache):
     )
     value += 1
     cache.set("newobjects/id", value)
-    return value
+    return str(value)
 
 
 @pytest.fixture
@@ -117,7 +119,7 @@ def new_functional_account_name(cache):
 
 @pytest.fixture
 def default_ox_context():
-    return int(os.environ["DEFAULT_CONTEXT"])
+    return os.environ["DEFAULT_CONTEXT"]
 
 
 @pytest.fixture
@@ -161,6 +163,19 @@ def udm_admin_password():
 @pytest.fixture
 def ox_host():
     return os.environ["OX_SOAP_SERVER"]
+
+
+@pytest.fixture
+def load_obj_from_json():
+    def f(distinguished_name):
+        db_file = "/var/lib/univention-appcenter/apps/ox-connector/data/listener/old.db"
+        db = KeyValueStore(db_file)
+        path_to_old_user = db.get(distinguished_name.lower())
+        if not path_to_old_user:
+            return None
+        return json.load(open(path_to_old_user))
+
+    return f
 
 
 class UDMTest(object):
@@ -261,8 +276,18 @@ def create_ox_context(udm, new_context_id_generator, wait_for_listener):
 
 
 @pytest.fixture
+def get_udm_user(udm):
+    def f(username):
+        for user in udm.search("users/user", "uid={}".format(username)):
+            return user.open()
+
+    return f
+
+
+@pytest.fixture
 def create_ox_user(
     udm,
+    get_udm_user,
     new_user_name_generator,
     domainname,
     default_ox_context,
@@ -273,26 +298,27 @@ def create_ox_user(
         context_id=default_ox_context,
         enabled=True,
         wait=True,
+        further_udm_attrs=None,
     ):
         name = name or new_user_name_generator()
+        attrs = {
+            "username": name,
+            "firstname": "Emil",
+            "lastname": name.title(),
+            "password": "univention",
+            "mailPrimaryAddress": "{}@{}".format(name, domainname),
+            "isOxUser": enabled,
+            "oxAccess": "premium",
+            "oxContext": context_id,
+        }
         dn = udm.create(
             "users/user",
             "cn=users",
-            {
-                "username": name,
-                "firstname": "Emil",
-                "lastname": name.title(),
-                "password": "univention",
-                "mailPrimaryAddress": "{}@{}".format(name, domainname),
-                "isOxUser": enabled,
-                "oxAccess": "premium",
-                "oxContext": context_id,
-            },
+            attrs | (further_udm_attrs or {}),
         )
         print("Created user", dn, "in UDM")
         if wait:
             wait_for_listener(dn)
-        for user in udm.search("users/user", "uid={}".format(name)):
-            return user.open()
+        return get_udm_user(name)
 
     return _func

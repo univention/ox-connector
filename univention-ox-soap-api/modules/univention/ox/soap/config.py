@@ -5,6 +5,7 @@ import os
 import random
 import string
 import json
+
 try:
     from typing import Dict, Optional, Tuple, Union
 except ImportError:
@@ -21,10 +22,17 @@ OX_MASTER_ADMIN = os.environ.get("OX_MASTER_ADMIN", "oxadminmaster")
 OX_MASTER_PASSWORD = os.environ.get("OX_MASTER_PASSWORD", "")
 QUOTA = -1  # unlimited
 OX_SOAP_SERVER = os.environ.get("OX_SOAP_SERVER", "http://127.0.0.1")
-CREDENTIALS_FILE = os.environ.get("OX_CREDENTIALS_FILE", "/etc/ox-secrets/ox-contexts.json")
-FUNCTIONAL_ACCOUNT_LOGIN = os.environ.get("OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE")
+CREDENTIALS_FILE = os.environ.get(
+    "OX_CREDENTIALS_FILE", "/etc/ox-secrets/ox-contexts.json"
+)
+FUNCTIONAL_ACCOUNT_LOGIN = os.environ.get(
+    "OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE"
+)
 USER_IDENTIFIER = os.environ.get("OX_USER_IDENTIFIER", "username")
 GROUP_IDENTIFIER = os.environ.get("OX_GROUP_IDENTIFIER", "name")
+OX_ENABLE_DEPUTY_PERMISSIONS = os.environ.get(
+    "OX_ENABLE_DEPUTY_PERMISSIONS", "False"
+)
 if not FUNCTIONAL_ACCOUNT_LOGIN:
     FUNCTIONAL_ACCOUNT_LOGIN = "{{fa_entry_uuid}}{{username}}"
 
@@ -47,7 +55,9 @@ def get_new_context_attributes(context_id):  # type: (int) -> Dict[str, str]
         'displayname': 'OX Admin',
         'givenname': 'OX',
         'surname': 'Admin',
-        'email': '{}@{}'.format(get_standard_context_admin_user(context_id), DOMAIN),
+        'email': '{}@{}'.format(
+            get_standard_context_admin_user(context_id), DOMAIN
+        ),
         'quota': QUOTA,
         'password': get_random_password(),
     }
@@ -60,7 +70,10 @@ def get_random_password(length=64):  # type: (Optional[int]) -> str
         pw.append(random.choice(string.ascii_uppercase))
         pw.append(random.choice(string.digits))
         length -= len(pw)
-    pw.extend(random.choice(string.ascii_letters + string.digits) for _x in range(length))
+    pw.extend(
+        random.choice(string.ascii_letters + string.digits)
+        for _x in range(length)
+    )
     random.shuffle(pw)
     return ''.join(pw)
 
@@ -123,7 +136,9 @@ def remove_context_admin_password(context_id):
         _save_credentials(credentials)
 
 
-def get_credentials_for_context(context_id):  # type: (Union[int, str]) -> Tuple[str, str]
+def get_credentials_for_context(
+    context_id,
+):  # type: (Union[int, str]) -> Tuple[str, str]
     admuser = get_context_admin_user(context_id)
     admpass = get_context_admin_password(context_id)
     return admuser, admpass

@@ -2,59 +2,31 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 
-from univention.admin.types import TypeHint
 import univention.debug as ud
-from univention.admin.syntax import UDM_Objects, select, string
+from univention.admin.syntax import (
+    UDM_Objects,
+    select,
+    string,
+    complex,
+    boolean,
+)
+import univention.admin.localization
 
-
-class ExtendedAttributeIntegerType(TypeHint):
-    _python_types = (int, string)
-    _openapi_type = 'integer'
-
-    def decode_value(self, value):
-        try:
-            value = int(value)
-        except ValueError:
-            ud.debug(
-                ud.ADMIN,
-                ud.WARN,
-                '%s: %s: not a integer: %r' % (
-                    self.property_name,
-                    self.syntax.name,
-                    value,
-                ),
-            )
-        return value
-
-    def encode_value(self, value):
-        if isinstance(value, int):
-            value = str(value).encode()
-        return value
+translation = univention.admin.localization.translation(
+    "univention.admin.syntax.50_ox"
+)
+_ = translation.translate
 
 
 class oxContextSelect(UDM_Objects):
-    udm_modules = ('oxmail/oxcontext', )
-    type_class = ExtendedAttributeIntegerType
+    udm_modules = ('oxmail/oxcontext',)
     label = '%(name)s'
     key = '%(contextid)s'
     regex = None
 
-    @classmethod
-    def parse(self, text):
-        if isinstance(text, int):
-            return [text]
-        elif isinstance(text, (bytes, str)):
-            return [int(text)]
-        elif isinstance(text, list) and len(text) == 1:
-            return [int(text[0])]
-        else:
-            raise ValueError(
-                "Can't parse %s of type %s as an int" % (text, type(text)),
-            )
-
 
 class oxaccess(UDM_Objects):
-    udm_modules = ('oxmail/accessprofile', )
+    udm_modules = ('oxmail/accessprofile',)
     label = '%(displayName)s'
     key = '%(name)s'
     regex = None
@@ -379,3 +351,51 @@ class oxtimezone(select):
         ('UTC', 'UTC'),
         ('WET', 'WET'),
     ]
+
+
+class oxDeputyPermission(select):
+    name = 'oxDeputyPermission'
+    size = 'One'
+    # syntax: admin|fp|rp|wp|dp
+    ## admin: 0|1
+    ## folderPermission: 2
+    ## readPermission: 4
+    ## writepPermission: 0
+    ## deletePermission: 0
+    ## OX supports only sets of:
+    ### - Viewer: 02400
+    ### - Editor: 02440
+    ### - Author: 08444
+
+    choices = [
+        ('00000', _('No permission')),
+        ('02400', _('Viewer')),
+        ('02440', _('Editor')),
+        ('08444', _('Author')),
+    ]
+
+
+class fullWidthUserName(UDM_Objects):
+    udm_modules = ('users/user',)
+    key = 'dn'
+    label = '%(username)s'
+    udm_filter = '(isOxUser=OK)'
+    name = 'fullWidthUserName'
+    size = 'One'
+
+
+class oxDeputyPermissionUserMapping(complex):
+    '''Syntax for mapping username <-> oxDeputy'''
+
+    delimiter = ' |:$:| '
+    subsyntaxes = [
+        (_('Deputy'), fullWidthUserName),
+        (_('Mail permission'), oxDeputyPermission),
+        (_('Calendar permission'), oxDeputyPermission),
+        (_('Send on behalf of'), boolean),
+    ]
+
+    def get_widget_options(self, udm_property):
+        descr = complex.get_widget_options(self, udm_property)
+        descr['rowLabelsVisibility'] = 'allRows'
+        return descr

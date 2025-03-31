@@ -7,8 +7,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
-from univention.ox.soap.backend_base import User, get_ox_integration_class
-from univention.ox.soap.config import _CREDENTIALS
+from univention.ox.provisioning.users import User
 
 
 # copied from app/listener_trigger to test the cache dbs
@@ -32,42 +31,7 @@ class KeyValueStore(object):
 mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
 
-def create_context(udm, ox_host, context_id, wait_for_listener) -> str:
-    dn = udm.create(
-        "oxmail/oxcontext",
-        "cn=open-xchange",
-        {
-            "oxQuota": 1000,
-            "contextid": context_id,
-            "name": "context{}".format(context_id),
-        },
-    )
-    _CREDENTIALS.clear()
-    wait_for_listener(dn)
-    return dn
-
-
-def create_user(udm, name, domainname, context_id, enabled=True) -> str:
-    _attrs = {
-        "username": name,
-        "firstname": "Emil",
-        "lastname": name.title(),
-        "password": "univention",
-        "mailPrimaryAddress": "{}@{}".format(name, domainname),
-        "isOxUser": enabled,
-        "oxAccess": "premium",
-        "oxContext": context_id,
-    }
-    dn = udm.create(
-        "users/user",
-        "cn=users",
-        _attrs,
-    )
-    return dn
-
-
-def find_obj(context_id, name, assert_empty=False, print_obj=True) -> User:
-    User = get_ox_integration_class("SOAP", "User")
+def find_obj(context_id, name, assert_empty=False, print_obj=True):
     objs = User.list(context_id, pattern=name)
     if assert_empty:
         assert len(objs) == 0
@@ -99,46 +63,41 @@ def get_db_id(dn: str, max_retry: int=5) -> str:
     return obj["object"].get("oxDbId")
 
 
-def test_ignore_user(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
-):
+def test_ignore_user(create_ox_user):
     """
     Test a non ox-user. Should not find a DB ID in cache
     """
-    dn = create_user(udm, new_user_name, domainname, None, enabled=False)
-    wait_for_listener(dn)
+    dn = create_ox_user(context_id=None, enabled=False).dn
     db_id = get_db_id(dn)
     assert db_id is None
 
 
 def test_add_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener,
+    create_ox_context, create_ox_user, new_user_name
 ):
     """
     Test a new user. Should find a DB ID in cache
     """
-    create_context(udm, ox_host, new_context_id, wait_for_listener)
-    dn = create_user(udm, new_user_name, domainname, new_context_id)
-    wait_for_listener(dn)
+    new_context_id = create_ox_context()
+    user = create_ox_user(new_user_name, context_id=new_context_id)
     obj = find_obj(new_context_id, new_user_name)
-    db_id = get_db_id(dn)
+    db_id = get_db_id(user.dn)
     assert obj.id == db_id
 
 
 def test_rename_user(
-    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
+    create_ox_user, udm, wait_for_listener,
 ):
     """
     Renaming a user should keep its ID
     """
-    dn = create_user(udm, new_user_name, domainname, default_ox_context)
-    wait_for_listener(dn)
-    db_id = get_db_id(dn)
+    user = create_ox_user()
+    db_id = get_db_id(user.dn)
     assert db_id is not None
     dn = udm.modify(
         "users/user",
-        dn,
-        {"username": "new" + new_user_name},
+        user.dn,
+        {"username": "new" + user.properties["username"]},
     )
     wait_for_listener(dn)
     new_db_id = get_db_id(dn)
@@ -146,21 +105,14 @@ def test_rename_user(
 
 
 def test_change_context(
-    default_ox_context,
-    new_context_id,
-    new_user_name_generator,
-    udm,
-    ox_host,
-    domainname,
-    wait_for_listener,
+    create_ox_user, create_ox_context, udm, wait_for_listener,
 ):
     """
     Changing context should create new IDs in database
     """
-    create_context(udm, ox_host, new_context_id, wait_for_listener)
-    create_user(udm, new_user_name_generator(), domainname, default_ox_context)
-    dn = create_user(udm, new_user_name_generator(), domainname, default_ox_context)
-    wait_for_listener(dn)
+    new_context_id = create_ox_context()
+    create_ox_user()  # create one more user so that we have two users -> higher DB IDs in the first context
+    dn = create_ox_user().dn
     db_id = get_db_id(dn)
     assert db_id is not None
     udm.modify(
@@ -175,14 +127,13 @@ def test_change_context(
 
 
 def test_remove_user(
-    new_context_id, new_user_name, udm, ox_host, domainname, wait_for_listener,
+    create_ox_user, create_ox_context, udm, wait_for_listener,
 ):
     """
     Test a new user. Should find a DB ID in cache
     """
-    create_context(udm, ox_host, new_context_id, wait_for_listener)
-    dn = create_user(udm, new_user_name, domainname, new_context_id)
-    wait_for_listener(dn)
+    new_context_id = create_ox_context()
+    dn = create_ox_user(new_context_id).dn
     udm.modify(
         "users/user",
         dn,

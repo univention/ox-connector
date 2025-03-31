@@ -64,6 +64,10 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+# logger = logging.getLogger("zeep.transports")
+# logger.setLevel(logging.DEBUG)
+# logger.addHandler(handler)
+
 def _get_old_object(distinguished_name):
     path_to_old_user = mapping.get(distinguished_name.lower())
     # be backwards compatible

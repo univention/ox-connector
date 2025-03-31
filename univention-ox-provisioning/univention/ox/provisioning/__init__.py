@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020 Univention GmbH
+# Copyright 2020-2025 Univention GmbH
 #
 # http://www.univention.de/
 #
@@ -123,7 +123,7 @@ def run(obj):  # noqa: C901
                 if new_obj.was_enriched():
                     obj.set_attr(
                         "oxDbGroupname",
-                        new_obj.attributes.get('oxDbGroupname'),
+                        new_obj.attributes.get("oxDbGroupname"),
                     )
             except Skip as exc:
                 logger.warning(f"Skipping: {exc}")

@@ -1,0 +1,46 @@
+# Copyright (C) 2025 Univention GmbH <http://www.univention.de/>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ox-syntax 6.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-19 14:15+0200\n"
+"PO-Revision-Date: 2013-03-19 14:16+0200\n"
+"Last-Translator: Univention GmbH <package@univention.de>\n"
+"Language-Team: German <de@li.org>\n"
+"Language: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: 50_ox.py:412
+msgid "No permission"
+msgstr "Keine Berechtigung"
+
+#: 50_ox.py:413
+msgid "Viewer"
+msgstr "Betrachter"
+
+#: 50_ox.py:414
+msgid "Editor"
+msgstr "Überarbeiter"
+
+#: 50_ox.py:415
+msgid "Author"
+msgstr "Autor"
+
+#: 50_ox.py:433
+msgid "Deputy"
+msgstr "Stellvertreter"
+
+#: 50_ox.py:434
+msgid "Mail permission"
+msgstr "Mail Berechtigung"
+
+#: 50_ox.py:435
+msgid "Calendar permission"
+msgstr "Kalender Berechtigung"
+
+#: 50_ox.py:436
+msgid "Send on behalf of"
+msgstr "Senden im Auftrag von"

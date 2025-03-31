@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024 Univention GmbH
+# Copyright 2024-2025 Univention GmbH
 #
 # http://www.univention.de/
 #
@@ -26,6 +26,7 @@
 # License with the Debian GNU/Linux or Univention distribution in file
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
+
 import dbm.gnu
 from contextlib import contextmanager
 

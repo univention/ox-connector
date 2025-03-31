@@ -12,6 +12,37 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v2.3.0:
+
+v2.3.0
+======
+
+Released: 27. Mar 2025
+
+Added
+-----
+
+Allow provisioning of `OX deputy permissions <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/deputy_permission.html>`_
+through the :program:`OX Connector` app.
+OX deputy permissions allow a user to act on behalf of another user in OX App Suite,
+providing delegated access to email and calendars.
+Administrators can configure these permissions to control the level of access and actions
+that deputies can perform.
+
+The administrator can now add external ca-certificates to the container, see :ref:`additional-ca-certificates`.
+
+Changed
+-------
+
+The app setting :envvar:`OX_IMAP_LOGIN` can contain all attribute names as placeholders.
+While the connector still replaces the default value ``{}`` with the user's email address,
+you can set it to ``{univentionObjectIdentifier}``, for example, given that such an attribute exists.
+
+Fixed
+-----
+
+Translations now work correctly.
+
 .. _app-changelog-v2.2.15:
 
 v2.2.15

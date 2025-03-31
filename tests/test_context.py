@@ -10,7 +10,7 @@ def create_context(udm, ox_host, context_id, max_quota=1000):
         "cn=open-xchange",
         {
             "oxQuota": max_quota,
-            "contextid": context_id,
+            "contextid": int(context_id),
             "name": "context{}".format(context_id),
         },
     )

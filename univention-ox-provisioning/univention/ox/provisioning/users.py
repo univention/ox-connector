@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020 Univention GmbH
+# Copyright 2020-2025 Univention GmbH
 #
 # http://www.univention.de/
 #
@@ -37,10 +37,13 @@ import imghdr
 import base64
 
 import zeep.exceptions
-import univention.ox.provisioning.helpers
-from univention.ox.provisioning.default_user_mapping import (
-    DEFAULT_USER_MAPPING,
+from univention.ox.provisioning.deputy_permissions import (
+    delete_deputy_permissions,
+    set_deputy_permissions,
 )
+from univention.ox.provisioning.functional_account import delete_functional_account
+import univention.ox.provisioning.helpers
+from univention.ox.provisioning.default_user_mapping import DEFAULT_USER_MAPPING
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     empty_rights_profile,
@@ -66,6 +69,7 @@ from univention.ox.soap.config import (
 User = get_ox_integration_class("SOAP", "User")
 UserCopy = get_ox_integration_class("SOAP", "UserCopy")
 Group = get_ox_integration_class("SOAP", "Group")
+DeputyPermission = get_ox_integration_class("SOAP", "DeputyPermission")
 logger = logging.getLogger("listener")
 
 
@@ -83,12 +87,16 @@ def str2isodate(text):  # type: (str) -> str
         exc2 = exc
     raise ValueError(
         "Value {!r} in unknown date format or year before 1900 ({} {}).".format(
-            text, exc1, exc2,
+            text,
+            exc1,
+            exc2,
         ),
     )
 
 
-def user_from_attributes(attributes, old_attributes, username, user_id=None, initial_values=False):
+def user_from_attributes(
+    attributes, old_attributes, username, user_id=None, initial_values=False
+):
     user = User(id=user_id)
     if attributes:
         context_id = get_context_id(attributes)
@@ -106,7 +114,10 @@ def get_user_username(user):
 
 def get_user_mapping():
     try:
-        with open('/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json', 'r') as fd:
+        with open(
+            "/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json",
+            "r",
+        ) as fd:
             return json.loads(fd.read())
     except (OSError, ValueError, IOError):
         logger.info("Using default user attribute mapping")
@@ -120,12 +131,14 @@ def set_ox_property(user, ox_property, mapping, attributes):
 
     def image_attibute(x):
         if x:
-            byte_image = base64.b64decode(x.encode('utf8'))
+            byte_image = base64.b64decode(x.encode("utf8"))
             content_type = imghdr.what(None, h=byte_image)
-            if content_type == 'jpeg':
-                content_type = 'image/jpeg'
+            if content_type == "jpeg":
+                content_type = "image/jpeg"
             else:
-                logger.warn(f"We only support jpeg images. Found {content_type!r}. Ignoring image...")
+                logger.warn(
+                    f"We only support jpeg images. Found {content_type!r}. Ignoring image..."
+                )
                 content_type = None
             if content_type:
                 setattr(user, ox_property + "ContentType", content_type)
@@ -193,6 +206,7 @@ def set_ox_property(user, ox_property, mapping, attributes):
 
     setattr(user, ox_property, val)
 
+
 def update_user(user, attributes, old_attributes, username, initial_values=False):
     old_user = None
     if user.id and not initial_values:
@@ -215,8 +229,14 @@ def update_user(user, attributes, old_attributes, username, initial_values=False
 
     user.primary_email = user.email1
     user.aliases = [user.email1] + (user.aliases or [])
-    user.imap_login = IMAP_LOGIN.format(user.email1) if "{}" in IMAP_LOGIN else IMAP_LOGIN
-    if old_user and not (old_user.primary_email != user.primary_email and old_user.default_sender_address == old_user.primary_email):
+    if "{" in IMAP_LOGIN and "}" in IMAP_LOGIN:
+        user.imap_login = IMAP_LOGIN.format(user.email1, **attributes)
+    else:
+        user.imap_login = IMAP_LOGIN
+    if old_user and not (
+        old_user.primary_email != user.primary_email
+        and old_user.default_sender_address == old_user.primary_email
+    ):
         # default_sender_address is a user setting, not "core data". so we better not touch this and leave as is (see the code line).
         # UNLESS the primary_email changed and that was the default_sender_address.
         #  => in this case, setting the default_sender_address to the new primary_email is the sane thing to do (see the else code).
@@ -258,7 +278,8 @@ def set_user_rights(user, obj):
     logger.info(f"Changing user {user.id} to profile {user_access}")
 
     user.service(user.context_id).change_by_module_access(
-        {"id": user.id}, access_rights,
+        {"id": user.id},
+        access_rights,
     )
 
 
@@ -274,7 +295,9 @@ def get_user_id(attributes, lookup_ox=True):
             f"Not touching {username} in context {context_id}: Is context admin!",
         )
     logger.info(f"Searching for {username} in context {context_id}")
-    if not User.service(context_id).exists(User.service(context_id).Type(id=None, name=username)):
+    if not User.service(context_id).exists(
+        User.service(context_id).Type(id=None, name=username)
+    ):
         return
     user = get_obj_by_name_from_ox(User, context_id, username)
     if user:
@@ -296,21 +319,32 @@ def create_user(obj, user_copy_service=None, user_id=None):
             logger.info(f"{obj} exists. Modifying instead...")
             return modify_user(obj)
     except Skip:
-        logger.warning(f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.")
+        logger.warning(
+            f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it."
+        )
         return
-    user = user_from_attributes(obj.attributes, getattr(obj, 'old_attributes', None), get_user_username(obj), initial_values=True)
+    user = user_from_attributes(
+        obj.attributes,
+        getattr(obj, "old_attributes", None),
+        get_user_username(obj),
+        initial_values=True,
+    )
     if not user_copy_service:
         user.create()
     else:
         logger.info(f"Creating {obj} in context {user.context_id} using UserCopy")
-        user_copy_service.copy_user(user={"id": user_id}, dest_ctx={"id": user.context_id})
+        user_copy_service.copy_user(
+            user={"id": user_id}, dest_ctx={"id": user.context_id}
+        )
         # Bug #56525 When changing the context and the username, the old
         # username is needed for the object search in the database because
         # the object hasn't been modified yet.
         try:
-            user = User.from_ox(
+            user = get_obj_by_name_from_ox(
+                User,
                 user.context_id,
-                name=obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"),
+                obj.old_attributes.get("oxDbUsername")
+                or obj.old_attributes.get("username"),
             )
         except zeep.exceptions.Fault as exc:
             logger.error("Failed to query the old user from OX before moving it: %s", exc)
@@ -320,6 +354,7 @@ def create_user(obj, user_copy_service=None, user_id=None):
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
+    set_deputy_permissions(obj, user.context_id)
     logger.info("Looking for groups of this user to be created in the context id")
     for group in obj.attributes.get("groups", []):
         group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
@@ -346,7 +381,9 @@ def modify_user(obj):
         try:
             user_id = get_user_id(obj.attributes)
         except Skip:
-            logger.warning(f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.")
+            logger.warning(
+                f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it."
+            )
             return
     if not user_id:
         logger.info(f"{obj} does not yet exist. Creating instead...")
@@ -360,7 +397,7 @@ def modify_user(obj):
             old_context = get_context_id(obj.old_attributes)
         except Skip:
             old_context = get_context_id(obj.attributes)
-            obj.old_attributes['oxContext'] = old_context
+            obj.old_attributes["oxContext"] = old_context
         try:
             new_context = get_context_id(obj.attributes)
         except Skip:
@@ -371,6 +408,13 @@ def modify_user(obj):
             new_context = old_context
         if old_context != new_context:
             logging.info(f"Changing context: {old_context} -> {new_context}")
+            # remove all deputy permissions other users have for this user in old context
+            logger.info(
+                f"Removing deputy permissions for user {obj} in old context {old_context}.",
+            )
+            delete_deputy_permissions(obj, old_context)
+            # deputy_service = DeputyPermission.service(old_context)
+            # deputy_service.revoke_all(user_id)
             already_existing_user_id = get_user_id(obj.attributes)
             if already_existing_user_id:
                 logger.warning(
@@ -383,17 +427,29 @@ def modify_user(obj):
                     raise
             else:
                 try:
-                    create_user(obj, user_copy_service=UserCopy().service(old_context), user_id=user_id)
+                    create_user(
+                        obj,
+                        user_copy_service=UserCopy().service(old_context),
+                        user_id=user_id,
+                    )
                 except zeep.exceptions.Fault as exc:
                     logger.warning("Cannot copy user into new context: %s", exc)
                     raise
                 return delete_user(deepcopy(obj))
-        user = user_from_attributes(obj.old_attributes, obj.old_attributes, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"), user_id)
+        user = user_from_attributes(
+            obj.old_attributes,
+            obj.old_attributes,
+            obj.old_attributes.get("oxDbUsername")
+            or obj.old_attributes.get("username"),
+            user_id,
+        )
         user.context_id = new_context
         update_user(user, obj.attributes, obj.old_attributes, get_user_username(obj))
     else:
         logger.info(f"{obj} has no old data. Resync?")
-        user = user_from_attributes(obj.attributes, None, get_user_username(obj), user_id)
+        user = user_from_attributes(
+            obj.attributes, None, get_user_username(obj), user_id
+        )
     try:
         user.modify()
     except Exception as exc:
@@ -404,6 +460,7 @@ def modify_user(obj):
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
+    set_deputy_permissions(obj, context_id=user.context_id)
 
 
 def delete_user(obj):
@@ -415,7 +472,13 @@ def delete_user(obj):
     if not user_id:
         logger.info(f"{obj} does not exist. Doing nothing...")
         return
-    user = user_from_attributes(obj.old_attributes, None, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"), user_id)
+    user = user_from_attributes(
+        obj.old_attributes,
+        None,
+        obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"),
+        user_id,
+    )
+    delete_deputy_permissions(obj, user.context_id)
     group_service = Group.service(user.context_id)
     soap_groups = group_service.list_groups_for_user({"id": user.id})
     user.remove()

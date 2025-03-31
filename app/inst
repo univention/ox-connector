@@ -3,7 +3,7 @@
 # Open-Xchange
 #  join script
 #
-# Copyright (C) 2005-2019 Univention GmbH <http://www.univention.de/>
+# Copyright (C) 2005-2025 Univention GmbH <http://www.univention.de/>
 #
 # and
 #     iKu Systems & Services GmbH & Co. KG (http://www.iku-systems.de/)
@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=12
+VERSION=16
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -113,6 +113,7 @@ clean_old_provisioning () {
   unregister_ldap_extension "${@}" -- --udm_hook oxGroupHook
   unregister_ldap_extension "${@}" -- --udm_hook oxContextRW
   unregister_ldap_extension "${@}" -- --udm_hook oxAccess
+  unregister_ldap_extension "${@}" -- --udm_hook oxDeputyPermissionHook
 
 
   #   - syntax (these could just be replaced when installing the new version)
@@ -125,13 +126,23 @@ setup_vars () {
   CONTEXTDOMAIN="${domainname}"
   DEFAULT_CONTEXT="${ox_context_id}"
 
-  #Using the unviention-ox package to replace the schema in updates.
+  #Using the univention-ox package to replace the schema in updates.
   PACKAGE_NAME="univention-ox"
-  PACKAGE_VERSION="12.0.36"  #This number should be updated when the schema is modified or when we change any ldap_extension
+  PACKAGE_VERSION="12.0.37"  #This number should be updated when the schema is modified or when we change any ldap_extension
+  DEPUTY_SETTING="$(univention-app shell ox-connector sh -c 'env|grep OX_ENABLE_DEPUTY_PERMISSION|cut -f 2 -d "="')"
+  DEPUTY_SETTING_LOWER=$(echo "$DEPUTY_SETTING" | tr '[:upper:]' '[:lower:]')
+  VALID_VALUES=("true" "yes" "1" "ja" "ok")
+  DEPUTY_HIDDEN_IN_UMC="1"
+  for value in "${VALID_VALUES[@]}"; do
+    if [[ "$DEPUTY_SETTING_LOWER" == "$value" ]]; then
+        DEPUTY_HIDDEN_IN_UMC="0"
+        break
+    fi
+  done
 }
 
 register_ldap () {
-  export UNIVENTION_APP_IDENTIFIER='ox-connector_2.2.15'  # Version in meta-inf/*/oxseforucs_*.ini
+  export UNIVENTION_APP_IDENTIFIER='ox-connector_2.3.0'  # Version in meta-inf/*/oxseforucs_*.ini
   local PREFIX="/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/"
 
   if [[ "$(ucr get server/role)" = "domaincontroller_master" ]]; then
@@ -150,11 +161,13 @@ register_ldap () {
       die "Failed to register LDAP extensions."
 
   # 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
-  register_ldap_extension "${@}" -- "${PREFIX}"/ldap/oxforucs.schema "${PREFIX}"/udm/syntax.d/*.py "${PREFIX}"/udm/hooks.d/*.py
-  register_ldap_extension "${@}" -- "${PREFIX}"/udm/handlers/oxmail/oxcontext.py          "${PREFIX}"/udm/handlers/oxmail/*.mo      "${PREFIX}"/umc/icons/*/udm-oxmail-oxcontext.*
-  register_ldap_extension "${@}" -- "${PREFIX}"/udm/handlers/oxmail/functional_account.py "${PREFIX}"/udm/handlers/oxmail/*.mo      "${PREFIX}"/umc/icons/*/udm-oxmail-oxfolder.*
-  register_ldap_extension "${@}" -- "${PREFIX}"/udm/handlers/oxmail/accessprofile.py      "${PREFIX}"/udm/handlers/oxmail/*.mo      "${PREFIX}"/umc/icons/*/udm-oxmail-accessprofile.*
-  register_ldap_extension "${@}" -- "${PREFIX}"/udm/handlers/oxresources/oxresources.py   "${PREFIX}"/udm/handlers/oxresources/*.mo "${PREFIX}"/umc/icons/*/udm-oxresources-oxresources.* "${PREFIX}"/umc/ox-common.xml
+  register_ldap_extension "${@}" -- "${PREFIX}"ldap/oxforucs.schema || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/hooks.d/*.py                          "${PREFIX}"udm/hooks.d/*.mo || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/syntax.d/*.py                         "${PREFIX}"udm/syntax.d/*.mo || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/oxcontext.py          "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxcontext.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/functional_account.py "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxfolder.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/accessprofile.py      "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"/umc/icons/*/udm-oxmail-accessprofile.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxresources/oxresources.py   "${PREFIX}"udm/handlers/oxresources/*.mo "${PREFIX}"umc/icons/*/udm-oxresources-oxresources.* "${PREFIX}"/umc/ox-common.xml || die
 
   univention-directory-manager policies/registry remove \
     --ignore_not_exists \
@@ -162,6 +175,7 @@ register_ldap () {
 
   stop_udm_cli_server
 }
+
 register_ldap_extension () {
   declare -a args=()
   while [[ "${1}" != -- ]]; do
@@ -180,7 +194,12 @@ register_ldap_extension () {
     *.py) args+=(--udm_module "${1}") ;;
     *.mo)
       if [[ -s "${1}" ]]; then
-        args+=(--messagecatalog "${1}")
+        case "${1}" in
+        */syntax*) args+=(--udm_syntax_messagecatalog "${1}") ;;
+        */hook*) args+=(--udm_hook_messagecatalog "${1}") ;;
+        */handlers/*) args+=(--messagecatalog "${1}") ;;
+        esac
+        shift
       fi
       ;;
     *.acl) args+=(--acl "${1}") ;;
@@ -233,7 +252,6 @@ create_eas () {
     echo "Updating extended attributes..."
     python3 "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/createextattr.py" --update "${@}"  || die
   fi
-
   stop_udm_cli_server
 }
 
@@ -245,6 +263,9 @@ update_ea_defaults () {
   univention-directory-manager settings/extended_attribute modify "${@}" \
     --dn "cn=oxContextResource,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
     --set default="${DEFAULT_CONTEXT}" || :
+  univention-directory-manager settings/extended_attribute modify "${@}" \
+    --dn "cn=oxDeputyPermissionGivenTo,cn=open-xchange,cn=custom attributes,cn=univention,${ldap_base}" \
+    --set disableUDMWeb="${DEPUTY_HIDDEN_IN_UMC}" || :
 }
 
 remove_user_template () {

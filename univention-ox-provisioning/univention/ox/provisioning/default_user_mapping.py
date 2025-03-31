@@ -58,7 +58,8 @@ class Mapping(dict):
             position=position,
         )
 
-DEFAULT_USER_MAPPING = {    "display_name": Mapping("oxDisplayName", alternative_attributes=["displayName"]),
+DEFAULT_USER_MAPPING = {
+    "display_name": Mapping("oxDisplayName", alternative_attributes=["displayName"]),
     "given_name": Mapping("firstname"),
     "sur_name": Mapping("lastname"),
     "email1": Mapping("mailPrimaryAddress", nillable=False),
@@ -146,5 +147,5 @@ DEFAULT_USER_MAPPING = {    "display_name": Mapping("oxDisplayName", alternative
     "telephone_home2": Mapping("homeTelephoneNumber", position=1),
     "imap_server": Mapping("mailHomeServer", special_handling=SpecialHandling.IMAP_URL),
     "smtp_server": Mapping("mailHomeServer", special_handling=SpecialHandling.SMTP_URL),
-    "aliases": Mapping("mailAlternativeAddress", multi_value=True)
+    "aliases": Mapping("mailAlternativeAddress", multi_value=True),
 }

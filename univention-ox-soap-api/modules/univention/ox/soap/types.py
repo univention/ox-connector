@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 #
 # OX' SOAP API object types
 #
-# Copyright 2018-2020 Univention GmbH
+# Copyright 2018-2025 Univention GmbH
 #
 # http://www.univention.de/
 #
@@ -47,6 +46,9 @@
 
 from __future__ import absolute_import
 
+import requests.exceptions
+
+import univention.ox.soap.config
 from .config import OX_SOAP_SERVER
 from .services import get_wsdl
 
@@ -65,6 +67,7 @@ class Types(object):
     wsdl_resource = None
     wsdl_secondary_account = None
     wsdl_user = None
+    wsdl_deputy_permission = None
 
     def __init__(self, server=OX_SOAP_SERVER):  # type: (Optional[str]) -> None
         if not self.wsdl_context:
@@ -75,8 +78,17 @@ class Types(object):
             self.__class__.wsdl_resource = get_wsdl(server, 'Resource')
         if not self.wsdl_secondary_account:
             self.__class__.wsdl_secondary_account = get_wsdl(
-                server, 'SecondaryAccount',
+                server,
+                'SecondaryAccount',
             )
+        if not self.wsdl_deputy_permission:
+            try:
+                self.__class__.wsdl_deputy_permission = get_wsdl(
+                    server,
+                    'DeputyPermission',
+                )
+            except requests.exceptions.HTTPError:
+                univention.ox.soap.config.OX_ENABLE_DEPUTY_PERMISSIONS = "False"
         if not self.wsdl_user:
             self.__class__.wsdl_user = get_wsdl(server, 'User')
         self.Credentials = self.wsdl_context.types.get_type(
@@ -124,6 +136,16 @@ class Types(object):
         self.UserModuleAccess = self.wsdl_user.types.get_type(
             '{http://dataobjects.soap.admin.openexchange.com/xsd}UserModuleAccess',
         )
+        if self.wsdl_deputy_permission:
+            self.DeputyPermission = self.wsdl_deputy_permission.types.get_type(
+                '{http://dataobjects.soap.admin.openexchange.com/xsd}DeputyPermission',
+            )
+            self.ActiveDeputyPermission = self.wsdl_deputy_permission.types.get_type(
+                '{http://dataobjects.soap.admin.openexchange.com/xsd}ActiveDeputyPermission',
+            )
+            self.ModulePermission = self.wsdl_deputy_permission.types.get_type(
+                '{http://dataobjects.soap.admin.openexchange.com/xsd}ModulePermission',
+            )
 
 
 ####################################

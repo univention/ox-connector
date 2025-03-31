@@ -686,9 +686,25 @@ attributetype ( 1.3.6.1.4.1.31353.2.2.130 NAME 'oxUserQuota'
 	EQUALITY caseIgnoreMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
 
+attributetype ( 1.3.6.1.4.1.31353.2.2.157 NAME 'oxDeputyPermissionFrom'
+	DESC 'DEPRECATED'
+	EQUALITY caseIgnoreMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.3.6.1.4.1.31353.2.2.158 NAME 'oxDeputyPermissionFor'
+	DESC 'DEPRECATED'
+	EQUALITY caseIgnoreMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.3.6.1.4.1.31353.2.2.159 NAME 'oxDeputyPermissionGivenTo'
+	DESC 'Another user is my Deputy and may write emails / manage calendar on my behalf'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
 objectclass ( 1.3.6.1.4.1.31353.2.1.1 NAME 'oxUserObject' SUP top AUXILIARY
 	DESC 'Additional Settings for OX Users'
-	MAY ( oxAccessUSM $ isOxUser $ oxBirthday $ oxNumOfChildren $ oxLanguage $ oxTimeZone $ oxDisplayName $ oxAnniversary $ oxAccess $ oxAccessResources $ oxAccessForum $ oxAccessPinboardWrite $ oxAccessProjects $ oxAccessRssBookmarks $ oxAccessSyncMl $ oxMiddleName $ oxSuffix $ oxNickName $ oxDepartment $ oxPosition $ oxProfession $ oxBranches $ oxTelephoneCompany $ oxTelephoneBusiness1 $ oxTelephoneBusiness2 $ oxTelephoneHome1 $ oxTelephoneHome2 $ oxTelephoneOther $ oxTelephoneCar $ oxFaxBusiness $ oxFaxHome $ oxFaxOther $ oxManagerName $ oxTelephoneAssistant $ oxEmail2 $ oxEmail3 $ oxInstantMessenger1 $ oxInstantMessenger2 $ oxTelephoneIp $ oxTelephonePager $ oxTelephoneTelex $ oxTelephoneTtydd $ oxUrl $ oxTaxId $ oxCommercialRegister $ oxSalesVolume $ oxMarialStatus $ oxSpouseName $ oxStateBusiness $ oxCountryBusiness $ oxStreetHome $ oxPostalCodeHome $ oxCityHome $ oxStateHome $ oxCountryHome $ oxMobileBusiness $ oxMobileHome $ oxStreetOther $ oxPostalCodeOther $ oxCityOther $ oxStateOther $ oxCountryOther $ oxUserfield01 $ oxUserfield02 $ oxUserfield03 $ oxUserfield04 $ oxUserfield05 $ oxUserfield06 $ oxUserfield07 $ oxUserfield08 $ oxUserfield09 $ oxUserfield10 $ oxUserfield11 $ oxUserfield12 $ oxUserfield13 $ oxUserfield14 $ oxUserfield15 $ oxUserfield16 $ oxUserfield17 $ oxUserfield18 $ oxUserfield19 $ oxUserfield20 $ oxNote $ oxHomeServer $ oxImapServer $ oxHomeMTA $ unrestrictedMailSize $ cyrus-userquota $ oxVacation $ oxVacationSubject $ oxVacationText $ oxVacationDays $ oxResourceMailAddress $ oxContextIDNum $ oxDrive $ oxUserQuota ))
+	MAY ( oxAccessUSM $ isOxUser $ oxBirthday $ oxNumOfChildren $ oxLanguage $ oxTimeZone $ oxDisplayName $ oxAnniversary $ oxAccess $ oxAccessResources $ oxAccessForum $ oxAccessPinboardWrite $ oxAccessProjects $ oxAccessRssBookmarks $ oxAccessSyncMl $ oxMiddleName $ oxSuffix $ oxNickName $ oxDepartment $ oxPosition $ oxProfession $ oxBranches $ oxTelephoneCompany $ oxTelephoneBusiness1 $ oxTelephoneBusiness2 $ oxTelephoneHome1 $ oxTelephoneHome2 $ oxTelephoneOther $ oxTelephoneCar $ oxFaxBusiness $ oxFaxHome $ oxFaxOther $ oxManagerName $ oxTelephoneAssistant $ oxEmail2 $ oxEmail3 $ oxInstantMessenger1 $ oxInstantMessenger2 $ oxTelephoneIp $ oxTelephonePager $ oxTelephoneTelex $ oxTelephoneTtydd $ oxUrl $ oxTaxId $ oxCommercialRegister $ oxSalesVolume $ oxMarialStatus $ oxSpouseName $ oxStateBusiness $ oxCountryBusiness $ oxStreetHome $ oxPostalCodeHome $ oxCityHome $ oxStateHome $ oxCountryHome $ oxMobileBusiness $ oxMobileHome $ oxStreetOther $ oxPostalCodeOther $ oxCityOther $ oxStateOther $ oxCountryOther $ oxUserfield01 $ oxUserfield02 $ oxUserfield03 $ oxUserfield04 $ oxUserfield05 $ oxUserfield06 $ oxUserfield07 $ oxUserfield08 $ oxUserfield09 $ oxUserfield10 $ oxUserfield11 $ oxUserfield12 $ oxUserfield13 $ oxUserfield14 $ oxUserfield15 $ oxUserfield16 $ oxUserfield17 $ oxUserfield18 $ oxUserfield19 $ oxUserfield20 $ oxNote $ oxHomeServer $ oxImapServer $ oxHomeMTA $ unrestrictedMailSize $ cyrus-userquota $ oxVacation $ oxVacationSubject $ oxVacationText $ oxVacationDays $ oxResourceMailAddress $ oxContextIDNum $ oxDrive $ oxUserQuota $ oxDeputyPermissionFor $ oxDeputyPermissionFrom $ oxDeputyPermissionGivenTo ) )
 
 objectclass ( 1.3.6.1.4.1.31353.2.1.2 NAME 'oxGroup' SUP top AUXILIARY
 	DESC 'Open-Xchange Group Ext.'

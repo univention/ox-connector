@@ -48,22 +48,11 @@ App Settings
          see: installation; certificate
 
       If the OX App Suite instance uses a self-signed certificate or a
-      certificate it can't validate, the OX Connector Docker container needs the
+      certificate it can't validate, the OX Connector container needs the
       root certificate for validation.
-
-      For example, to add a custom certificate, run the following commands on
-      the UCS system, where OX Connector is installed:
-
-      .. code-block:: console
-
-         $ univention-app shell ox-connector
-         /oxp # wget --no-check-certificate \
-           https://ox-app-suite.example.com/root-ca.crt \
-           -O /usr/local/share/ca-certificates/ox-app-suite.crt
-         /oxp # update-ca-certificates
-         "WARNING: ca-certificates.crt does not contain exactly one certificate or CRL: skipping"
-
-      Administrators can ignore the warning.
+      You need to store the self-signed certificate files in the
+      :file:`/var/lib/univention-appcenter/apps/ox-connector/data/conf/ca-certificates/` directory.
+      For details, see :ref:`additional-ca-certificates`.
 
 
 .. envvar:: OX_IMAP_SERVER
@@ -209,17 +198,14 @@ App Settings
         - String
         - N/A
 
-   .. note::
-
-        In cases where SSO is to be used, this variable has to be appended with an asterisk
-        and the mail server's master user. For Dovecot this would be *\*dovecotadmin*. In this
-        case ``OX_IMAP_LOGIN`` can be set to ``'{}*dovecotadmin'``. The curly braces are used
-        as a template for the primary mail address. The resulting `imaplogin` value would then
-        look like this:
-
-        .. code-block:: console
-
-            myuser@maildomain.de*dovecotadmin
+   In cases where you use single sign-on,
+   you need to append this variable with an asterisk
+   and the mail server's master user.
+   For Dovecot, the master user is ``*dovecotadmin``.
+   In this case, you need to set ``OX_IMAP_LOGIN`` to ``'{}*dovecotadmin'``.
+   The OX Connector interprets the curly braces as a template for the primary email address.
+   You can add any user attribute inside the curly braces if needed, for example,
+   ``{username}`` while empty braces are for ``primaryMailAddress``.
 
 
 .. envvar:: OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE
@@ -320,6 +306,59 @@ App Settings
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
          to be resolved manually by simply setting a valid value.
 
+.. envvar:: OX_ENABLE_DEPUTY_PERMISSIONS
+
+   Enables the provisioning of OX deputy permissions.
+   Administrators then can set, modify, or delete deputy permissions for users in the UMC.
+
+   For example, administrators can grant ``user01`` the roles *Viewer*, *Editor*, and *Author*
+   for the calendar and mail module for ``user01``.
+   Furthermore, ``user01`` can send emails on behalf of ``user02``.
+
+   The default value is ``False``.
+   To enable the feature,
+   set the app setting :envvar:`OX_ENABLE_DEPUTY_PERMISSIONS` to ``True``.
+
+   To see the feature in the UMC,
+   you need to enable the UMC representation for the extended attribute
+   either after the app installation,
+   or after the configuration.
+   Run the command in :numref:`settings-ox-enable-deputy-permission-listing`
+   either on the *UCS Primary Directory Node*
+   or a *UCS Backup Directory Node*.
+
+   .. code-block:: console
+      :caption: Activate the UMC representation of the enabled deputy permission feature.
+      :name: settings-ox-enable-deputy-permission-listing
+
+      $ univention-directory-manager \
+         settings/extended_attribute modify \
+         --dn "cn=oxDeputyPermissionGivenTo,cn=open-xchange,cn=custom attributes,cn=univention,$(ucr get ldap/base)" \
+         --set disableUDMWeb="0"
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - Boolean
+        - ``False``
+
+   .. important::
+
+      The *Deputy Permissions* feature requires OX App Suite version >= 8.
+
+      Users can modify the deputy permissions on their own in :program:`OX App Suite`.
+      The provisioning in the :program:`OX Connector` app through UCS overwrites these settings.
+
+   .. seealso::
+
+      `Deputy permissions : Technical Documentation <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/deputy_permission.html>`_
+         for more information about OX deputy permissions.
 
 .. _ucr-variables:
 
@@ -461,7 +500,7 @@ With the *modify* operation, you can use the following additional operations:
          modify \
          --unset_alternatives email1
 
-If you previously used the attribute mapping feature of the OX App Suite app from the App Center, 
+If you previously used the attribute mapping feature of the OX App Suite app from the App Center,
 you can migrate it by running the following command
 on the UCS system where you installed the OX App Suite.
 You then use the output of the script as command and run it
@@ -515,3 +554,47 @@ on the UCS system where the OX Connector is running.
      else:
        print("Nothing to do.")
    EOF
+
+.. _additional-ca-certificates:
+
+Import additional CA certificates
+=================================
+
+.. versionadded:: 2.3.0
+
+   Allow the connector to import additional CA certificates
+
+The :program:`OX Connector` app in UCS runs as a container with its own CA certificate store.
+By default, the app imports the UCS root CA certificate into the CA store
+to enable a secure connection to the UCS LDAP directory.
+You may need additional CA certificates for the :program:`OX Connector` app,
+for example, when provisioning to a remote :program:`OX App Suite` installation.
+
+To add certificates to the certificate store in the :program:`OX Connector`,
+use the following steps on the system where the app is installed:
+
+#. Create the
+   :file:`/var/lib/univention-appcenter/apps/ox-connector/data/conf/ca-certificates/` directory.
+
+#. Copy the CA certificate files in PEM format with the ending ``.pem`` into this directory.
+   :numref:`additional-ca-certificates-examples-listing` shows an example.
+
+   .. code-block:: console
+      :caption: Examples for additional CA certificates
+      :name: additional-ca-certificates-examples-listing
+
+
+      $ file /var/lib/univention-appcenter/apps/ox-connector/data/conf/ca-certificates/*.pem
+      .../ox-connector/data/conf/ca-certificates/cert1.pem: PEM certificate
+      .../ox-connector/data/conf/ca-certificates/cert2.pem: PEM certificate
+
+#. Manually reconfigure the OX Connector with the command in
+   :numref:`additional-ca-certificates-manual-reconfigure-listing`.
+   The :program:`OX Connector` app automatically adds the certificates to its certificate store,
+   also during app updates.
+
+   .. code-block:: console
+      :caption: Manually reconfigure the OX Connector
+      :name: additional-ca-certificates-manual-reconfigure-listing
+
+      $ univention-app configure ox-connector

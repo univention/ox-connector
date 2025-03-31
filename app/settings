@@ -69,7 +69,7 @@ Type = String
 Required = False
 
 [OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE]
-Description = Customizes the functional account login field format using templates. You can use plain text or incorporate UDM properties, which have to be enclosed within double curly braces, such as '{{fa_entry_uuid}}{{username}}'." For more details, please refer to the <a target="_blank" href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE">ox-connector manual</a>.
+Description = Customizes the functional account login field format using templates. You can use plain text or incorporate UDM properties, which have to be enclosed within double curly braces, such as '{{fa_entry_uuid}}{{username}}'." For more details, please refer to the <a target="_blank" href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE">OX-Connector manual</a>.
 Description[de] = Formatvorgabe für das Login-Feld von Funktionspostfächern mit Hilfe von Templates. Gültige Werte sind einfacher Text und UDM-Properties. UDM-Properties müssen mit "{{ }}" umschlossen werden (z.B. "{{fa_entry_uuid}}{{username}}"). Weitere Einzelheiten können der <a target="_blank" href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE">OX-Connector-Dokumentation</a> entnommen werden.
 Show = Install, Settings
 Type = String
@@ -88,3 +88,12 @@ Description[de] = UDM-Group-Property, die als eindeutiger Group-Identifier für 
 Show = Install, Settings
 Type = String
 Required = False
+
+[OX_ENABLE_DEPUTY_PERMISSIONS]
+Description = Enables the provisioning of user deputy permissions. Additional steps are needed to activate this feature. Please refer to the instructions in the <a target="_blank"
+href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_ENABLE_DEPUTY_PERMISSIONS">OX-Connector manual</a>.
+Description[de] = Aktiviert die Provisionierung von Stellvertreterberechtigungen. Zur Aktivierung dieser Funktion sind zusätzliche Schritte notwendig. Bitte beachten Sie die Hinweise aus der <a target="_blank" href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_ENABLE_DEPUTY_PERMISSIONS">OX-Connector-Dokumentation</a>.
+Show = Install, Settings
+Type = Bool
+Required = False
+InitialValue = False
