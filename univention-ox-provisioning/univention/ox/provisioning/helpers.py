@@ -27,14 +27,9 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import logging
-
 from typing import Dict, Any
 
 from zeep.exceptions import Fault
-
-
-logger = logging.getLogger("listener")
 
 
 class Skip(Exception):
@@ -47,7 +42,6 @@ def get_obj_by_name_from_ox(klass, context_id, name):
     try:
         return klass.from_ox(context_id, name=name)
     except Fault as exc:
-        logger.debug("Getting object from OX failed: %s", exc)
         if str(exc).startswith(
             "com.openexchange.admin.rmi.exceptions.NoSuchObjectException",
         ):
