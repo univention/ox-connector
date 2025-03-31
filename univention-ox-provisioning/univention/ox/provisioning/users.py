@@ -379,12 +379,14 @@ def modify_user(obj):
                 try:
                     delete_user(deepcopy(obj))
                 except zeep.exceptions.Fault as exc:
-                    logger.warning("Encountered an error while trying to clean up the user in the old context. Exception: %s", exc)
+                    logger.warning("Cannot remove user in the old context: %s", exc)
+                    raise
             else:
                 try:
                     create_user(obj, user_copy_service=UserCopy().service(old_context), user_id=user_id)
                 except zeep.exceptions.Fault as exc:
-                    logger.warning("Encountered an error while trying to copy the user in the old context. Exception: %s", exc)
+                    logger.warning("Cannot copy user into new context: %s", exc)
+                    raise
                 return delete_user(deepcopy(obj))
         user = user_from_attributes(obj.old_attributes, obj.old_attributes, obj.old_attributes.get("oxDbUsername") or obj.old_attributes.get("username"), user_id)
         user.context_id = new_context

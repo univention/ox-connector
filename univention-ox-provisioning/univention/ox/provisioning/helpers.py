@@ -47,7 +47,7 @@ def get_obj_by_name_from_ox(klass, context_id, name):
     try:
         return klass.from_ox(context_id, name=name)
     except Fault as exc:
-        logger.debug("Getting a user from ox failed: %s", exc)
+        logger.debug("Getting object from OX failed: %s", exc)
         if str(exc).startswith(
             "com.openexchange.admin.rmi.exceptions.NoSuchObjectException",
         ):
