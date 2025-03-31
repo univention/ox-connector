@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.19.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.18.1...v0.19.0) (2025-03-31)
+
+
+### Features
+
+* OX-Connector 2.3.0 ([415ea8b](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/415ea8b426a8817018039668d6cef6ce0a18aaed)), closes [univention#891](https://git.knut.univention.de/univention/univention/issues/891) [#58059](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/58059) [univention/prof-services/team-enterprise/zit-sh#72](https://git.knut.univention.de/univention/prof-services/team-enterprise/zit-sh/issues/72) [univention/prof-services/team-enterprise/zit-sh#69](https://git.knut.univention.de/univention/prof-services/team-enterprise/zit-sh/issues/69)
+
+
+### Bug Fixes
+
+* do not log all error cases ([658dcb8](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/658dcb87b5f65cb1e6bad30b177b7ac87dcfeb7a)), closes [univention/open-xchange/provisioning#109](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/109)
+* improve log messages ([d6a708e](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/d6a708e9de2f7357ec36c36c874335a44b3c548e)), closes [univention/open-xchange/provisioning#109](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/109)
+
 ## [0.18.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.18.0...v0.18.1) (2025-03-28)
 
 
