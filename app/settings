@@ -97,3 +97,12 @@ Show = Install, Settings
 Type = Bool
 Required = False
 InitialValue = False
+
+[OX_CONNECTOR_LOG_LEVEL]
+Type = List
+Required = True
+Description = Ox-connector log level
+Show = Install, Settings
+Values = DEBUG, ERROR, INFO, CRITICAL, WARNING
+Labels = DEBUG, ERROR, INFO, CRITICAL, WARNING
+InitialValue = INFO

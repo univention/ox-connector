@@ -50,14 +50,15 @@ DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
 NEW_FILES_DIR = DATA_DIR / "listener"
 OLD_FILES_DIR = NEW_FILES_DIR / "old"
 
+log_level = os.getenv("OX_CONNECTOR_LOG_LEVEL", "INFO")
 logger = logging.getLogger("univention.ox")
-logger.setLevel(logging.INFO)
+logger.setLevel(log_level)
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(name)s: %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger = logging.getLogger("listener")
-logger.setLevel(logging.INFO)
+logger.setLevel(log_level)
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(message)s")
 handler.setFormatter(formatter)

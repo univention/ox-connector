@@ -28,6 +28,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
+import os
 import logging
 from copy import deepcopy
 from pathlib import Path
@@ -70,7 +71,9 @@ from univention.ox.provisioning.users import (
 )
 from univention.ox.soap.config import NoContextAdminPassword
 
+
 logger = logging.getLogger("listener")
+logging.getLogger('zeep.transports').setLevel(os.getenv("OX_CONNECTOR_LOG_LEVEL", "INFO"))
 TEST_LOG_FILE = Path("/tmp/test.log")
 
 

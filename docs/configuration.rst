@@ -306,6 +306,23 @@ App Settings
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
          to be resolved manually by simply setting a valid value.
 
+.. envvar:: OX_CONNECTOR_LOG_LEVEL
+
+   Defines the log level for the ox-connector app. If this app setting is not set the :program:`OX Connector`
+   will use ``INFO`` by default.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - String
+        - ``INFO``
+
 .. envvar:: OX_ENABLE_DEPUTY_PERMISSIONS
 
    Enables the provisioning of OX deputy permissions.

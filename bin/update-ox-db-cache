@@ -30,6 +30,7 @@
 
 
 import json
+import os
 import logging
 import sys
 from argparse import ArgumentParser
@@ -39,14 +40,15 @@ from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.soap.config import NoContextAdminPassword
 from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 
+log_level = os.getenv("OX_CONNECTOR_LOG_LEVEL", "INFO")
 logger = logging.getLogger("univention.ox")
-logger.setLevel(logging.INFO)
+logger.setLevel(log_level)
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(name)s: %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger = logging.getLogger("listener")
-logger.setLevel(logging.INFO)
+logger.setLevel(log_level)
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(message)s")
 handler.setFormatter(formatter)

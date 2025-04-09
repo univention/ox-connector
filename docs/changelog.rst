@@ -12,6 +12,29 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v2.3.1:
+
+v2.3.1
+======
+
+Released:
+
+Added
+-----
+
+The administrator can now specify a log level for the ox-connector, see :ref:`settings`.
+
+Changed
+-------
+
+The app setting :envvar:`OX_CONNECTOR_LOG_LEVEL` is used to specify the log level of the ox-connector.
+
+Fixed
+-----
+
+
+
+
 .. _app-changelog-v2.3.0:
 
 v2.3.0
