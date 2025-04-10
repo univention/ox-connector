@@ -1,10 +1,6 @@
----
-
 dependencies:
-- name: "common"
-  repository: "oci://gitregistry.knut.univention.de/univention/customers/dataport/upx/common-helm/helm"
-  version: "0.1.0"
-digest: "sha256:723074f4352fe6d95bed50ab50403b222fb12bc01ea3bd4cc40043c2486d7fdf"
-generated: "2023-07-04T11:38:49.111692029+02:00"
-
-...
+- name: nubus-common
+  repository: oci://artifacts.software-univention.de/nubus/charts
+  version: 0.12.1
+digest: sha256:0450aa32db5a52241c4200be66a7a507012cb63b39fab2a1e2e19bc8378c58f5
+generated: "2025-04-10T09:55:01.093536322+02:00"

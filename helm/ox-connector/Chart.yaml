@@ -17,8 +17,8 @@ version: "0.2.0"
 appVersion: "1.0.0"
 
 dependencies:
-  - name: "common"
-    repository: "oci://gitregistry.knut.univention.de/univention/customers/dataport/upx/common-helm/helm"
-    version: "^0.1.0"
+  - name: "nubus-common"
+    repository: "oci://artifacts.software-univention.de/nubus/charts"
+    version: "^0.12.x"
 
 ...
