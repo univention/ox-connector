@@ -13,6 +13,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: 50_ox.py:33
+msgid "Context must be numeric!"
+msgstr "Kontext muss numerisch sein!"
+
 #: 50_ox.py:412
 msgid "No permission"
 msgstr "Keine Berechtigung"

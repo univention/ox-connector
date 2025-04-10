@@ -32,7 +32,7 @@ The app setting :envvar:`OX_CONNECTOR_LOG_LEVEL` is used to specify the log leve
 Fixed
 -----
 
-
+The syntax for the `oxContext` attribute has been changed from string to integer.
 
 
 .. _app-changelog-v2.3.0:

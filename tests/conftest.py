@@ -68,7 +68,7 @@ def _new_id(cache):
     )
     value += 1
     cache.set("newobjects/id", value)
-    return str(value)
+    return value
 
 
 @pytest.fixture
@@ -119,7 +119,7 @@ def new_functional_account_name(cache):
 
 @pytest.fixture
 def default_ox_context():
-    return os.environ["DEFAULT_CONTEXT"]
+    return int(os.environ["DEFAULT_CONTEXT"])
 
 
 @pytest.fixture

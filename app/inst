@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=16
+VERSION=17
 APP_ID="ox-connector"
 SERVICE='ox'
 

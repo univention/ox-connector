@@ -2,15 +2,13 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 
-import univention.debug as ud
 from univention.admin.syntax import (
     UDM_Objects,
     select,
-    string,
-    complex,
     boolean,
 )
 import univention.admin.localization
+import univention.admin.types
 
 translation = univention.admin.localization.translation(
     "univention.admin.syntax.50_ox"
@@ -19,10 +17,21 @@ _ = translation.translate
 
 
 class oxContextSelect(UDM_Objects):
+    type_class = univention.admin.types.IntegerType
     udm_modules = ('oxmail/oxcontext',)
     label = '%(name)s'
     key = '%(contextid)s'
     regex = None
+
+    @classmethod
+    def parse(cls, text):
+        if isinstance(text, int):
+            text = str(text)
+        try:
+            return str(int(text))
+        except ValueError:
+            raise univention.admin.uexceptions.valueError(_("Context must be numeric!"))
+        # return super(oxContextSelect, cls).parse(text)  # FIXME: in UCS 5.0 raises exception, resolved in UCS 5.2
 
 
 class oxaccess(UDM_Objects):
@@ -357,15 +366,15 @@ class oxDeputyPermission(select):
     name = 'oxDeputyPermission'
     size = 'One'
     # syntax: admin|fp|rp|wp|dp
-    ## admin: 0|1
-    ## folderPermission: 2
-    ## readPermission: 4
-    ## writepPermission: 0
-    ## deletePermission: 0
-    ## OX supports only sets of:
-    ### - Viewer: 02400
-    ### - Editor: 02440
-    ### - Author: 08444
+    # admin: 0|1
+    # folderPermission: 2
+    # readPermission: 4
+    # writepPermission: 0
+    # deletePermission: 0
+    # OX supports only sets of:
+    # - Viewer: 02400
+    # - Editor: 02440
+    # - Author: 08444
 
     choices = [
         ('00000', _('No permission')),
@@ -385,7 +394,7 @@ class fullWidthUserName(UDM_Objects):
 
 
 class oxDeputyPermissionUserMapping(complex):
-    '''Syntax for mapping username <-> oxDeputy'''
+    """Syntax for mapping username <-> oxDeputy"""
 
     delimiter = ' |:$:| '
     subsyntaxes = [

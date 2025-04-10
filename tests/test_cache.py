@@ -125,7 +125,6 @@ def test_change_context(
     assert new_db_id is not None
     assert db_id != new_db_id
 
-
 def test_remove_user(
     create_ox_user, create_ox_context, udm, wait_for_listener,
 ):
@@ -133,7 +132,7 @@ def test_remove_user(
     Test a new user. Should find a DB ID in cache
     """
     new_context_id = create_ox_context()
-    dn = create_ox_user(new_context_id).dn
+    dn = create_ox_user(context_id=new_context_id).dn
     udm.modify(
         "users/user",
         dn,

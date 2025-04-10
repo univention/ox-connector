@@ -225,7 +225,6 @@ Please copy this block to your release issue:
   - [ ] remove `-dev` from the `DockerImage` in app/ini
   - [ ] check that all appcenter versions strings have been updated (e.g. [.gitlab-ci.yml](.gitlab-ci.yml))
   - [ ] Add an appropriate changelog entry to [docs/changelog.rst](docs/changelog.rst) and follow the recommendation at https://keepachangelog.com/en/1.0.0/.
-  - [ ] update CHANGELOG.md in root directory
   - [ ] apply merge request
 - [ ] update the app in the test appcenter with `push_config_to_appcenter` (uploads app/ini etc to test appcenter)
 - [ ] Run `upload-docker-image` in the pipeline for the main branch, make sure `docker-upload.software-univention.de/ox-connector:APP_VERSION` exists on the docker registry
