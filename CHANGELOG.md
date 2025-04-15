@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.19.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.19.0...v0.19.1) (2025-04-15)
+
+
+### Bug Fixes
+
+* Add configurable log level ([1ad1020](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/1ad10209ce8bdc157875e5b8342e0821bd8ed7fb))
+* change DockerImage to oficial ([926c93e](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/926c93e16ba341c6c12d5ee9172ed70dc1a25fda)), closes [#58187](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/58187) [univention/open-xchange/provisioning#122](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/122)
+* Revert changes oxContextSelect syntax and adjust test. ([4dbcf0f](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/4dbcf0f393b9c3aa1f9ebb23167c730cbbac7521)), closes [#58187](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/58187) [univention/open-xchange/provisioning#122](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/122)
+
 ## [0.19.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.18.1...v0.19.0) (2025-03-31)
 
 
