@@ -105,6 +105,7 @@ html_theme_options = {
     "typesense_document": doc_base,
     "typesense_document_version": release,
     "univention_matomo_tracking": True,
+    "univention_docs_deployment": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
