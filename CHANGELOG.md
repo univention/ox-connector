@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.19.1...v0.20.0) (2025-04-22)
+
+
+### Features
+
+* **docs:** Add navigation header and footer to docs ([7bb7557](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/7bb75575321d5a1665e4a350bd170a3be2247dfd)), closes [#124](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/124)
+
 ## [0.19.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.19.0...v0.19.1) (2025-04-15)
 
 
