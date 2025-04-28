@@ -85,8 +85,8 @@ image:
   waitForDependency:
     registry: "artifacts.software-univention.de"
     imagePullPolicy: "IfNotPresent"
-    repository: "nubus/images/wait-for-dependency"
-    tag: "0.26.0"
+    repository: "nubus-dev/images/wait-for-dependency"
+    tag: "0.30.0-pre-jtorres-521-upgrade"
 
 ## Container deployment probes
 probes:

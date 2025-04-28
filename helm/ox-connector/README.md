@@ -10,7 +10,7 @@ A Helm chart for the ox-connector
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://gitregistry.knut.univention.de/univention/customers/dataport/upx/common-helm/helm | common | ^0.1.0 |
+| oci://artifacts.software-univention.de/nubus/charts | nubus-common | ^0.12.x |
 
 ## Values
 
@@ -32,8 +32,8 @@ A Helm chart for the ox-connector
 | image.tag | string | `"latest"` |  |
 | image.waitForDependency.imagePullPolicy | string | `"IfNotPresent"` |  |
 | image.waitForDependency.registry | string | `"artifacts.software-univention.de"` |  |
-| image.waitForDependency.repository | string | `"nubus/images/wait-for-dependency"` |  |
-| image.waitForDependency.tag | string | `"0.26.0"` |  |
+| image.waitForDependency.repository | string | `"nubus-dev/images/wait-for-dependency"` |  |
+| image.waitForDependency.tag | string | `"0.30.0-pre-jtorres-521-upgrade"` |  |
 | ingress | object | `{"enabled":false}` | Kubernetes ingress |
 | ingress.enabled | bool | `false` | Set this to `true` in order to enable the installation on Ingress related objects. |
 | nameOverride | string | `""` |  |
