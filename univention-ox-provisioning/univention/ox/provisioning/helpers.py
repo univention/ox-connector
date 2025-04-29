@@ -40,10 +40,12 @@ class SkipContextAdmin(Skip):
     pass
 
 
-def get_obj_by_name_from_ox(klass, context_id, name):
+def get_obj_by_name_from_ox(klass, context_id, name, raise_exception_on_zeep_exceptions_Fault=False):
     try:
         return klass.from_ox(context_id, name=name)
     except Fault as exc:
+        if raise_exception_on_zeep_exceptions_Fault:
+            raise
         if str(exc).startswith(
             "com.openexchange.admin.rmi.exceptions.NoSuchObjectException",
         ):

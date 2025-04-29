@@ -348,9 +348,10 @@ def create_user(obj, user_copy_service=None, user_id=None):
                 user.context_id,
                 obj.old_attributes.get("oxDbUsername")
                 or obj.old_attributes.get("username"),
+                raise_exception_on_zeep_exceptions_Fault=bool(user_copy_service),
             )
         except zeep.exceptions.Fault as exc:
-            logger.error("Failed to query the old user from OX before moving it: %s", exc)
+            logger.error("Failed to query user from OX after UserCopy before updating the copy: %s", exc)
             raise
         update_user(user, obj.attributes, obj.old_attributes, get_user_username(obj))
         user.modify()
@@ -438,7 +439,7 @@ def modify_user(obj):
                         user_id=user_id,
                     )
                 except zeep.exceptions.Fault as exc:
-                    logger.warning("Cannot copy user into new context: %s", exc)
+                    logger.warning("Exception after copying user into new context: %s", exc)
                     raise
                 return delete_user(deepcopy(obj))
         user = user_from_attributes(
