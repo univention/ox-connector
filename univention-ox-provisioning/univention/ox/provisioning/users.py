@@ -35,6 +35,7 @@ from copy import deepcopy
 from urllib.parse import urlparse
 import imghdr
 import base64
+from time import sleep
 
 import zeep.exceptions
 from univention.ox.provisioning.deputy_permissions import (
@@ -342,17 +343,23 @@ def create_user(obj, user_copy_service=None, user_id=None):
         # Bug #56525 When changing the context and the username, the old
         # username is needed for the object search in the database because
         # the object hasn't been modified yet.
-        try:
-            user = get_obj_by_name_from_ox(
-                User,
-                user.context_id,
-                obj.old_attributes.get("oxDbUsername")
-                or obj.old_attributes.get("username"),
-                raise_exception_on_zeep_exceptions_Fault=bool(user_copy_service),
-            )
-        except zeep.exceptions.Fault as exc:
-            logger.error("Failed to query user from OX after UserCopy before updating the copy: %s", exc)
-            raise
+        max_attempts = 5
+        for i in range(1, max_attempts + 1):
+            sleep(i)  # UserCopy apparently takes longer than the request itself
+            try:
+                user = get_obj_by_name_from_ox(
+                    User,
+                    user.context_id,
+                    obj.old_attributes.get("oxDbUsername")
+                    or obj.old_attributes.get("username"),
+                    raise_exception_on_zeep_exceptions_Fault=bool(user_copy_service),
+                )
+            except zeep.exceptions.Fault as exc:
+                logger.error("Failed to query user from OX after UserCopy before updating the copy: %s", exc)
+                if i == max_attempts:
+                    raise
+            else:
+                break
         update_user(user, obj.attributes, obj.old_attributes, get_user_username(obj))
         user.modify()
     obj.set_attr("oxDbId", user.id)
