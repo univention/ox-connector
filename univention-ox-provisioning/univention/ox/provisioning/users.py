@@ -284,24 +284,25 @@ def set_user_rights(user, obj):
 
 
 def get_user_id(attributes, lookup_ox=True):
-    if attributes.get("oxDbId"):
-        return attributes["oxDbId"]
-    if not lookup_ox:
-        return
     context_id = get_context_id(attributes)
     username = attributes.get("username")
     if username == get_context_admin_user(context_id):
         raise Skip(
             f"Not touching {username} in context {context_id}: Is context admin!",
         )
+    if attributes.get("oxDbId"):
+        return attributes["oxDbId"]
+    if not lookup_ox:
+        return None
     logger.info(f"Searching for {username} in context {context_id}")
     if not User.service(context_id).exists(
         User.service(context_id).Type(id=None, name=username)
     ):
-        return
+        return None
     user = get_obj_by_name_from_ox(User, context_id, username)
     if user:
         return user.id
+    return None
 
 
 def create_user(obj, user_copy_service=None, user_id=None):
