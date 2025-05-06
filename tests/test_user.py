@@ -5,6 +5,7 @@ import os
 import random
 import typing
 import uuid
+import subprocess
 
 import pytest
 
@@ -136,6 +137,43 @@ def test_modify_user(
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
     assert obj.sur_name == "Newman"
+
+
+@pytest.mark.parametrize("with_cache_rebuild", [False, True])
+def test_modify_context_admin(
+    with_cache_rebuild,
+    create_ox_context,
+    udm,
+    domainname,
+    wait_for_listener,
+):
+    """
+    Adding/Modifying a user with the same name as an OX context admin
+    is to be ignored as e.g. writing the password hash of the LDAP
+    user into OX will break the authentication from the ox-connector side
+    """
+    new_context_id = create_ox_context()
+    username = "oxadmin-context{}".format(new_context_id)
+    dn = create_obj(udm, username, domainname, new_context_id)
+    wait_for_listener(dn)
+
+    # Deleting and reloading the cache triggered Issue
+    # univention/open-xchange/provisioning#123 specifically
+    if with_cache_rebuild:
+        subprocess.check_call(["update-ox-db-cache", "--delete"])
+        subprocess.check_call(["update-ox-db-cache"])
+
+    surname = "new-lastname"
+    udm.modify(
+        "users/user",
+        dn,
+        {
+            "lastname": surname,
+        },
+    )
+    wait_for_listener(dn)
+    obj = find_obj(new_context_id, username)
+    assert obj.sur_name != surname
 
 
 def no_none():
