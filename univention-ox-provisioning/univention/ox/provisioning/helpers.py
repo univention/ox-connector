@@ -34,7 +34,9 @@ from zeep.exceptions import Fault
 
 class Skip(Exception):
     """Raise anywhere if you want to skip the processing of this object"""
+    pass
 
+class SkipContextAdmin(Skip):
     pass
 
 

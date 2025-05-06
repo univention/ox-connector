@@ -54,7 +54,7 @@ from univention.ox.provisioning.helpers import (
     get_context_id,
     get_obj_by_name_from_ox,
     is_ox_group,
-    is_ox_user,
+    is_ox_user, SkipContextAdmin,
 )
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
@@ -287,7 +287,7 @@ def get_user_id(attributes, lookup_ox=True):
     context_id = get_context_id(attributes)
     username = attributes.get("username")
     if username == get_context_admin_user(context_id):
-        raise Skip(
+        raise SkipContextAdmin(
             f"Not touching {username} in context {context_id}: Is context admin!",
         )
     if attributes.get("oxDbId"):
@@ -319,6 +319,8 @@ def create_user(obj, user_copy_service=None, user_id=None):
                 )
             logger.info(f"{obj} exists. Modifying instead...")
             return modify_user(obj)
+    except SkipContextAdmin:
+        raise
     except Skip:
         logger.warning(
             f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it."
@@ -377,6 +379,8 @@ def modify_user(obj):
         return delete_user(obj)
     try:
         user_id = get_user_id(obj.old_attributes)
+    except SkipContextAdmin:
+        raise
     except Skip:
         logger.warning("Old %s has no context ID. Using new context ID instead...", obj)
         try:
