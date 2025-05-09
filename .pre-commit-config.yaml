@@ -119,7 +119,7 @@ repos:
       - id: "helm-docs-built"
         name: "Helm Docs Built"
 
-  - repo: "https://git.knut.univention.de/univention/dist/pre-commit-hooks/addlicense"
+  - repo: "https://git.knut.univention.de/univention/infrastructure/pre-commit-hooks/addlicense"
     rev: "v1.0.2"
     hooks:
       - id: "addlicense"
