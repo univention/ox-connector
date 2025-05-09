@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.21.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.21.0...v0.21.1) (2025-05-09)
+
+
+### Bug Fixes
+
+* move addlicense pre-commit hook ([edb518f](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/edb518f60e29a8e4f7d590138d4e3201aefa827a))
+* update common-ci to main ([db693c6](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/db693c65737261c8a623992523d099d85f7f819f))
+* update common-ci to v1.40.4 ([27a9538](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/27a95389fabae78870332c38f4b0ac0e979355d8))
+
 ## [0.21.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.20.0...v0.21.0) (2025-04-29)
 
 
