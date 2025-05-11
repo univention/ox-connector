@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.21.1...v0.22.0) (2025-05-11)
+
+
+### Features
+
+* move and upgrade ucs-base-image to 0.17.3-build-2025-05-11 ([4af59d9](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/4af59d96cb0cbf406def3a81db6e99908c8410a1))
+
 ## [0.21.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.21.0...v0.21.1) (2025-05-09)
 
 
