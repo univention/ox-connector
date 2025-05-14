@@ -52,6 +52,13 @@ oxConnector:
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
 
+# Set PVCs size and storage class
+persistence:
+  # -- Specify storageClassName - Leave empty to use the default storage class
+  storageClass: ""
+  # -- Specify PVCs size
+  size: 1Gi
+
 # Configuration for the communication with the provisioning API.
 provisioningApi:
   config:

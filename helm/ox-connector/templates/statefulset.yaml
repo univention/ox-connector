@@ -102,13 +102,19 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 1Gi
+          storage: {{ .Values.persistence.size }}
+      {{- if .Values.persistence.storageClass }}
+      storageClassName: {{ .Values.persistence.storageClass | quote }}
+      {{- end }}
   - metadata:
       name: {{ include "common.names.fullname" . }}-appcenter
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 1Gi
+          storage: {{ .Values.persistence.size }}
+      {{- if .Values.persistence.storageClass }}
+      storageClassName: {{ .Values.persistence.storageClass | quote }}
+      {{- end }}
 
 ...

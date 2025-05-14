@@ -48,6 +48,8 @@ A Helm chart for the ox-connector
 | oxConnector.oxMasterPassword | string | `nil` | OX Admin password |
 | oxConnector.oxSmtpServer | string | `nil` | Default SMTP server for new users (if not set explicitely there) |
 | oxConnector.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
+| persistence.size | string | `"1Gi"` | Specify PVCs size |
+| persistence.storageClass | string | `""` | Specify storageClassName - Leave empty to use the default storage class |
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
 | probes.liveness.exec.command[0] | string | `"/bin/sh"` |  |
