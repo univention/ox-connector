@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025 Univention GmbH
+
+global:
+  extensions:
+    - name: "ox"
+      image:
+        registry: "artifacts.software-univention.de"
+        repository: "nubus/images/ox-extension"
+        tag: "0.22.0"
+        imagePullPolicy: "IfNotPresent"
+
+nubusStackDataUms:
+  templateContext:
+    oxDefaultContext: "<The name of the first and default context in OX App Suite>"
+    oxSystemUserPassword: "<Password for the LDAP search user>"
+    portalOxLinkBase: "<Base URL to your OX App Suite instance>"
