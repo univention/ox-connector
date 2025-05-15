@@ -77,7 +77,7 @@ extensions = [
     "sphinx_inline_tabs",
 ]
 
-bibtex_bibfiles = ["bibliography.bib"]
+bibtex_bibfiles = ["../bibliography.bib"]
 bibtex_encoding = "utf-8"
 bibtex_default_style = "unsrt"
 bibtex_reference_style = "label"
