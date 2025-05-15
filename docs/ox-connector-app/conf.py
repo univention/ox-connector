@@ -13,6 +13,7 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+import os
 import sys
 
 from datetime import date
@@ -38,7 +39,7 @@ def read_version_from_ci() -> str:
 
     import yaml
 
-    with open("../.gitlab-ci.yml", "r") as f:
+    with open("../../.gitlab-ci.yml", "r") as f:
         ci = yaml.safe_load(f)
         return ci.get("variables").get("APPCENTER_VERSION")
 
@@ -96,10 +97,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'univention_sphinx_book_theme'
 
-doc_base = 'ox-connector-app'
+# The doc_basename must match the documents root directory name on the public
+# target location. Otherwise the PDF link on the overview page will point to
+# the wrong file.
+doc_base = os.path.basename(os.path.dirname(__file__))
 
 html_theme_options = {
-    "pdf_download_filename": "ox-connector-app.pdf",
+    "pdf_download_filename": f"{doc_base}.pdf",
     "show_source_license": True,
     "typesense_search": True,
     "typesense_document": doc_base,
