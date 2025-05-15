@@ -27,7 +27,6 @@ variables:
   APPCENTER_VERSION: "2.3.2"
 
   # Variables for sphinx-docs
-  DOCS_DIR: "docs"
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: "noninteractive"
   UNIVENTION_BASECONF: "/dev/null"
@@ -96,30 +95,45 @@ container-sign-external:
   parallel:
     matrix: *publish-matrix
 
+generate-docs-pipeline-config:
+  stage: prepare
+  image:
+    name: docker-registry.knut.univention.de/knut/deb-builder
+    entrypoint: [""]
+  script:
+    - >
+      .gitlab-ci/doc-builder
+      --yaml .gitlab-ci/base-doc.yml
+      --out generated-config-doc.yml
+  artifacts:
+    paths:
+    - generated-config-doc.yml
+
 # Uses APPCENTER_VERSION internally
 trigger-docs:
   stage: "build"
-  variables:
-    DOC_TARGET_NAME: "ox-connector-app"
+  needs:
+    - job: generate-docs-pipeline-config
   trigger:
     strategy: "depend"
     include:
-      - local: ".gitlab-ci.docs.yml"
+      - artifact: generated-config-doc.yml
+        job: generate-docs-pipeline-config
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: "never"
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       variables:
         DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
-        DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOCKER_BUILD_VERSION}"
+        DOC_TARGET_VERSION: "${DOCKER_BUILD_VERSION}"
       changes:
-        - "$DOCS_DIR/**/*"
+        - "docs/**/*"
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
         DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
-        DOC_TARGET_PATH: "${DOC_TARGET_NAME}/${DOCKER_BUILD_VERSION}"
+        DOC_TARGET_VERSION: "${DOCKER_BUILD_VERSION}"
       changes:
-        - "$DOCS_DIR/**/*"
+        - "docs/**/*"
       when: "manual"
 
 upload-docker-image:

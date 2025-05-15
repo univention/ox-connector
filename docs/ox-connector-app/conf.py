@@ -41,7 +41,13 @@ def read_version_from_ci() -> str:
 
     with open("../../.gitlab-ci.yml", "r") as f:
         ci = yaml.safe_load(f)
-        return ci.get("variables").get("APPCENTER_VERSION")
+        # Either use the configured environment variable from the pipeline
+        # or extract the value from the pipeline configuration.
+        # This allows to build locally,
+        # but also take the dynamic pipeline settings into account.
+        return os.environ.get(
+            "DOCKER_BUILD_VERSION", ci.get("variables").get("APPCENTER_VERSION")
+        )
 
 
 release = read_version_from_ci()

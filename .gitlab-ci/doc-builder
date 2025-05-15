@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025 Univention GmbH
+
+"""
+Generate Gitlab pipeline to build Nubus documentation.
+
+Author: Philipp Hahn 2024-03-13
+Copied from the Nubus Docs repository by Nico Gulden on 2025-05-15
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+from ruamel.yaml import YAML
+
+
+BASE = Path(__file__).parent  # .gilab-ci/
+ROOT = BASE.parent
+
+
+TARGETS = ["html", "linkcheck", "spelling", "pdf"]
+DEPENDS = {
+    "packaged-integration-ox": {
+        "ox-connector-app",
+    },
+}
+SPECIAL: dict[str, dict[str, object]] = {
+    "ox-connector-app": {
+        "DOC_TARGET_PATH": "$DOC_TARGET_NAME/$DOC_TARGET_VERSION",
+    },
+    # Little version changes expected.
+    # It's enough to use ``latest`` as version.
+    "packaged-integration-ox": {
+        "DOC_TARGET_PATH": "$DOC_TARGET_NAME/latest",
+    },
+}
+
+
+all_paths: list[str] = []
+pipeline: dict[str, object] = {
+    "docs-merge-to-one-artifact": {
+        "extends": ".docs-merge",
+        "rules": [
+            {
+                "if": '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH != "develop"',
+                "changes": all_paths,
+                "when": "manual",
+            },
+            {
+                "if": '$CI_COMMIT_REF_PROTECTED == "false" || $CI_COMMIT_BRANCH == "develop"',
+                "changes": all_paths,
+            },
+        ],
+    },
+    "review": {
+        "stage": "production",
+        "needs": [
+            {"job": "docs-merge-to-one-artifact"},
+        ],
+        "script": [
+            "true",
+        ],
+        "environment": {
+            "name": "review/docs/$CI_COMMIT_REF_NAME",
+            "url": "$DOC_REVIEW_URL",
+        },
+        "rules": [
+            {"changes": all_paths},
+        ],
+    },
+    "docs-create-production-merge-request": {
+        "extends": ".sphinx-docs-merge-request-template",
+        "needs": [
+            {"job": "docs-merge-to-one-artifact"},
+        ],
+        "rules": [
+            {
+                "if": '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH != "develop"',
+                "changes": all_paths,
+            },
+        ],
+    },
+}
+
+
+def main() -> None:
+    args = parse_args()
+
+    yaml = YAML(typ="rt")
+    for head in args.yaml:
+        with head.open() as fd:
+            data = yaml.load(fd)
+        pipeline.update(data)
+
+    add_jobs(pipeline)
+
+    with args.out.open("w") as fd:
+        yaml.dump(pipeline, fd)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--yaml", action="append", type=Path, default=[])
+    parser.add_argument("--out", type=Path, default=ROOT / "generated-config-doc.yml")
+    return parser.parse_args()
+
+
+def job_name(pkg: str, target: str = "") -> str:
+    return f"build {pkg}{f' {target}' if target else ''}"
+
+
+def job_desc(
+    pkg: str,
+    path: Path,
+    extends: str,
+    languages: list[str],
+    depends: set[str],
+) -> dict[str, object]:
+    variables = dict(
+        SPECIAL.get(pkg, {}),
+        DOCS_DIR=path.relative_to(ROOT).as_posix(),
+        DOC_TARGET_NAME=path.name,
+        # For special documents we need to overwrite the default DOC_TARGET_PATH
+        # and pull the value from the SPECIAL dict.
+        DOC_TARGET_PATH=SPECIAL.get(pkg, {}).get("DOC_TARGET_PATH", None)
+        or "$DOC_TARGET_NAME/$DOC_TARGET_VERSION/$language",
+    )
+
+    job: dict[str, object] = {
+        "variables": variables,
+        "extends": extends,
+        "rules": [
+            {
+                "changes": [
+                    job_path(path),
+                ],
+            },
+        ],
+        "parallel": {
+            "matrix": [
+                {"language": languages},
+            ],
+        },
+    }
+    if depends:
+        job["needs"] = [
+            {
+                "job": job_name(dep, "html"),
+                "optional": True,
+            }
+            for dep in depends
+        ]
+
+    return job
+
+
+def job_path(path: Path) -> str:
+    return f"{path.relative_to(ROOT).as_posix()}/**/*"
+
+
+def find_docs() -> dict[Path, list[str]]:
+    result = {}
+    language = "en"
+    for path in ROOT.glob("docs/*/conf.py"):
+        if "nubus-bsi-grundschutz" in str(path.parent):
+            language = "de"
+        result[path.parent] = list(
+            {lang.name for lang in path.parent.glob("locales/*")} | {language},
+        )
+    return dict(sorted(result.items()))
+
+
+def add_jobs(pipeline: dict[str, object]) -> None:
+    docs = find_docs()
+    for path, languages in docs.items():
+        all_paths.append(job_path(path))
+        all_paths.sort()
+        pkg = path.name
+        for target in TARGETS:
+            name = job_name(pkg, target)
+            job = job_desc(
+                pkg, path, f".sphinx-{target}", languages, DEPENDS.get(pkg, set())
+            )
+            pipeline.update({name: job})
+
+
+if __name__ == "__main__":
+    main()
