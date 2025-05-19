@@ -17,10 +17,12 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 v2.3.2
 ======
 
+Released: 19. May 2025
+
 Fixed
 -----
 
-When a user with the same name as a context admin was changed via UDM or UMC, 
+When a user with the same name as a context admin was changed via UDM or UMC,
 there was an edge case which could lead to the OX connector changing an OX context admin in the OX database.
 This could lead to authorization issues for OX context admins and hence to synchronization issues for the OX connector.
 
