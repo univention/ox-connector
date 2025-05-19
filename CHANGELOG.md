@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.22.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.22.0...v0.22.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* Move context admin check to prevent change ([e96a15e](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/e96a15eb16bb12042ec7adfe9daac8486b41f261)), closes [#51517](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/51517) [univention/open-xchange/provisioning#123](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/123)
+* Print correct log message on context admin skip ([9261d47](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/9261d472c7efb62b234dda36eddcb36743d1b05c)), closes [#51517](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/51517) [univention/open-xchange/provisioning#123](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/123)
+
 ## [0.22.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.21.1...v0.22.0) (2025-05-11)
 
 
