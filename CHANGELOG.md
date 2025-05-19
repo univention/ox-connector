@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.22.1...v0.22.2) (2025-05-19)
+
+
+### Bug Fixes
+
+* **ox-connector:** allow configuration of PVC's size and storage class settings ([c35b1d4](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/c35b1d4c303cf655000932202d04092aac39ef5d)), closes [univention/dev/internal/team-nubus#1144](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1144)
+
 ## [0.22.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.22.0...v0.22.1) (2025-05-19)
 
 
