@@ -67,6 +67,10 @@ intersphinx_mapping = {
         "https://docs.software-univention.de/nubus-kubernetes-customization/latest/en/",
         None,
     ),
+    "uv-ox-connector-app": (
+        "https://docs.software-univention.de/ox-connector-app/latest/",
+        None,
+    ),
 }
 
 bibtex_bibfiles = ["../bibliography.bib"]

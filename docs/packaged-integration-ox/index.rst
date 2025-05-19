@@ -27,6 +27,9 @@ If you want to connect :program:`OX App Suite` to Nubus for Kubernetes
 so that *OX App Suite* uses the user accounts from Nubus,
 then this documentation is for you.
 
+If you want to connect :program:`OX App Suite` with Nubus in the UCS appliance deployment,
+refer to :external+uv-ox-connector-app:ref:`doc-entry`.
+
 .. important::
 
    This documentation describes a **product preview** for packaged integrations in Nubus for Kubernetes.
