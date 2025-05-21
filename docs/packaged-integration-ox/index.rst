@@ -46,16 +46,14 @@ This document assumes that you have knowledge of the following topics:
 
 This document doesn't cover the installation and maintenance of a Kubernetes cluster,
 the installation of Nubus for Kubernetes,
-the installation of *OX App Suite*,
-and the configuration of LDAP for *OX App Suite*.
-However, it provides links to respective documentation
-and value references for the configuration.
+and the installation and configuration of *OX App Suite*.
+However, it provides links to respective documentation.
 
 The document has the following structure:
 
-#. :ref:`install-packaged-integration` provides steps and configuration guidance.
 #. :ref:`install-ox-app-suite` provides links to resources about the installation on Kubernetes.
-#. :ref:`configure-ox-app-suite` provides a configuration reference for LDAP in *OX App Suite*.
+#. :ref:`install-packaged-integration` provides steps and configuration guidance.
+#. :ref:`configure-ox-app-suite` provides links to the documentation of *OX App Suite*.
 
 For further documentation for Univention Nubus for Kubernetes,
 see :external+uv-navigation:ref:`page-nubus`.
