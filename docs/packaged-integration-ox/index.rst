@@ -22,6 +22,10 @@ For more information,
 see :external+uv-nubus-kubernetes-customization:ref:`nubus-packaged-integrations`
 in :cite:t:`uv-nubus-kubernetes-customization`.
 
+Furthermore, the document describes how you install the *OX Consumer*
+for *OX App Suite* to Nubus for Kubernetes.
+The consumer synchronizes user accounts to *OX App Suite*
+
 This document addresses operators who have installed Nubus for Kubernetes.
 If you want to connect :program:`OX App Suite` to Nubus for Kubernetes
 so that *OX App Suite* uses the user accounts from Nubus,
@@ -54,6 +58,7 @@ The document has the following structure:
 #. :ref:`install-ox-app-suite` provides links to resources about the installation on Kubernetes.
 #. :ref:`install-packaged-integration` provides steps and configuration guidance.
 #. :ref:`configure-ox-app-suite` provides links to the documentation of *OX App Suite*.
+#. :ref:`user-provisioning` provides steps and configuration guidance.
 
 For further documentation for Univention Nubus for Kubernetes,
 see :external+uv-navigation:ref:`page-nubus`.

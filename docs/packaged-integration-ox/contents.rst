@@ -15,5 +15,6 @@ OX App Suite packaged integration for Nubus for Kubernetes
    install-ox-app-suite
    install-packaged-integration
    configure-ox-app-suite
+   install-consumer
    changelog
    bibliography

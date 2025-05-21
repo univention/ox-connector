@@ -10,6 +10,18 @@ Install packaged integration
 
 This section describes how an operator installs the packaged integration for *OX App Suite*
 to Nubus for Kubernetes.
+The packaged integration for *OX App Suite* installs the following customizations to Nubus:
+
+* A tile in the Nubus *Portal* that links to the *OX App Suite* instance.
+* Management capability in the *Management UI* for the following objects of *OX App Suite*:
+
+  * Access profile
+  * Functional accounts
+  * OX Context
+  * OX Resources
+  * Select user accounts in Nubus for access to *OX App Suite*
+  * Organize users in groups
+
 For more information about loading packaged integrations,
 see :external+uv-nubus-kubernetes-customization:ref:`nubus-packaged-integrations-load`
 in :cite:t:`uv-nubus-kubernetes-customization`.

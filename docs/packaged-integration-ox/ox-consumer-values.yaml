@@ -1,0 +1,38 @@
+---
+# Configuration for OX CONNECTOR
+oxConnector:
+  # -- OX-Mail-Domain to generate OX-email-addresses
+  domainName: null
+  # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+  oxMasterAdmin: "oxadminmaster"
+  # -- OX Admin password
+  oxMasterPassword: null
+  # -- Default timezone for new users
+  oxLocalTimezone: "Europe/Berlin"
+  # -- Default language for new users
+  oxLanguage: "de_DE"
+  # -- Default context for users (has to exist)
+  oxDefaultContext: "10"
+  # -- Default SMTP server for new users (if not set explicitely there)
+  oxSmtpServer: null
+  # -- Default IMAP server for new users (if not set explicitely there)
+  oxImapServer: null
+  # -- The server where Open-Xchange is installed
+  oxSoapServer: null
+  # -- OX Connector log level
+  # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
+  logLevel: "INFO"
+
+# Configuration for the communication with the provisioning API.
+provisioningApi:
+  # -- Connection parameters
+  connection:
+    # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+    baseUrl: ""
+  # -- Authentication parameters
+  auth:
+    # -- The username to authenticate with.
+    username: "ox-consumer"
+    # -- The password to authenticate with.
+    password: ""
+...
