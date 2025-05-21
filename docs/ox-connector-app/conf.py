@@ -53,10 +53,14 @@ def read_version_from_ci() -> str:
 release = read_version_from_ci()
 version = release
 project = "OX Connector app"
-copyright = '{}, Univention GmbH'.format(date.today().year)
-author = 'Univention GmbH'
+author = "Univention GmbH"
+year_range = date.today().year
+start_year = 2021
+if year_range > start_year:
+    year_range = f"{start_year}-{year_range}"
+copyright = f"{year_range}, {author}"
 html_show_copyright = True
-language = 'en'
+language = "en"
 
 html_title = project
 
@@ -89,19 +93,19 @@ copybutton_prompt_is_regexp = True
 copybutton_line_continuation_character = "\\"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'univention_sphinx_book_theme'
+html_theme = "univention_sphinx_book_theme"
 
 # The doc_basename must match the documents root directory name on the public
 # target location. Otherwise the PDF link on the overview page will point to
@@ -127,7 +131,7 @@ git_last_updated_timezone = "Europe/Berlin"
 
 numfig = True
 
-suppress_warnings = ['git.too_shallow']
+suppress_warnings = ["git.too_shallow"]
 
 if "spelling" in sys.argv:
     spelling_lang = "en"
@@ -148,11 +152,10 @@ intersphinx_mapping = {
     "uv-manual": ("https://docs.software-univention.de/manual/5.0/en", None),
 }
 
-latex_engine = 'lualatex'
+latex_engine = "lualatex"
 latex_show_pagerefs = True
 latex_show_urls = "footnote"
-latex_documents = [
-    (root_doc, f'{doc_base}.tex', project, author, "manual", False)]
+latex_documents = [(root_doc, f"{doc_base}.tex", project, author, "manual", False)]
 latex_elements = {
     "papersize": "a4paper",
 }
