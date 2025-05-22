@@ -20,5 +20,9 @@ Kubernetes* documentation.
      - Change
 
    * - 23. May 2025
+     - :ref:`user-provisioning`
+     - Add section about user provisioning with the *OX Consumer*.
+
+   * - 22. May 2025
      - Document
      - Initial release
