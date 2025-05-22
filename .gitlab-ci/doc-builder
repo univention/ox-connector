@@ -34,7 +34,7 @@ SPECIAL: dict[str, dict[str, object]] = {
     # Little version changes expected.
     # It's enough to use ``latest`` as version.
     "packaged-integration-ox": {
-        "DOC_TARGET_PATH": "$DOC_TARGET_NAME/latest",
+        "DOC_TARGET_PATH": "$DOC_TARGET_NAME/latest/$language",
     },
 }
 
@@ -104,7 +104,8 @@ def main() -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--yaml", action="append", type=Path, default=[])
-    parser.add_argument("--out", type=Path, default=ROOT / "generated-config-doc.yml")
+    parser.add_argument("--out", type=Path, default=ROOT /
+                        "generated-config-doc.yml")
     return parser.parse_args()
 
 
@@ -182,7 +183,8 @@ def add_jobs(pipeline: dict[str, object]) -> None:
         for target in TARGETS:
             name = job_name(pkg, target)
             job = job_desc(
-                pkg, path, f".sphinx-{target}", languages, DEPENDS.get(pkg, set())
+                pkg, path, f".sphinx-{target}", languages, DEPENDS.get(
+                    pkg, set())
             )
             pipeline.update({name: job})
 
