@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.23.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.22.2...v0.23.0) (2025-05-22)
+
+
+### Features
+
+* **docs:** Add OX Connector app to bibliography ([b08bada](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/b08bada68ddaaac7e7aff8b90ac7b2517eb0953d)), closes [univention/dev/internal/team-nubus#912](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/912)
+* **packaged-integration-ox:** Add operation manual ([5c81e15](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/5c81e15d902e5b15ad0695e7fb9a183056c72190)), closes [univention/dev/internal/team-nubus#912](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/912)
+* **packaged-integration-ox:** Refer to OX Connector app for UCS appliance ([dd94d4c](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/dd94d4c4426797704fdeca318b7a6efbb620a0ff)), closes [univention/dev/internal/team-nubus#1041](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1041)
+* **packaged-integration-ox:** Refer to OX documentation for configuration ([18370aa](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/18370aa4604ca937487c436478707a151df6269e)), closes [univention/dev/internal/team-nubus#912](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/912)
+
 ## [0.22.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.22.1...v0.22.2) (2025-05-19)
 
 
