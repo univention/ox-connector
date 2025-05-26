@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.23.0...v0.24.0) (2025-05-26)
+
+
+### Features
+
+* **packaged-integration-ox:** Add installation of OX Consumer ([233ee80](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/233ee8052b36fa5532e14db66d5caecaf773ddc7)), closes [univention/dev/docs/nubus-docs#94](https://git.knut.univention.de/univention/dev/docs/nubus-docs/issues/94)
+
 ## [0.23.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.22.2...v0.23.0) (2025-05-22)
 
 
