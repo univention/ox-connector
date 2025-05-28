@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.24.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.24.0...v0.24.1) (2025-05-28)
+
+
+### Bug Fixes
+
+* fix partial revert by `feat: OX-Connector 2.3.0` ([0ccd245](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/0ccd245d82f1f1df1b9ae0646da2385cc325187d)), closes [univention/open-xchange/provisioning#109](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/109)
+* retry after UserCopy if user cannot be found ([5886db9](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/5886db9dd7fec1c4597a841fe4b0e5197a00353a)), closes [univention/open-xchange/provisioning#109](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/109)
+
 ## [0.24.0](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.23.0...v0.24.0) (2025-05-26)
 
 
