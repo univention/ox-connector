@@ -2565,7 +2565,7 @@ module: settings/extended_attribute
 position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
 properties:
   name: oxDeputyPermissionGivenTo
-  default: 1
+  default: null
   module: [users/user]
   ldapMapping: oxDeputyPermissionGivenTo
   objectClass: oxUserObject
