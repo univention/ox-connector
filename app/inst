@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=17
+VERSION=18
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -443,7 +443,7 @@ migrate_user_access_profiles() {
 }
 
 rebuild_key_value_store_if_necessary() {
-  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt "17" ]]; then
+  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt "18" ]]; then
     # https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/-/issues/143 - some leftover keys in the key value store are causing real problems
     mkdir -p "/var/lib/univention-appcenter/apps/ox-connector/data/listener/"
     service univention-appcenter-listener-converter@ox-connector stop
