@@ -37,8 +37,8 @@ from argparse import ArgumentParser
 from datetime import date, datetime
 from pathlib import Path
 
-from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
-from univention.ox.provisioning.key_value_store import KeyValueStore
+from univention.ox.provisioning.helpers import get_obj_by_name_from_ox, normalized_dn
+from univention.ox.provisioning.key_value_store import get_old_db
 from univention.ox.soap.backend_base import get_ox_integration_class
 
 from tests import udm_rest
@@ -62,13 +62,13 @@ UDM_MODULE_TO_OX_SOAP_SERVICE = {
 
 DATA_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data")
 NEW_FILES_DIR = DATA_DIR / "listener"
-OLD_FILES_DIR = NEW_FILES_DIR / "old"
 
-mapping = KeyValueStore(str(NEW_FILES_DIR / "old.db"))
+mapping = get_old_db()
 
 
 def _get_old_object(distinguished_name):
-    path_to_old_user = mapping.get(distinguished_name)
+    correct_dn = normalized_dn(distinguished_name)
+    path_to_old_user = mapping.get(correct_dn)
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user)
@@ -76,7 +76,6 @@ def _get_old_object(distinguished_name):
         return None
     with path_to_old_user.open() as file_handler:
         return json.load(file_handler)
-    return None
 
 def get_old_listener_object(dn):
     """ retrieve an object from the listener/old directory. """

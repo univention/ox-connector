@@ -29,21 +29,24 @@
 # <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
-from pathlib import Path
 
-from univention.ox.provisioning.key_value_store import KeyValueStore
-
-PATH = Path("/var/lib/univention-appcenter/apps/ox-connector/data/")
+from univention.ox.provisioning.key_value_store import get_old_db
+from univention.ox.provisioning.helpers import normalized_dn
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Remove entry from ox db cache")
     parser.add_argument("dn", metavar="LDAP_DN", help="Remove this entry")
     args = parser.parse_args()
     if args.dn:
-        mapping = KeyValueStore(str(PATH / "listener" / "old.db"))
+        mapping = get_old_db()
+        correct_dn = normalized_dn(args.dn)
         if mapping.get(args.dn):
             print(f'Removing {args.dn}')
             mapping.unset(args.dn)
+            mapping.commit()
+        elif mapping.get(correct_dn):
+            print(f'Removing {correct_dn}')
+            mapping.unset(correct_dn)
             mapping.commit()
         else:
             print(f'{args.dn} not found')

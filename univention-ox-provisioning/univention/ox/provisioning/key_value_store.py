@@ -63,10 +63,7 @@ class KeyValueStore(object):
 
     def unset(self, distinguished_name):
         """Remove item from DBM-Database"""
-        if distinguished_name is None:
-            return
-        self.data[distinguished_name] = None
-        self.changes.add(distinguished_name)
+        self.set(distinguished_name, None)
 
     def get(self, key):
         """Read value from DBM-Database"""
@@ -80,3 +77,7 @@ class KeyValueStore(object):
                     data_base[dn] = v
                 elif dn in data_base:
                     del data_base[dn]
+
+
+def get_old_db():
+    return KeyValueStore("/var/lib/univention-appcenter/apps/ox-connector/data/listener/old.db")

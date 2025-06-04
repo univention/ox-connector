@@ -27,10 +27,10 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
+import ldap.dn
 from typing import Dict, Any
 
 from zeep.exceptions import Fault
-
 
 class Skip(Exception):
     """Raise anywhere if you want to skip the processing of this object"""
@@ -88,3 +88,9 @@ def is_ox_group(attr: Dict[str, Any]) -> bool:
 def is_ox_user(attr: Dict[str, Any]) -> bool:
     value = attr.get("isOxUser")
     return value in {"OK", True}
+
+
+def normalized_dn(dn: str) -> str:
+    """Returns the given DN in the format that it should be used (normalized, lowercase)"""
+    if dn:
+        return ldap.dn.dn2str(ldap.dn.str2dn(dn.lower()))

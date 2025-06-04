@@ -34,6 +34,7 @@ RUN apk add --no-cache \
     gcc~=10.3 \
     musl-dev~=1.2 \
     python3-dev~=3.9 \
+    openldap-dev \
     # runtime
     libxml2~=2.9 \
     libxslt~=1.1 \
@@ -52,6 +53,7 @@ RUN apk add --no-cache \
   apk del --no-cache \
     gcc \
     musl-dev \
+    openldap-dev \
     python3-dev && \
   python3 -c "from zeep import Client" && \
   rm -rf /tmp/*
@@ -92,7 +94,6 @@ RUN apk add --no-cache \
   # setup.py will read app version from environment
   export OX_PROVISIONING_VERSION="$version" && \
   pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
-  python3 -c "from univention.ox.provisioning import run" && \
   apk del --no-cache gcc python3-dev musl-dev && \
   rm -rf /tmp/*
 
@@ -131,11 +132,13 @@ RUN apk add --no-cache vim~=8.2
 
 RUN apk add --no-cache \
     py3-multidict~=5.1 \
+    libldap \
     py3-yarl~=1.6 && \
   pip3 install --no-cache-dir --compile \
     udm-rest-client~=1.2 && \
   pip3 install --no-cache-dir --compile --index-url="https://test.pypi.org/simple/" \
     openapi-client-udm-ox~=1.0 && \
+  python3 -c "from univention.ox.provisioning import run" && \
   python3 -c "from udm_rest_client.udm import UDM" && \
   python3 -c "import openapi_client_udm; openapi_client_udm.OxmailOxcontext.dn"
 

@@ -12,6 +12,23 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v2.3.3:
+
+v2.3.3
+======
+
+Released: 
+
+Fixed
+-----
+
+To keep track of certain object states, the App uses an internal key value
+store. The keys used are the distinguished names (DNs) of the LDAP objects.
+These have been stored as provided in the past. From now on, the DNs are
+normalized and lower-cased. Existing keys in that key value store are fixed
+during upgrade. For that, the new command `univention-app shell ox-connector
+rebuild-old.db` has been added.
+
 .. _app-changelog-v2.3.2:
 
 v2.3.2
