@@ -12,12 +12,12 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-.. _app-changelog-v2.3.3:
+.. _app-changelog-v2.3.2:
 
-v2.3.3
+v2.3.2
 ======
 
-Released: 
+Released: 4. June 2025
 
 Fixed
 -----
@@ -29,19 +29,10 @@ normalized and lower-cased. Existing keys in that key value store are fixed
 during upgrade. For that, the new command `univention-app shell ox-connector
 rebuild-old.db` has been added.
 
-.. _app-changelog-v2.3.2:
-
-v2.3.2
-======
-
-Released: 19. May 2025
-
-Fixed
------
-
 When a user with the same name as a context admin was changed via UDM or UMC,
-there was an edge case which could lead to the OX connector changing an OX context admin in the OX database.
-This could lead to authorization issues for OX context admins and hence to synchronization issues for the OX connector.
+there was an edge case which could lead to the OX connector changing an OX
+context admin in the OX database. This could lead to authorization issues for
+OX context admins and hence to synchronization issues for the OX connector.
 
 .. _app-changelog-v2.3.1:
 
