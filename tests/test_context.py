@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
+import pytest
+
 from univention.ox.soap.backend_base import get_ox_integration_class
+from udm_rest import UnprocessableEntity
 
 
-def create_context(udm, ox_host, context_id, max_quota=1000):
+def create_context(udm, ox_host, context_id, name=None, max_quota=1000):
     dn = udm.create(
         "oxmail/oxcontext",
         "cn=open-xchange",
         {
             "oxQuota": max_quota,
             "contextid": int(context_id),
-            "name": "context{}".format(context_id),
+            "name": name or "context{}".format(context_id),
         },
     )
     return dn
@@ -46,7 +49,7 @@ def test_add_context_without_quota(
     """
     Creating a UDM context object should create one in OX
     """
-    dn = create_context(udm, ox_host, new_context_id, None)
+    dn = create_context(udm, ox_host, new_context_id, max_quota=None)
     wait_for_listener(dn)
     Context = get_ox_integration_class("SOAP", "Context")
     cs = Context.list(pattern=new_context_id)
@@ -84,3 +87,15 @@ def test_remove_context(new_context_id, udm, ox_host, wait_for_listener):
     udm.remove("oxmail/oxcontext", dn)
     wait_for_listener(dn)
     assert not context_exists(new_context_id)
+
+
+def test_create_context_with_not_unique_id(new_context_id, udm, ox_host, wait_for_listener):
+    """
+    Creating a context with an already existing context_id should not be allowed
+    """
+    dn = create_context(udm, ox_host, new_context_id)
+    wait_for_listener(dn)
+    assert context_exists(new_context_id)
+
+    with pytest.raises(UnprocessableEntity):
+        create_context(udm, ox_host, new_context_id, name="another_context{}".format(new_context_id))
