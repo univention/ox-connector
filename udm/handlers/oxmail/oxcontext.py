@@ -98,6 +98,15 @@ mapping.register('oxQuota', 'oxQuota', None, univention.admin.mapping.ListToStri
 class object(univention.admin.handlers.simpleLdap):
     module = module
 
+    def _ldap_pre_create(self):
+        super(object, self)._ldap_pre_create()
+
+        # refuse creation of context object if the id is already taken
+        context_filter = ldap.filter.filter_format('contextid=%s', [str(self['contextid'])])
+        searchResult = lookup(None, self.lo, context_filter)
+        if len(searchResult) >= 1:
+            raise univention.admin.uexceptions.valueError(_('The Context ID has already been taken!'))
+
     def _ldap_pre_remove(self):
         super(object, self)._ldap_pre_remove()
 

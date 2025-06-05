@@ -22,6 +22,9 @@ Released: TBD
 Fixed
 -----
 
+UDM now actively prevents to create an OX Context with an ID already taken by
+another context.
+
 .. _app-changelog-v2.3.2:
 
 v2.3.2

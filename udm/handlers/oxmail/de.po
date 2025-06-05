@@ -238,3 +238,7 @@ msgstr "Suchen"
 #: oxmail.py:68
 msgid "Find OX Mail Object(s)"
 msgstr "OX-Mail-Objekt suchen"
+
+#: oxmail.py:108
+msgid "The Context ID has already been taken!"
+msgstr "Die Context-ID ist bereits vergeben!"
