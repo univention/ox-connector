@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.24.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.24.1...v0.24.2) (2025-06-10)
+
+
+### Bug Fixes
+
+* Issue univention/dev/ucs[#2250](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/2250): (Try to) use convertguest=True when creating users ([3483bde](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/3483bdeb34b01ae70b17d0cdf19ddc5b593616c5))
+* Issue univention/dev/ucs[#2250](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/2250): typo ([f049f76](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/f049f76984ac6d8b9aad6b492c8bf09b1552a4cf))
+* univention/dev/internal/dev-issues/dev-incidents[#145](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/145) - ensure uniqueness of contextid in oxmail/oxcontext ([58cbeac](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/58cbeaccbaa8ed7573d3246d6f15ed24df9e7c6e))
+* univention/dev/internal/dev-issues/dev-incidents[#145](https://git.knut.univention.de/univention/open-xchange/provisioning/issues/145) - tests ([5af9354](https://git.knut.univention.de/univention/open-xchange/provisioning/commit/5af935458031e74588aee4465fe0646c22a80f3d))
+
 ## [0.24.1](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.24.0...v0.24.1) (2025-05-28)
 
 
