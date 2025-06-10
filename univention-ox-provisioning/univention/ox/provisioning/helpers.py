@@ -27,10 +27,17 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
+import logging
 import ldap.dn
 from typing import Dict, Any
 
+from univention.ox.soap.services import get_ox_soap_service_class
+
 from zeep.exceptions import Fault
+
+_OX_VERSION = False
+
+logger = logging.getLogger("listener")
 
 class Skip(Exception):
     """Raise anywhere if you want to skip the processing of this object"""
@@ -94,3 +101,21 @@ def normalized_dn(dn: str) -> str:
     """Returns the given DN in the format that it should be used (normalized, lowercase)"""
     if dn:
         return ldap.dn.dn2str(ldap.dn.str2dn(dn.lower()))
+
+
+# def get_ox_version() -> [int]:
+#     """Returns the version of the OX server. Note that
+#     this on itself requires OX 8. Therefore, this function
+#     may return None"""
+#     global _OX_VERSION
+#     if _OX_VERSION is not False:
+#         return _OX_VERSION
+#     UtilService = get_ox_soap_service_class("UtilService")
+#     try:
+#         version = UtilService().get_version()
+#         logger.info("OX Version is: %s", version)
+#         _OX_VERSION = [int(bit) for bit in version.split('.')]  # [8, 37, 69]
+#     except Exception as exc:
+#         _OX_VERSION = None
+#         logger.warning("Cannot determine OX Version. Probably OX 7?")
+#     return _OX_VERSION

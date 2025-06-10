@@ -87,7 +87,7 @@ WS_URLS = {
     ),
     'User': '{}/OXUserService?wsdl'.format(WS_BASE_URL),
     'UserCopy': '{}/OXUserCopyService?wsdl'.format(WS_BASE_URL),
-    'UtilService': 'OXUtilService?swdl'.format(WS_BASE_URL),
+    'UtilService': '{}/OXUtilService?wsdl'.format(WS_BASE_URL),
 }
 __ox_service_registry = dict()
 logger = logging.getLogger(__name__)
@@ -888,7 +888,11 @@ class OXUserService(with_metaclass(OxServiceMetaClass, OxSoapService)):
         Mandatory attributes: name, display_name, password, given_name,
                               sur_name, primaryEmail, email1
         """
-        return self._call_ox('create', usrdata=user)
+        try:
+            return self._call_ox('create', usrdata=user, convertguest=True)
+        except TypeError:
+            # convertguest exists only since ox 8.36.36
+            return self._call_ox('create', usrdata=user)
 
     def create_by_module_access(
         self,
@@ -1271,12 +1275,18 @@ class OXDeputyPermissionsService(
 
 class OXUtilService(with_metaclass(OxServiceMetaClass, OxSoapService)):
 
-    _type_name = 'Util'
+    _type_name = 'UtilService'
+
+    def __init__(self):
+        from .credentials import ClientCredentials
+        cred = ClientCredentials()
+        super(OXUtilService, self).__init__(cred)
+
 
     def get_version(
         self,
     ) -> str:
-        return self._call_ox('getVersion')
+        return self._call_ox('getVersion', ctx=None)
 
 
 ######################################

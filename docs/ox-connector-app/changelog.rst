@@ -17,13 +17,21 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 v2.3.3
 ======
 
-Released: TBD
+Released: 10. June 2025
 
 Fixed
 -----
 
 UDM now actively prevents to create an OX Context with an ID already taken by
 another context.
+
+Creating a new user in OX can now convert an existing OX guest account with the
+same e-mail address. Note that this requires OX 8.36.36, which is currently not
+present in the App Center. Also note that this only works for creating users;
+modifying users (or similar) will not have this feature. If the OX Connector
+cannot send this `convertguest` flag, the old behaviour applies: Guest accounts
+with the same e-mail address as the user being processed will block further
+processing until the error is resolved.
 
 .. _app-changelog-v2.3.2:
 
