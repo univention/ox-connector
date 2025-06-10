@@ -29,7 +29,7 @@ Creating a new user in OX can now convert an existing OX guest account with the
 same e-mail address. Note that this requires OX 8.36.36, which is currently not
 present in the App Center. Also note that this only works for creating users;
 modifying users (or similar) will not have this feature. If the OX Connector
-cannot send this `convertguest` flag, the old behaviour applies: Guest accounts
+cannot send this `convertguest` flag, the old behavior applies: Guest accounts
 with the same e-mail address as the user being processed will block further
 processing until the error is resolved.
 
