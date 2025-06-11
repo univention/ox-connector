@@ -25,6 +25,9 @@ Fixed
 UDM now actively prevents to create an OX Context with an ID already taken by
 another context.
 
+Changed
+-------
+
 Creating a new user in OX can now convert an existing OX guest account with the
 same e-mail address. Note that this requires OX 8.36.36, which is currently not
 present in the App Center. Also note that this only works for creating users;
@@ -54,6 +57,14 @@ When a user with the same name as a context admin was changed via UDM or UMC,
 there was an edge case which could lead to the OX connector changing an OX
 context admin in the OX database. This could lead to authorization issues for
 OX context admins and hence to synchronization issues for the OX connector.
+
+Changed
+-------
+
+In certain cases, the modification of an OX user was not immediately reflected
+on OX' side, so that the Connector may not get the correct database ID. The App
+now retries in these cases a few times, assuming that the data will eventually
+be retrievable.
 
 .. _app-changelog-v2.3.1:
 
