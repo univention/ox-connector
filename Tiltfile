@@ -6,7 +6,7 @@ Tilt definition file for running OX-Connector-Standalone in an helm environment
 """
 
 DEFAULT_REGISTRY_APPCENTER = (
-    'gitregistry.knut.univention.de/univention/open-xchange/provisioning'
+    'gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector'
 )
 DEFAULT_IMAGE_NAME_APPENTER = 'ox-connector-appcenter'
 DEFAULT_IMAGE_TAG_APPCENTER = '0.0.1-dev-tilt'

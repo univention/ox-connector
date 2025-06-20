@@ -5,13 +5,14 @@
 # Always build this image with `DOCKER_BUILDKIT=1`
 # Without it the wrong .dockerignore file will be used
 
-ARG UCS_BASE_IMAGE_TAG=0.17.3-build-2025-05-11
-ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base-521
+ARG UCS_BASE_IMAGE_TAG=0.18.2-build-2025-06-12
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base-522
 ###############################################################################
 # Reference ox-connector as source for listener_trigger dependencies
 # based on alpine:3.14
 # hadolint ignore=DL3007
-FROM gitregistry.knut.univention.de/univention/open-xchange/provisioning/ox-connector-appcenter:0.17.0 AS ox-connector
+
+FROM artifacts.software-univention.de/nubus/images/ox-connector-appcenter:0.17.0 AS ox-connector
 
 ###############################################################################
 # Reference UCS image as source for python dependencies
@@ -20,35 +21,35 @@ FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS debian-python-deps
 
 RUN \
   DEBIAN_FRONTEND=noninteractive \
-    apt-get --assume-yes --verbose-versions --no-install-recommends install \
-      # libgdbm.so.6 for python dbm.gnu
-      libgdbm6=1.23-3* \
-      # pyasn1.error.PyAsn1Error for ${PYPKG}/ldap/controls/__init__.py
-      python3-pyasn1=0.4.* \
-      # for python3-zeep
-      python3-cached-property=1.5.* \
-      # defusedxml.lxml.fromstring for python3-zeep
-      python3-defusedxml=0.7.* \
-      # for dbm.gnu used by app/listener_trigger
-      python3-gdbm=3.11.* \
-      # for python isodate used by zeep
-      python3-isodate=0.6.* \
-      python3-pyasn1-modules \
-      # dependency lxml.etree of ${PYPKG}/zeep/utils.py
-      python3-lxml=4.9.* \
-      # dependency pytz of ${PYPKG}/zeep/xsd/types/builtins.py
-      python3-tz=2022.7.* \
-      # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
-      python3-zeep=4.2.* \
-      # python3-minimal \
-      # python3.9-minimal
-      # libicui18n.so.72 for python lxml.etree
-      libicu72=72.* \
-      # libxml2.so.2 for python lxml.etree
-      libxml2=2.9.* \
-      # libxslt.so.1 for python lxml.etree and ${PYPKG}/zeep/utils.py
-      libxslt1.1=1.1.* && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+  apt-get --assume-yes --verbose-versions --no-install-recommends install \
+  # libgdbm.so.6 for python dbm.gnu
+  libgdbm6=1.23-3* \
+  # pyasn1.error.PyAsn1Error for ${PYPKG}/ldap/controls/__init__.py
+  python3-pyasn1=0.4.* \
+  # for python3-zeep
+  python3-cached-property=1.5.* \
+  # defusedxml.lxml.fromstring for python3-zeep
+  python3-defusedxml=0.7.* \
+  # for dbm.gnu used by app/listener_trigger
+  python3-gdbm=3.11.* \
+  # for python isodate used by zeep
+  python3-isodate=0.6.* \
+  python3-pyasn1-modules \
+  # dependency lxml.etree of ${PYPKG}/zeep/utils.py
+  python3-lxml=4.9.* \
+  # dependency pytz of ${PYPKG}/zeep/xsd/types/builtins.py
+  python3-tz=2022.7.* \
+  # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
+  python3-zeep=4.2.* \
+  # python3-minimal \
+  # python3.9-minimal
+  # libicui18n.so.72 for python lxml.etree
+  libicu72=72.* \
+  # libxml2.so.2 for python lxml.etree
+  libxml2=2.9.* \
+  # libxslt.so.1 for python lxml.etree and ${PYPKG}/zeep/utils.py
+  libxslt1.1=1.1.* && \
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 ###############################################################################
 # Final debian container near to distroless
@@ -70,25 +71,25 @@ LABEL \
 
 RUN \
   DEBIAN_FRONTEND=noninteractive \
-    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-      # for dbm.gnu used by app/listener_trigger
-      # python3-gdbm
-      ca-certificates=2023* \
-      libpython3.11=3.11.* \
-      libpython3.11-minimal=3.11.* \
-      libpython3.11-stdlib=3.11.* \
-      python3-minimal=3.11.* \
-      python3.11-minimal=3.11.* \
-      jq=1.* \
-      procps=2:4.0.* \
-      python3-pip=23.0.* && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \
-    # Avoid unused dependency on PIL
-    echo "" > "${PYPKG}/PIL.py" && \
-    pip3 install --break-system-packages --no-cache-dir \
-        nubus-provisioning-consumer==0.42.0 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
-        appdirs==1.4.* \
-        platformdirs==2.6.*
+  apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
+  # for dbm.gnu used by app/listener_trigger
+  # python3-gdbm
+  ca-certificates=2023* \
+  libpython3.11=3.11.* \
+  libpython3.11-minimal=3.11.* \
+  libpython3.11-stdlib=3.11.* \
+  python3-minimal=3.11.* \
+  python3.11-minimal=3.11.* \
+  jq=1.* \
+  procps=2:4.0.* \
+  python3-pip=23.0.* && \
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \
+  # Avoid unused dependency on PIL
+  echo "" > "${PYPKG}/PIL.py" && \
+  pip3 install --break-system-packages --no-cache-dir \
+  nubus-provisioning-consumer==0.42.0 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
+  appdirs==1.4.* \
+  platformdirs==2.6.*
 
 # install appcenter listener script to use as package
 COPY app/listener_trigger ${PYPKG}/listener_trigger.py
@@ -222,16 +223,16 @@ COPY --from=ox-connector /usr/lib/python3.9/importlib/ ${PYPKG}/importlib/
 COPY tests /tests
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive \
-    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-      procps \
-      python3-pip && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* && \
-    pip3 install --break-system-packages --no-cache-dir \
-      uritemplate==4.1.1 \
-      iniconfig==2.0.0 \
-      exceptiongroup==1.1.3 \
-      py==1.11.0 \
-      importlib-metadata==6.7.0
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
+  procps \
+  python3-pip && \
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* && \
+  pip3 install --break-system-packages --no-cache-dir \
+  uritemplate==4.1.1 \
+  iniconfig==2.0.0 \
+  exceptiongroup==1.1.3 \
+  py==1.11.0 \
+  importlib-metadata==6.7.0
 
 # [EOF]

@@ -160,7 +160,7 @@ How to build the container.
 #### Pipeline
 
 The pipeline creates images for you MR changes or the main branch on gitlab
-(gitregistry.knut.univention.de/univention/open-xchange/provisioning/ox-connector-appcenter-\*).
+(gitregisgitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-appcenter-\*).
 With the manual pipeline job `upload-docker-image` this image is transferd to
 our external docker registry, as
 `docker-upload.software-univention.de/ox-connector:$APP_VERSION-dev` (MR) or
@@ -173,7 +173,7 @@ can be used to test the new image or to create a test environment.
 #### On a UCS
 
 ```
-GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/open-xchange/provisioning.git
+GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/dev/projects/open-xchange/connector.git
 cd provisioning
 ./build_docker_image
 # creates docker-test-upload.software-univention.de/ox-connector:2.3.0
