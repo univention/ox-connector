@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.24.2...v0.24.3) (2025-06-21)
+
+
+### Bug Fixes
+
+* bump umc-base-image version ([96a0412](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/96a04120df81eda2b7521b9673b2195f3790fab9)), closes [univention/dev/internal/team-nubus#1263](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1263)
+
 ## [0.24.2](https://git.knut.univention.de/univention/open-xchange/provisioning/compare/v0.24.1...v0.24.2) (2025-06-10)
 
 
