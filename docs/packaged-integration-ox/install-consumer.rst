@@ -163,9 +163,8 @@ Install consumer
 To install *OX Consumer* with the configuration in :ref:`user-provisioning-configuration`,
 use the command in :numref:`user-provisioning-helm-listing`.
 For the version of the *OX Consumer*,
-look at
-`project repository <https://github.com/univention/ox-connector/tree/ucs5.0/helm/ox-connector>`_
-for the value in the *Version* badge.
+look at the
+`tags in project repository <https://github.com/univention/ox-connector/tags>`_.
 
 .. code-block:: console
    :caption: Install the *OX Consumer* through Helm
