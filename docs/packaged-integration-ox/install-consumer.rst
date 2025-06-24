@@ -166,6 +166,14 @@ For the version of the *OX Consumer*,
 look at the
 `tags in project repository <https://github.com/univention/ox-connector/tags>`_.
 
+.. important::
+
+   For :numref:`user-provisioning-helm-listing`,
+   select a different value for ``RELEASE_NAME``
+   than you did for your Nubus for Kubernetes installation.
+   Otherwise, Helm deletes your existing Nubus for Kubernetes installation
+   if you install the *OX Consumer* in the same namespace.
+
 .. code-block:: console
    :caption: Install the *OX Consumer* through Helm
    :name: user-provisioning-helm-listing
