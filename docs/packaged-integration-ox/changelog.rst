@@ -19,6 +19,10 @@ Kubernetes* documentation.
      - Section
      - Change
 
+   * - 24. Jun 2025
+     - :ref:`user-provisioning-installation`
+     - Fix listing for installation and adjust reference to available versions.
+
    * - 23. May 2025
      - :ref:`user-provisioning`
      - Add section about user provisioning with the *OX Consumer*.
