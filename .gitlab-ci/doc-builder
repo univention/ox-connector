@@ -166,8 +166,6 @@ def find_docs() -> dict[Path, list[str]]:
     result = {}
     language = "en"
     for path in ROOT.glob("docs/*/conf.py"):
-        if "nubus-bsi-grundschutz" in str(path.parent):
-            language = "de"
         result[path.parent] = list(
             {lang.name for lang in path.parent.glob("locales/*")} | {language},
         )
