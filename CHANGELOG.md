@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.25.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.24.3...v0.25.0) (2025-06-24)
+
+
+### Features
+
+* **packaged-integration-ox:** Add changelog entry ([0c64198](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/0c64198ee39aed2a912a037d14c8914eac17a9b8)), closes [univention/dev/projects/open-xchange/connector#131](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/131)
+* **packaged-integration-ox:** Note about RELEASE_NAME != Nubus release name ([20e864c](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/20e864c97c43705c4a855c12b7e86889a29df220)), closes [univention/dev/projects/open-xchange/connector#131](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/131)
+
+
+### Bug Fixes
+
+* **packaged-integration-ox:** Add --install to helm command ([cd01ae0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/cd01ae02358df7ef0384e2c534352c7bfe71945b)), closes [univention/dev/projects/open-xchange/connector#131](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/131)
+* **packaged-integration-ox:** Reference to version information ([38306d1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/38306d1d8dfafbe7cbfc63e6e27e1802d35eee31)), closes [univention/dev/projects/open-xchange/connector#131](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/131)
+
 ## [0.24.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.24.2...v0.24.3) (2025-06-21)
 
 
