@@ -178,6 +178,7 @@ for the value in the *Version* badge.
    $ helm upgrade \
       "$RELEASE_NAME" \
       --namespace "$NAMESPACE_FOR_CONSUMER" \
+      --install \
       oci://artifacts.software-univention.de/nubus/charts/ox-connector \
       --values ox-consumer-values.yaml \
       --version "$VERSION"
