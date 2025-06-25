@@ -17,8 +17,8 @@ version: "0.2.0"
 appVersion: "1.0.0"
 
 dependencies:
-  - name: "nubus-common"
+  - name: "common"
     repository: "oci://artifacts.software-univention.de/nubus/charts"
-    version: "^0.12.x"
+    version: "^0.21.x"
 
 ...
