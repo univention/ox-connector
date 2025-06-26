@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.25.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.25.0...v0.25.1) (2025-06-26)
+
+
+### Bug Fixes
+
+* dependency name change from nubus-common to common ([acf3c9c](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/acf3c9c92da1ac59138ec26cddc4bb48f1ddcaf0))
+
 ## [0.25.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.24.3...v0.25.0) (2025-06-24)
 
 
