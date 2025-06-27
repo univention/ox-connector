@@ -4,7 +4,7 @@
 ---
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
-    ref: "v1.43.0"
+    ref: "v1.43.3"
     file:
       - "defaults/stages.yaml"
       - "defaults/nubus-workflow.yaml"
@@ -14,6 +14,7 @@ include:
       - "jobs/container-build-external.yaml"
       - "jobs/package-and-publish-helm-charts-external.yaml"
       - "jobs/check-debian-updates.yaml"
+      - "templates/sonarqube.yaml"
 
 workflow:
   rules:
@@ -163,4 +164,9 @@ check-debian-updates:
     matrix: *publish-matrix
   variables:
     TARGET_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone:latest"
+
+sonarqube:
+  extends: .sonarqube
+  needs: []
+
 ...
