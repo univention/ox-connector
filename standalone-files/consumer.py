@@ -116,6 +116,18 @@ class OXConsumer:
             await message_handler(client, [self.handle_message]).run()
 
     async def handle_message(self, message: ProvisioningMessage):
+        """
+        The MessageHandler calls this method for every provisioning message that the consumer receives.
+        If this method returns, the message will be acknowledged and this function will be called with the next message.
+        If this method throws an exception, the message won't be acknowledged and the same message will be redelivered.
+
+        Exceptions are not caught by the MessageHandler; they are re-raised instead.
+        This stops the process, and the consumer relies on the platform (Kubernetes, Docker) to restart it.
+        This allows the consumer to restart with a clean state and re-establish its network connections.
+        It also clearly communicates the failure to the Administrator.
+        """
+        global ox_contexts, ox_db_id, usernames
+
         topic = message.topic
         if topic not in self.topics:
             logger.warning(
@@ -142,6 +154,11 @@ class OXConsumer:
             self.remove(old_obj, old_obj.get("dn"))
         else:
             self.create(new_obj, new_obj.get("dn"))
+
+        # Commit database changes after handling the message.
+        ox_contexts.commit()
+        ox_db_id.commit()
+        usernames.commit()
 
     def create(self, new: Dict[str, Any], dn: str) -> None:
         t0 = time.perf_counter()
