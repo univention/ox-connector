@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2023 Univention GmbH
+# SPDX-FileCopyrightText: 2023 - 2025 Univention GmbH
 
 ---
-
 apiVersion: "v2"
 type: "application"
 name: "ox-connector"
@@ -17,8 +16,7 @@ version: "0.2.0"
 appVersion: "1.0.0"
 
 dependencies:
-  - name: "common"
+  - name: "nubus-common"
+    version: "^0.22.x"
     repository: "oci://artifacts.software-univention.de/nubus/charts"
-    version: "^0.21.x"
-
 ...
