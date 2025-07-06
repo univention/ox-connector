@@ -2578,17 +2578,17 @@ properties:
   tabName: OX App Suite
   translationTabName:
     de_DE: OX App Suite
-  overwriteTab:
+  overwriteTab: null
   valueRequired: false
-  CLIName: oxDeputyPermissionGiventTo
+  CLIName: oxDeputyPermissionGivenTo
   syntax: oxDeputyPermissionUserMapping
-  tabAdvanced:
+  tabAdvanced: null
   mayChange: true
   multivalue: true
-  deleteObjectClass: false
+  deleteObjectClass: true
   tabPosition: 0
-  overwritePosition:
-  doNotSearch: false
+  overwritePosition: null
+  doNotSearch: true
   hook: oxDeputyPermissionHook
   disableUDMWeb: false
   notEditable: false
