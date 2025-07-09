@@ -140,17 +140,6 @@ class object(univention.admin.handlers.simpleLdap):
             ud.debug(ud.ADMIN, ud.INFO, "Removing oxResourceMailAddress %s from %s" % (self.oldinfo.get('resourceMailAddress'), userDn))
             self.lo.modify(userDn, [('oxResourceMailAddress', [self.oldinfo.get('resourceMailAddress').encode('utf-8')], [])])
 
-    def _ldap_addlist(self):
-        # try to allocate unique mail address for the new resource
-        try:
-            self.alloc.append(('mailPrimaryAddress', self['resourceMailAddress']))
-            univention.admin.allocators.request(self.lo, self.position, 'mailPrimaryAddress', value=self['resourceMailAddress'])
-        except univention.admin.uexceptions.noLock:
-            ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in addlist" % self['resourceMailAddress'])
-            self.cancel()
-            raise univention.admin.uexceptions.mailAddressUsed()
-        return super(object, self)._ldap_addlist()
-
     def _check_mailaddress(self):
         domain = self['resourceMailAddress'].rsplit('@')[-1]
         filter = filter_format('(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,))
@@ -165,27 +154,16 @@ class object(univention.admin.handlers.simpleLdap):
     def _ldap_post_create(self):
         super(object, self)._ldap_post_create()
         self._addMailAddressToResourceAdmin()
-        # confirm allocated resourceMailAddress
-        univention.admin.allocators.confirm(self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
 
-    def _ldap_modlist(self):
-        ml = super(object, self)._ldap_modlist()
-
+    def _ldap_pre_ready(self):
+        super(object, self)._ldap_pre_ready()
         # try to allocate unique mail address for the new resource if adress has been changed by user
-        if self.hasChanged('resourceMailAddress'):
-            for i, _ in self.alloc:
-                if i == 'mailPrimaryAddress':
-                    break
-            else:
-                try:
-                    self.alloc.append(('mailPrimaryAddress', self['resourceMailAddress']))
-                    univention.admin.allocators.request(self.lo, self.position, 'mailPrimaryAddress', value=self['resourceMailAddress'])
-                except univention.admin.uexceptions.noLock:
-                    ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in modlist" % self['resourceMailAddress'])
-                    self.cancel()
-                    raise univention.admin.uexceptions.mailAddressUsed()
-
-        return ml
+        if not self.exists() or self.hasChanged('resourceMailAddress'):
+            try:
+                self.request_lock('mailPrimaryAddress', self['resourceMailAddress'])
+            except univention.admin.uexceptions.noLock:
+                ud.debug(ud.ADMIN, ud.WARN, "Allocation of resourceMailAddress %s failed in modlist" % self['resourceMailAddress'])
+                raise univention.admin.uexceptions.mailAddressUsed()
 
     def _ldap_pre_modify(self):
         super(object, self)._ldap_pre_modify()
@@ -197,12 +175,6 @@ class object(univention.admin.handlers.simpleLdap):
         if self.hasChanged('resourceMailAddress') or self.hasChanged('resourceadmin'):
             self._removeMailAddressesFromResourceAdmins()
             self._addMailAddressToResourceAdmin()
-
-        if self.hasChanged('resourceMailAddress'):
-            if self['resourceMailAddress']:
-                univention.admin.allocators.confirm(self.lo, self.position, 'mailPrimaryAddress', self['resourceMailAddress'])
-            else:
-                univention.admin.allocators.release(self.lo, self.position, 'mailPrimaryAddress', self.oldinfo['resourceMailAddress'])
 
     def _ldap_post_remove(self):
         super(object, self)._ldap_post_remove()
