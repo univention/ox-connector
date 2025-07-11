@@ -78,8 +78,8 @@ WORKDIR /tmp
 # hadolint ignore=SC1091
 RUN apk add --no-cache \
     gcc~=10.3 \
-    python3-dev~=3.9 \
-    musl-dev~=1.2 && \
+    musl-dev~=1.2 \
+    python3-dev~=3.9 && \
   python3 -m venv --system-site-packages /tmp/venv && \
   . /tmp/venv/bin/activate && \
   pip3 install --no-cache-dir --compile --upgrade \
@@ -128,12 +128,11 @@ WORKDIR /oxp
 # A separate stage for tests
 FROM final AS test
 
-RUN apk add --no-cache vim~=8.2
-
 RUN apk add --no-cache \
-    py3-multidict~=5.1 \
     libldap \
-    py3-yarl~=1.6 && \
+    py3-multidict~=5.1 \
+    py3-yarl~=1.6 \
+    vim~=8.2 && \
   pip3 install --no-cache-dir --compile \
     udm-rest-client~=1.2 && \
   pip3 install --no-cache-dir --compile --index-url="https://test.pypi.org/simple/" \
