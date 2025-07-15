@@ -105,7 +105,9 @@ class object(univention.admin.handlers.simpleLdap):
         context_filter = ldap.filter.filter_format('contextid=%s', [str(self['contextid'])])
         searchResult = lookup(None, self.lo, context_filter)
         if len(searchResult) >= 1:
-            raise univention.admin.uexceptions.valueError(_('The Context ID has already been taken!'))
+            # NOTE: Current implementation of N4K8s stack-data loader requires
+            # the error returned to contain the string `"dn" Object exists`.
+            raise univention.admin.uexceptions.valueError(_('"dn" Object exists: The Context ID has already been taken!'))
 
     def _ldap_pre_remove(self):
         super(object, self)._ldap_pre_remove()
