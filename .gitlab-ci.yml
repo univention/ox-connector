@@ -39,10 +39,10 @@ variables:
     KANIKO_ARGS: "--build-arg version=${DOCKER_BUILD_VERSION}"
   - IMAGE_NAME: "ox-connector-standalone"
     DOCKERFILE_PATH: "Dockerfile.standalone"
-    KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION}"
+    KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
   - IMAGE_NAME: "ox-connector-standalone-test"
     DOCKERFILE_PATH: "Dockerfile.standalone"
-    KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION}"
+    KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
   - IMAGE_NAME: "ox-extension"
     DOCKERFILE_PATH: "ox-extension/Dockerfile"
   - IMAGE_NAME: "ox-connector-appcenter-test"
@@ -81,11 +81,37 @@ lint-pre-commit:
   rules:
     - when: "never"
 
-container-build:
-  parallel:
-    matrix: *build-matrix
+container-build-appcenter:
+  stage: "build"
+  extends: ".kaniko"
   variables:
     KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+  parallel:
+    matrix:
+      - IMAGE_NAME: "ox-connector-appcenter"
+        DOCKERFILE_PATH: "Dockerfile"
+        KANIKO_ARGS: "--build-arg version=${DOCKER_BUILD_VERSION}"
+      - IMAGE_NAME: "ox-connector-appcenter-test"
+        DOCKERFILE_PATH: "Dockerfile"
+        KANIKO_ARGS: "--target=test --build-arg version=${DOCKER_BUILD_VERSION}"
+  rules: *version-rules
+
+container-build:
+  variables:
+    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+  parallel:
+    matrix:
+      - IMAGE_NAME: "ox-connector-standalone"
+        DOCKERFILE_PATH: "Dockerfile.standalone"
+        KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_BASE_IMAGE_TAG=${RELEASE_VERSION}"
+      - IMAGE_NAME: "ox-connector-standalone-test"
+        DOCKERFILE_PATH: "Dockerfile.standalone"
+        KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_BASE_IMAGE_TAG=${RELEASE_VERSION}"
+      - IMAGE_NAME: "ox-extension"
+        DOCKERFILE_PATH: "ox-extension/Dockerfile"
+  needs:
+    - job: container-build-appcenter
+    - job: pre-semantic-release
   rules: *version-rules
 
 push-image-external:
