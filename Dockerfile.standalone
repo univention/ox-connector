@@ -79,6 +79,8 @@ RUN \
   libpython3.11-minimal=3.11.* \
   libpython3.11-stdlib=3.11.* \
   libpython3.11=3.11.* \
+  # for univention/ox/provisioning/helpers.py
+  python3-ldap \
   procps=2:4.0.* \
   python3-minimal=3.11.* \
   python3-pip=23.0.* \
