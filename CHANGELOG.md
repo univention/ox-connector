@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.26.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.25.1...v0.26.0) (2025-07-17)
+
+
+### Features
+
+* update ucs-base to 5.2.2-build.20250714 ([d33576c](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/d33576cd47669d2e01491b518bc26101064e16d8)), closes [univention/dev/internal/team-nubus#1320](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1320)
+* update wait-for-dependency to 0.35.0 ([618c849](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/618c849eea2698258da4db020d1679afd8182780)), closes [univention/dev/internal/team-nubus#1320](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1320)
+
 ## [0.25.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.25.0...v0.25.1) (2025-06-26)
 
 
