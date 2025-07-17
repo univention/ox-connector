@@ -33,7 +33,7 @@ A Helm chart for the ox-connector
 | image.waitForDependency.imagePullPolicy | string | `"IfNotPresent"` |  |
 | image.waitForDependency.registry | string | `"artifacts.software-univention.de"` |  |
 | image.waitForDependency.repository | string | `"nubus/images/wait-for-dependency"` |  |
-| image.waitForDependency.tag | string | `"0.32.1@sha256:44d45067e1d4e7a00d3b651e56df5177087e3206368a45cd1816d78ba7b21347"` |  |
+| image.waitForDependency.tag | string | `"0.35.0@sha256:61dfaea28a2b150459138dfd6a554ce53850cee05ef2a72ab47bbe23f2a92d0d"` |  |
 | ingress | object | `{"enabled":false}` | Kubernetes ingress |
 | ingress.enabled | bool | `false` | Set this to `true` in order to enable the installation on Ingress related objects. |
 | nameOverride | string | `""` |  |
