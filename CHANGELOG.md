@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.27.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.26.0...v0.27.0) (2025-07-21)
+
+
+### Features
+
+* **udm-oxresources:** use UDMs locking functionaliy ([c8abed9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/c8abed93504d85a40da613b213483f2ed6649f04))
+* Use current latest changes for OX Connector for Nubus4K8s ([9e08e36](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/9e08e367b6e076a176fda93c07b1c67a25d3e34a)), closes [univention/dev/internal/dev-issues/dev-incidents#148](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/148)
+
+
+### Bug Fixes
+
+* New ldap dependency for sanitization in shared codebase ([0b53feb](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/0b53feb9f8272e4a6bc41080ae16bc14be1b3aef)), closes [univention/dev/internal/dev-issues/dev-incidents#148](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/148)
+* **ox-extension:** Compatibility with stack-data data-loader checks for Object exists in message ([f7ed43e](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/f7ed43e20098b5c2b262daafd7ba3c589d166379)), closes [univention/dev/internal/dev-issues/dev-incidents#148](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/148)
+* **ox-extension:** Ensure the oxDeputyPermissionGiventTo extended attribute is the same in UCS and N4K ([1a1aa6b](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/1a1aa6b98ea882b632db98f46ac2102024833e61)), closes [univention/dev/internal/dev-issues/dev-incidents#148](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/148)
+* **ox-extension:** fix standalone exdended_attribute oxDeputyPermissionGiventTo default type ([0a7db17](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/0a7db17836a8f8b9cc19872ff80a28c3212fb1ac)), closes [univention/dev/internal/dev-issues/dev-incidents#148](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/148)
+
 ## [0.26.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.25.1...v0.26.0) (2025-07-17)
 
 
