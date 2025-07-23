@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.0...v0.27.1) (2025-07-23)
+
+
+### Bug Fixes
+
+* **standalone:** Commit the KV databases to the filesystem at the end of every provisioning message ([f57dbb9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/f57dbb94d37c988f4bb23b7b7ef4777aff63610d)), closes [univention/dev/internal/dev-issues/dev-incidents#144](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/144)
+
 ## [0.27.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.26.0...v0.27.0) (2025-07-21)
 
 
