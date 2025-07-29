@@ -10,7 +10,7 @@ A Helm chart for the ox-connector
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://artifacts.software-univention.de/nubus/charts | nubus-common | ^0.22.x |
+| oci://artifacts.software-univention.de/nubus/charts | common | ^0.21.x |
 
 ## Values
 
