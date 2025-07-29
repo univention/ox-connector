@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.1...v0.27.2) (2025-07-29)
+
+
+### Reverts
+
+* chore(helm): Update helm dependencies after the repo move ([23f84af](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/23f84afed77df1e5ab8261769de5824265d85246))
+
 ## [0.27.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.0...v0.27.1) (2025-07-23)
 
 
