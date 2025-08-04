@@ -89,8 +89,12 @@ property_descriptions = {
     'resourceadmin': univention.admin.property(
         short_description=_('Resource manager'),
         long_description=_('User who will manage this resource'),
-        syntax=ldap_search_oxuser,
-        required=True,
+        syntax=univention.admin.syntax.string,
+        required=False,
+        default="Empty",
+        include_in_default_search=False,
+        show_in_lists=False,
+        dontsearch=True,
     ),
     'resourceMailAddress': univention.admin.property(
         short_description=_('Resource e-mail address'),
@@ -105,8 +109,7 @@ layout = [
     Tab(_('General'), _('General settings'), layout=[
         Group(_('General'), layout=[
             ['name', 'displayname'],
-            ['resourceadmin', 'description'],
-            ['resourceMailAddress'],
+            ['resourceMailAddress', 'description'],
         ]),
     ]),
 ]
