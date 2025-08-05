@@ -60,6 +60,7 @@ variables:
   - IMAGE_NAME:
       - "ox-connector-appcenter"
       - "ox-connector-standalone"
+      - "ox-connector-standalone-test"
       - "ox-extension"
 
 container-malware-scan:
