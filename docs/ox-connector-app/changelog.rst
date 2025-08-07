@@ -12,6 +12,21 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v2.3.5:
+
+v2.3.5
+======
+
+Released: 12. August 2025
+
+Removed
+-------
+
+The Resource manager field in the UMC has been removed. Ox resources still have that property
+in UDM, and can be edited or consulted.
+
+There are no functional changes in the application.
+
 .. _app-changelog-v2.3.4:
 
 v2.3.4
