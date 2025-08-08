@@ -41,7 +41,7 @@ Remember to increase the resources of the pod to at least `3Gi` memory. Also, it
 
 1. Grab the credentials for the `Administrator` user by running:
     ```bash
-    kubectl get secret -n "uv-jconde" ums-nubus-credentials -o jsonpath='{.data.administrator_password}' | base64 -d
+    kubectl get secret -n "uv-<your-username>" ums-nubus-credentials -o jsonpath='{.data.administrator_password}' | base64 -d
     ```
     > Remember to drop the `%` at the end, it is not part of the password.
 1. Get a shell in the `ox-connector` pod:
