@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.2...v0.27.3) (2025-08-08)
+
+
+### Bug Fixes
+
+* remove non-functional manager field ([da776d6](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/da776d6f4ec9272176874da18eff7a3f75b7b543)), closes [univention/dev/internal/team-nubus#1064](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1064)
+
 ## [0.27.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.1...v0.27.2) (2025-07-29)
 
 
