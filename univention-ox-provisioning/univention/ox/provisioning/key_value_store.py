@@ -43,7 +43,7 @@ class KeyValueStore(object):
         self.changes = set()
         with self.open() as data_base:
             for k in data_base.keys():
-                self.data[k.decode("UTF-8")] = data_base[k].decode("UTF-8")
+                self.data[k.decode("UTF-8").lower()] = data_base[k].decode("UTF-8")
 
     @contextmanager
     def open(self, flags="cs"):
@@ -55,6 +55,7 @@ class KeyValueStore(object):
         """Write item to DBM-Database"""
         if distinguished_name is None:
             return
+        distinguished_name = distinguished_name.lower()
         if path is None:
             self.data[distinguished_name] = None
         else:
@@ -67,7 +68,7 @@ class KeyValueStore(object):
 
     def get(self, key):
         """Read value from DBM-Database"""
-        return self.data.get(key)
+        return self.data.get(key.lower())
 
     def commit(self):
         with self.open(flags="cs") as data_base:
