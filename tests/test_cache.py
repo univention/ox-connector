@@ -4,10 +4,14 @@
 import dbm.gnu
 import json
 import time
+import os
+import pytest
 from contextlib import contextmanager
 from pathlib import Path
 
+from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.users import User
+from univention.ox.provisioning.groups import Group
 
 
 # copied from app/listener_trigger to test the cache dbs
@@ -19,8 +23,8 @@ class KeyValueStore(object):
         self.db_fname = str(NEW_FILES_DIR / name)
 
     @contextmanager
-    def open(self):
-        with dbm.gnu.open(self.db_fname, "r") as db:
+    def open(self, mode="r"):
+        with dbm.gnu.open(self.db_fname, mode) as db:
             yield db
 
     def get(self, key):
@@ -28,13 +32,24 @@ class KeyValueStore(object):
             return db.get(key)
 
 
-mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
+if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
+    mapping = KeyValueStore("ox_db_id.db")  # stores dn -> path to last json file
+else:
+    mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
+def find_obj(context_id, name, type="user", assert_empty=False, print_obj=True):
+    if type == "user":
+        objs = User.list(context_id, pattern=name)
+    elif type == "group":
+        objs = Group.list(context_id, pattern=name)
+    else:
+        print("Unknown type {type}")
+        assert False
 
-def find_obj(context_id, name, assert_empty=False, print_obj=True):
-    objs = User.list(context_id, pattern=name)
     if assert_empty:
-        assert len(objs) == 0
+        if print_obj:
+            print(f"Not found: {type}, pattern: {name}")
+        assert len(objs) != 0
     else:
         assert len(objs) == 1
         obj = objs[0]
@@ -50,17 +65,24 @@ def get_db_id(dn: str, max_retry: int=5) -> str:
     """
     for i in range(max_retry):
         try:
-            old_file_path = mapping.get(dn)
+            db_entry = mapping.get(dn)
+
         except Exception as e:
             time.sleep(1)
             if i < max_retry - 1: continue
             else: raise e
         break
-    if old_file_path is None:
+    if db_entry is None:
         return None
-    with open(old_file_path) as fd:
-        obj = json.load(fd)
-    return obj["object"].get("oxDbId")
+
+    if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
+        ox_id = int(db_entry.decode('utf-8'))
+    else:
+        with open(db_entry) as fd:
+            obj = json.load(fd)
+        ox_id = int(obj["object"].get("oxDbId"))
+
+    return ox_id
 
 
 def test_ignore_user(create_ox_user):
@@ -73,6 +95,19 @@ def test_ignore_user(create_ox_user):
 
 
 def test_add_user(
+    create_ox_context, create_ox_user, new_user_name
+):
+    """
+    Test a new user. Should find a DB ID in cache
+    """
+    new_context_id = create_ox_context()
+    user = create_ox_user(new_user_name, context_id=new_context_id)
+    obj = find_obj(new_context_id, new_user_name)
+    db_id = get_db_id(user.dn)
+    assert obj.id == db_id
+
+
+def test_rename_user_not_in_cache(
     create_ox_context, create_ox_user, new_user_name
 ):
     """
@@ -102,6 +137,24 @@ def test_rename_user(
     wait_for_listener(dn)
     new_db_id = get_db_id(dn)
     assert db_id == new_db_id
+
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
+def test_create_group_with_user_not_in_cache(
+    create_ox_user, create_ox_group, default_ox_context
+):
+    """
+    Creating a group with a user not in the cache should lazy load it
+    """
+    user = create_ox_user()
+    db_id = get_db_id(user.dn)
+    assert db_id is not None
+
+    print(f'Deleting {user.dn} from cache')
+    with mapping.open(mode="w") as db:
+        del db[user.dn.encode('utf-8')]
+
+    group_dn = create_ox_group("TestGroup01", members=[user.dn])
+    find_obj(default_ox_context, "TestGroup01", type="group", assert_empty=True)
 
 
 def test_change_context(

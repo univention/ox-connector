@@ -74,6 +74,11 @@ Currently known to fail tests are:
 > While they save the dn as key and the path to a file as value, we store
 > the whole object as value. This is why the tests are failing.
 
+The tests can be run with `STANDALONE_KUBERNETES_TESTS=1` to use the correct caching
+but for the `tests/test_cache.py::test_create_group_with_user_not_in_cache` test to succeed
+the `consumer.py` must also be started with `DEBUG_RELOAD_OX_DB_ID=1` to allow manipulating the
+cache from outside.
+
 ### test/test_context ✅
 
 ### test/test_function_account ❌

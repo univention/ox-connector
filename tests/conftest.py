@@ -322,3 +322,31 @@ def create_ox_user(
         return get_udm_user(name)
 
     return _func
+
+
+@pytest.fixture
+def create_ox_group(udm, wait_for_listener, default_ox_context):
+    def _func(
+        name,
+        context_id=default_ox_context,
+        members=None,
+        enabled=True,
+        wait=True,
+    ):
+        dn = udm.create(
+            "groups/group",
+            "cn=groups",
+            {
+                "name": name,
+                "users": members,
+                "isOxGroup": enabled,
+                "oxContext": context_id,
+            },
+        )
+        print(f"Created group {dn} in UDM")
+        if wait:
+            wait_for_listener(dn)
+
+        return dn
+
+    return _func

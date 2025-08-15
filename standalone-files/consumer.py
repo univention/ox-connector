@@ -5,6 +5,7 @@
 import asyncio
 import logging
 import time
+import os
 from importlib.metadata import version
 from typing import Any, Dict
 from pathlib import Path
@@ -21,8 +22,12 @@ from config import (
     OXConsumerSettings,
     get_ox_consumer_settings,
 )
-from listener_trigger import KeyValueStore, TriggerObject
+from listener_trigger import TriggerObject
+
 from univention.ox.provisioning import helpers, run
+from univention.ox.provisioning.contexts import Context
+from univention.ox.provisioning.key_value_store import KeyValueStore
+from univention.ox.provisioning.users import User
 
 LOG_FORMAT = "%(asctime)s %(levelname)-5s [%(module)s.%(funcName)s:%(lineno)d] %(message)s"
 logger = logging.getLogger(__name__)
@@ -61,6 +66,33 @@ def safe_decode(value):
     return value
 
 
+def _search_ox_context_for_user(distinguished_name: str):
+    # The first part of the DN is the user name, extract it and use it to find the user in OX
+    username = None
+    key_value_pairs = distinguished_name.split(',')
+    for key_value_pair in key_value_pairs:
+        key, value = key_value_pair.split('=')
+        if key != "uid":
+            continue
+
+        username = value
+
+    if username is None:
+        return None, None, None
+
+    logger.info(f"Search user {username} in all ox contexts")
+    available_ox_contexts = Context.list()
+    for context in available_ox_contexts:
+        objs = User.list(context.id, pattern=username)
+        if len(objs) != 1:
+          continue
+
+        logger.info(f"Found user: context={context.id}, id={objs[0].id}, username={username}")
+        return context.id, objs[0].id, username
+
+    logger.info(f"User not found in any context")
+    return None, None, None
+
 def _get_existing_object_ox_id(distinguished_name: str):
     """
     Get the object OX ID from the known objects, avoiding the old.db and
@@ -74,9 +106,29 @@ def _get_existing_object_ox_id(distinguished_name: str):
         FakeObject: Object with the `oxContext` in attributes, to avoid
                     loading an object from a JSON file and storing it.
     """
+    global ox_contexts, ox_db_id, usernames
+
+    # Allow manipulating the cache from outside for debugging and testing
+    if os.environ.get("DEBUG_RELOAD_OX_DB_ID"):
+        ox_db_id = KeyValueStore(str(NEW_FILES_DIR / "ox_db_id.db"))
+
     object_ox_id = ox_contexts.get(distinguished_name)
     object_ox_db_id = ox_db_id.get(distinguished_name)
     object_ox_db_uid = usernames.get(distinguished_name)
+
+    if object_ox_db_id is None or object_ox_id is None or object_ox_db_uid is None:
+        logger.info(f"User {distinguished_name} not found in cache, searching it now")
+        object_ox_id, object_ox_db_id, object_ox_db_uid = _search_ox_context_for_user(distinguished_name)
+
+        if object_ox_id is not None and object_ox_db_id is not None and object_ox_db_uid is not None:
+            ox_contexts.set(distinguished_name, object_ox_id)
+            ox_db_id.set(distinguished_name, object_ox_db_id)
+            usernames.set(distinguished_name, object_ox_db_uid)
+
+            ox_contexts.commit()
+            ox_db_id.commit()
+            usernames.commit()
+
     logger.info("Loading object OX ID from known objects")
     fake_obj = FakeObject(
         {
@@ -149,13 +201,23 @@ class OXConsumer:
         old_obj = body.old
 
         if old_obj and new_obj:
-            self.modify(old_obj, new_obj, new_obj.get("dn"), old_obj.get("dn"))
+            if old_obj.get("properties").get("isOxUser") != new_obj.get("properties").get("isOxUser") or \
+               old_obj.get("properties").get("isOxGroup") != new_obj.get("properties").get("isOxGroup"):
+                if new_obj.get("properties").get("isOxUser") or new_obj.get("properties").get("isOxGroup"):
+                    logger.info("Is ox user/group changed, cerate object instead of modify")
+                    self.create(new_obj, new_obj.get("dn"))
+                else:
+                    logger.info("Is ox user/group changed, delete object instead of modify")
+                    self.remove(old_obj, old_obj.get("dn"))
+            else:
+                self.modify(old_obj, new_obj, new_obj.get("dn"), old_obj.get("dn"))
         elif old_obj:
             self.remove(old_obj, old_obj.get("dn"))
         else:
             self.create(new_obj, new_obj.get("dn"))
 
         # Commit database changes after handling the message.
+        logger.info("Committing database entries")
         ox_contexts.commit()
         ox_db_id.commit()
         usernames.commit()
@@ -287,10 +349,14 @@ class OXConsumer:
         obj.old_options = ['default']
         obj._old_loaded = True
         run(obj)
-        if obj.old_attributes.get("oxContext") is not None:
-            logger.info("Removing object OX ID from known objects")
-            ox_contexts.set(dn, self.settings.default_context)
-        # TODO: is deleting usernames and db_id from known objects needed?
+
+        logger.info("Removing object OX ID from known objects")
+        ox_contexts.unset(dn)
+        logger.info("Removing object OX DB ID from known objects")
+        ox_db_id.unset(dn)
+        logger.info("Removing object username from known objects")
+        usernames.unset(dn)
+
         logger.debug(
             "Finished DELETE of %r %r in %.1f ms.",
             old['objectType'],
