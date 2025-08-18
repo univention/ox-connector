@@ -33,7 +33,8 @@ class KeyValueStore(object):
 
 
 if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
-    mapping = KeyValueStore("ox_db_id.db")  # stores dn -> path to last json file
+    mapping = KeyValueStore("ox_db_id.db")  # stores dn -> ox object id
+    non_ox_mapping = KeyValueStore("non_ox_objs.db") # stores dn of non ox objects
 else:
     mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
@@ -58,20 +59,20 @@ def find_obj(context_id, name, type="user", assert_empty=False, print_obj=True):
         return obj
 
 
-def get_db_id(dn: str, max_retry: int=5) -> str:
+def get_db_id(dn: str, max_retry: int=5, db: KeyValueStore = mapping) -> int:
     """
     Tests existance of an old JSON file
     Returns the oxDbId (if any)
     """
     for i in range(max_retry):
         try:
-            db_entry = mapping.get(dn)
-
+            db_entry = db.get(dn)
         except Exception as e:
             time.sleep(1)
             if i < max_retry - 1: continue
             else: raise e
         break
+
     if db_entry is None:
         return None
 
@@ -153,9 +154,49 @@ def test_create_group_with_user_not_in_cache(
     with mapping.open(mode="w") as db:
         del db[user.dn.encode('utf-8')]
 
-    group_dn = create_ox_group("TestGroup01", members=[user.dn])
+    create_ox_group("TestGroup01", members=[user.dn])
     find_obj(default_ox_context, "TestGroup01", type="group", assert_empty=True)
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
+def test_create_non_ox_users(
+    create_ox_user, udm, wait_for_listener
+):
+    """
+    Creating a non ox user should add it to the non-ox-object cache
+    """
+    non_ox_user = create_ox_user(enabled=False)
+    db_id = get_db_id(non_ox_user.dn)
+    assert db_id is None
+    db_id = get_db_id(non_ox_user.dn, db=non_ox_mapping)
+    assert db_id is not None
+
+    udm.modify(
+        "users/user",
+        non_ox_user.dn,
+        {"isOxUser": True},
+    )
+    wait_for_listener(non_ox_user.dn)
+    db_id = get_db_id(non_ox_user.dn)
+    assert db_id is not None
+    db_id = get_db_id(non_ox_user.dn, db=non_ox_mapping)
+    assert db_id is None
+
+    user = create_ox_user()
+    db_id = get_db_id(user.dn)
+    assert db_id is not None
+    db_id = get_db_id(user.dn, db=non_ox_mapping)
+    assert db_id is None
+
+    udm.modify(
+        "users/user",
+        user.dn,
+        {"isOxUser": False},
+    )
+    wait_for_listener(user.dn)
+    db_id = get_db_id(user.dn)
+    assert db_id is None
+    db_id = get_db_id(user.dn, db=non_ox_mapping)
+    assert db_id is not None
 
 def test_change_context(
     create_ox_user, create_ox_context, udm, wait_for_listener,

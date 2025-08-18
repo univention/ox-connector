@@ -28,7 +28,7 @@ def test_ignore_group(
     isOxGroup = False (Not) should not create a group
     """
     user_dn = create_ox_user().dn
-    dn = create_ox_group(new_group_name, members=[user_dn], enabled=False)
+    create_ox_group(new_group_name, members=[user_dn], enabled=False)
     find_obj(default_ox_context, new_group_name, assert_empty=True)
 
 
@@ -82,7 +82,7 @@ def test_add_group_with_one_user(
     UDM attributes should be reflected in OX
     """
     user_dn = create_ox_user().dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn])
+    create_ox_group(new_group_name, members=[user_dn])
     obj = find_obj(default_ox_context, new_group_name)
     assert obj.name == new_group_name
     assert len(obj.members) == 1
@@ -104,7 +104,7 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     new_context_id = create_ox_context()
     user_dn1 = create_ox_user(context_id=new_context_id).dn
     user_dn2 = create_ox_user(enabled=False).dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
+    create_ox_group(new_group_name, members=[user_dn1, user_dn2])
     obj = find_obj(new_context_id, new_group_name)
     assert obj.name == new_group_name
     assert len(obj.members) == 1
@@ -201,7 +201,7 @@ def test_add_group_with_multiple_users_and_contexts(
     new_context_id2 = create_ox_context()
     user_dn2 = create_ox_user(context_id=new_context_id2).dn
     user_dn3 = create_ox_user(context_id=new_context_id2).dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn1, user_dn2, user_dn3])
+    create_ox_group(new_group_name, members=[user_dn1, user_dn2, user_dn3])
     obj = find_obj(new_context_id, new_group_name)
     assert obj.name == new_group_name
     assert len(obj.members) == 1
