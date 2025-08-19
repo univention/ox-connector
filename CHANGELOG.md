@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.6](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.5...v0.27.6) (2025-08-19)
+
+
+### Bug Fixes
+
+* case sensitive DNs in k8s ([9852396](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/985239685eaa8371af36b997d5b12ada60e04118)), closes [univention/dev/internal/team-nubus#1381](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1381)
+
 ## [0.27.5](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.4...v0.27.5) (2025-08-19)
 
 
