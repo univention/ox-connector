@@ -50,7 +50,7 @@ def find_obj(context_id, name, type="user", assert_empty=False, print_obj=True):
     if assert_empty:
         if print_obj:
             print(f"Not found: {type}, pattern: {name}")
-        assert len(objs) != 0
+        assert len(objs) == 0
     else:
         assert len(objs) == 1
         obj = objs[0]
@@ -69,8 +69,10 @@ def get_db_id(dn: str, max_retry: int=5, db: KeyValueStore = mapping) -> int:
             db_entry = db.get(dn)
         except Exception as e:
             time.sleep(1)
-            if i < max_retry - 1: continue
-            else: raise e
+            if i < max_retry - 1:
+                continue
+            else:
+                raise e
         break
 
     if db_entry is None:
@@ -108,19 +110,6 @@ def test_add_user(
     assert obj.id == db_id
 
 
-def test_rename_user_not_in_cache(
-    create_ox_context, create_ox_user, new_user_name
-):
-    """
-    Test a new user. Should find a DB ID in cache
-    """
-    new_context_id = create_ox_context()
-    user = create_ox_user(new_user_name, context_id=new_context_id)
-    obj = find_obj(new_context_id, new_user_name)
-    db_id = get_db_id(user.dn)
-    assert obj.id == db_id
-
-
 def test_rename_user(
     create_ox_user, udm, wait_for_listener,
 ):
@@ -140,7 +129,7 @@ def test_rename_user(
     assert db_id == new_db_id
 
 @pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
-def test_create_group_with_user_not_in_cache(
+def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
     create_ox_user, create_ox_group, default_ox_context
 ):
     """
@@ -155,14 +144,18 @@ def test_create_group_with_user_not_in_cache(
         del db[user.dn.encode('utf-8')]
 
     create_ox_group("TestGroup01", members=[user.dn])
-    find_obj(default_ox_context, "TestGroup01", type="group", assert_empty=True)
+    assert find_obj(default_ox_context, "TestGroup01", type="group") is not None
+    reloaded_db_id = get_db_id(user.dn)
+    assert reloaded_db_id is not None
+    assert reloaded_db_id == db_id
+
 
 @pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
-def test_create_non_ox_users(
+def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
     create_ox_user, udm, wait_for_listener
 ):
     """
-    Creating a non ox user should add it to the non-ox-object cache
+    Chancing a non ox user to a ox user should update the non-ox-object cache accordingly
     """
     non_ox_user = create_ox_user(enabled=False)
     db_id = get_db_id(non_ox_user.dn)
@@ -181,6 +174,13 @@ def test_create_non_ox_users(
     db_id = get_db_id(non_ox_user.dn, db=non_ox_mapping)
     assert db_id is None
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
+def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
+    create_ox_user, udm, wait_for_listener
+):
+    """
+    Chancing an ox user to a non ox user should update the non-ox-object cache accordingly
+    """
     user = create_ox_user()
     db_id = get_db_id(user.dn)
     assert db_id is not None

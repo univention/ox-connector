@@ -37,7 +37,8 @@ tests, so you need to copy them:
     > Make sure you are in the root of the `ox-connector` repository. 
 
 1. As an alternative to step 4 and 5, you could modify your statefulset to use the `ox-connector-standalone-test` image, that already includes test and test dependencies.
-Remember to increase the resources of the pod to at least `3Gi` memory. Also, it's recommended to mount an `emptyDir` in `/tmp`
+Remember to increase the resources of the pod to at least `3Gi` memory. Also, it's recommended to mount an `emptyDir` in `/tmp`.
+It is also recommended to set the pyest dir to a writeabke location, for example subdir of `/tmp`, otherwise the consumer might crash with authentication errors.
 
 1. Grab the credentials for the `Administrator` user by running:
     ```bash
@@ -49,7 +50,7 @@ Remember to increase the resources of the pod to at least `3Gi` memory. Also, it
     kubectl --namespace=uv-<your-username> \
     exec --stdin --tty ox-connector-0 -- \
     /bin/bash -c \
-    'TESTS_UDM_ADMIN_USERNAME="Administrator" TESTS_UDM_ADMIN_PASSWORD="somepassword" LDAP_MASTER="portal.uv-<username>.opendesk.site" LDAP_BASE="dc=swp-ldap,dc=internal" python3 -m pytest -l -vvv /tests'
+    'TESTS_UDM_ADMIN_USERNAME="Administrator" TESTS_UDM_ADMIN_PASSWORD="somepassword" LDAP_MASTER="portal.uv-<username>.opendesk.site" LDAP_BASE="dc=swp-ldap,dc=internal" python3 -m pytest -o cache_dir=/tmp/.pytest_cache -l -vvv /tests'
     ```
 1. Check the logs of the `ox-connector` pod for any errors:
     ```bash
