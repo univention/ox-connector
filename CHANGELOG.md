@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.27.7](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.6...v0.27.7) (2025-08-21)
+
+
+### Bug Fixes
+
+* **standalone:** Correctly handle non OX-objects and add them to an own database ([1b9d2e3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/1b9d2e3fc67787385465dd79935d5089d811f682)), closes [univention/dev/internal/team-nubus#1366](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1366)
+* **standalone:** Improve test_cache.py based on MR feedback ([d2d6d5c](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/d2d6d5cb1e077fefa222ea9df69a76e17d6a8b8d)), closes [univention/dev/internal/team-nubus#1366](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1366)
+* **standalone:** Search for user in OX in case it is not in the cache ([e498625](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/e4986259563a71f46c822fabd8c0b198ef2bd14c)), closes [univention/dev/internal/team-nubus#1366](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1366)
+
 ## [0.27.6](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.5...v0.27.6) (2025-08-19)
 
 
