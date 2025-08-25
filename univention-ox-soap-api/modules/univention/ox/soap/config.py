@@ -6,10 +6,7 @@ import random
 import string
 import json
 
-try:
-    from typing import Dict, Optional, Tuple, Union
-except ImportError:
-    pass
+# Typing imports removed - not used in runtime code
 
 DEFAULT_IMAP_SERVER = os.environ.get("OX_IMAP_SERVER", "imap://localhost:143")
 DEFAULT_SMTP_SERVER = os.environ.get("OX_SMTP_SERVER", "smtp://localhost:587")
@@ -23,15 +20,17 @@ OX_MASTER_PASSWORD = os.environ.get("OX_MASTER_PASSWORD", "")
 QUOTA = -1  # unlimited
 OX_SOAP_SERVER = os.environ.get("OX_SOAP_SERVER", "http://127.0.0.1")
 CREDENTIALS_FILE = os.environ.get(
-    "OX_CREDENTIALS_FILE", "/etc/ox-secrets/ox-contexts.json"
+    "OX_CREDENTIALS_FILE",
+    "/etc/ox-secrets/ox-contexts.json",
 )
 FUNCTIONAL_ACCOUNT_LOGIN = os.environ.get(
-    "OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE"
+    "OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE",
 )
 USER_IDENTIFIER = os.environ.get("OX_USER_IDENTIFIER", "username")
 GROUP_IDENTIFIER = os.environ.get("OX_GROUP_IDENTIFIER", "name")
 OX_ENABLE_DEPUTY_PERMISSIONS = os.environ.get(
-    "OX_ENABLE_DEPUTY_PERMISSIONS", "False"
+    "OX_ENABLE_DEPUTY_PERMISSIONS",
+    "False",
 )
 if not FUNCTIONAL_ACCOUNT_LOGIN:
     FUNCTIONAL_ACCOUNT_LOGIN = "{{fa_entry_uuid}}{{username}}"
@@ -56,7 +55,8 @@ def get_new_context_attributes(context_id):  # type: (int) -> Dict[str, str]
         'givenname': 'OX',
         'surname': 'Admin',
         'email': '{}@{}'.format(
-            get_standard_context_admin_user(context_id), DOMAIN
+            get_standard_context_admin_user(context_id),
+            DOMAIN,
         ),
         'quota': QUOTA,
         'password': get_random_password(),

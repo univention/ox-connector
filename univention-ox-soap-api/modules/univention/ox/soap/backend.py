@@ -41,8 +41,6 @@ from univention.ox.soap.backend_base import (
     User,
     UserCopy,
     DeputyPermission,
-    ActiveDeputyPermission,
-    ModulePermission,
     get_ox_integration_class,
 )
 
@@ -68,7 +66,9 @@ __all__ = [
 
 
 SoapAttribute = namedtuple(
-    'SoapAttribute', ['name', 'default'], defaults=[None]
+    'SoapAttribute',
+    ['name', 'default'],
+    defaults=[None],
 )
 
 
@@ -92,7 +92,7 @@ for more information.\
     def backend_init(self, *args, **kwargs):  # type: (*str, **str) -> None
         super(SoapBackend, self).backend_init(*args, **kwargs)
         self.context_id = int(
-            kwargs.get('context_id') or self.context_id or DEFAULT_CONTEXT
+            kwargs.get('context_id') or self.context_id or DEFAULT_CONTEXT,
         )
         self.default_service = self.service(DEFAULT_CONTEXT)
         self._soap_server = kwargs.pop('soap_server', OX_SOAP_SERVER)
@@ -128,21 +128,23 @@ for more information.\
 
     @classmethod
     def get_client_credentials(
-        cls, context_id
+        cls,
+        context_id,
     ):  # type: (int) -> ClientCredentials
         if context_id not in cls._client_credential_objs:
             cls._client_credential_objs[context_id] = ClientCredentials(
-                context_id=context_id
+                context_id=context_id,
             )
         return cls._client_credential_objs[context_id]
 
     @classmethod
     def service(cls, context_id):  # type: () -> OxSoapService
         if context_id not in cls._service_objs.setdefault(
-            cls._object_type, {}
+            cls._object_type,
+            {},
         ):
             OxSoapServiceClass = get_ox_soap_service_class(
-                cls._object_type
+                cls._object_type,
             )  # type: Type[univention.ox.soap.services.OxSoapService]
             cls._service_objs[cls._object_type][context_id] = (
                 OxSoapServiceClass(cls.get_client_credentials(context_id))
@@ -152,12 +154,16 @@ for more information.\
     @classmethod
     def get_ox_soap_type_class(cls, object_type):  # type: (str) -> Type
         return get_ox_integration_class(
-            cls._backend, object_type
+            cls._backend,
+            object_type,
         )().default_service.Type
 
     @classmethod
     def from_ox(
-        cls, context_id, obj_id=None, name=None
+        cls,
+        context_id,
+        obj_id=None,
+        name=None,
     ):  # type: (int, Optional[int], Optional[str]) -> OxObject
         """
         Load an object from OX.
@@ -168,7 +174,7 @@ for more information.\
         :return: OxObject
         """
         soap_obj = cls.service(context_id).get_data(
-            cls.service(context_id).Type(id=obj_id, name=name)
+            cls.service(context_id).Type(id=obj_id, name=name),
         )
         return cls._soap_obj2base_obj(context_id, soap_obj)
 
@@ -205,7 +211,7 @@ for more information.\
             assert (
                 getattr(self, attr) is not None
             ), 'Mandatory attributes: {}.'.format(
-                ', '.join(self._mandatory_creation_attr)
+                ', '.join(self._mandatory_creation_attr),
             )
 
         if hasattr(self, 'display_name'):
@@ -223,7 +229,7 @@ for more information.\
                 new_obj.name,
                 self.context_id,
                 self.id,
-            )
+            ),
         )
         return new_obj.id
 
@@ -244,8 +250,11 @@ for more information.\
         self.service(self.context_id).change(obj)
         self.logger.info(
             'Modified {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), obj.name, self.context_id, self.id
-            )
+                self._object_type.lower(),
+                obj.name,
+                self.context_id,
+                self.id,
+            ),
         )
 
     def remove(self):  # type: () -> None
@@ -261,13 +270,18 @@ for more information.\
         self.service(self.context_id).delete(obj)
         self.logger.info(
             'Deleted {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(), obj.name, self.context_id, self.id
-            )
+                self._object_type.lower(),
+                obj.name,
+                self.context_id,
+                self.id,
+            ),
         )
 
     @classmethod
     def _soap_obj2base_obj(
-        cls, context_id, soap_obj
+        cls,
+        context_id,
+        soap_obj,
     ):  # type: (int, Any) -> OxObject
         kwargs = {
             'id': int(soap_obj.id),
@@ -301,7 +315,7 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
             kwargs.get('context_id')
             or kwargs.get('id')
             or self.context_id
-            or DEFAULT_CONTEXT
+            or DEFAULT_CONTEXT,
         )
 
     def create(self):  # type: () -> int
@@ -336,10 +350,12 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         self.id = obj.id
         self.logger.info('Adding secret file for context {}'.format(self.id))
         save_context_admin_password(
-            context.id, admin_user.name, admin_user.password
+            context.id,
+            admin_user.name,
+            admin_user.password,
         )
         self.logger.info(
-            'Created context {!r} ({!r}).'.format(obj.name, self.id)
+            'Created context {!r} ({!r}).'.format(obj.name, self.id),
         )
         return obj.id
 
@@ -355,7 +371,10 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
 
     @classmethod
     def from_ox(
-        cls, context_id=None, obj_id=None, name=None
+        cls,
+        context_id=None,
+        obj_id=None,
+        name=None,
     ):  # type: (int, Optional[int], Optional[str]) -> OxObject
         """
         Load context from OX.
@@ -462,17 +481,17 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
         'instant_messenger2': SoapAttribute('instant_messenger2', ''),
         'language': SoapAttribute('language'),
         'mail_folder_confirmed_ham_name': SoapAttribute(
-            'mail_folder_confirmed_ham_name'
+            'mail_folder_confirmed_ham_name',
         ),
         'mail_folder_confirmed_spam_name': SoapAttribute(
-            'mail_folder_confirmed_spam_name'
+            'mail_folder_confirmed_spam_name',
         ),
         'mail_folder_drafts_name': SoapAttribute('mail_folder_drafts_name'),
         'mail_folder_sent_name': SoapAttribute('mail_folder_sent_name'),
         'mail_folder_spam_name': SoapAttribute('mail_folder_spam_name'),
         'mail_folder_trash_name': SoapAttribute('mail_folder_trash_name'),
         'mail_folder_archive_full_name': SoapAttribute(
-            'mail_folder_archive_full_name'
+            'mail_folder_archive_full_name',
         ),
         'mail_enabled': SoapAttribute('mailenabled'),
         'manager_name': SoapAttribute('manager_name', ''),
@@ -528,7 +547,7 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
         'title': SoapAttribute('title', ''),
         'upload_file_size_limit': SoapAttribute('uploadFileSizeLimit'),
         'upload_file_size_limitPerFile': SoapAttribute(
-            'uploadFileSizeLimitPerFile'
+            'uploadFileSizeLimitPerFile',
         ),
         'url': SoapAttribute('url', ''),
         'used_quota': SoapAttribute('usedQuota'),
@@ -555,7 +574,7 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
         'userfield20': SoapAttribute('userfield20', ''),
         'primary_account_name': SoapAttribute('primaryAccountName'),
         'convert_drive_user_folders': SoapAttribute(
-            'convert_drive_user_folders'
+            'convert_drive_user_folders',
         ),
         'image1': SoapAttribute('image1'),
         'image1ContentType': SoapAttribute('image1ContentType', ''),
@@ -595,7 +614,7 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
         # group_service = SoapGroup.service
         user = self.service(self.context_id).Type(id=self.id, name=self.name)
         soap_objs = SoapGroup.service(self.context_id).list_groups_for_user(
-            user
+            user,
         )
         return [
             SoapGroup._soap_obj2base_obj(self.context_id, soap_obj)
@@ -604,7 +623,7 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
 
 
 class SoapSecondaryAccount(
-    with_metaclass(BackendMetaClass, SoapBackend, SecondaryAccount)
+    with_metaclass(BackendMetaClass, SoapBackend, SecondaryAccount),
 ):
     _base2soap = {
         'email': SoapAttribute('primaryAddress'),
@@ -618,7 +637,10 @@ class SoapSecondaryAccount(
 
     @classmethod
     def from_ox(
-        cls, context_id, obj_id=None, name=None
+        cls,
+        context_id,
+        obj_id=None,
+        name=None,
     ):  # type: (int, Optional[int], Optional[str])
         raise NotImplementedError()
 
@@ -644,7 +666,7 @@ class SoapSecondaryAccount(
                 obj.name,
                 self.context_id,
                 self.email,
-            )
+            ),
         )
 
     def modify(self):
@@ -664,7 +686,7 @@ class SoapSecondaryAccount(
                 obj.name,
                 self.context_id,
                 self.email,
-            )
+            ),
         )
 
 
@@ -675,36 +697,31 @@ class SoapUserCopy(with_metaclass(BackendMetaClass, SoapBackend, UserCopy)):
 
 
 class SoapDeputyPermission(
-    with_metaclass(BackendMetaClass, SoapBackend, DeputyPermission)
+    with_metaclass(BackendMetaClass, SoapBackend, DeputyPermission),
 ):
 
     _base2soap = {
-    'send_on_behalf_of': SoapAttribute('sendOnBehalfOf'),
-    'module_permissions': SoapAttribute('modulePermissions'),
-    'user_id': SoapAttribute('userId'),
+        'send_on_behalf_of': SoapAttribute('sendOnBehalfOf'),
+        'module_permissions': SoapAttribute('modulePermissions'),
+        'user_id': SoapAttribute('userId'),
     }
     _mandatory_creation_attr = ()
-
 
     @classmethod
     def get(cls, context_id, user_id, deputy_id):
         return cls.service(context_id).get({"id": user_id}, deputy_id)
 
-
     @classmethod
     def list(cls, context_id):
         return cls.service(context_id).list()
-
 
     @classmethod
     def revoke_all(cls, context_id, user_id):
         return cls.service(context_id).revoke_all({"id": user_id})
 
-
     @classmethod
     def block_manual(cls, context_id, user_id):
         return cls.service(context_id).block_manual({"id": user_id})
-
 
     @classmethod
     def unblock_manual(cls, context_id, user_id):

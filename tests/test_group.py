@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 from univention.ox.soap.backend_base import get_ox_integration_class
+from .test_user import create_obj
 
 
 def find_obj(context_id, name, assert_empty=False):
@@ -128,7 +129,10 @@ def test_change_context_for_group_multi_user(
     user_dn = create_ox_user(context_id=context_id).dn
     user_dn1 = create_ox_user(context_id=context_id).dn
     user_dn2 = create_ox_user(context_id=new_context_id).dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn, user_dn1, user_dn2])
+    group_dn = create_ox_group(
+        new_group_name,
+        members=[user_dn, user_dn1, user_dn2],
+    )
     find_obj(context_id, new_group_name)
     udm.modify("users/user", user_dn, {"oxContext": new_context_id})
     wait_for_listener(group_dn)

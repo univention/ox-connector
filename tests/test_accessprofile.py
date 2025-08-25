@@ -32,7 +32,11 @@ def create_obj(udm, name, right):
     dn = udm.create(
         "oxmail/accessprofile",
         "cn=accessprofiles,cn=open-xchange",
-        {"name": name, "displayName": name.replace("_", " ").title(), right: True},
+        {
+            "name": name,
+            "displayName": name.replace("_", " ").title(),
+            right: True,
+        },
     )
     return dn
 
@@ -48,6 +52,7 @@ def find_access(context_id, name, assert_empty=False, print_obj=True):
         if print_obj:
             print("Found", obj)
         return obj.service(obj.context_id).get_module_access({"id": obj.id})
+
 
 @pytest.mark.parametrize(
     "right,right_soap",
@@ -100,7 +105,13 @@ def test_every_one_right_access_profile(
     get_access_profiles(force_reload=True)
     profile = get_access_profile(ox_access)
     assert profile == [right_soap]
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context, ox_access)
+    user_dn = create_user(
+        udm,
+        new_user_name,
+        domainname,
+        default_ox_context,
+        ox_access,
+    )
     wait_for_listener(user_dn)
     access = find_access(default_ox_context, new_user_name)
     assert access[right_soap] is True
@@ -110,7 +121,10 @@ def test_every_one_right_access_profile(
         if _right != right_soap:
             assert access[_right] is False
 
-    udm.remove("users/user", user_dn)  # needs to be removed before accessprofile
+    udm.remove(
+        "users/user",
+        user_dn,
+    )  # needs to be removed before accessprofile
     udm.remove("oxmail/accessprofile", dn)
     wait_for_listener(dn)
     get_access_profiles(force_reload=True)
@@ -123,11 +137,37 @@ def test_every_one_right_access_profile(
 @pytest.mark.parametrize(
     "special_character",
     [
-        '!', '#', '$', '%', '&', "'", '*', '-', '.', '/', ':', '?', '@', '[', ']', '^', '_', '`', '{', '|', '}', '~'
+        '!',
+        '#',
+        '$',
+        '%',
+        '&',
+        "'",
+        '*',
+        '-',
+        '.',
+        '/',
+        ':',
+        '?',
+        '@',
+        '[',
+        ']',
+        '^',
+        '_',
+        '`',
+        '{',
+        '|',
+        '}',
+        '~',
     ],
 )
 def test_accessprofile_with_special_characters(
-    udm, default_ox_context, new_user_name, wait_for_listener, domainname, special_character
+    udm,
+    default_ox_context,
+    new_user_name,
+    wait_for_listener,
+    domainname,
+    special_character,
 ):
     """
     Create an access profile with special characters and test existance.
@@ -143,7 +183,13 @@ def test_accessprofile_with_special_characters(
     get_access_profiles(force_reload=True)
     profile = get_access_profile(ox_access)
     assert profile == ["USM"]
-    user_dn = create_user(udm, new_user_name, domainname, default_ox_context, ox_access)
+    user_dn = create_user(
+        udm,
+        new_user_name,
+        domainname,
+        default_ox_context,
+        ox_access,
+    )
     wait_for_listener(user_dn)
     access = find_access(default_ox_context, new_user_name)
     assert access["USM"] is True
@@ -153,7 +199,10 @@ def test_accessprofile_with_special_characters(
         if _right != "USM":
             assert access[_right] is False
 
-    udm.remove("users/user", user_dn)  # needs to be removed before accessprofile
+    udm.remove(
+        "users/user",
+        user_dn,
+    )  # needs to be removed before accessprofile
     udm.remove("oxmail/accessprofile", dn)
     wait_for_listener(dn)
     get_access_profiles(force_reload=True)

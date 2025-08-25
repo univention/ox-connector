@@ -11,7 +11,7 @@ import univention.admin.localization
 import univention.admin.types
 
 translation = univention.admin.localization.translation(
-    "univention.admin.syntax.50_ox"
+    "univention.admin.syntax.50_ox",
 )
 _ = translation.translate
 
@@ -30,7 +30,9 @@ class oxContextSelect(UDM_Objects):
         try:
             return str(int(text))
         except ValueError:
-            raise univention.admin.uexceptions.valueError(_("Context must be numeric!"))
+            raise univention.admin.uexceptions.valueError(
+                _("Context must be numeric!"),
+            )
         # return super(oxContextSelect, cls).parse(text)  # FIXME: in UCS 5.0 raises exception, resolved in UCS 5.2
 
 

@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2022 Univention GmbH
 #
@@ -40,7 +39,9 @@ import univention.admin.objects as udm_objects
 # determine current lookup filter from users/user
 udm_modules.update()
 usersmod = udm_modules.get("users/user")
-user_filter = str(usersmod.lookup_filter(filter_s='(objectClass=oxUserObject)'))
+user_filter = str(
+    usersmod.lookup_filter(filter_s='(objectClass=oxUserObject)'),
+)
 
 ucr = ConfigRegistry()
 ucr.load()
@@ -48,13 +49,20 @@ ucr.load()
 
 def write_it(lo, pos, fname):
     if os.path.exists(fname):
-        print("{} already exists, not touching it... Remove it and rerun this script if needed".format(fname))
+        print(
+            "{} already exists, not touching it... Remove it and rerun this script if needed".format(
+                fname,
+            ),
+        )
         return
     with open(fname, 'w') as fd:
         for res in lo.search(filter=user_filter, attr=['oxAccess', 'oxDrive']):
             dn, attrs = res
             profile = attrs.get('oxAccess', [b'none'])[0].decode("UTF-8")
-            if profile in ['webmail', 'pim'] and attrs.get('oxDrive', ['0'])[0] == '1':
+            if (
+                profile in ['webmail', 'pim']
+                and attrs.get('oxDrive', ['0'])[0] == '1'
+            ):
                 profile = profile + '_drive'
             print("Found {} having access to {}".format(dn, profile))
             fd.write("{}\t{}\n".format(dn, profile))
@@ -78,11 +86,25 @@ def apply_it(lo, pos, fname):
 
 
 parser = ArgumentParser()
-parser.add_argument('--write', action='store_true', help='Write the current state of the user access profiles')
-parser.add_argument('--apply', action='store_true', help='Apply a previously written state to the users')
-parser.add_argument('--file', help='Filename where the state is written to or read from')
+parser.add_argument(
+    '--write',
+    action='store_true',
+    help='Write the current state of the user access profiles',
+)
+parser.add_argument(
+    '--apply',
+    action='store_true',
+    help='Apply a previously written state to the users',
+)
+parser.add_argument(
+    '--file',
+    help='Filename where the state is written to or read from',
+)
 parser.add_argument('--binddn', help='Bind DN for LDAP connection')
-parser.add_argument('--bindpwdfile', help='Filename where the LDAP password is stored in')
+parser.add_argument(
+    '--bindpwdfile',
+    help='Filename where the LDAP password is stored in',
+)
 args = parser.parse_args()
 
 master = ucr.get('ldap/master')
@@ -90,7 +112,13 @@ port = ucr.get('ldap/master/port')
 base = ucr.get('ldap/base')
 
 if args.binddn:
-    lo = univention.admin.uldap.access(master, port, base, args.binddn, open(args.bindpwdfile).read())
+    lo = univention.admin.uldap.access(
+        master,
+        port,
+        base,
+        args.binddn,
+        open(args.bindpwdfile).read(),
+    )
     pos = univention.admin.uldap.position(base)
 else:
     lo, pos = univention.admin.uldap.getAdminConnection()

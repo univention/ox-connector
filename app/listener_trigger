@@ -69,16 +69,21 @@ logger.addHandler(handler)
 # logger.setLevel(logging.DEBUG)
 # logger.addHandler(handler)
 
+
 def _get_old_object(distinguished_name):
     normalized_dn = helpers.normalized_dn(distinguished_name)
     if normalized_dn != distinguished_name:
-        logger.info(f"Searching for {normalized_dn} instead of {distinguished_name}!")
+        logger.info(
+            f"Searching for {normalized_dn} instead of {distinguished_name}!",
+        )
     path_to_old_user = mapping.get(normalized_dn)
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user)
     if not os.path.isfile(path_to_old_user):
-        raise Exception(f"Old object file {path_to_old_user} for {distinguished_name} does not exist!\nYou need to re-provision \"{distinguished_name}\" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#traceback-provisioning-groups).")
+        raise Exception(
+            f"Old object file {path_to_old_user} for {distinguished_name} does not exist!\nYou need to re-provision \"{distinguished_name}\" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#traceback-provisioning-groups).",
+        )
     logger.info("Loading old object from %s", path_to_old_user)
     return object_from_path(path_to_old_user)
 
@@ -246,8 +251,12 @@ class TriggerObject(object):
         return f"Object({self.object_type!r}, {self.distinguished_name!r})"
 
 
-meta = KeyValueStore(str(NEW_FILES_DIR / "meta.db"))  # store consecutive errors
-mapping = KeyValueStore(str(NEW_FILES_DIR / "old.db"))  # stores dn -> path to last json file
+meta = KeyValueStore(
+    str(NEW_FILES_DIR / "meta.db"),
+)  # store consecutive errors
+mapping = KeyValueStore(
+    str(NEW_FILES_DIR / "old.db"),
+)  # stores dn -> path to last json file
 
 
 def object_from_path(path):
@@ -334,7 +343,9 @@ def objects_from_files(delete_files=True, move_files=False):
                 logger.info("Object was deleted. Deleting %s", path)
                 path.unlink()
                 if obj.old_distinguished_name:
-                    mapping.unset(helpers.normalized_dn(obj.old_distinguished_name))
+                    mapping.unset(
+                        helpers.normalized_dn(obj.old_distinguished_name),
+                    )
                 mapping.unset(helpers.normalized_dn(obj.distinguished_name))
             else:
                 logger.info("mv %s -> %s", path, old_file_path)
@@ -345,9 +356,17 @@ def objects_from_files(delete_files=True, move_files=False):
                         "... not done yet; enriching object by rewriting JSON file...",
                     )
                     obj.dump(old_file_path)
-                if obj.old_distinguished_name and obj.old_distinguished_name != obj.distinguished_name:
-                    mapping.unset(helpers.normalized_dn(obj.old_distinguished_name))
-                mapping.set(helpers.normalized_dn(obj.distinguished_name), old_file_path)
+                if (
+                    obj.old_distinguished_name
+                    and obj.old_distinguished_name != obj.distinguished_name
+                ):
+                    mapping.unset(
+                        helpers.normalized_dn(obj.old_distinguished_name),
+                    )
+                mapping.set(
+                    helpers.normalized_dn(obj.distinguished_name),
+                    old_file_path,
+                )
         elif delete_files:
             logger.info("Deleting %s", path)
             path.unlink()

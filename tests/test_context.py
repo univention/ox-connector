@@ -89,7 +89,12 @@ def test_remove_context(new_context_id, udm, ox_host, wait_for_listener):
     assert not context_exists(new_context_id)
 
 
-def test_create_context_with_not_unique_id(new_context_id, udm, ox_host, wait_for_listener):
+def test_create_context_with_not_unique_id(
+    new_context_id,
+    udm,
+    ox_host,
+    wait_for_listener,
+):
     """
     Creating a context with an already existing context_id should not be allowed
     """
@@ -98,4 +103,9 @@ def test_create_context_with_not_unique_id(new_context_id, udm, ox_host, wait_fo
     assert context_exists(new_context_id)
 
     with pytest.raises(UnprocessableEntity):
-        create_context(udm, ox_host, new_context_id, name="another_context{}".format(new_context_id))
+        create_context(
+            udm,
+            ox_host,
+            new_context_id,
+            name="another_context{}".format(new_context_id),
+        )

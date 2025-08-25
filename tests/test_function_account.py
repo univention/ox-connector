@@ -7,7 +7,15 @@ from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 
 
-def create_obj(udm, name, domainname, personal, users, groups, position="cn=functional_accounts,cn=open-xchange"):
+def create_obj(
+    udm,
+    name,
+    domainname,
+    personal,
+    users,
+    groups,
+    position="cn=functional_accounts,cn=open-xchange",
+):
     dn = udm.create(
         "oxmail/functional_account",
         position,
@@ -32,7 +40,9 @@ def get_user_from_ox(username, context_id):
     User = get_ox_integration_class("SOAP", "User")
     return get_obj_by_name_from_ox(User, context_id, username)
 
+
 POSITIONS = ["cn=functional_accounts,cn=open-xchange", "cn=users"]
+
 
 @pytest.mark.parametrize('position', POSITIONS)
 def test_add_functional_account_with_user_different_case_in_dn(
@@ -50,7 +60,15 @@ def test_add_functional_account_with_user_different_case_in_dn(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn.upper()], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user.dn.upper()],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 1
@@ -77,7 +95,15 @@ def test_add_functional_account_with_user(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 1
@@ -105,13 +131,23 @@ def test_add_functional_account_with_2_of_5_users(
     user2 = create_ox_user(context_id=context_id)
     create_ox_user(context_id=context_id)
     create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user1.dn, user2.dn], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user1.dn, user2.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 2
     ox_user1 = get_user_from_ox(user1.properties["username"], context_id)
     ox_user2 = get_user_from_ox(user2.properties["username"], context_id)
-    assert sorted([account.userId for account in accounts]) == sorted([ox_user1.id, ox_user2.id])
+    assert sorted([account.userId for account in accounts]) == sorted(
+        [ox_user1.id, ox_user2.id],
+    )
 
 
 @pytest.mark.parametrize('position', POSITIONS)
@@ -129,9 +165,25 @@ def test_multiple_functional_accounts_same_user(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn1 = create_obj(udm, new_functional_account_name + "-1", domainname, "Personal", [user.dn], [], position=position)
+    dn1 = create_obj(
+        udm,
+        new_functional_account_name + "-1",
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn1)
-    dn2 = create_obj(udm, new_functional_account_name + "-2", domainname, "Personal", [user.dn], [], position=position)
+    dn2 = create_obj(
+        udm,
+        new_functional_account_name + "-2",
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn2)
     accounts = list_objs(context_id)
     assert len(accounts) == 2
@@ -156,9 +208,25 @@ def test_multiple_functional_accounts_different_user(
     context_id = create_ox_context()
     user1 = create_ox_user(context_id=context_id)
     user2 = create_ox_user(context_id=context_id)
-    dn1 = create_obj(udm, new_functional_account_name + "-1", domainname, "Personal", [user1.dn], [], position=position)
+    dn1 = create_obj(
+        udm,
+        new_functional_account_name + "-1",
+        domainname,
+        "Personal",
+        [user1.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn1)
-    dn2 = create_obj(udm, new_functional_account_name + "-2", domainname, "Personal", [user2.dn], [], position=position)
+    dn2 = create_obj(
+        udm,
+        new_functional_account_name + "-2",
+        domainname,
+        "Personal",
+        [user2.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn2)
     accounts = list_objs(context_id)
     assert len(accounts) == 2
@@ -189,7 +257,15 @@ def test_modify_functional_account(
     context_id = create_ox_context()
     user1 = create_ox_user(context_id=context_id)
     user2 = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user1.dn], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user1.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
     ox_user1 = get_user_from_ox(user1.properties["username"], context_id)
     ox_user2 = get_user_from_ox(user2.properties["username"], context_id)
@@ -198,9 +274,13 @@ def test_modify_functional_account(
     assert len(accounts) == 1
     assert accounts[0].userId == ox_user1.id
 
-    udm.modify("oxmail/functional_account", dn, {
-        "users": [user2.dn],
-    })
+    udm.modify(
+        "oxmail/functional_account",
+        dn,
+        {
+            "users": [user2.dn],
+        },
+    )
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 1
@@ -222,15 +302,27 @@ def test_empty_functional_account(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
     assert len(accounts) == 1
 
-    udm.modify("oxmail/functional_account", dn, {
-        "users": [],
-    })
+    udm.modify(
+        "oxmail/functional_account",
+        dn,
+        {
+            "users": [],
+        },
+    )
     wait_for_listener(dn)
     accounts = list_objs(context_id)
     assert len(accounts) == 0
@@ -251,7 +343,15 @@ def test_remove_functional_account(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
@@ -278,7 +378,15 @@ def test_remove_user(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position=position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position=position,
+    )
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
@@ -305,7 +413,15 @@ def test_modify_user(
     """
     context_id = create_ox_context()
     user = create_ox_user(context_id=context_id)
-    dn = create_obj(udm, new_functional_account_name, domainname, "Personal", [user.dn], [], position)
+    dn = create_obj(
+        udm,
+        new_functional_account_name,
+        domainname,
+        "Personal",
+        [user.dn],
+        [],
+        position,
+    )
     wait_for_listener(dn)
 
     accounts = list_objs(context_id)
@@ -313,18 +429,28 @@ def test_modify_user(
     assert len(accounts) == 1
     assert accounts[0].userId == ox_user.id
 
-    new_dn = udm.modify("users/user", user.dn, {"username": "new" + user.properties["username"]})
+    new_dn = udm.modify(
+        "users/user",
+        user.dn,
+        {"username": "new" + user.properties["username"]},
+    )
     assert user.dn != new_dn
     wait_for_listener(new_dn)
     wait_for_listener(dn)
-    for account in udm.search("oxmail/functional_account", f"cn={new_functional_account_name}"):
+    for account in udm.search(
+        "oxmail/functional_account",
+        f"cn={new_functional_account_name}",
+    ):
         account = account.open()
         assert account.properties["users"] == [new_dn]
         break
     else:
         raise RuntimeError("No UDM object found")
 
-    ox_user2 = get_user_from_ox("new" + user.properties["username"], context_id)
+    ox_user2 = get_user_from_ox(
+        "new" + user.properties["username"],
+        context_id,
+    )
     accounts = list_objs(context_id)
     assert len(accounts) == 1
     assert accounts[0].userId == ox_user2.id

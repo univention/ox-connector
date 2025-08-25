@@ -34,7 +34,7 @@ tests, so you need to copy them:
     kubectl cp tests ox-connector-0:/ -n uv-<your-username>
     kubectl cp share/ ox-connector-0:/usr/local/share/ox-connector/resources/ -n uv-<your-username>
     ```
-    > Make sure you are in the root of the `ox-connector` repository. 
+    > Make sure you are in the root of the `ox-connector` repository.
 
 1. As an alternative to step 4 and 5, you could modify your statefulset to use the `ox-connector-standalone-test` image, that already includes test and test dependencies.
 Remember to increase the resources of the pod to at least `3Gi` memory. Also, it's recommended to mount an `emptyDir` in `/tmp`.
@@ -60,7 +60,7 @@ It is also recommended to set the pyest dir to a writeabke location, for example
 ## Tests status
 
 FYI: Executing the test as explained before, leads to some leftovers in the system, as users/ id ,etc.
-It's higly recomended to execute them in a fresh deployment.  
+It's higly recomended to execute them in a fresh deployment.
 
 Currently known to fail tests are:
 
@@ -86,7 +86,7 @@ cache from outside.
 - tests/test_function_account.py::test_add_functional_account_with_user_different_case_in_dn[cn=functional_accounts,cn=open-xchange] FAILED
 - tests/test_function_account.py::test_add_functional_account_with_user_different_case_in_dn[cn=users] FAILED
 > These two tests fail due to bug on our k8s implementation. The fixes for the appcenter and test
-> where introduced as part of [this commit](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/-/commit/65d7ddb47497bf87269de3f546b9da05fb9d6b20)  
+> where introduced as part of [this commit](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/-/commit/65d7ddb47497bf87269de3f546b9da05fb9d6b20)
 > Basically, we need to fix our consumer to not be case sensitive on dn's
 
 ### test/test_functional_account_setting ❌
