@@ -10,35 +10,30 @@ A Helm chart for the ox-connector
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://artifacts.software-univention.de/nubus/charts | common | ^0.21.x |
+| oci://artifacts.software-univention.de/nubus/charts | nubus-common | 0.24.2 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | environment | object | `{}` |  |
 | extraVolumeMounts | list | `[]` | Optionally specify an extra list of additional volumeMounts. |
 | extraVolumes | list | `[]` | Optionally specify an extra list of additional volumes. |
 | fullnameOverride | string | `""` |  |
-| image.pullPolicy | string | `"Always"` |  |
-| image.registry | string | `"artifacts.software-univention.de"` |  |
-| image.repository | string | `"nubus-dev/images/ox-connector-standalone"` |  |
-| image.sha256 | string | `nil` | Define image sha256 as an alternative to `tag` |
-| image.tag | string | `"latest"` |  |
-| image.waitForDependency.imagePullPolicy | string | `"IfNotPresent"` |  |
-| image.waitForDependency.registry | string | `"artifacts.software-univention.de"` |  |
-| image.waitForDependency.repository | string | `"nubus/images/wait-for-dependency"` |  |
-| image.waitForDependency.tag | string | `"0.35.0@sha256:61dfaea28a2b150459138dfd6a554ce53850cee05ef2a72ab47bbe23f2a92d0d"` |  |
+| global.imagePullPolicy | string | `nil` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails. |
+| global.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry" |
+| global.imageRegistry | string | `"artifacts.software-univention.de"` | Container registry address. |
+| global.nubusDeployment | bool | `false` | Indicates wether this chart is part of a Nubus deployment. |
 | ingress | object | `{"enabled":false}` | Kubernetes ingress |
 | ingress.enabled | bool | `false` | Set this to `true` in order to enable the installation on Ingress related objects. |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | oxConnector.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
+| oxConnector.image.pullPolicy | string | `nil` |  |
+| oxConnector.image.registry | string | `nil` |  |
+| oxConnector.image.repository | string | `"nubus-dev/images/ox-connector-standalone"` |  |
+| oxConnector.image.tag | string | `"latest"` |  |
 | oxConnector.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
 | oxConnector.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
 | oxConnector.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
@@ -89,6 +84,12 @@ A Helm chart for the ox-connector
 | securityContext.runAsUser | int | `1000` |  |
 | securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | serviceAccount.annotations | object | `{}` |  |
+| serviceAccount.automountServiceAccountToken | bool | `false` |  |
 | serviceAccount.create | bool | `true` |  |
+| serviceAccount.labels | object | `{}` | Additional custom labels for the ServiceAccount. |
 | serviceAccount.name | string | `""` |  |
 | tolerations | list | `[]` |  |
+| waitForDependency.image.pullPolicy | string | `nil` |  |
+| waitForDependency.image.registry | string | `nil` |  |
+| waitForDependency.image.repository | string | `"nubus/images/wait-for-dependency"` |  |
+| waitForDependency.image.tag | string | `"0.35.0@sha256:61dfaea28a2b150459138dfd6a554ce53850cee05ef2a72ab47bbe23f2a92d0d"` |  |

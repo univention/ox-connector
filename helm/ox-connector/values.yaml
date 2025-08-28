@@ -16,11 +16,6 @@ podAnnotations: {}
 podSecurityContext: {}
 replicaCount: 1
 tolerations: []
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
 
 # -- Optionally specify an extra list of additional volumes.
 extraVolumes: []
