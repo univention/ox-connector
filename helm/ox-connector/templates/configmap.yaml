@@ -1,41 +1,33 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2023 Univention GmbH
+# SPDX-FileCopyrightText: 2023-2025 Univention GmbH
 
 ---
-{{ include "common.configMap" (dict "top" . "overrides" "oxConnector.configMap") }}
-
-{{- define "oxConnector.configMap" }}
-{{ with .top }}
+kind: "ConfigMap"
+apiVersion: "v1"
+metadata:
+  name: "{{ include "common.names.fullname" . }}"
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "common.labels.standard" ( dict "customLabels" .Values.additionalLabels "context" . ) | nindent 4 }}
+  {{- include "nubus-common.annotations.render" ( dict
+    "values" ( list .Values.additionalAnnotations )
+    "context" . )
+    | nindent 2 }}
 data:
 
-  # Provisioning API
-  # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
   PROVISIONING_API_BASE_URL: {{ .Values.provisioningApi.connection.baseUrl | quote }}
-  # -- The username to authenticate with.
   PROVISIONING_API_USERNAME: {{ .Values.provisioningApi.auth.username | quote }}
-  # -- The maximum number of retries for acknowledging a message
   MAX_ACKNOWLEDGEMENT_RETRIES: {{ required "The parameter \".Values.provisioningApi.config.maxAcknowledgementRetries\" is required." .Values.provisioningApi.config.maxAcknowledgementRetries | quote }}
 
-  # OX CONNECTOR
-  # OX-Mail-Domain to generate OX-email-addresses
   DOMAINNAME: "{{ .Values.oxConnector.domainName }}"
-  # OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
   OX_MASTER_ADMIN: "{{ .Values.oxConnector.oxMasterAdmin }}"
-  # OX Admin password
   OX_MASTER_PASSWORD: "{{ .Values.oxConnector.oxMasterPassword }}"
-  # Default timezone for new users
   LOCAL_TIMEZONE: "{{ .Values.oxConnector.oxLocalTimezone }}"
-  # Default language for new users
   OX_LANGUAGE: "{{ .Values.oxConnector.oxLanguage }}"
-  # Default context for users (has to exist)
   DEFAULT_CONTEXT: "{{ .Values.oxConnector.oxDefaultContext }}"
-  # Default SMTP server for new users (if not set explicitely there)
   OX_SMTP_SERVER: "{{ .Values.oxConnector.oxSmtpServer }}"
-  # Default IMAP server for new users (if not set explicitely there)
   OX_IMAP_SERVER: "{{ .Values.oxConnector.oxImapServer }}"
-  # The server where Open-Xchange is installed
   OX_SOAP_SERVER: "{{ .Values.oxConnector.oxSoapServer }}"
-  # OX Connector log level
   LOG_LEVEL: "{{ .Values.oxConnector.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash
@@ -45,8 +37,3 @@ data:
     done
 
     echo "Success, the Provisioning API is available"
-
-{{- end }}
-{{- end }}
-
-...
