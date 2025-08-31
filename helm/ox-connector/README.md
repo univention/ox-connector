@@ -24,9 +24,6 @@ A Helm chart for the ox-connector
 | global.imagePullPolicy | string | `nil` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails. |
 | global.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry" |
 | global.imageRegistry | string | `"artifacts.software-univention.de"` | Container registry address. |
-| global.nubusDeployment | bool | `false` | Indicates wether this chart is part of a Nubus deployment. |
-| ingress | object | `{"enabled":false}` | Kubernetes ingress |
-| ingress.enabled | bool | `false` | Set this to `true` in order to enable the installation on Ingress related objects. |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | oxConnector.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |

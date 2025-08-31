@@ -6,22 +6,45 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-## Global values
-affinity: {}
-environment: {}
-fullnameOverride: ""
-nameOverride: ""
-nodeSelector: {}
-podAnnotations: {}
-podSecurityContext: {}
-replicaCount: 1
-tolerations: []
+# The global properties are used to configure multiple charts at once.
+global:
+  # -- Container registry address.
+  imageRegistry: "artifacts.software-univention.de"
+  # -- Credentials to fetch images from private registry.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #
+  # imagePullSecrets:
+  #   - "docker-registry"
+  imagePullSecrets: []
 
-# -- Optionally specify an extra list of additional volumes.
-extraVolumes: []
+  # -- Define an ImagePullPolicy.
+  #
+  # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+  #
+  # "IfNotPresent" => The image is pulled only if it is not already present locally.
+  # "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to
+  #             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached
+  #             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved
+  #             digest, and uses that image to launch the container.
+  # "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the
+  #            kubelet attempts to start the container; otherwise, startup fails.
+  imagePullPolicy: null
 
-# -- Optionally specify an extra list of additional volumeMounts.
-extraVolumeMounts: []
+# Configuration for the communication with the provisioning API.
+provisioningApi:
+  config:
+    # -- The maximum number of retries for acknowledging a message
+    maxAcknowledgementRetries: 3
+  # -- Connection parameters
+  connection:
+    # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+    baseUrl: ""
+  # -- Authentication parameters
+  auth:
+    # -- The username to authenticate with.
+    username: "ox-connector"
+    # -- The password to authenticate with.
+    password: ""
 
 # Configuration for OX CONNECTOR
 oxConnector:
@@ -47,6 +70,19 @@ oxConnector:
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
 
+  image:
+    pullPolicy: null
+    registry: null
+    repository: "nubus-dev/images/ox-connector-standalone"
+    tag: "latest"
+
+waitForDependency:
+  image:
+    pullPolicy: null
+    registry: null
+    repository: "nubus/images/wait-for-dependency"
+    tag: "0.35.0@sha256:61dfaea28a2b150459138dfd6a554ce53850cee05ef2a72ab47bbe23f2a92d0d"
+
 # Set PVCs size and storage class
 persistence:
   # -- Specify storageClassName - Leave empty to use the default storage class
@@ -54,41 +90,22 @@ persistence:
   # -- Specify PVCs size
   size: 1Gi
 
-# Configuration for the communication with the provisioning API.
-provisioningApi:
-  config:
-    # -- The maximum number of retries for acknowledging a message
-    maxAcknowledgementRetries: 3
-  # -- Connection parameters
-  connection:
-    # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
-    baseUrl: ""
-  # -- Authentication parameters
-  auth:
-    # -- The username to authenticate with.
-    username: "ox-connector"
-    # -- The password to authenticate with.
-    password: ""
+## Global values
+affinity: {}
+environment: {}
+fullnameOverride: ""
+nameOverride: ""
+nodeSelector: {}
+podAnnotations: {}
+podSecurityContext: {}
+replicaCount: 1
+tolerations: []
 
-# -- Kubernetes ingress
-ingress:
-  # -- Set this to `true` in order to enable the installation on Ingress related objects.
-  enabled: false
+# -- Optionally specify an extra list of additional volumes.
+extraVolumes: []
 
-## Docker image
-image:
-  registry: "artifacts.software-univention.de"
-  repository: "nubus-dev/images/ox-connector-standalone"
-  pullPolicy: "Always"
-  tag: "latest"
-  # -- Define image sha256 as an alternative to `tag`
-  sha256: null
-
-  waitForDependency:
-    registry: "artifacts.software-univention.de"
-    imagePullPolicy: "IfNotPresent"
-    repository: "nubus/images/wait-for-dependency"
-    tag: "0.35.0@sha256:61dfaea28a2b150459138dfd6a554ce53850cee05ef2a72ab47bbe23f2a92d0d"
+# -- Optionally specify an extra list of additional volumeMounts.
+extraVolumeMounts: []
 
 ## Container deployment probes
 probes:
@@ -138,6 +155,13 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+  ## @param serviceAccount.automountServiceAccountToken Allows auto mount of
+  # ServiceAccountToken on the serviceAccount created
+  ## Can be set to false if pods using this serviceAccount do not need to use K8s API
+  ##
+  automountServiceAccountToken: false
+  # -- Additional custom labels for the ServiceAccount.
+  labels: {}
 
 securityContext:
   privileged: false

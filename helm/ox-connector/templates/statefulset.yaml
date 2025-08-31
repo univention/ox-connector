@@ -33,9 +33,14 @@ spec:
       labels:
         {{- include "common.labels.matchLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- if or .Values.imagePullSecrets .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . | quote }}
+        {{- end }}
+        {{- range .Values.imagePullSecrets }}
+        - name: {{ . | quote }}
+        {{- end }}
       {{- end }}
       serviceAccountName: {{ include "common.names.fullname" . }}
       securityContext:
@@ -45,10 +50,8 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command: [ "/bin/bash", "/scripts/wait-for-api.sh" ]
-          {{ with .Values.image.waitForDependency }}
-          image: "{{ if .registry }}{{ .registry }}/{{ end }}{{ .repository }}{{ if .sha256 }}@sha256:{{ .sha256 }}{{ else }}:{{ .tag }}{{ end }}"
-          imagePullPolicy: {{ .imagePullPolicy }}
-          {{ end }}
+          image: "{{ coalesce .Values.waitForDependency.image.registry .Values.global.imageRegistry }}/{{ .Values.waitForDependency.image.repository }}:{{ .Values.waitForDependency.image.tag }}"
+          imagePullPolicy: {{ coalesce .Values.waitForDependency.image.pullPolicy .Values.global.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
@@ -59,11 +62,11 @@ spec:
             {{- toYaml .Values.resourcesWaitForDependency | nindent 12 }}
 
       containers:
-        - name: {{ .Chart.Name }}
+        - name: "main"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ if .Values.image.registry }}{{ .Values.image.registry }}/{{ end }}{{ .Values.image.repository }}{{ if .Values.image.sha256 }}@sha256:{{ .Values.image.sha256 }}{{ else }}:{{ .Values.image.tag }}{{ end }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ coalesce .Values.oxConnector.image.registry .Values.global.imageRegistry }}/{{ .Values.oxConnector.image.repository }}:{{ .Values.oxConnector.image.tag }}"
+          imagePullPolicy: {{ coalesce .Values.oxConnector.image.pullPolicy .Values.global.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
