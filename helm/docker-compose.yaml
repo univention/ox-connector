@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025 Univention GmbH
+
+services:
+  test:
+    image: gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.24.2
+    pull_policy: always
+    command: "pytest tests/"
+    profiles:
+      - test
+    volumes:
+      - "../helm/:/app/helm/"
+      - "../helm-unittests/:/app/tests"

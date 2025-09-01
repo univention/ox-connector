@@ -3,6 +3,16 @@
 This document describes the process to QA the `ox-connector` in an openDesk
 environment.
 
+## Helm
+
+### Helm unittests
+
+You can run the helm unittests with the following command:
+
+```sh
+docker compose -f helm/docker-compose.yaml run --rm test`
+```
+
 ## Start an openDesk environment
 
 This process is expected to be run before releasing a new version. See the
