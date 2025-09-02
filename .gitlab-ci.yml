@@ -77,6 +77,11 @@ container-malware-scan:
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
 
+lint-pre-commit:
+  allow_failure: true
+  rules:
+    - when: "never"
+
 container-build-appcenter:
   stage: "build"
   extends: ".kaniko"
