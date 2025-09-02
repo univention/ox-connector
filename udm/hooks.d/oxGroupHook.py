@@ -38,7 +38,7 @@ import univention.uldap
 from univention.admin.hook import simpleHook
 
 translation = univention.admin.localization.translation(
-    'univention.admin.hooks.oxGroupHook',
+    'univention.admin.hooks.oxGroupHook'
 )
 _ = translation.translate
 
@@ -59,16 +59,15 @@ class oxGroupHook(simpleHook):
         if module['mailAddress']:
             domain = module['mailAddress'].rsplit('@')[-1]
             filter_s = filter_format(
-                '(&(objectClass=univentionMailDomainname)(cn=%s))',
-                (domain,),
+                '(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,)
             )
             result = module.lo.searchDn(filter=filter_s)
 
             if not result:
                 raise univention.admin.uexceptions.valueError(
                     _(
-                        "The mail address' domain does not match any mail domain object.",
-                    ),
+                        "The mail address' domain does not match any mail domain object."
+                    )
                 )
             else:
                 oxGroupHook.log_info('ldap result: %s' % result)

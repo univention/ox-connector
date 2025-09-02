@@ -40,7 +40,7 @@ from univention.config_registry import ConfigRegistry
 from univention.admin.hook import simpleHook
 
 translation = univention.admin.localization.translation(
-    "univention.admin.hooks.oxDeputyPermissionHook",
+    "univention.admin.hooks.oxDeputyPermissionHook"
 )
 _ = translation.translate
 
@@ -48,7 +48,6 @@ ucr = ConfigRegistry()
 ucr.load()
 
 DEFAULT_CONTEXT = ucr.get('ox/context/id')
-
 
 class oxDeputyPermissionHook(simpleHook):
     type = "oxDeputyPermissionHook"
@@ -120,17 +119,11 @@ class oxDeputyPermissionHook(simpleHook):
         if obj.old_dn == obj.dn:
             return
         user_dn = obj.lo.searchDn(
-            filter_format(
-                'oxDeputyPermissionGivenTo=%s |:$:| *',
-                [obj.old_dn],
-            ),
+            filter_format('oxDeputyPermissionGivenTo=%s |:$:| *', [obj.old_dn])
         )
         for dn in user_dn:
             for user in univention.admin.handlers.users.user.lookup(
-                obj.co,
-                obj.lo,
-                filter_s='',
-                base=dn,
+                obj.co, obj.lo, filter_s='', base=dn
             ):
                 # should be exactly one... but who knows...
                 user.open()
@@ -165,22 +158,19 @@ class oxDeputyPermissionHook(simpleHook):
         if len(user_dns) != len(entries):
             raise univention.admin.uexceptions.valueError(
                 _(
-                    "The permission can only be granted once between the same accounts.",
-                ),
+                    "The permission can only be granted once between the same accounts."
+                )
             )
         for entry in entries:
             user_dn = entry[0]
             if user_dn == obj.dn:
                 raise univention.admin.uexceptions.valueError(
                     _(
-                        "The deputy permission cannot be granted for the same object.",
-                    ),
+                        "The deputy permission cannot be granted for the same object."
+                    )
                 )
             for user in univention.admin.handlers.users.user.lookup(
-                obj.co,
-                obj.lo,
-                filter_s='',
-                base=user_dn,
+                obj.co, obj.lo, filter_s='', base=user_dn
             ):
                 # should be exactly one... but who knows...
                 user.open()
@@ -189,8 +179,8 @@ class oxDeputyPermissionHook(simpleHook):
                 if str(user_ox_context) != str(obj_ox_context):
                     raise univention.admin.uexceptions.valueError(
                         _(
-                            "Deputy permissions can only be granted for users in the same OX context.",
-                        ),
+                            "Deputy permissions can only be granted for users in the same OX context."
+                        )
                     )
 
     def clear_referencing_deputies(self, obj):
@@ -198,14 +188,11 @@ class oxDeputyPermissionHook(simpleHook):
         if not isinstance(obj, univention.admin.handlers.users.user.object):
             return
         user_dn = obj.lo.searchDn(
-            filter_format('oxDeputyPermissionGivenTo=%s |:$:| *', [obj.dn]),
+            filter_format('oxDeputyPermissionGivenTo=%s |:$:| *', [obj.dn])
         )
         for dn in user_dn:
             for user in univention.admin.handlers.users.user.lookup(
-                obj.co,
-                obj.lo,
-                filter_s='',
-                base=dn,
+                obj.co, obj.lo, filter_s='', base=dn
             ):
                 # should be exactly one... but who knows...
                 user.open()

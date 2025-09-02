@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright 2020 Univention GmbH
 #
@@ -73,7 +74,7 @@ def update_group(group, attributes, group_name):
             if user_id:
                 logger.info(f"... found {user_id}")
                 members.append(user_id)
-        except Exception:
+        except:
             logger.warning(
                 f"skipping user {user}. Object not found in listener/old directory.",
             )

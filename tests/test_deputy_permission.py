@@ -34,9 +34,7 @@ def find_obj(context_id, manager, deputy) -> ActiveDeputyPermission:
 
 
 def list_objs(
-    context_id,
-    manager=None,
-    deputy=None,
+    context_id, manager=None, deputy=None
 ) -> [ActiveDeputyPermission]:
     ret = []
     for permission in DeputyPermission.service(context_id).list():
@@ -61,14 +59,16 @@ def test_disallow_deputy_myself(create_ox_user, udm):
             manager.dn,
             {
                 "oxDeputyPermissionGivenTo": [
-                    [manager.dn, "08444", "08444", True],
-                ],
+                    [manager.dn, "08444", "08444", True]
+                ]
             },
         )
 
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
-def test_disallow_two_permissions_between_same_users(create_ox_user, udm):
+def test_disallow_two_permissions_between_same_users(
+    create_ox_user, udm 
+):
     manager = create_ox_user()
     deputy = create_ox_user()
     with pytest.raises(UnprocessableEntity):
@@ -77,18 +77,16 @@ def test_disallow_two_permissions_between_same_users(create_ox_user, udm):
             manager.dn,
             {
                 "oxDeputyPermissionGivenTo": [
-                    [deputy.dn, "08444", "08444", True],
-                    [deputy.dn, "08444", "08444", False],
-                ],
+                    [deputy.dn, "08444", "08444", True], 
+                    [deputy.dn, "08444", "08444", False]
+                ]
             },
         )
 
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_disallow_permissions_with_different_contexts(
-    create_ox_user,
-    create_ox_context,
-    udm,
+    create_ox_user, create_ox_context, udm
 ):
     manager = create_ox_user()
     new_context = create_ox_context()
@@ -99,42 +97,33 @@ def test_disallow_permissions_with_different_contexts(
             manager.dn,
             {
                 "oxDeputyPermissionGivenTo": [
-                    [deputy.dn, "08444", "08444", True],
-                ],
+                    [deputy.dn, "08444", "08444", True]
+                ]
             },
         )
 
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
-def test_create_deputy_with_user_create(create_ox_user, get_udm_user):
+def test_create_deputy_with_user_create(
+    create_ox_user, get_udm_user
+):
     deputy = create_ox_user()
     permission = [deputy.dn, "00000", "08444", True]
-    manager = create_ox_user(
-        further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]},
-    )
+    manager = create_ox_user(further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]})
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
 
-
 # FIXME -> [] == [[XY]] assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
-
-
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_context_change_of_deputy(
-    create_ox_user,
-    create_ox_context,
-    get_udm_user,
-    udm,
-    wait_for_listener,
+    create_ox_user, create_ox_context, get_udm_user, udm, wait_for_listener
 ):
     manager = create_ox_user()
     deputy = create_ox_user()
     new_context = create_ox_context()
     permission = [deputy.dn, "08444", "08444", True]
     udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxDeputyPermissionGivenTo": [permission]},
+        "users/user", manager.dn, {"oxDeputyPermissionGivenTo": [permission]}
     )
     wait_for_listener(manager.dn)
     udm_obj = get_udm_user(manager.properties['username'])
@@ -144,33 +133,20 @@ def test_remove_permission_after_context_change_of_deputy(
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == []
 
-
 # FIXME -> udm_rest.UnprocessableEntity
-
-
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_context_change_of_manager(
-    create_ox_user,
-    create_ox_context,
-    get_udm_user,
-    udm,
-    wait_for_listener,
+    create_ox_user, create_ox_context, get_udm_user, udm, wait_for_listener
 ):
     deputy = create_ox_user()
     permission = [deputy.dn, "08444", "08444", True]
-    manager = create_ox_user(
-        further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]},
-    )
+    manager = create_ox_user(further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]})
     udm_obj = get_udm_user(manager.properties['username'])
     new_context = create_ox_context()
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
     with pytest.raises(UnprocessableEntity):
         udm.modify("users/user", manager.dn, {"oxContext": new_context})
-    udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxContext": new_context, "oxDeputyPermissionGivenTo": []},
-    )
+    udm.modify("users/user", manager.dn, {"oxContext": new_context, "oxDeputyPermissionGivenTo": []})
     wait_for_listener(manager.dn)
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == []
@@ -178,16 +154,11 @@ def test_remove_permission_after_context_change_of_manager(
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_disable_manager_for_ox(
-    create_ox_user,
-    get_udm_user,
-    udm,
-    wait_for_listener,
+    create_ox_user, get_udm_user, udm, wait_for_listener
 ):
     deputy = create_ox_user()
     permission = [deputy.dn, "08444", "08444", True]
-    manager = create_ox_user(
-        further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]},
-    )
+    manager = create_ox_user(further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]})
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
     udm.modify("users/user", manager.dn, {"isOxUser": False})
@@ -198,16 +169,11 @@ def test_remove_permission_after_disable_manager_for_ox(
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_disable_deputy_for_ox(
-    create_ox_user,
-    get_udm_user,
-    udm,
-    wait_for_listener,
+    create_ox_user, get_udm_user, udm, wait_for_listener
 ):
     deputy = create_ox_user()
     permission = [deputy.dn, "00000", "08444", True]
-    manager = create_ox_user(
-        further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]},
-    )
+    manager = create_ox_user(further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]})
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
     udm.modify("users/user", deputy.dn, {"isOxUser": False})
@@ -219,16 +185,11 @@ def test_remove_permission_after_disable_deputy_for_ox(
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_deputy_permission_after_delete(
-    create_ox_user,
-    udm,
-    get_udm_user,
-    wait_for_listener,
+    create_ox_user, udm, get_udm_user, wait_for_listener
 ):
     deputy = create_ox_user()
     permission = [deputy.dn, "00000", "08444", True]
-    manager = create_ox_user(
-        further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]},
-    )
+    manager = create_ox_user(further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]})
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
     udm.remove("users/user", deputy.dn)
@@ -240,29 +201,22 @@ def test_remove_deputy_permission_after_delete(
 # FIXME: [] == [[XY]]
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_modify_deputy_permission_after_rename(
-    create_ox_user,
-    udm,
-    get_udm_user,
-    wait_for_listener,
+    create_ox_user, udm, get_udm_user, wait_for_listener
 ):
     deputy = create_ox_user()
     permission = [deputy.dn, "08444", "08444", True]
-    manager = create_ox_user(
-        further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]},
-    )
+    manager = create_ox_user(further_udm_attrs={"oxDeputyPermissionGivenTo": [permission]})
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
     new_deputy_name = "new_" + deputy.properties["username"]
     new_deputy_dn = udm.modify(
-        "users/user",
-        deputy.dn,
-        {"username": new_deputy_name},
+        "users/user", deputy.dn, {"username": new_deputy_name}
     )
     wait_for_listener(new_deputy_dn)
-    # FIXME: udm_obj is
+    # FIXME: udm_obj is 
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [
-        [new_deputy_dn] + permission[1:],
+        [new_deputy_dn] + permission[1:]
     ]
 
 
@@ -277,20 +231,13 @@ def test_modify_deputy_permission_after_rename(
 )
 # FIXME: AttributeError: 'NoneType' object has no attribute 'userId'
 def test_create_deputy_permission(
-    create_ox_user,
-    udm,
-    wait_for_listener,
-    perm1,
-    perm2,
-    send_as,
+    create_ox_user, udm, wait_for_listener, perm1, perm2, send_as
 ):
     manager = create_ox_user()
     deputy = create_ox_user()
     permission = [deputy.dn, perm1, perm2, send_as]
     udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxDeputyPermissionGivenTo": [permission]},
+        "users/user", manager.dn, {"oxDeputyPermissionGivenTo": [permission]}
     )
     wait_for_listener(manager.dn)
     context_id = manager.properties["oxContext"]
@@ -326,17 +273,13 @@ def test_create_deputy_permission(
 # FIXME: Assert None is not None
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_removed_deputy_permission_on_manager_deletion(
-    create_ox_user,
-    udm,
-    wait_for_listener,
+    create_ox_user, udm, wait_for_listener
 ):
     manager = create_ox_user()
     deputy = create_ox_user()
     permission = [deputy.dn, "08444", "08444", True]
     udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxDeputyPermissionGivenTo": [permission]},
+        "users/user", manager.dn, {"oxDeputyPermissionGivenTo": [permission]}
     )
     wait_for_listener(manager.dn)
     context_id = manager.properties["oxContext"]
@@ -353,17 +296,13 @@ def test_removed_deputy_permission_on_manager_deletion(
 # FIXME: None is not None
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_removed_deputy_permission_on_deputy_deletion(
-    create_ox_user,
-    udm,
-    wait_for_listener,
+    create_ox_user, udm, wait_for_listener
 ):
     manager = create_ox_user()
     deputy = create_ox_user()
     permission = [deputy.dn, "08444", "08444", True]
     udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxDeputyPermissionGivenTo": [permission]},
+        "users/user", manager.dn, {"oxDeputyPermissionGivenTo": [permission]}
     )
     wait_for_listener(manager.dn)
     context_id = manager.properties["oxContext"]
@@ -378,13 +317,10 @@ def test_removed_deputy_permission_on_deputy_deletion(
 
 
 @pytest.mark.skip(
-    reason="user_service.get_user_capabilities always gives 'There are no capabilities set'",
+    reason="user_service.get_user_capabilities always gives 'There are no capabilities set'"
 )
 def test_block_and_unblock(
-    create_ox_user,
-    udm,
-    wait_for_listener,
-    default_ox_context,
+    create_ox_user, udm, wait_for_listener, default_ox_context
 ):
     user_service = User.service(default_ox_context)
     manager = create_ox_user()
@@ -394,9 +330,7 @@ def test_block_and_unblock(
     deputy = create_ox_user()
     permission = [deputy.dn, "08444", "08444", True]
     udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxDeputyPermissionGivenTo": [permission]},
+        "users/user", manager.dn, {"oxDeputyPermissionGivenTo": [permission]}
     )
     wait_for_listener(manager.dn)
     capabilities = user_service.get_user_capabilities({"id": manager_id})
@@ -410,10 +344,7 @@ def test_block_and_unblock(
 # FIXME: AssertionError: assert 2 == 1
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_create_deputy_permission_when_it_already_exists(
-    create_ox_user,
-    default_ox_context,
-    udm,
-    wait_for_listener,
+    create_ox_user, default_ox_context, udm, wait_for_listener
 ):
     deputy1 = create_ox_user()
     deputy2 = create_ox_user()
@@ -455,9 +386,7 @@ def test_create_deputy_permission_when_it_already_exists(
     permissions = list_objs(default_ox_context, manager=manager_id)
     assert len(permissions) == 2
     udm.modify(
-        "users/user",
-        manager.dn,
-        {"oxDeputyPermissionGivenTo": [permission]},
+        "users/user", manager.dn, {"oxDeputyPermissionGivenTo": [permission]}
     )
     wait_for_listener(manager.dn)
     permissions = list_objs(default_ox_context, manager=manager_id)
@@ -471,30 +400,30 @@ def test_create_deputy_permission_when_it_already_exists(
         permission[1][0] == "1"
     )
     assert db_permission["modulePermissions"][0]["folderPermission"] == int(
-        permission[1][1],
+        permission[1][1]
     )
     assert db_permission["modulePermissions"][0]["readPermission"] == int(
-        permission[1][2],
+        permission[1][2]
     )
     assert db_permission["modulePermissions"][0]["writePermission"] == int(
-        permission[1][3],
+        permission[1][3]
     )
     assert db_permission["modulePermissions"][0]["deletePermission"] == int(
-        permission[1][4],
+        permission[1][4]
     )
     assert db_permission["modulePermissions"][1]["moduleId"] == "calendar"
     assert db_permission["modulePermissions"][1]["admin"] == (
         permission[2][0] == "1"
     )
     assert db_permission["modulePermissions"][1]["folderPermission"] == int(
-        permission[2][1],
+        permission[2][1]
     )
     assert db_permission["modulePermissions"][1]["readPermission"] == int(
-        permission[2][2],
+        permission[2][2]
     )
     assert db_permission["modulePermissions"][1]["writePermission"] == int(
-        permission[2][3],
+        permission[2][3]
     )
     assert db_permission["modulePermissions"][1]["deletePermission"] == int(
-        permission[2][4],
+        permission[2][4]
     )

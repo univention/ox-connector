@@ -14,14 +14,7 @@ from univention.ox.soap.backend_base import User, get_ox_integration_class
 T = typing.TypeVar("T")
 
 
-def create_obj(
-    udm,
-    name,
-    domainname,
-    context_id,
-    attrs=None,
-    enabled=True,
-) -> str:
+def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True) -> str:
     _attrs = {
         "username": name,
         "firstname": "Emil",
@@ -63,11 +56,7 @@ def delete_obj(context_id, name) -> None:
 
 
 def test_ignore_user(
-    default_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     isOxUser = False (Not) should not create a user
@@ -78,11 +67,7 @@ def test_ignore_user(
 
 
 def test_add_user_in_default_context(
-    default_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Creating a user without a context should add it in the default context
@@ -95,11 +80,7 @@ def test_add_user_in_default_context(
 
 
 def test_rename_user(
-    default_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    default_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Renaming a user should keep its ID
@@ -119,11 +100,7 @@ def test_rename_user(
 
 
 def test_add_user(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     isOxUser = True (OK) should create a user
@@ -137,11 +114,7 @@ def test_add_user(
 
 
 def test_modify_user(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Changing UDM object should be reflected in OX
@@ -288,16 +261,8 @@ user_attributes: typing.List[UserAttributeTest] = [
         random_value_generator=random_mail_address,
         none_generator=no_none,
     ),
-    UserAttributeTest(
-        "email2",
-        "oxEmail2",
-        random_value_generator=random_mail_address,
-    ),
-    UserAttributeTest(
-        "email3",
-        "oxEmail3",
-        random_value_generator=random_mail_address,
-    ),
+    UserAttributeTest("email2", "oxEmail2", random_value_generator=random_mail_address),
+    UserAttributeTest("email3", "oxEmail3", random_value_generator=random_mail_address),
     UserAttributeTest("fax_business", "oxFaxBusiness"),
     UserAttributeTest("fax_home", "oxFaxHome"),
     UserAttributeTest("fax_other", "oxFaxOther"),
@@ -476,14 +441,8 @@ def test_full_blown_user(
         "city": new_user_name_generator(),
         "firstname": new_user_name_generator(),
         "lastname": new_user_name_generator(),
-        "homeTelephoneNumber": [
-            new_user_name_generator(),
-            new_user_name_generator(),
-        ],
-        "mailPrimaryAddress": "{}@{}".format(
-            new_user_name_generator(),
-            domainname,
-        ),
+        "homeTelephoneNumber": [new_user_name_generator(), new_user_name_generator()],
+        "mailPrimaryAddress": "{}@{}".format(new_user_name_generator(), domainname),
         "oxAccess": "premium",
         # TODO:
         # "oxAnniversary": "{}.{}.19{}".format(
@@ -566,13 +525,7 @@ def test_full_blown_user(
         "roomNumber": [new_user_name_generator()],
         "street": new_user_name_generator(),
     }
-    dn = create_obj(
-        udm,
-        new_user_name,
-        domainname,
-        new_context_id,
-        attrs=attrs,
-    )
+    dn = create_obj(udm, new_user_name, domainname, new_context_id, attrs=attrs)
     wait_for_listener(dn)
     obj = find_obj(new_context_id, new_user_name)
     for k, v in attrs.items():
@@ -584,7 +537,9 @@ def test_full_blown_user(
             continue  # handle separately
         soap_prop = udm_prop2soap_prop[k]
         obj_item = getattr(obj, soap_prop)
-        error_msg = f"Expected for k={k!r}({soap_prop!r}) v={v!r} but found {obj_item!r}."
+        error_msg = (
+            f"Expected for k={k!r}({soap_prop!r}) v={v!r} but found {obj_item!r}."
+        )
         if isinstance(v, list):
             assert set(v) == set(obj_item), error_msg
         else:
@@ -598,17 +553,15 @@ def test_full_blown_user(
     ):
         v = set(attrs[k])
         obj_items = {getattr(obj, soap_prop) for soap_prop in soap_props}
-        error_msg = f"Expected for k={k!r}({soap_props!r}) v={v!r} but found {obj_items!r}."
+        error_msg = (
+            f"Expected for k={k!r}({soap_props!r}) v={v!r} but found {obj_items!r}."
+        )
         assert v == obj_items, error_msg
 
 
 @pytest.mark.skip("Fails since our cache implementation")
 def test_modify_user_without_ox_obj(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Changing UDM object without a OX pendant should just create it
@@ -665,11 +618,7 @@ def test_modify_mailserver(
 
 
 def test_remove_user(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Removing a user in UDM should remove the user in OX
@@ -683,11 +632,7 @@ def test_remove_user(
 
 
 def test_enable_and_disable_user(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Add a new UDM user (not yet active in OX)
@@ -702,9 +647,7 @@ def test_enable_and_disable_user(
     udm.modify("users/user", dn, {"isOxUser": True})
     wait_for_listener(dn)
     udm.modify(
-        "users/user",
-        dn,
-        {"oxContext": new_context_id, "oxDisplayName": new_user_name},
+        "users/user", dn, {"oxContext": new_context_id, "oxDisplayName": new_user_name},
     )
     wait_for_listener(dn)
     find_obj(new_context_id, new_user_name)
@@ -714,11 +657,7 @@ def test_enable_and_disable_user(
 
 
 def test_change_context(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Special case: Change context:
@@ -744,11 +683,7 @@ def test_change_context(
 
 
 def test_existing_user_in_different_context(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     User already exists in OX DB (legacy data?) and a new
@@ -784,11 +719,7 @@ def test_existing_user_in_different_context(
 
 
 def test_alias(
-    create_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+    create_ox_context, new_user_name, udm, domainname, wait_for_listener,
 ):
     """
     Changing mailPrimaryAddress and email1 leads to appropriate aliases
@@ -845,11 +776,7 @@ def test_alias(
 
 
 def test_toggle_is_ox_user_property(
-    default_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+        default_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Toggling isOxUser property should create or remove the user in OX accordingly.
@@ -857,22 +784,12 @@ def test_toggle_is_ox_user_property(
     /-/issues/54
     """
     # Initially, create a user with isOxUser=False
-    dn = create_obj(
-        udm,
-        new_user_name,
-        domainname,
-        default_ox_context,
-        enabled=False,
-    )
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context, enabled=False)
     wait_for_listener(dn)
     find_obj(default_ox_context, new_user_name, assert_empty=True)
 
     # Toggle isOxUser to True and set a context
-    udm.modify(
-        "users/user",
-        dn,
-        {"isOxUser": True, "oxContext": default_ox_context},
-    )
+    udm.modify("users/user", dn, {"isOxUser": True, "oxContext": default_ox_context})
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name, assert_empty=False)
     assert obj.name == new_user_name
@@ -884,11 +801,7 @@ def test_toggle_is_ox_user_property(
 
 
 def test_toggle_is_ox_user_property_no_change(
-    default_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
+        default_ox_context, new_user_name, udm, domainname, wait_for_listener
 ):
     """
     Sad path (no change): Toggling isOxUser property should return isOxUser False as
@@ -902,22 +815,13 @@ def test_toggle_is_ox_user_property_no_change(
     find_obj(default_ox_context, new_user_name, assert_empty=True)
 
     # Toggle isOxUser to False and it should still not be found in OX
-    udm.modify(
-        "users/user",
-        dn,
-        {"isOxUser": False, "description": random_string()},
-    )
+    udm.modify("users/user", dn, {"isOxUser": False, "description": random_string()})
     wait_for_listener(dn)
     find_obj(default_ox_context, new_user_name, assert_empty=True)
 
 
 def test_toggle_is_ox_user_property_new_context(
-    default_ox_context,
-    new_user_name,
-    udm,
-    domainname,
-    wait_for_listener,
-    create_ox_context,
+        default_ox_context, new_user_name, udm, domainname, wait_for_listener, create_ox_context
 ):
     """
     Sad path (invalid context): Toggling isOxUser property should fail to add the
@@ -926,23 +830,13 @@ def test_toggle_is_ox_user_property_new_context(
     /-/issues/54
     """
     # Initially, create a user with isOxUser=False
-    dn = create_obj(
-        udm,
-        new_user_name,
-        domainname,
-        default_ox_context,
-        enabled=False,
-    )
+    dn = create_obj(udm, new_user_name, domainname, default_ox_context, enabled=False)
     wait_for_listener(dn)
     find_obj(default_ox_context, new_user_name, assert_empty=True)
 
     # Create new context and set it to user
     new_context_id = create_ox_context()
-    udm.modify(
-        "users/user",
-        dn,
-        {"isOxUser": True, "oxContext": new_context_id},
-    )
+    udm.modify("users/user", dn, {"isOxUser": True, "oxContext": new_context_id})
     wait_for_listener(dn)
 
     # Ensure the user is not added to the old OX context
@@ -951,36 +845,17 @@ def test_toggle_is_ox_user_property_new_context(
     find_obj(new_context_id, new_user_name, assert_empty=False)
 
 
-def test_default_sender_address(
-    default_ox_context,
-    new_user_name,
-    domainname,
-    udm,
-    wait_for_listener,
-):
+def test_default_sender_address(default_ox_context, new_user_name, domainname, udm, wait_for_listener):
     dn = create_obj(udm, new_user_name, domainname, default_ox_context)
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     assert obj.default_sender_address == obj.primary_email
-    udm_obj = list(udm.search("users/user", f"username={new_user_name}"))[
-        0
-    ].open()
-    # new_lastname = udm_obj.properties["lastname"] + "-Schmidt"  # unused variable
+    udm_obj = list(udm.search("users/user", f"username={new_user_name}"))[0].open()
+    new_lastname = udm_obj.properties["lastname"] + "-Schmidt"
     old_primary_email = udm_obj.properties["mailPrimaryAddress"]
-    old_primary_email_part1, old_primary_email_part2 = old_primary_email.split(
-        "@",
-    )
-    new_primary_email = (
-        f"{old_primary_email_part1}-schmidt@{old_primary_email_part2}"
-    )
-    udm.modify(
-        "users/user",
-        dn,
-        {
-            "mailPrimaryAddress": new_primary_email,
-            "mailAlternativeAddress": [old_primary_email],
-        },
-    )
+    old_primary_email_part1, old_primary_email_part2 = old_primary_email.split("@")
+    new_primary_email = f"{old_primary_email_part1}-schmidt@{old_primary_email_part2}"
+    udm.modify("users/user", dn, {"mailPrimaryAddress": new_primary_email, "mailAlternativeAddress": [old_primary_email]})
     wait_for_listener(dn)
     obj = find_obj(default_ox_context, new_user_name)
     assert obj.primary_email == new_primary_email

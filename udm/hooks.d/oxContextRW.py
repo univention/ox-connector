@@ -40,7 +40,7 @@ import univention.admin.localization
 from univention.admin.hook import simpleHook
 
 translation = univention.admin.localization.translation(
-    'univention.admin.hooks.oxContextRW',
+    'univention.admin.hooks.oxContextRW'
 )
 _ = translation.translate
 
@@ -79,6 +79,6 @@ class oxContextRW(simpleHook):
                         # imodule.property_descriptions[iprop].may_change = True
                         self.log_info(
                             '_open: property %r found in module %r: switched to editable=True'
-                            % (iprop, module_name),
+                            % (iprop, module_name)
                         )
         self.log_info('_open: done')

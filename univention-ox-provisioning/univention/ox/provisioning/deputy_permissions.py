@@ -56,14 +56,11 @@ logger = logging.getLogger("listener")
 
 
 def is_enabled():
-    return str(
-        univention.ox.soap.config.OX_ENABLE_DEPUTY_PERMISSIONS,
-    ).lower() in ["true"]
+    return str(univention.ox.soap.config.OX_ENABLE_DEPUTY_PERMISSIONS).lower() in ["true"]
 
 
 def get_permission_representation_from_oxDeputyPermissionGivenTo(
-    permission,
-    deputy_id,
+    permission, deputy_id
 ):
     """UDM: ["user01", "02400", "02400", ""]
     -> SOAP {userId: int, sendOnBehalfOf: bool, modulePermissions: list}
@@ -106,17 +103,14 @@ def set_deputy_permissions(obj, context_id):
     user_id = obj.attributes.get("oxDbId") or get_db_id(obj.distinguished_name)
     if not user_id:
         logger.info(
-            f"No user_id found for {obj.distinguished_name}. Unable to create deputy permissions.",
+            f"No user_id found for {obj.distinguished_name}. Unable to create deputy permissions."
         )
         return
 
     deputy_service = DeputyPermission.service(context_id)
 
     revoked = False
-    if obj.old_attributes and obj.old_attributes.get(
-        "oxDeputyPermissionGivenTo",
-        [],
-    ):
+    if obj.old_attributes and obj.old_attributes.get("oxDeputyPermissionGivenTo", []):
         # we had set oxDeputyPermissionGivenTo, we need to revoke all
         # to have a fresh start
         delete_deputy_permissions(obj, context_id)
@@ -133,34 +127,34 @@ def set_deputy_permissions(obj, context_id):
             deputy_user_id = get_db_id(deputy_dn)
             if not deputy_user_id:
                 logger.info(
-                    f"No user_id found for {deputy_dn}. Unable to create permission granted by {obj.distinguished_name}.",
+                    f"No user_id found for {deputy_dn}. Unable to create permission granted by {obj.distinguished_name}."
                 )
                 continue
             try:
-                deputy_permission = get_permission_representation_from_oxDeputyPermissionGivenTo(
-                    permission,
-                    deputy_user_id,
+                deputy_permission = (
+                    get_permission_representation_from_oxDeputyPermissionGivenTo(
+                        permission, deputy_user_id
+                    )
                 )
                 db_id = deputy_service.grant(
-                    user=user_id,
-                    deputy_permission=deputy_permission,
+                    user=user_id, deputy_permission=deputy_permission
                 )
                 logger.info(
-                    f"Created deputy permission given to {deputy_dn} from {obj.distinguished_name} ({db_id})",
+                    f"Created deputy permission given to {deputy_dn} from {obj.distinguished_name} ({db_id})"
                 )
             except Exception as e:
                 logger.warning(
-                    f"Error creating deputy permission given to {deputy_dn} from {obj.distinguished_name}: {e}",
+                    f"Error creating deputy permission given to {deputy_dn} from {obj.distinguished_name}: {e}"
                 )
         try:
             deputy_service.block_manual(user_id)
         except Exception as e:
             logger.warning(
-                f"Error blocking {obj.distinguished_name} from granting deputy permissions: {e}",
+                f"Error blocking {obj.distinguished_name} from granting deputy permissions: {e}"
             )
         else:
             logger.info(
-                f"{obj.distinguished_name} is now blocked from granting deputy permissions autonomously.",
+                f"{obj.distinguished_name} is now blocked from granting deputy permissions autonomously."
             )
 
 
@@ -177,7 +171,7 @@ def delete_deputy_permissions(obj, context_id):
         user_id = get_db_id(obj.distinguished_name)
     if not user_id:
         logger.info(
-            f"No user_id found for {obj.distinguished_name}. Unable to delete deputy permissions.",
+            f"No user_id found for {obj.distinguished_name}. Unable to delete deputy permissions."
         )
         return
 
@@ -187,19 +181,19 @@ def delete_deputy_permissions(obj, context_id):
         deputy_service.revoke_all(user_id)
     except Exception as e:
         logger.warning(
-            f"Error deleting all deputy permissions granted by {obj.distinguished_name}: {e}",
+            f"Error deleting all deputy permissions granted by {obj.distinguished_name}: {e}"
         )
     else:
         logger.info(
-            f"Revoked all deputy permissions granted by {obj.distinguished_name}.",
+            f"Revoked all deputy permissions granted by {obj.distinguished_name}."
         )
         try:
             deputy_service.unblock_manual(user_id)
         except Exception as e:
             logger.warning(
-                f"Error unblocking {obj.distinguished_name} from granting deputy permissions: {e}",
+                f"Error unblocking {obj.distinguished_name} from granting deputy permissions: {e}"
             )
         else:
             logger.info(
-                f"{obj.distinguished_name} may now grant deputy permissions autonomously.",
+                f"{obj.distinguished_name} may now grant deputy permissions autonomously."
             )

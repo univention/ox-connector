@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2024 Univention GmbH
 #
@@ -37,7 +38,6 @@ class SpecialHandling:
     IMAP_URL = "IMAP_URL"
     SMTP_URL = "SMTP_URL"
 
-
 class Mapping(dict):
     def __init__(
         self,
@@ -58,12 +58,8 @@ class Mapping(dict):
             position=position,
         )
 
-
 DEFAULT_USER_MAPPING = {
-    "display_name": Mapping(
-        "oxDisplayName",
-        alternative_attributes=["displayName"],
-    ),
+    "display_name": Mapping("oxDisplayName", alternative_attributes=["displayName"]),
     "given_name": Mapping("firstname"),
     "sur_name": Mapping("lastname"),
     "email1": Mapping("mailPrimaryAddress", nillable=False),
@@ -143,22 +139,13 @@ DEFAULT_USER_MAPPING = {
     "room_number": Mapping("roomNumber"),
     "cellular_telephone2": Mapping("mobileTelephoneNumber"),
     "telephone_pager": Mapping("pagerTelephoneNumber"),
-    "anniversary": Mapping(
-        "oxAnniversary",
-        special_handling=SpecialHandling.DATE,
-    ),
+    "anniversary": Mapping("oxAnniversary", special_handling=SpecialHandling.DATE),
     "birthday": Mapping("birthday", special_handling=SpecialHandling.DATE),
     "telephone_business1": Mapping("phone", position=0),
     "telephone_business2": Mapping("phone", position=1),
     "telephone_home1": Mapping("homeTelephoneNumber", position=0),
     "telephone_home2": Mapping("homeTelephoneNumber", position=1),
-    "imap_server": Mapping(
-        "mailHomeServer",
-        special_handling=SpecialHandling.IMAP_URL,
-    ),
-    "smtp_server": Mapping(
-        "mailHomeServer",
-        special_handling=SpecialHandling.SMTP_URL,
-    ),
+    "imap_server": Mapping("mailHomeServer", special_handling=SpecialHandling.IMAP_URL),
+    "smtp_server": Mapping("mailHomeServer", special_handling=SpecialHandling.SMTP_URL),
     "aliases": Mapping("mailAlternativeAddress", multi_value=True),
 }

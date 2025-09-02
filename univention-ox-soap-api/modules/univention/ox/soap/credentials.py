@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Client for OX' SOAP API
 #
@@ -36,11 +37,7 @@
 #
 
 from __future__ import absolute_import
-from .config import (
-    get_credentials_for_context,
-    get_master_credentials,
-    OX_SOAP_SERVER,
-)
+from .config import get_credentials_for_context, get_master_credentials, OX_SOAP_SERVER
 from .types import Types
 
 
@@ -49,13 +46,7 @@ class ClientCredentials(object):
     _context_objs = dict()
     _types = None
 
-    def __init__(
-        self,
-        server=OX_SOAP_SERVER,
-        context_id=10,
-        username=None,
-        password=None,
-    ):
+    def __init__(self, server=OX_SOAP_SERVER, context_id=10, username=None, password=None):
         # type: (Optional[str], Optional[int], Optional[str], Optional[str]) -> None
 
         self.server = server
@@ -71,11 +62,7 @@ class ClientCredentials(object):
     @property
     def context_admin_credentials(self):
         if self.context_id not in self._context_admin_credentials:
-            self._context_admin_credentials[self.context_id] = (
-                self.types.Credentials(
-                    *get_credentials_for_context(self.context_id),
-                )
-            )
+            self._context_admin_credentials[self.context_id] = self.types.Credentials(*get_credentials_for_context(self.context_id))
         return self._context_admin_credentials[self.context_id]
 
     @property
@@ -88,9 +75,7 @@ class ClientCredentials(object):
     @property
     def context_obj(self):
         if self.context_id not in self._context_objs:
-            self._context_objs[self.context_id] = self.types.Context(
-                id=self.context_id,
-            )
+            self._context_objs[self.context_id] = self.types.Context(id=self.context_id)
         return self._context_objs[self.context_id]
 
     @property

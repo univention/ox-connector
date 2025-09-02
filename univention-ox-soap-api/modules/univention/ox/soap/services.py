@@ -57,7 +57,7 @@ from __future__ import annotations
 import logging
 
 try:
-    from typing import Any, Optional, List, TYPE_CHECKING, Union
+    from typing import Any, Optional, List, Type, TYPE_CHECKING, Union
 except ImportError:
     pass
 
@@ -78,7 +78,7 @@ WS_BASE_URL = '{server}/webservices'
 WS_URLS = {
     'Context': '{}/OXContextService?wsdl'.format(WS_BASE_URL),
     'DeputyPermission': '{}/OXDeputyPermissionsService?wsdl'.format(
-        WS_BASE_URL,
+        WS_BASE_URL
     ),
     'Group': '{}/OXGroupService?wsdl'.format(WS_BASE_URL),
     'Resource': '{}/OXResourceService?wsdl'.format(WS_BASE_URL),
@@ -1180,7 +1180,7 @@ class OXUserCopyService(with_metaclass(OxServiceMetaClass, OxSoapService)):
 
 
 class OXDeputyPermissionsService(
-    with_metaclass(OxServiceMetaClass, OxSoapService),
+    with_metaclass(OxServiceMetaClass, OxSoapService)
 ):
 
     _type_name = 'DeputyPermission'
@@ -1279,9 +1279,9 @@ class OXUtilService(with_metaclass(OxServiceMetaClass, OxSoapService)):
 
     def __init__(self):
         from .credentials import ClientCredentials
-
         cred = ClientCredentials()
         super(OXUtilService, self).__init__(cred)
+
 
     def get_version(
         self,

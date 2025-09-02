@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 # Copyright 2021 Univention GmbH
 #
@@ -71,7 +72,7 @@ def find_db_id(ox_context, username, build_cache, build_cache_size):
 
             def chunks(objs):
                 return (
-                    objs[pos : pos + build_cache_size]
+                    objs[pos: pos + build_cache_size]
                     for pos in range(0, len(objs), build_cache_size)
                 )
 
@@ -126,16 +127,12 @@ def main(args):
             continue
         if db_id:
             if args.delete:
-                logger.debug(
-                    f"... Removing DB id (ctx {ox_context} id {db_id})",
-                )
+                logger.debug(f"... Removing DB id (ctx {ox_context} id {db_id})")
                 del json_data["object"]["oxDbId"]
                 with open(json_file, "w") as fd:
                     json.dump(json_data, fd, sort_keys=True, indent=4)
             else:
-                logger.debug(
-                    f"... already in database (ctx {ox_context} id {db_id})",
-                )
+                logger.debug(f"... already in database (ctx {ox_context} id {db_id})")
             continue
         if args.delete:
             continue
@@ -158,7 +155,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser(
-        description="Enrich old JSON files with their database IDs from OX (only users)",
+        description="Enrich old JSON files with their database IDs from OX (only users)"
     )
     parser.add_argument(
         "--delete",

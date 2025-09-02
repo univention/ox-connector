@@ -3,6 +3,7 @@
 
 import json
 import os
+import random
 import subprocess
 import typing
 import uuid
@@ -11,22 +12,13 @@ from datetime import timedelta, datetime
 
 
 import pytest
-from univention.ox.provisioning.default_user_mapping import (
-    DEFAULT_USER_MAPPING,
-)
+from univention.ox.provisioning.default_user_mapping import DEFAULT_USER_MAPPING
 from univention.ox.soap.backend_base import User, get_ox_integration_class
 
 T = typing.TypeVar("T")
 
 
-def create_obj(
-    udm,
-    name,
-    domainname,
-    context_id,
-    attrs=None,
-    enabled=True,
-) -> str:
+def create_obj(udm, name, domainname, context_id, attrs=None, enabled=True) -> str:
     _attrs = {
         "username": name,
         "firstname": "Emil",
@@ -124,11 +116,7 @@ def random_date():
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
-    return (
-        (start + timedelta(seconds=random_second))
-        .replace(hour=0, minute=0, second=0)
-        .strftime("%Y-%m-%d")
-    )
+    return (start + timedelta(seconds=random_second)).replace(hour=0, minute=0, second=0).strftime("%Y-%m-%d")
 
 
 def str2isodate(text):
@@ -145,9 +133,7 @@ def str2isodate(text):
         exc2 = exc
     raise ValueError(
         "Value {!r} in unknown date format or year before 1900 ({} {}).".format(
-            text,
-            exc1,
-            exc2,
+            text, exc1, exc2,
         ),
     )
 
@@ -175,10 +161,7 @@ ATTRIBUTE_MAPPING = get_user_mapping()
 
 
 user_attributes: typing.List[UserAttributeTest] = [
-    UserAttributeTest(
-        "branches",
-        ATTRIBUTE_MAPPING["branches"].get("ldap_attribute"),
-    ),
+    UserAttributeTest("branches", ATTRIBUTE_MAPPING["branches"].get("ldap_attribute")),
     UserAttributeTest(
         "cellular_telephone1",
         ATTRIBUTE_MAPPING["cellular_telephone1"].get("ldap_attribute"),
@@ -191,58 +174,48 @@ user_attributes: typing.List[UserAttributeTest] = [
         soap_value_from_udm_value=take_first,
     ),
     UserAttributeTest(
-        "city_business",
-        ATTRIBUTE_MAPPING["city_business"].get("ldap_attribute"),
+        "city_business", ATTRIBUTE_MAPPING["city_business"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "city_home",
-        ATTRIBUTE_MAPPING["city_home"].get("ldap_attribute"),
+        "city_home", ATTRIBUTE_MAPPING["city_home"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "city_other",
-        ATTRIBUTE_MAPPING["city_other"].get("ldap_attribute"),
+        "city_other", ATTRIBUTE_MAPPING["city_other"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "commercial_register",
         ATTRIBUTE_MAPPING["commercial_register"].get("ldap_attribute"),
     ),
+    UserAttributeTest("company", ATTRIBUTE_MAPPING["company"].get("ldap_attribute")),
     UserAttributeTest(
-        "company",
-        ATTRIBUTE_MAPPING["company"].get("ldap_attribute"),
+        "country_business", ATTRIBUTE_MAPPING["country_business"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "country_business",
-        ATTRIBUTE_MAPPING["country_business"].get("ldap_attribute"),
+        "country_home", ATTRIBUTE_MAPPING["country_home"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "country_home",
-        ATTRIBUTE_MAPPING["country_home"].get("ldap_attribute"),
+        "country_other", ATTRIBUTE_MAPPING["country_other"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "country_other",
-        ATTRIBUTE_MAPPING["country_other"].get("ldap_attribute"),
-    ),
-    UserAttributeTest(
-        "department",
-        ATTRIBUTE_MAPPING["department"].get("ldap_attribute"),
+        "department", ATTRIBUTE_MAPPING["department"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "display_name",
         ATTRIBUTE_MAPPING["display_name"].get("ldap_attribute"),
         none_generator=no_none,
     ),
-    # UserAttributeTest(
+    #UserAttributeTest(
     #    "birthday",
     #    ATTRIBUTE_MAPPING["birthday"].get("ldap_attribute"),
     #    random_value_generator=random_date,
     #    soap_value_from_udm_value=str2isodate
-    # ), Bug in OX prevents from unsetting this attribute via SOAP if it was already set
-    # UserAttributeTest(
+    #), Bug in OX prevents from unsetting this attribute via SOAP if it was already set
+    #UserAttributeTest(
     #    "anniversary",
     #    ATTRIBUTE_MAPPING["anniversary"].get("ldap_attribute"),
     #    random_value_generator=random_date,
     #    soap_value_from_udm_value=str2isodate
-    # ), Bug in OX prevents from unsetting this attribute via SOAP if it was already set
+    #), Bug in OX prevents from unsetting this attribute via SOAP if it was already set
     UserAttributeTest(
         "email2",
         ATTRIBUTE_MAPPING["email2"].get("ldap_attribute"),
@@ -254,16 +227,11 @@ user_attributes: typing.List[UserAttributeTest] = [
         random_value_generator=random_mail_address,
     ),
     UserAttributeTest(
-        "fax_business",
-        ATTRIBUTE_MAPPING["fax_business"].get("ldap_attribute"),
+        "fax_business", ATTRIBUTE_MAPPING["fax_business"].get("ldap_attribute")
     ),
+    UserAttributeTest("fax_home", ATTRIBUTE_MAPPING["fax_home"].get("ldap_attribute")),
     UserAttributeTest(
-        "fax_home",
-        ATTRIBUTE_MAPPING["fax_home"].get("ldap_attribute"),
-    ),
-    UserAttributeTest(
-        "fax_other",
-        ATTRIBUTE_MAPPING["fax_other"].get("ldap_attribute"),
+        "fax_other", ATTRIBUTE_MAPPING["fax_other"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "given_name",
@@ -279,21 +247,15 @@ user_attributes: typing.List[UserAttributeTest] = [
         ATTRIBUTE_MAPPING["instant_messenger2"].get("ldap_attribute"),
     ),
     UserAttributeTest(
-        "manager_name",
-        ATTRIBUTE_MAPPING["manager_name"].get("ldap_attribute"),
+        "manager_name", ATTRIBUTE_MAPPING["manager_name"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "marital_status",
-        ATTRIBUTE_MAPPING["marital_status"].get("ldap_attribute"),
+        "marital_status", ATTRIBUTE_MAPPING["marital_status"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "middle_name",
-        ATTRIBUTE_MAPPING["middle_name"].get("ldap_attribute"),
+        "middle_name", ATTRIBUTE_MAPPING["middle_name"].get("ldap_attribute")
     ),
-    UserAttributeTest(
-        "nickname",
-        ATTRIBUTE_MAPPING["nickname"].get("ldap_attribute"),
-    ),
+    UserAttributeTest("nickname", ATTRIBUTE_MAPPING["nickname"].get("ldap_attribute")),
     UserAttributeTest("note", ATTRIBUTE_MAPPING["note"].get("ldap_attribute")),
     UserAttributeTest(
         "number_of_children",
@@ -303,25 +265,20 @@ user_attributes: typing.List[UserAttributeTest] = [
         "number_of_employee",
         ATTRIBUTE_MAPPING["number_of_employee"].get("ldap_attribute"),
     ),
-    UserAttributeTest(
-        "position",
-        ATTRIBUTE_MAPPING["position"].get("ldap_attribute"),
-    ),
+    UserAttributeTest("position", ATTRIBUTE_MAPPING["position"].get("ldap_attribute")),
     UserAttributeTest(
         "postal_code_business",
         ATTRIBUTE_MAPPING["postal_code_business"].get("ldap_attribute"),
     ),
     UserAttributeTest(
-        "postal_code_home",
-        ATTRIBUTE_MAPPING["postal_code_home"].get("ldap_attribute"),
+        "postal_code_home", ATTRIBUTE_MAPPING["postal_code_home"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "postal_code_other",
         ATTRIBUTE_MAPPING["postal_code_other"].get("ldap_attribute"),
     ),
     UserAttributeTest(
-        "profession",
-        ATTRIBUTE_MAPPING["profession"].get("ldap_attribute"),
+        "profession", ATTRIBUTE_MAPPING["profession"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "room_number",
@@ -331,50 +288,36 @@ user_attributes: typing.List[UserAttributeTest] = [
         soap_value_from_udm_value=take_first,
     ),
     UserAttributeTest(
-        "sales_volume",
-        ATTRIBUTE_MAPPING["sales_volume"].get("ldap_attribute"),
+        "sales_volume", ATTRIBUTE_MAPPING["sales_volume"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "spouse_name",
-        ATTRIBUTE_MAPPING["spouse_name"].get("ldap_attribute"),
+        "spouse_name", ATTRIBUTE_MAPPING["spouse_name"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "state_business",
-        ATTRIBUTE_MAPPING["state_business"].get("ldap_attribute"),
+        "state_business", ATTRIBUTE_MAPPING["state_business"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "state_home",
-        ATTRIBUTE_MAPPING["state_home"].get("ldap_attribute"),
+        "state_home", ATTRIBUTE_MAPPING["state_home"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "state_other",
-        ATTRIBUTE_MAPPING["state_other"].get("ldap_attribute"),
+        "state_other", ATTRIBUTE_MAPPING["state_other"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "street_business",
-        ATTRIBUTE_MAPPING["street_business"].get("ldap_attribute"),
+        "street_business", ATTRIBUTE_MAPPING["street_business"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "street_home",
-        ATTRIBUTE_MAPPING["street_home"].get("ldap_attribute"),
+        "street_home", ATTRIBUTE_MAPPING["street_home"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "street_other",
-        ATTRIBUTE_MAPPING["street_other"].get("ldap_attribute"),
+        "street_other", ATTRIBUTE_MAPPING["street_other"].get("ldap_attribute")
     ),
-    UserAttributeTest(
-        "suffix",
-        ATTRIBUTE_MAPPING["suffix"].get("ldap_attribute"),
-    ),
+    UserAttributeTest("suffix", ATTRIBUTE_MAPPING["suffix"].get("ldap_attribute")),
     UserAttributeTest(
         "sur_name",
         ATTRIBUTE_MAPPING["sur_name"].get("ldap_attribute"),
         none_generator=no_none,
     ),
-    UserAttributeTest(
-        "tax_id",
-        ATTRIBUTE_MAPPING["tax_id"].get("ldap_attribute"),
-    ),
+    UserAttributeTest("tax_id", ATTRIBUTE_MAPPING["tax_id"].get("ldap_attribute")),
     UserAttributeTest(
         "telephone_assistant",
         ATTRIBUTE_MAPPING["telephone_assistant"].get("ldap_attribute"),
@@ -394,8 +337,7 @@ user_attributes: typing.List[UserAttributeTest] = [
         soap_value_from_udm_value=take_second,
     ),
     UserAttributeTest(
-        "telephone_car",
-        ATTRIBUTE_MAPPING["telephone_car"].get("ldap_attribute"),
+        "telephone_car", ATTRIBUTE_MAPPING["telephone_car"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "telephone_company",
@@ -416,12 +358,10 @@ user_attributes: typing.List[UserAttributeTest] = [
         soap_value_from_udm_value=take_second,
     ),
     UserAttributeTest(
-        "telephone_ip",
-        ATTRIBUTE_MAPPING["telephone_ip"].get("ldap_attribute"),
+        "telephone_ip", ATTRIBUTE_MAPPING["telephone_ip"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "telephone_other",
-        ATTRIBUTE_MAPPING["telephone_other"].get("ldap_attribute"),
+        "telephone_other", ATTRIBUTE_MAPPING["telephone_other"].get("ldap_attribute")
     ),
     UserAttributeTest(
         "telephone_pager",
@@ -431,99 +371,75 @@ user_attributes: typing.List[UserAttributeTest] = [
         soap_value_from_udm_value=take_first,
     ),
     UserAttributeTest(
-        "telephone_telex",
-        ATTRIBUTE_MAPPING["telephone_telex"].get("ldap_attribute"),
+        "telephone_telex", ATTRIBUTE_MAPPING["telephone_telex"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "telephone_ttytdd",
-        ATTRIBUTE_MAPPING["telephone_ttytdd"].get("ldap_attribute"),
+        "telephone_ttytdd", ATTRIBUTE_MAPPING["telephone_ttytdd"].get("ldap_attribute")
     ),
-    UserAttributeTest(
-        "title",
-        ATTRIBUTE_MAPPING["title"].get("ldap_attribute"),
-    ),
+    UserAttributeTest("title", ATTRIBUTE_MAPPING["title"].get("ldap_attribute")),
     UserAttributeTest("url", ATTRIBUTE_MAPPING["url"].get("ldap_attribute")),
     UserAttributeTest(
-        "userfield01",
-        ATTRIBUTE_MAPPING["userfield01"].get("ldap_attribute"),
+        "userfield01", ATTRIBUTE_MAPPING["userfield01"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield02",
-        ATTRIBUTE_MAPPING["userfield02"].get("ldap_attribute"),
+        "userfield02", ATTRIBUTE_MAPPING["userfield02"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield03",
-        ATTRIBUTE_MAPPING["userfield03"].get("ldap_attribute"),
+        "userfield03", ATTRIBUTE_MAPPING["userfield03"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield04",
-        ATTRIBUTE_MAPPING["userfield04"].get("ldap_attribute"),
+        "userfield04", ATTRIBUTE_MAPPING["userfield04"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield05",
-        ATTRIBUTE_MAPPING["userfield05"].get("ldap_attribute"),
+        "userfield05", ATTRIBUTE_MAPPING["userfield05"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield06",
-        ATTRIBUTE_MAPPING["userfield06"].get("ldap_attribute"),
+        "userfield06", ATTRIBUTE_MAPPING["userfield06"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield07",
-        ATTRIBUTE_MAPPING["userfield07"].get("ldap_attribute"),
+        "userfield07", ATTRIBUTE_MAPPING["userfield07"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield08",
-        ATTRIBUTE_MAPPING["userfield08"].get("ldap_attribute"),
+        "userfield08", ATTRIBUTE_MAPPING["userfield08"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield09",
-        ATTRIBUTE_MAPPING["userfield09"].get("ldap_attribute"),
+        "userfield09", ATTRIBUTE_MAPPING["userfield09"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield10",
-        ATTRIBUTE_MAPPING["userfield10"].get("ldap_attribute"),
+        "userfield10", ATTRIBUTE_MAPPING["userfield10"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield11",
-        ATTRIBUTE_MAPPING["userfield11"].get("ldap_attribute"),
+        "userfield11", ATTRIBUTE_MAPPING["userfield11"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield12",
-        ATTRIBUTE_MAPPING["userfield12"].get("ldap_attribute"),
+        "userfield12", ATTRIBUTE_MAPPING["userfield12"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield13",
-        ATTRIBUTE_MAPPING["userfield13"].get("ldap_attribute"),
+        "userfield13", ATTRIBUTE_MAPPING["userfield13"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield14",
-        ATTRIBUTE_MAPPING["userfield14"].get("ldap_attribute"),
+        "userfield14", ATTRIBUTE_MAPPING["userfield14"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield15",
-        ATTRIBUTE_MAPPING["userfield15"].get("ldap_attribute"),
+        "userfield15", ATTRIBUTE_MAPPING["userfield15"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield16",
-        ATTRIBUTE_MAPPING["userfield16"].get("ldap_attribute"),
+        "userfield16", ATTRIBUTE_MAPPING["userfield16"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield17",
-        ATTRIBUTE_MAPPING["userfield17"].get("ldap_attribute"),
+        "userfield17", ATTRIBUTE_MAPPING["userfield17"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield18",
-        ATTRIBUTE_MAPPING["userfield18"].get("ldap_attribute"),
+        "userfield18", ATTRIBUTE_MAPPING["userfield18"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield19",
-        ATTRIBUTE_MAPPING["userfield19"].get("ldap_attribute"),
+        "userfield19", ATTRIBUTE_MAPPING["userfield19"].get("ldap_attribute")
     ),
     UserAttributeTest(
-        "userfield20",
-        ATTRIBUTE_MAPPING["userfield20"].get("ldap_attribute"),
+        "userfield20", ATTRIBUTE_MAPPING["userfield20"].get("ldap_attribute")
     ),
 ]
+
 
 
 def attr_id(value: UserAttributeTest, index=[]) -> str:
@@ -573,7 +489,7 @@ def test_unset_set_mapping(
             "modify",
             "--unset",
             user_test.soap_name,
-        ],
+        ]
     )
     value = user_test.random_value_generator()
     udm.modify(
@@ -594,7 +510,7 @@ def test_unset_set_mapping(
             "--set",
             user_test.soap_name,
             user_test.udm_name,
-        ],
+        ]
     )
 
     # Check that after setting the mapping the value is synchronized
@@ -627,7 +543,7 @@ def test_change_mapping(
             "--set",
             "userfield01",
             "description",
-        ],
+        ]
     )
 
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
@@ -655,7 +571,7 @@ def test_change_mapping(
             "--set",
             "userfield01",
             "oxUserfield01",
-        ],
+        ]
     )
     description2 = "Using oxUserfield01 as userfield01"
 
@@ -681,7 +597,7 @@ def test_change_mapping(
             "mailPrimaryAddress",
             "--unset_alternatives",
             "email1",
-        ],
+        ]
     )
 
 
@@ -703,7 +619,7 @@ def test_use_alternative(
             "--set_alternatives",
             "email1",
             "mailPrimaryAddress",
-        ],
+        ]
     )
 
     new_mail_address = "{}2@{}".format(new_user_name, domainname)
@@ -745,5 +661,5 @@ def test_use_alternative(
             "mailPrimaryAddress",
             "--unset_alternatives",
             "email1",
-        ],
+        ]
     )

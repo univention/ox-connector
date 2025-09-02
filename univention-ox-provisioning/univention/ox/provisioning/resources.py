@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright 2020 Univention GmbH
 #
@@ -31,10 +32,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
-from univention.ox.provisioning.helpers import (
-    get_context_id,
-    get_obj_by_name_from_ox,
-)
+from univention.ox.provisioning.helpers import get_context_id, get_obj_by_name_from_ox
 
 Resource = get_ox_integration_class("SOAP", "Resource")
 logger = logging.getLogger("listener")

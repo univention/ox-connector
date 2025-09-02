@@ -136,9 +136,7 @@ linkcheck_anchors_ignore_for_url = [
 latex_engine = "lualatex"
 latex_show_pagerefs = True
 latex_show_urls = "footnote"
-latex_documents = [
-    (root_doc, f"{doc_basename}.tex", project, author, "manual", False),
-]
+latex_documents = [(root_doc, f"{doc_basename}.tex", project, author, "manual", False)]
 latex_elements = {
     "papersize": "a4paper",
     "babel": "\\usepackage{babel}",

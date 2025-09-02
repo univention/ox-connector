@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Univention Admin Modules
 #  admin module for the functional account objects
@@ -34,9 +35,7 @@ import univention.admin.localization
 import univention.admin.uexceptions
 from univention.admin.layout import Tab, Group
 
-translation = univention.admin.localization.translation(
-    'univention.admin.handlers.oxmail.functional_account',
-)
+translation = univention.admin.localization.translation('univention.admin.handlers.oxmail.functional_account')
 _ = translation.translate
 
 module = 'oxmail/functional_account'
@@ -105,50 +104,25 @@ property_descriptions = {
 }
 
 layout = [
-    Tab(
-        _('General'),
-        _('Functional Account settings'),
-        layout=[
-            Group(
-                _('General'),
-                layout=[
-                    'name',
-                    'mailPrimaryAddress',
-                    'oxQuota',
-                    'personal',
-                ],
-            ),
-            Group(
-                _('Access Rights'),
-                layout=[
-                    'users',
-                    # 'groups',
-                ],
-            ),
-        ],
-    ),
+    Tab(_('General'), _('Functional Account settings'), layout=[
+        Group(_('General'), layout=[
+            'name',
+            'mailPrimaryAddress',
+            'oxQuota',
+            'personal',
+        ]),
+        Group(_('Access Rights'), layout=[
+            'users',
+            # 'groups',
+        ]),
+    ]),
 ]
 
 mapping = univention.admin.mapping.mapping()
 mapping.register('name', 'cn', None, univention.admin.mapping.ListToString)
-mapping.register(
-    'mailPrimaryAddress',
-    'mailPrimaryAddress',
-    None,
-    univention.admin.mapping.ListToLowerString,
-)
-mapping.register(
-    'oxQuota',
-    'oxQuota',
-    None,
-    univention.admin.mapping.ListToString,
-)
-mapping.register(
-    'personal',
-    'oxPersonal',
-    None,
-    univention.admin.mapping.ListToString,
-)
+mapping.register('mailPrimaryAddress', 'mailPrimaryAddress', None, univention.admin.mapping.ListToLowerString)
+mapping.register('oxQuota', 'oxQuota', None, univention.admin.mapping.ListToString)
+mapping.register('personal', 'oxPersonal', None, univention.admin.mapping.ListToString)
 
 
 class object(univention.admin.handlers.simpleLdap):
@@ -169,43 +143,19 @@ class object(univention.admin.handlers.simpleLdap):
 
     def _ldap_modlist(self):
         ml = super(object, self)._ldap_modlist()
-        new_members = [
-            member.encode('utf-8') for member in self['users'] + self['groups']
-        ]
-        ml.append(
-            (
-                'uniqueMember',
-                self.oldattr.get('uniqueMember', []),
-                new_members,
-            ),
-        )
+        new_members = [member.encode('utf-8') for member in self['users'] + self['groups']]
+        ml.append(('uniqueMember', self.oldattr.get('uniqueMember', []), new_members))
         return ml
 
     def _ldap_pre_ready(self):
         # get lock for mailPrimaryAddress
         if not self.exists() or self.hasChanged('mailPrimaryAddress'):
             # ignore case in change of mailPrimaryAddress, we only store the lowercase address anyway
-            if (
-                self['mailPrimaryAddress']
-                and self['mailPrimaryAddress'].lower()
-                != (self.oldinfo.get('mailPrimaryAddress', None) or '').lower()
-            ):
+            if self['mailPrimaryAddress'] and self['mailPrimaryAddress'].lower() != (self.oldinfo.get('mailPrimaryAddress', None) or '').lower():
                 try:
-                    self.alloc.append(
-                        (
-                            'mailPrimaryAddress',
-                            univention.admin.allocators.request(
-                                self.lo,
-                                self.position,
-                                'mailPrimaryAddress',
-                                value=self['mailPrimaryAddress'],
-                            ),
-                        ),
-                    )
+                    self.alloc.append(('mailPrimaryAddress', univention.admin.allocators.request(self.lo, self.position, 'mailPrimaryAddress', value=self['mailPrimaryAddress'])))
                 except univention.admin.uexceptions.noLock:
-                    raise univention.admin.uexceptions.mailAddressUsed(
-                        self['mailPrimaryAddress'],
-                    )
+                    raise univention.admin.uexceptions.mailAddressUsed(self['mailPrimaryAddress'])
 
 
 lookup = object.lookup

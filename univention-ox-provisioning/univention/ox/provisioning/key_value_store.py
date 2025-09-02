@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright 2024-2025 Univention GmbH
 #
@@ -42,9 +43,7 @@ class KeyValueStore(object):
         self.changes = set()
         with self.open() as data_base:
             for k in data_base.keys():
-                self.data[k.decode("UTF-8").lower()] = data_base[k].decode(
-                    "UTF-8",
-                )
+                self.data[k.decode("UTF-8").lower()] = data_base[k].decode("UTF-8")
 
     @contextmanager
     def open(self, flags="cs"):
@@ -82,6 +81,4 @@ class KeyValueStore(object):
 
 
 def get_old_db():
-    return KeyValueStore(
-        "/var/lib/univention-appcenter/apps/ox-connector/data/listener/old.db",
-    )
+    return KeyValueStore("/var/lib/univention-appcenter/apps/ox-connector/data/listener/old.db")
