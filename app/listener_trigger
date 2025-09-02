@@ -223,6 +223,8 @@ class TriggerObject(object):
 
     def was_enriched(self):
         """Whether the obj was modified via set_attr during processing."""
+        if self.was_deleted():
+            return False
         return bool(self._enriched)
 
     def set_attr(self, attr, value):

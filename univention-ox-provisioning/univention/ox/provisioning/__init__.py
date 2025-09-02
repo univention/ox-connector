@@ -124,6 +124,11 @@ def run(obj):  # noqa: C901
                     modify_group(new_obj)
                 elif new_obj.was_deleted():
                     delete_group(new_obj)
+                    continue
+                # Both create_group and modify_group delete the group
+                # if there are no members in it.
+                if new_obj.was_deleted():
+                    continue
                 if new_obj.was_enriched():
                     obj.set_attr(
                         "oxDbGroupname",
