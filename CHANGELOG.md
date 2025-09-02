@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.27.8](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.7...v0.27.8) (2025-09-02)
+
+
+### Bug Fixes
+
+* **deps:** Update gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base Docker tag to v5.2.2-build.20250821 ([f74ac3a](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/f74ac3afa50e49e54959c656232a8aa245d808dd)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+* **deps:** Update gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base Docker tag to v5.2.2-build.20250828 ([e1bd992](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/e1bd992cb1d0014b5de8d511a7d12194f909251e)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+* lint issues ([5daaa71](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/5daaa7133ae276193df0bc8e58bb98ac4ab89957)), closes [univention/dev/internal/team-nubus#1368](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1368)
+
 ## [0.27.7](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.6...v0.27.7) (2025-08-21)
 
 
