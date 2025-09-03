@@ -37,20 +37,20 @@ tests, so you need to copy them:
     > Make sure you are in the root of the `ox-connector` repository. 
 
 1. As an alternative to step 4 and 5, you could modify your statefulset to use the `ox-connector-standalone-test` image, that already includes test and test dependencies.
-Remember to increase the resources of the pod to at least `3Gi` memory. Also, it's recommended to mount an `emptyDir` in `/tmp`.
+Remember to increase the resources of the pod to at least `4Gi` memory. Also, it's mandatory to mount an `emptyDir` in `/tmp`.
 It is also recommended to set the pyest dir to a writeabke location, for example subdir of `/tmp`, otherwise the consumer might crash with authentication errors.
 
 1. Grab the credentials for the `Administrator` user by running:
     ```bash
     kubectl get secret -n "uv-<your-username>" ums-nubus-credentials -o jsonpath='{.data.administrator_password}' | base64 -d
     ```
-    > Remember to drop the `%` at the end, it is not part of the password.
+    > Remember to drop the `%` at the end if you are using zsh - it is not part of the password.
 1. Get a shell in the `ox-connector` pod:
     ```bash
     kubectl --namespace=uv-<your-username> \
     exec --stdin --tty ox-connector-0 -- \
     /bin/bash -c \
-    'TESTS_UDM_ADMIN_USERNAME="Administrator" TESTS_UDM_ADMIN_PASSWORD="somepassword" LDAP_MASTER="portal.uv-<username>.opendesk.site" LDAP_BASE="dc=swp-ldap,dc=internal" python3 -m pytest -o cache_dir=/tmp/.pytest_cache -l -vvv /tests'
+    'TESTS_UDM_ADMIN_USERNAME="Administrator" TESTS_UDM_ADMIN_PASSWORD="somepassword" STANDALONE_KUBERNETES_TESTS=1 LDAP_MASTER="portal.uv-<username>.opendesk.site" LDAP_BASE="dc=swp-ldap,dc=internal" python3 -m pytest -o cache_dir=/tmp/.pytest_cache -l -vvv /tests'
     ```
 1. Check the logs of the `ox-connector` pod for any errors:
     ```bash
@@ -66,14 +66,11 @@ Currently known to fail tests are:
 
 ### test_accessprofile ✅
 
-### test/test_cache ❌
-- tests/test_cache.py::test_add_user FAILED
-- tests/test_cache.py::test_rename_user FAILED
-- tests/test_cache.py::test_change_context FAILED
+### test/test_cache ✅
 
-> Our cache implementation is different from the one used in the tests.
-> While they save the dn as key and the path to a file as value, we store
-> the whole object as value. This is why the tests are failing.
+Our cache implementation is different from the one used in the tests.
+While they save the dn as key and the path to a file as value, we store
+the whole object as value. This is why the tests are failing.
 
 The tests can be run with `STANDALONE_KUBERNETES_TESTS=1` to use the correct caching
 but for the `tests/test_cache.py::test_create_group_with_user_not_in_cache` test to succeed
@@ -82,24 +79,29 @@ cache from outside.
 
 ### test/test_context ✅
 
-### test/test_function_account ❌
-- tests/test_function_account.py::test_add_functional_account_with_user_different_case_in_dn[cn=functional_accounts,cn=open-xchange] FAILED
-- tests/test_function_account.py::test_add_functional_account_with_user_different_case_in_dn[cn=users] FAILED
-> These two tests fail due to bug on our k8s implementation. The fixes for the appcenter and test
-> where introduced as part of [this commit](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/-/commit/65d7ddb47497bf87269de3f546b9da05fb9d6b20)  
-> Basically, we need to fix our consumer to not be case sensitive on dn's
+### test/test_function_account ✅
 
 ### test/test_functional_account_setting ❌
-- tests/test_functional_account_setting.py::test_functional_account_default_container FAILED
+```
+FAILED tests/test_functional_account_setting.py::test_functional_account_default_container - udm_rest.UnprocessableEntity: PUT https://portal.uv-jconde.opendesk.site/univention/udm/settings/directory/cn%3Ddefault%20containers%2Ccn%3Dunivention%2Cdc%3Dswp-ldap%2Cdc%3Dinternal: 422
+1 error(s) occurred:
+Request argument "ox_functional_accounts" The Preferences: Default Container module has no property ox_functional_accounts.
+```
 
 ### test/test_group ❌
-- tests/test_group.py::test_change_context_for_group_multi_user FAILED
-- tests/test_group.py::test_change_context_for_group_user FAILED
+```
+FAILED tests/test_group.py::test_change_context_for_group_multi_user - Failed: Listener_trigger did NOT handle cn=group304,cn=groups,dc=swp-ldap,dc=internal for 60.0 seconds.
+FAILED tests/test_group.py::test_change_context_for_group_user - Failed: Listener_trigger did NOT handle cn=group311,cn=groups,dc=swp-ldap,dc=internal for 60.0 seconds.
+```
+
+> For some reason, the wait_for_listener is timing out when listening for the group changes.
 
 ### tests/test_resource ✅
 
 ### tests/test_user ❌
-- tests/test_user.py::test_modify_context_admin[True] FAILED
+```
+FAILED tests/test_user.py::test_modify_context_admin[True] - FileNotFoundError: [Errno 2] No such file or directory: 'update-ox-db-cache'
+```
 
 ### tests/test_user_attribute_mapping ❌
 All the tests are failing, since we do not support custom mappings.
