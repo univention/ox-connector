@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.27.10](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.9...v0.27.10) (2025-09-05)
+
+
+### Bug Fixes
+
+* **helm:** Allign helm image configuration with the nubus standards ([10c16ab](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/10c16ab17554395e592bf128c3e0dc37169c667b))
+* **helm:** delete hpa config because the ox-connector can only be deployed once ([bdd9244](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/bdd9244ffc991a8d87a48c6daf9502b83237a911))
+* **helm:** fix helm annotations templating ([23dcc95](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/23dcc95e58904ccc3663bf15656696ae37920bd8))
+
 ## [0.27.9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.8...v0.27.9) (2025-09-05)
 
 
