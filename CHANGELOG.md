@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.27.9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.8...v0.27.9) (2025-09-05)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency univention/dev/nubus-for-k8s/common-ci to v1.44.2 ([09145b8](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/09145b8e236ee180f570a054a7c8c3c20d185b14)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+* logic after group deletion must not check for enrichment of the deleted object ([63559bd](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/63559bd257dd1a90e19ecb82cb79c061a5a34fc8)), closes [univention/dev/internal/dev-issues/dev-incidents#155](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/155)
+* use fixture for creating test groups ([9387ebe](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/9387ebe5e4c482d1e09e8f35817bda44376b2444)), closes [univention/dev/internal/dev-issues/dev-incidents#155](https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/issues/155)
+
+
+### Reverts
+
+* "ci: enable pre-commit" ([1b9aae8](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/1b9aae80c090aa33c7cb35ff4e16d9206fbcdb03))
+* "fix: lint issues" ([8d9012b](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/8d9012b166d87f90e3d6feb14d46384a3940141e))
+
 ## [0.27.8](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.7...v0.27.8) (2025-09-02)
 
 
