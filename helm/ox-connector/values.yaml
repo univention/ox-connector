@@ -97,7 +97,6 @@ fullnameOverride: ""
 nameOverride: ""
 nodeSelector: {}
 podAnnotations: {}
-podSecurityContext: {}
 replicaCount: 1
 tolerations: []
 
@@ -163,15 +162,18 @@ serviceAccount:
   # -- Additional custom labels for the ServiceAccount.
   labels: {}
 
+podSecurityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+  runAsGroup: 1000
+  runAsNonRoot: true
+  seccompProfile:
+    type: "RuntimeDefault"
+
 securityContext:
   privileged: false
   allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
   capabilities:
     drop:
-    - "ALL"
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 1000
-  runAsGroup: 1000
-  seccompProfile:
-    type: "RuntimeDefault"
+      - "ALL"

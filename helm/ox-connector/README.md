@@ -43,7 +43,11 @@ A Helm chart for the ox-connector
 | persistence.size | string | `"1Gi"` | Specify PVCs size |
 | persistence.storageClass | string | `""` | Specify storageClassName - Leave empty to use the default storage class |
 | podAnnotations | object | `{}` |  |
-| podSecurityContext | object | `{}` |  |
+| podSecurityContext.fsGroup | int | `1000` |  |
+| podSecurityContext.runAsGroup | int | `1000` |  |
+| podSecurityContext.runAsNonRoot | bool | `true` |  |
+| podSecurityContext.runAsUser | int | `1000` |  |
+| podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | probes.liveness.exec.command[0] | string | `"/bin/sh"` |  |
 | probes.liveness.exec.command[1] | string | `"-c"` |  |
 | probes.liveness.exec.command[2] | string | `"exit 0\n"` |  |
@@ -76,10 +80,6 @@ A Helm chart for the ox-connector
 | securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | securityContext.privileged | bool | `false` |  |
 | securityContext.readOnlyRootFilesystem | bool | `true` |  |
-| securityContext.runAsGroup | int | `1000` |  |
-| securityContext.runAsNonRoot | bool | `true` |  |
-| securityContext.runAsUser | int | `1000` |  |
-| securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.automountServiceAccountToken | bool | `false` |  |
 | serviceAccount.create | bool | `true` |  |
