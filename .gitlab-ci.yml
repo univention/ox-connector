@@ -100,7 +100,7 @@ container-build-appcenter:
 test-chart-ox-connector:
   stage: test
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.24.2"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.24.5@sha256:efa1b3300fca2367e67dec8525c71f5445d75d88ae1da20aa64083a411bc3337"
   script:
     - helm dep build helm/ox-connector
     - pytest -W error helm-unittests/
