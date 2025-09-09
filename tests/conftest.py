@@ -142,7 +142,9 @@ def udm_uri():
     # Use LDAP_MASTER in Jenkins UCS (where PORTAL_HOST isn't set).
     # Use PORTAL_HOST in other environments for UDM connection.
     # cannot verify https in the container at the moment
-    return "https://{}/univention/udm/".format(os.getenv("LDAP_MASTER") or os.getenv("PORTAL_HOST"))
+    return "https://{}/univention/udm/".format(
+        os.getenv("LDAP_MASTER") or os.getenv("PORTAL_HOST"),
+    )
 
 
 @pytest.fixture

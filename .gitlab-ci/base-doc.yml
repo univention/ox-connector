@@ -28,7 +28,7 @@ variables:
     language: "en"
 
 .sphinx-linkcheck:
-  extends: 
+  extends:
     - .sphinx-doc
     - .sphinx-linkcheck-template
 

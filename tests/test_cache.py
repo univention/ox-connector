@@ -9,7 +9,6 @@ import pytest
 from contextlib import contextmanager
 from pathlib import Path
 
-from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.users import User
 from univention.ox.provisioning.groups import Group
 
@@ -34,11 +33,20 @@ class KeyValueStore(object):
 
 if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
     mapping = KeyValueStore("ox_db_id.db")  # stores dn -> ox object id
-    non_ox_mapping = KeyValueStore("non_ox_objs.db") # stores dn of non ox objects
+    non_ox_mapping = KeyValueStore(
+        "non_ox_objs.db",
+    )  # stores dn of non ox objects
 else:
     mapping = KeyValueStore("old.db")  # stores dn -> path to last json file
 
-def find_obj(context_id, name, type="user", assert_empty=False, print_obj=True):
+
+def find_obj(
+    context_id,
+    name,
+    type="user",
+    assert_empty=False,
+    print_obj=True,
+):
     if type == "user":
         objs = User.list(context_id, pattern=name)
     elif type == "group":
@@ -59,7 +67,7 @@ def find_obj(context_id, name, type="user", assert_empty=False, print_obj=True):
         return obj
 
 
-def get_db_id(dn: str, max_retry: int=5, db: KeyValueStore = mapping) -> int:
+def get_db_id(dn: str, max_retry: int = 5, db: KeyValueStore = mapping) -> int:
     """
     Tests existance of an old JSON file
     Returns the oxDbId (if any)
@@ -97,9 +105,7 @@ def test_ignore_user(create_ox_user):
     assert db_id is None
 
 
-def test_add_user(
-    create_ox_context, create_ox_user, new_user_name
-):
+def test_add_user(create_ox_context, create_ox_user, new_user_name):
     """
     Test a new user. Should find a DB ID in cache
     """
@@ -111,7 +117,9 @@ def test_add_user(
 
 
 def test_rename_user(
-    create_ox_user, udm, wait_for_listener,
+    create_ox_user,
+    udm,
+    wait_for_listener,
 ):
     """
     Renaming a user should keep its ID
@@ -128,9 +136,15 @@ def test_rename_user(
     new_db_id = get_db_id(dn)
     assert db_id == new_db_id
 
-@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
+
+@pytest.mark.skipif(
+    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
+    reason="Requires Nubus/Kubernetes deployment",
+)
 def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
-    create_ox_user, create_ox_group, default_ox_context
+    create_ox_user,
+    create_ox_group,
+    default_ox_context,
 ):
     """
     Creating a group with a user not in the cache should lazy load it
@@ -144,15 +158,22 @@ def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
         del db[user.dn.encode('utf-8')]
 
     create_ox_group("TestGroup01", members=[user.dn])
-    assert find_obj(default_ox_context, "TestGroup01", type="group") is not None
+    assert (
+        find_obj(default_ox_context, "TestGroup01", type="group") is not None
+    )
     reloaded_db_id = get_db_id(user.dn)
     assert reloaded_db_id is not None
     assert reloaded_db_id == db_id
 
 
-@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
+@pytest.mark.skipif(
+    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
+    reason="Requires Nubus/Kubernetes deployment",
+)
 def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
-    create_ox_user, udm, wait_for_listener
+    create_ox_user,
+    udm,
+    wait_for_listener,
 ):
     """
     Chancing a non ox user to a ox user should update the non-ox-object cache accordingly
@@ -174,9 +195,15 @@ def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
     db_id = get_db_id(non_ox_user.dn, db=non_ox_mapping)
     assert db_id is None
 
-@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") == None, reason="Requires Nubus/Kubernetes deployment")
+
+@pytest.mark.skipif(
+    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
+    reason="Requires Nubus/Kubernetes deployment",
+)
 def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
-    create_ox_user, udm, wait_for_listener
+    create_ox_user,
+    udm,
+    wait_for_listener,
 ):
     """
     Chancing an ox user to a non ox user should update the non-ox-object cache accordingly
@@ -198,8 +225,12 @@ def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     db_id = get_db_id(user.dn, db=non_ox_mapping)
     assert db_id is not None
 
+
 def test_change_context(
-    create_ox_user, create_ox_context, udm, wait_for_listener,
+    create_ox_user,
+    create_ox_context,
+    udm,
+    wait_for_listener,
 ):
     """
     Changing context should create new IDs in database
@@ -219,8 +250,12 @@ def test_change_context(
     assert new_db_id is not None
     assert db_id != new_db_id
 
+
 def test_remove_user(
-    create_ox_user, create_ox_context, udm, wait_for_listener,
+    create_ox_user,
+    create_ox_context,
+    udm,
+    wait_for_listener,
 ):
     """
     Test a new user. Should find a DB ID in cache

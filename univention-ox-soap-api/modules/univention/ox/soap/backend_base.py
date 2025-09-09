@@ -30,11 +30,7 @@
 
 import logging
 
-try:
-    from typing import Dict, List, Optional, Type, Union
-    import datetime
-except ImportError:
-    pass
+# Typing imports removed - not used in runtime code
 
 
 __ox_integration_backend_class_registry = (
@@ -61,7 +57,8 @@ def register_ox_integration_backend_class(backend, object_type, cls):
 
 
 def get_ox_integration_class(
-    backend, object_type
+    backend,
+    object_type,
 ):  # type: (str, str) -> Type["OxObject"]
     """
     Get a class implementing OX object manipulation.
@@ -71,9 +68,9 @@ def get_ox_integration_class(
     :return: Type - a subclass of OxObject
     """
     if backend == 'SOAP':
-        import univention.ox.soap.backend  # load meta classes
+        import univention.ox.soap.backend  # load meta classes  # noqa: F401
     return __ox_integration_backend_class_registry.get(backend, {}).get(
-        object_type
+        object_type,
     )
 
 
@@ -87,7 +84,10 @@ class BackendMetaClass(type):
 
     def __new__(cls, clsname, bases, attrs):
         kls = super(BackendMetaClass, cls).__new__(
-            cls, clsname, bases, attrs
+            cls,
+            clsname,
+            bases,
+            attrs,
         )  # type: Type["OxObject"]
         if (
             issubclass(kls, OxObject)
@@ -97,12 +97,16 @@ class BackendMetaClass(type):
             if not kls.logger:
                 kls.logger = cls.logger.getChild(clsname)
             register_ox_integration_backend_class(
-                kls._backend, kls._object_type, kls
+                kls._backend,
+                kls._object_type,
+                kls,
             )
             cls.logger.debug(
                 'Registered class {!r} of backend {!r} for object type {!r}.'.format(
-                    cls.__name__, kls._backend, kls._object_type
-                )
+                    cls.__name__,
+                    kls._backend,
+                    kls._object_type,
+                ),
             )
         return kls
 
@@ -126,7 +130,7 @@ class OxObject(object):
 
     def __init__(self, *args, **kwargs):  # type: (*str, **str) -> None
         self.logger = logging.getLogger(
-            '{}.{}'.format(__name__, self.__class__.__name__)
+            '{}.{}'.format(__name__, self.__class__.__name__),
         )
         self.kwargs2attr(**kwargs)
         self.backend_init(*args, **kwargs)
@@ -218,7 +222,7 @@ class Context(OxObject):
         super(Context, self).__init__(*args, **kwargs)
         self.id = self.context_id = self.context_id or self.id
         self.id = self.context_id = kwargs.get('context_id') or kwargs.get(
-            'id'
+            'id',
         )
 
 
@@ -450,6 +454,7 @@ class DeputyPermission(OxObject):
     send_on_behalf_of = None  # type: bool
     module_permissions = None  # type: ModulePermission
 
+
 class ActiveDeputyPermission(OxObject):
     """
     Representation of a OX DeputyPermission module.
@@ -466,6 +471,7 @@ class ActiveDeputyPermission(OxObject):
     deputy_id = None  # type: str
     grantor_id = None  # type: str
     context_id = None  # type: str
+
 
 class ModulePermission(OxObject):
     """

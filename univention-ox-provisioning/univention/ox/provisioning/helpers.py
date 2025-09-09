@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright 2020 Univention GmbH
 #
@@ -31,7 +30,6 @@ import logging
 import ldap.dn
 from typing import Dict, Any
 
-from univention.ox.soap.services import get_ox_soap_service_class
 
 from zeep.exceptions import Fault
 
@@ -39,15 +37,23 @@ _OX_VERSION = False
 
 logger = logging.getLogger("listener")
 
+
 class Skip(Exception):
     """Raise anywhere if you want to skip the processing of this object"""
+
     pass
+
 
 class SkipContextAdmin(Skip):
     pass
 
 
-def get_obj_by_name_from_ox(klass, context_id, name, raise_exception_on_zeep_exceptions_Fault=False):
+def get_obj_by_name_from_ox(
+    klass,
+    context_id,
+    name,
+    raise_exception_on_zeep_exceptions_Fault=False,
+):
     try:
         return klass.from_ox(context_id, name=name)
     except Fault as exc:

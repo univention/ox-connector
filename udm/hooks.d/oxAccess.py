@@ -41,7 +41,7 @@ import univention.config_registry
 from univention.admin.hook import simpleHook
 
 translation = univention.admin.localization.translation(
-    'univention.admin.hooks.oxAccess'
+    'univention.admin.hooks.oxAccess',
 )
 _ = translation.translate
 
@@ -52,7 +52,9 @@ class oxAccess(simpleHook):
     @staticmethod
     def log_info(msg):
         univention.debug.debug(
-            univention.debug.ADMIN, univention.debug.INFO, 'oxAccess: %s' % msg
+            univention.debug.ADMIN,
+            univention.debug.INFO,
+            'oxAccess: %s' % msg,
         )
 
     @staticmethod
@@ -84,23 +86,24 @@ class oxAccess(simpleHook):
         if module['mailPrimaryAddress']:
             domain = module['mailPrimaryAddress'].rsplit('@')[-1]
             filter_s = filter_format(
-                '(&(objectClass=univentionMailDomainname)(cn=%s))', (domain,)
+                '(&(objectClass=univentionMailDomainname)(cn=%s))',
+                (domain,),
             )
             result = module.lo.searchDn(filter=filter_s)
 
             if not result:
                 raise univention.admin.uexceptions.valueError(
                     _(
-                        "The mail address' domain does not match any mail domain object."
-                    )
+                        "The mail address' domain does not match any mail domain object.",
+                    ),
                 )
             else:
                 oxAccess.log_info('ldap result: %s' % result)
         else:
             raise univention.admin.uexceptions.valueError(
                 _(
-                    "The primary mail address is required for Open-Xchange users. Currently the users' primary mail address is not set."
-                )
+                    "The primary mail address is required for Open-Xchange users. Currently the users' primary mail address is not set.",
+                ),
             )
 
     @staticmethod
@@ -121,8 +124,8 @@ class oxAccess(simpleHook):
             except ValueError:
                 raise univention.admin.uexceptions.valueError(
                     _(
-                        'Anniversary must be in format \'YYYY-MM-DD\' or \'TT-MM-JJJJ\''
-                    )
+                        'Anniversary must be in format \'YYYY-MM-DD\' or \'TT-MM-JJJJ\'',
+                    ),
                 )
 
     @staticmethod
@@ -133,7 +136,7 @@ class oxAccess(simpleHook):
         if module.module != 'users/user':
             return
         oxAccess._ = univention.admin.localization.translation(
-            'univention.admin.handlers.oxaccess'
+            'univention.admin.handlers.oxaccess',
         ).translate
         self.log_info('_open called')
 
@@ -167,9 +170,7 @@ class oxAccess(simpleHook):
                 self.check_mailaddr(module)
             if not self.check_firstname(module):
                 raise univention.admin.uexceptions.valueError(
-                    _(
-                        'First name has to be set for open-xchange users.'
-                    )
+                    _('First name has to be set for open-xchange users.'),
                 )
 
     def hook_ldap_pre_modify(self, module):
@@ -186,9 +187,7 @@ class oxAccess(simpleHook):
             self.check_mailaddr(module)
             if not self.check_firstname(module):
                 raise univention.admin.uexceptions.valueError(
-                    _(
-                        'First name has to be set for open-xchange users.'
-                    )
+                    _('First name has to be set for open-xchange users.'),
                 )
 
     def hook_ldap_pre_remove(self, module):
@@ -199,10 +198,10 @@ class oxAccess(simpleHook):
         if resources:
             raise univention.admin.uexceptions.valueError(
                 _(
-                    'The user %s cannot be removed because he is admin of the following resources: %s'
+                    'The user %s cannot be removed because he is admin of the following resources: %s',
                 )
                 % (
                     module.oldinfo.get('username', '???'),
                     b', '.join(resources).decode('utf-8'),
-                )
+                ),
             )

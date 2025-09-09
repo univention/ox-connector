@@ -17,7 +17,6 @@ import os
 import sys
 
 from datetime import date
-from sphinx.locale import _
 
 # -- Project information -----------------------------------------------------
 
@@ -46,7 +45,8 @@ def read_version_from_ci() -> str:
         # This allows to build locally,
         # but also take the dynamic pipeline settings into account.
         return os.environ.get(
-            "DOCKER_BUILD_VERSION", ci.get("variables").get("APPCENTER_VERSION")
+            "DOCKER_BUILD_VERSION",
+            ci.get("variables").get("APPCENTER_VERSION"),
         )
 
 
@@ -155,7 +155,9 @@ intersphinx_mapping = {
 latex_engine = "lualatex"
 latex_show_pagerefs = True
 latex_show_urls = "footnote"
-latex_documents = [(root_doc, f"{doc_base}.tex", project, author, "manual", False)]
+latex_documents = [
+    (root_doc, f"{doc_base}.tex", project, author, "manual", False),
+]
 latex_elements = {
     "papersize": "a4paper",
 }

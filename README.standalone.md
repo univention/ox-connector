@@ -44,7 +44,7 @@ tests, so you need to copy them:
     kubectl cp tests ox-connector-0:/ -n uv-<your-username>
     kubectl cp share/ ox-connector-0:/usr/local/share/ox-connector/resources/ -n uv-<your-username>
     ```
-    > Make sure you are in the root of the `ox-connector` repository. 
+    > Make sure you are in the root of the `ox-connector` repository.
 
 1. As an alternative to step 4 and 5, you could modify your statefulset to use the `ox-connector-standalone-test` image, that already includes test and test dependencies.
 Remember to increase the resources of the pod to at least `4Gi` memory. Also, it's mandatory to mount an `emptyDir` in `/tmp`.
@@ -70,7 +70,7 @@ It is also recommended to set the pyest dir to a writeabke location, for example
 ## Tests status
 
 FYI: Executing the test as explained before, leads to some leftovers in the system, as users/ id ,etc.
-It's higly recomended to execute them in a fresh deployment.  
+It's higly recomended to execute them in a fresh deployment.
 
 Currently known to fail tests are:
 

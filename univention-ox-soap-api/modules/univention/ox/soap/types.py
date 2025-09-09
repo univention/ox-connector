@@ -88,7 +88,9 @@ class Types(object):
                     'DeputyPermission',
                 )
             except requests.exceptions.HTTPError:
-                univention.ox.soap.config.OX_ENABLE_DEPUTY_PERMISSIONS = "False"
+                univention.ox.soap.config.OX_ENABLE_DEPUTY_PERMISSIONS = (
+                    "False"
+                )
         if not self.wsdl_user:
             self.__class__.wsdl_user = get_wsdl(server, 'User')
         self.Credentials = self.wsdl_context.types.get_type(

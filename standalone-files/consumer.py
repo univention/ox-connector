@@ -86,13 +86,16 @@ def _search_ox_context_for_user(distinguished_name: str):
     for context in available_ox_contexts:
         objs = User.list(context.id, pattern=username)
         if len(objs) != 1:
-          continue
+            continue
 
-        logger.info(f"Found user: context={context.id}, id={objs[0].id}, username={username}")
+        logger.info(
+            f"Found user: context={context.id}, id={objs[0].id}, username={username}",
+        )
         return context.id, objs[0].id, username
 
     logger.info("User not found in any context")
     return None, None, None
+
 
 def _get_existing_object_ox_id(distinguished_name: str):
     """
@@ -118,12 +121,24 @@ def _get_existing_object_ox_id(distinguished_name: str):
     object_ox_db_uid = usernames.get(distinguished_name)
     is_ox_object = non_ox_objs.get(distinguished_name) is None
 
-    if object_ox_db_id is None or object_ox_id is None or object_ox_db_uid is None:
+    if (
+        object_ox_db_id is None
+        or object_ox_id is None
+        or object_ox_db_uid is None
+    ):
         if is_ox_object:
-            logger.info(f"User {distinguished_name} not found in cache, searching it now")
-            object_ox_id, object_ox_db_id, object_ox_db_uid = _search_ox_context_for_user(distinguished_name)
+            logger.info(
+                f"User {distinguished_name} not found in cache, searching it now",
+            )
+            object_ox_id, object_ox_db_id, object_ox_db_uid = (
+                _search_ox_context_for_user(distinguished_name)
+            )
 
-            if object_ox_id is not None and object_ox_db_id is not None and object_ox_db_uid is not None:
+            if (
+                object_ox_id is not None
+                and object_ox_db_id is not None
+                and object_ox_db_uid is not None
+            ):
                 ox_contexts.set(distinguished_name, object_ox_id)
                 ox_db_id.set(distinguished_name, object_ox_db_id)
                 usernames.set(distinguished_name, object_ox_db_uid)
@@ -133,12 +148,16 @@ def _get_existing_object_ox_id(distinguished_name: str):
                 ox_db_id.commit()
                 usernames.commit()
             else:
-                logger.info("User not found in OX, assuming it is a non OX-User")
+                logger.info(
+                    "User not found in OX, assuming it is a non OX-User",
+                )
                 non_ox_objs.set(distinguished_name, 1)
 
             non_ox_objs.commit()
         else:
-            logger.info(f"User {distinguished_name} is a non OX user, ignoring it")
+            logger.info(
+                f"User {distinguished_name} is a non OX user, ignoring it",
+            )
 
     logger.info("Loading object OX ID from known objects")
     fake_obj = FakeObject(
@@ -212,16 +231,34 @@ class OXConsumer:
         old_obj = body.old
 
         if old_obj and new_obj:
-            if old_obj.get("properties").get("isOxUser") != new_obj.get("properties").get("isOxUser") or \
-               old_obj.get("properties").get("isOxGroup") != new_obj.get("properties").get("isOxGroup"):
-                if new_obj.get("properties").get("isOxUser") or new_obj.get("properties").get("isOxGroup"):
-                    logger.info("Is ox user/group changed, create object instead of modify")
+            if old_obj.get("properties").get("isOxUser") != new_obj.get(
+                "properties",
+            ).get("isOxUser") or old_obj.get("properties").get(
+                "isOxGroup",
+            ) != new_obj.get(
+                "properties",
+            ).get(
+                "isOxGroup",
+            ):
+                if new_obj.get("properties").get("isOxUser") or new_obj.get(
+                    "properties",
+                ).get("isOxGroup"):
+                    logger.info(
+                        "Is ox user/group changed, create object instead of modify",
+                    )
                     self.create(new_obj, new_obj.get("dn"))
                 else:
-                    logger.info("Is ox user/group changed, delete object instead of modify")
+                    logger.info(
+                        "Is ox user/group changed, delete object instead of modify",
+                    )
                     self.remove(old_obj, old_obj.get("dn"))
             else:
-                self.modify(old_obj, new_obj, new_obj.get("dn"), old_obj.get("dn"))
+                self.modify(
+                    old_obj,
+                    new_obj,
+                    new_obj.get("dn"),
+                    old_obj.get("dn"),
+                )
         elif old_obj:
             self.remove(old_obj, old_obj.get("dn"))
         else:
@@ -252,7 +289,9 @@ class OXConsumer:
         try:
             run(obj)
 
-            if obj.attributes.get("isOxUser") or obj.attributes.get("isOxGroup"):
+            if obj.attributes.get("isOxUser") or obj.attributes.get(
+                "isOxGroup",
+            ):
                 # Store the needed values to keep track of the objects locally.
                 # For more details, see KeyValueStore objects FIXME above.
                 if obj.attributes.get("oxContext") is not None:
@@ -267,7 +306,9 @@ class OXConsumer:
 
                 non_ox_objs.unset(dn)
             else:
-                logger.info("Non OX object created, only update non-ox-object DB")
+                logger.info(
+                    "Non OX object created, only update non-ox-object DB",
+                )
                 non_ox_objs.set(dn, 1)
 
         except Exception as err:
