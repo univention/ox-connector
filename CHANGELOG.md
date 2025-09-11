@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.11](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.10...v0.27.11) (2025-09-11)
+
+
+### Bug Fixes
+
+* Configure fsGroup so that the container starts up with the defaults ([27c7b12](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/27c7b12e5c8e4283778c59f035fc1f66955e7123)), closes [univention/dev/internal/team-nubus#1377](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1377)
+
 ## [0.27.10](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.9...v0.27.10) (2025-09-05)
 
 
