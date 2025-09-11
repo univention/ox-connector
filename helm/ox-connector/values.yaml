@@ -67,10 +67,21 @@ oxConnector:
 openXchange:
   # -- OX-Mail-Domain to generate OX-email-addresses
   domainName: null
-  # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
-  oxMasterAdmin: "oxadminmaster"
-  # -- OX Admin password
-  oxMasterPassword: null
+  auth:
+    # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+    username: "oxadminmaster"
+    # -- OX Admin password
+    password: null
+    existingSecret:
+      # -- The name of an existing Secret to use for retrieving the password
+      # for the ox admin password.
+      #
+      # "oxConnector.auth.password" will be ignored if this value is set.
+      name: null
+      keyMapping:
+        # -- The key to retrieve the password from. Setting this value allows to use
+        # a key with a different name.
+        password: null
   # -- Default timezone for new users
   oxLocalTimezone: "Europe/Berlin"
   # -- Default language for new users

@@ -22,8 +22,7 @@ data:
   MAX_ACKNOWLEDGEMENT_RETRIES: {{ required "The parameter \".Values.provisioningApi.config.maxAcknowledgementRetries\" is required." .Values.provisioningApi.config.maxAcknowledgementRetries | quote }}
 
   DOMAINNAME: "{{ .Values.openXchange.domainName }}"
-  OX_MASTER_ADMIN: "{{ .Values.openXchange.oxMasterAdmin }}"
-  OX_MASTER_PASSWORD: "{{ .Values.openXchange.oxMasterPassword }}"
+  OX_MASTER_ADMIN: "{{ .Values.openXchange.auth.username }}"
   LOCAL_TIMEZONE: "{{ .Values.openXchange.oxLocalTimezone }}"
   OX_LANGUAGE: "{{ .Values.openXchange.oxLanguage }}"
   DEFAULT_CONTEXT: "{{ .Values.openXchange.oxDefaultContext }}"

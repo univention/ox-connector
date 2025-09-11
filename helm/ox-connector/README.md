@@ -26,14 +26,16 @@ A Helm chart for the ox-connector
 | global.imageRegistry | string | `"artifacts.software-univention.de"` | Container registry address. |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
+| openXchange.auth.existingSecret.keyMapping.password | string | `nil` | The key to retrieve the password from. Setting this value allows to use a key with a different name. |
+| openXchange.auth.existingSecret.name | string | `nil` | The name of an existing Secret to use for retrieving the password for the ox admin password.  "oxConnector.auth.password" will be ignored if this value is set. |
+| openXchange.auth.password | string | `nil` | OX Admin password |
+| openXchange.auth.username | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
 | openXchange.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
 | openXchange.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
 | openXchange.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
 | openXchange.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
 | openXchange.oxLanguage | string | `"de_DE"` | Default language for new users |
 | openXchange.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
-| openXchange.oxMasterAdmin | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
-| openXchange.oxMasterPassword | string | `nil` | OX Admin password |
 | openXchange.oxSmtpServer | string | `nil` | Default SMTP server for new users (if not set explicitely there) |
 | openXchange.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
 | oxConnector.image.pullPolicy | string | `nil` |  |
