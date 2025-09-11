@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.28.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.12...v0.28.0) (2025-09-11)
+
+
+### Features
+
+* **helm:** Adjust handling of "provisioningApi.auth" ([336f71e](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/336f71eff3aa040964d46e1c30156c84e5f332c6)), closes [univention/dev/internal/team-nubus#1094](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1094)
+* **helm:** Migration required: Adjust handling of oxConnector secrets ([b9c4a53](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/b9c4a53e4b4d60c4c71ac85fee6c6c71edc7d707)), closes [univention/dev/internal/team-nubus#1094](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1094)
+* **helm:** Migration required: rename oxConnector to openXchange ([e8a1a37](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/e8a1a3728e2abbf33085bcd6143c6056f77ae196)), closes [univention/dev/internal/team-nubus#1094](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1094)
+
 ## [0.27.12](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.27.11...v0.27.12) (2025-09-11)
 
 
