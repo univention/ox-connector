@@ -21,9 +21,6 @@ oxConnector:
 provisioningApi:
   connection:
     baseUrl: ""
-  auth:
-    username: "ox-connector"
-    password: ""
 
 ## Docker image
 image:

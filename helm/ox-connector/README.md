@@ -64,9 +64,11 @@ A Helm chart for the ox-connector
 | probes.readiness.periodSeconds | int | `15` |  |
 | probes.readiness.successThreshold | int | `1` |  |
 | probes.readiness.timeoutSeconds | int | `3` |  |
-| provisioningApi.auth | object | `{"password":"","username":"ox-connector"}` | Authentication parameters |
-| provisioningApi.auth.password | string | `""` | The password to authenticate with. |
-| provisioningApi.auth.username | string | `"ox-connector"` | The username to authenticate with. |
+| provisioningApi.auth | object | `{"existingSecret":{"keyMapping":{"password":null},"name":null},"password":null,"username":"ox-consumer"}` | Authentication parameters |
+| provisioningApi.auth.existingSecret.keyMapping.password | string | `nil` | The key to retrieve the password from. Setting this value allows to use a key with a different name. |
+| provisioningApi.auth.existingSecret.name | string | `nil` | The name of an existing Secret to use for retrieving the password to authenticate with the Provisioning API.  "provisioningApi.auth.password" will be ignored if this value is set. |
+| provisioningApi.auth.password | string | `nil` | The password to authenticate with. |
+| provisioningApi.auth.username | string | `"ox-consumer"` | The username to authenticate with. |
 | provisioningApi.config.maxAcknowledgementRetries | int | `3` | The maximum number of retries for acknowledging a message |
 | provisioningApi.connection | object | `{"baseUrl":""}` | Connection parameters |
 | provisioningApi.connection.baseUrl | string | `""` | The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api") |

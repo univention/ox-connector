@@ -26,7 +26,6 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -67,10 +66,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ coalesce .Values.oxConnector.image.registry .Values.global.imageRegistry }}/{{ .Values.oxConnector.image.repository }}:{{ .Values.oxConnector.image.tag }}"
           imagePullPolicy: {{ coalesce .Values.oxConnector.image.pullPolicy .Values.global.imagePullPolicy | quote }}
+          env:
+            - name: PROVISIONING_API_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.provisioningApi.auth.existingSecret "key" "password") | quote }}
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.provisioningApi.auth.existingSecret "defaultNameSuffix" "provisioning-api" "context" .) | quote }}
           envFrom:
             - configMapRef:
-                name: {{ include "common.names.fullname" . }}
-            - secretRef:
                 name: {{ include "common.names.fullname" . }}
           volumeMounts:
             - name: {{ include "common.names.fullname" . }}-ox-contexts

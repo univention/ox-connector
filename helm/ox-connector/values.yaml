@@ -42,9 +42,19 @@ provisioningApi:
   # -- Authentication parameters
   auth:
     # -- The username to authenticate with.
-    username: "ox-connector"
+    username: "ox-consumer"
     # -- The password to authenticate with.
-    password: ""
+    password: null
+    existingSecret:
+      # -- The name of an existing Secret to use for retrieving the password
+      # to authenticate with the Provisioning API.
+      #
+      # "provisioningApi.auth.password" will be ignored if this value is set.
+      name: null
+      keyMapping:
+        # -- The key to retrieve the password from. Setting this value allows to use
+        # a key with a different name.
+        password: null
 
 # Configuration for OX CONNECTOR
 oxConnector:
