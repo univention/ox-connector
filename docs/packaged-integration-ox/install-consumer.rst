@@ -115,12 +115,12 @@ use the following steps:
    For the optional settings with their default values,
    see `README file of the OX Consumer <https://github.com/univention/ox-connector/blob/ucs5.0/helm/ox-connector/README.md>`_.
 
-   Section ``oxConnector``
+   Section ``openXchange``
       For information about their meaning,
       see the references to :cite:t:`uv-ox-connector-app`.
 
       :``domainName``: OX mail to domain to generate email addresses.
-      :``oxMasterPassword``: :external+uv-ox-connector-app:envvar:`OX_MASTER_PASSWORD`
+      :``auth.password``: :external+uv-ox-connector-app:envvar:`OX_MASTER_PASSWORD`
       :``oxSmtpServer``: :external+uv-ox-connector-app:envvar:`OX_SMTP_SERVER`
       :``oxImapServer``: :external+uv-ox-connector-app:envvar:`OX_IMAP_SERVER`
       :``oxSoapServer``: :external+uv-ox-connector-app:envvar:`OX_SOAP_SERVER`
@@ -144,6 +144,17 @@ use the following steps:
 
          Nubus for Kubernetes doesn't expose the *Provisioning API* to the outside of the cluster
          for security reasons.
+
+   .. tip::
+
+      **Using existing Kubernetes secrets**
+
+      Instead of specifying passwords directly in the values file,
+      you can reference existing Kubernetes secrets.
+      Use ``openXchange.auth.existingSecret`` and ``provisioningApi.auth.existingSecret``
+      to reference pre-created secrets containing the credentials.
+
+      When using existing secrets, the inline ``password`` values are ignored.
 
 .. seealso::
 
