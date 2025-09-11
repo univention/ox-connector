@@ -26,20 +26,20 @@ A Helm chart for the ox-connector
 | global.imageRegistry | string | `"artifacts.software-univention.de"` | Container registry address. |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
-| oxConnector.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
+| openXchange.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
+| openXchange.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
+| openXchange.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
+| openXchange.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
+| openXchange.oxLanguage | string | `"de_DE"` | Default language for new users |
+| openXchange.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
+| openXchange.oxMasterAdmin | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
+| openXchange.oxMasterPassword | string | `nil` | OX Admin password |
+| openXchange.oxSmtpServer | string | `nil` | Default SMTP server for new users (if not set explicitely there) |
+| openXchange.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
 | oxConnector.image.pullPolicy | string | `nil` |  |
 | oxConnector.image.registry | string | `nil` |  |
 | oxConnector.image.repository | string | `"nubus-dev/images/ox-connector-standalone"` |  |
 | oxConnector.image.tag | string | `"latest"` |  |
-| oxConnector.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
-| oxConnector.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
-| oxConnector.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
-| oxConnector.oxLanguage | string | `"de_DE"` | Default language for new users |
-| oxConnector.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
-| oxConnector.oxMasterAdmin | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
-| oxConnector.oxMasterPassword | string | `nil` | OX Admin password |
-| oxConnector.oxSmtpServer | string | `nil` | Default SMTP server for new users (if not set explicitely there) |
-| oxConnector.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
 | persistence.size | string | `"1Gi"` | Specify PVCs size |
 | persistence.storageClass | string | `""` | Specify storageClassName - Leave empty to use the default storage class |
 | podAnnotations | object | `{}` |  |

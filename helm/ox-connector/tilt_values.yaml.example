@@ -3,7 +3,7 @@
 ingress:
   enabled: false
 
-oxConnector:
+openXchange:
   domainName: "<value of DOMAINNAME>"
   oxMasterAdmin: "oxadminmasters"
   oxMasterPassword: "<value of OX_MASTER_PASSWORD>"
@@ -20,14 +20,16 @@ provisioningApi:
     username: "ox-connector"
     password: "password"
 
-image:
-  registry: "registry.souvap-univention.de"
-  repository: "souvap/tooling/images/ox-connector/ox-connector-standalone"
-  pullPolicy: "Always"
-  tag: "0.0.1-dev-tilt"
-  sha256: null
+oxConnector:
+  image:
+    registry: "registry.souvap-univention.de"
+    repository: "souvap/tooling/images/ox-connector/ox-connector-standalone"
+    pullPolicy: "Always"
+    tag: "0.0.1-dev-tilt"
+    sha256: null
 
-  waitForDependency:
+waitForDependency:
+  image:
     registry: "artifacts.software-univention.de"
     imagePullPolicy: "IfNotPresent"
     repository: "nubus/images/wait-for-dependency"

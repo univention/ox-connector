@@ -21,16 +21,16 @@ data:
   PROVISIONING_API_USERNAME: {{ .Values.provisioningApi.auth.username | quote }}
   MAX_ACKNOWLEDGEMENT_RETRIES: {{ required "The parameter \".Values.provisioningApi.config.maxAcknowledgementRetries\" is required." .Values.provisioningApi.config.maxAcknowledgementRetries | quote }}
 
-  DOMAINNAME: "{{ .Values.oxConnector.domainName }}"
-  OX_MASTER_ADMIN: "{{ .Values.oxConnector.oxMasterAdmin }}"
-  OX_MASTER_PASSWORD: "{{ .Values.oxConnector.oxMasterPassword }}"
-  LOCAL_TIMEZONE: "{{ .Values.oxConnector.oxLocalTimezone }}"
-  OX_LANGUAGE: "{{ .Values.oxConnector.oxLanguage }}"
-  DEFAULT_CONTEXT: "{{ .Values.oxConnector.oxDefaultContext }}"
-  OX_SMTP_SERVER: "{{ .Values.oxConnector.oxSmtpServer }}"
-  OX_IMAP_SERVER: "{{ .Values.oxConnector.oxImapServer }}"
-  OX_SOAP_SERVER: "{{ .Values.oxConnector.oxSoapServer }}"
-  LOG_LEVEL: "{{ .Values.oxConnector.logLevel }}"
+  DOMAINNAME: "{{ .Values.openXchange.domainName }}"
+  OX_MASTER_ADMIN: "{{ .Values.openXchange.oxMasterAdmin }}"
+  OX_MASTER_PASSWORD: "{{ .Values.openXchange.oxMasterPassword }}"
+  LOCAL_TIMEZONE: "{{ .Values.openXchange.oxLocalTimezone }}"
+  OX_LANGUAGE: "{{ .Values.openXchange.oxLanguage }}"
+  DEFAULT_CONTEXT: "{{ .Values.openXchange.oxDefaultContext }}"
+  OX_SMTP_SERVER: "{{ .Values.openXchange.oxSmtpServer }}"
+  OX_IMAP_SERVER: "{{ .Values.openXchange.oxImapServer }}"
+  OX_SOAP_SERVER: "{{ .Values.openXchange.oxSoapServer }}"
+  LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash
     until curl -s ${PROVISIONING_API_BASE_URL} > /dev/null; do

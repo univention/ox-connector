@@ -56,8 +56,15 @@ provisioningApi:
         # a key with a different name.
         password: null
 
-# Configuration for OX CONNECTOR
 oxConnector:
+  image:
+    pullPolicy: null
+    registry: null
+    repository: "nubus-dev/images/ox-connector-standalone"
+    tag: "latest"
+
+# Configuration for OX CONNECTOR
+openXchange:
   # -- OX-Mail-Domain to generate OX-email-addresses
   domainName: null
   # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
@@ -79,12 +86,6 @@ oxConnector:
   # -- OX Connector log level
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
-
-  image:
-    pullPolicy: null
-    registry: null
-    repository: "nubus-dev/images/ox-connector-standalone"
-    tag: "latest"
 
 waitForDependency:
   image:

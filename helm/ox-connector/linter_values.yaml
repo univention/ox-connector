@@ -9,10 +9,11 @@
 
 ## Application-specific
 # OX CONNECTOR
-oxConnector:
+openXchange:
   domainName: "example.org"
-  oxMasterAdmin: "oxadminmaster"
-  oxMasterPassword: "s3cr3t"
+  auth:
+    username: "oxadminmaster"
+    password: "s3cr3t"
   oxSmtpServer: "smtp://example.org:587"
   oxImapServer: "imap://example.org:143"
   oxSoapServer: "https://ox.example.org"
@@ -23,7 +24,7 @@ provisioningApi:
     baseUrl: ""
 
 ## Docker image
-image:
-  tag: "latest"
-
+oxConnector:
+  image:
+    tag: "latest"
 ...
