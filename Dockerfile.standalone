@@ -5,7 +5,7 @@
 # Always build this image with `DOCKER_BUILDKIT=1`
 # Without it the wrong .dockerignore file will be used
 
-ARG UCS_BASE_IMAGE_TAG=5.2.3-build.20250909@sha256:3584e6675c69873bd8ce963fe39ded59f565756e6e1de5d85372f6a922a7c72e
+ARG UCS_BASE_IMAGE_TAG=5.2.3-build.20250911@sha256:0c5dfc29fd96484047cae0c71f69c1de5684f5edab4b3858ae239f69eb723145
 ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base
 ###############################################################################
 # Reference ox-connector as source for listener_trigger dependencies
