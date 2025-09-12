@@ -525,6 +525,8 @@ def modify_user(obj):
                 f"Cannot modify {obj}. User not found in db. Creating instead.",
             )
             user.create()
+        else:
+            raise()
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)

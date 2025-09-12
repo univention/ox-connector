@@ -38,9 +38,16 @@ import shutil
 import sys
 import time
 import traceback
+import requests
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+import zeep.exceptions
+
+from sqlalchemy import create_engine, Column, Integer, String, insert, update
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 from univention.ox.provisioning import helpers, run
 from univention.ox.provisioning.key_value_store import KeyValueStore
@@ -65,18 +72,78 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+
 # logger = logging.getLogger("zeep.transports")
 # logger.setLevel(logging.DEBUG)
 # logger.addHandler(handler)
 
+Base = declarative_base()
+engine = create_engine("postgresql+psycopg2://ox-connector:9495e8a97a1403124dea880bcb2a3ed6de2a40cd0270f5373158b0ec3afc7b48@master.ucs.test:5432/ox-connector")
+
+class Error_entry(Base):
+    __tablename__ = "ox-connector-rejected"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(String, nullable=False)
+    dn = Column(String, nullable=False)
+    errormessage = Column(String, nullable=False)
+    traceback = Column(String, nullable=False)
+
+class Meta_information(Base):
+    __tablename__ = "meta-information"
+    id = Column(Integer, primary_key=True)
+    conerrors = Column(Integer, default=0)
+
+class DN_file_mapping(Base):
+    __tablename__ = "dn-file-mapping"
+    dn = Column(String, primary_key=True, nullable=False)
+    path = Column(String, nullable=False)
+
+Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+db_session = Session()
+
+Base.metadata.create_all(engine)
+
+
+def set_error_count(error):
+    db_session.query(Meta_information).filter(Meta_information.id == 0).update({'conerrors': error})
+    db_session.commit()
+
+def get_error_count():
+    match = db_session.query(Meta_information).filter_by(id=0).first()
+    return match.conerrors if match else 0 
+
+
+def set_mapping(dn, path):
+    match = db_session.query(DN_file_mapping).filter(dn == 0)
+    if match:
+        match.update({'path': str(path)})
+    else:
+        db_session.add(DN_file_mapping(dn=dn, path=str(path)))
+    db_session.commit()
+
+def get_mapping(dn):
+    match = db_session.query(DN_file_mapping).filter_by(dn=dn).first()
+    return match.path if match else None
+
+def unset_mapping(obj):
+    db_session.query(DN_file_mapping).filter_by(dn=obj.distinguished_name).delete()
+
+def save_error(obj, error):
+    traceback.print_exc()
+    db_session.add(Error_entry(uuid=obj.object_identifier, dn=obj.distinguished_name, errormessage=str(error), traceback=traceback.format_exc()))
+    db_session.commit()
+    logger.info("Saved %s", obj)
+
+def cleanup_errors(obj):
+    logger.info(f'Obj sync {obj.distinguished_name} successful, removing all objects matching uuid {obj.object_identifier} from error table')
+    db_session.query(Error_entry).filter_by(uuid=obj.object_identifier).delete()
+    db_session.commit()
 
 def _get_old_object(distinguished_name):
     normalized_dn = helpers.normalized_dn(distinguished_name)
     if normalized_dn != distinguished_name:
-        logger.info(
-            f"Searching for {normalized_dn} instead of {distinguished_name}!",
-        )
-    path_to_old_user = mapping.get(normalized_dn)
+        logger.info(f"Searching for {normalized_dn} instead of {distinguished_name}!")
+    path_to_old_user = get_mapping(normalized_dn)
     if not path_to_old_user:
         return None
     path_to_old_user = Path(path_to_old_user)
@@ -142,6 +209,7 @@ class TriggerObject(object):
         self.object_type = object_type
         self.distinguished_name = distinguished_name
         self.attributes = attributes
+        self.object_identifier = attributes["univentionObjectIdentifier"] if attributes else None
         self.options = options
         self.old_distinguished_name = None
         self.old_attributes = None
@@ -223,8 +291,6 @@ class TriggerObject(object):
 
     def was_enriched(self):
         """Whether the obj was modified via set_attr during processing."""
-        if self.was_deleted():
-            return False
         return bool(self._enriched)
 
     def set_attr(self, attr, value):
@@ -345,10 +411,8 @@ def objects_from_files(delete_files=True, move_files=False):
                 logger.info("Object was deleted. Deleting %s", path)
                 path.unlink()
                 if obj.old_distinguished_name:
-                    mapping.unset(
-                        helpers.normalized_dn(obj.old_distinguished_name),
-                    )
-                mapping.unset(helpers.normalized_dn(obj.distinguished_name))
+                    unset_mapping(helpers.normalized_dn(obj.old_distinguished_name))
+                unset_mapping(helpers.normalized_dn(obj.distinguished_name))
             else:
                 logger.info("mv %s -> %s", path, old_file_path)
                 old_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -358,26 +422,36 @@ def objects_from_files(delete_files=True, move_files=False):
                         "... not done yet; enriching object by rewriting JSON file...",
                     )
                     obj.dump(old_file_path)
-                if (
-                    obj.old_distinguished_name
-                    and obj.old_distinguished_name != obj.distinguished_name
-                ):
-                    mapping.unset(
-                        helpers.normalized_dn(obj.old_distinguished_name),
-                    )
-                mapping.set(
-                    helpers.normalized_dn(obj.distinguished_name),
-                    old_file_path,
-                )
+                if obj.old_distinguished_name and obj.old_distinguished_name != obj.distinguished_name:
+                    unset_mapping(helpers.normalized_dn(obj.old_distinguished_name))
+                set_mapping(helpers.normalized_dn(obj.distinguished_name), old_file_path)
         elif delete_files:
             logger.info("Deleting %s", path)
             path.unlink()
 
 
+
+def continue_on_error(obj, e):
+    traceback.print_exc()
+    save_error(obj, e)
+    
+def stop_on_error(pause_after_errors_num, pause_after_errors_length):
+    traceback.print_exc()
+    errors = get_error_count()
+    if 0 < pause_after_errors_num <= errors:
+        logger.warning("This is consecutive error #%s", errors)
+        logger.warning(
+            "Sleeping for %s sec",
+            pause_after_errors_length,
+        )
+        time.sleep(pause_after_errors_length)
+    set_error_count(errors + 1) 
+    return -1
+
 def run_on_files(
     objs,
     function,
-    stop_at_first_error=True,
+    stop_at_first_error=False,
     pause_after_errors_num=0,
     pause_after_errors_length=0,
 ):
@@ -393,33 +467,19 @@ def run_on_files(
         logger.info("Handling %r", obj.path)
         try:
             function(obj)
-        except Exception as e:
-            logger.warning("Error while processing %s", obj.path)
-            traceback.print_exc()
-            ret = -1
-            errors = meta.get("errors")
-            if errors is None:
-                errors = 1
-            else:
-                errors = int(errors) + 1
-            meta.set("errors", str(errors))
-            meta.set("filename", str(obj.path))
-            meta.set("message", str(e))
+        except (requests.exceptions.HTTPError) as e:
             if stop_at_first_error:
-                if 0 < pause_after_errors_num <= errors:
-                    logger.warning("This is consecutive error #%s", errors)
-                    logger.warning(
-                        "Sleeping for %s sec",
-                        pause_after_errors_length,
-                    )
-                    time.sleep(pause_after_errors_length)
+                ret = stop_on_error(pause_after_errors_num, pause_after_errors_length)
                 break
+            else:
+                continue_on_error(obj, e)
+        except Exception as e:
+            continue_on_error(obj, e)
         else:
-            meta.set("errors", "0")
-            meta.unset("filename")
-            meta.unset("message")
+            set_error_count(0)
             seen += 1
-    logger.info("Successfully processed %s files during this run", seen)
+
+    logger.info("Successfully processed %s files during this run", seen) 
     if ret == -1:
         return ret
     return seen
