@@ -1,0 +1,29 @@
+
+toggles:
+  scaledSetup: false
+
+releases:
+  nubus:
+    extraValues:
+      - global:
+          extensions:
+            - name: "ox"
+              image:
+                registry: "artifacts.software-univention.de"
+                repository: "nubus/images/ox-extension"
+                # TODO: Use version from pipeline
+                tag: "0.27.10"
+
+        nubusStackDataUms:
+          templateContext:
+            oxDefaultContext: "10"
+            oxSystemUserPassword: "univention"
+            # TODO: Use generated domain from pipeline
+            portalOxLinkBase: "https://ox.review.univention.dev"
+
+        nubusProvisioning:
+          registerConsumers:
+            createUsers:
+              oxConsumer:
+                existingSecret:
+                  name: "ox-connector-provisioning-api"

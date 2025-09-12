@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025 Univention GmbH
+
+---
+spec:
+  inputs:
+    namespace:
+      description: |
+        The target namespace to deploy into.
+      type: string
+    domain:
+      description: |
+        The domain for the OX deployment.
+      type: string
+    release:
+      default: "ox"
+      description: |
+        Helm release name to use for the deployment.
+      type: string
+    ox-lab-repository:
+      default: "${CI_SERVER_URL}/univention/dev/projects/open-xchange/ox-operations-guide-mirror.git"
+      description: |
+        The repository to clone the ox lab setup from.
+
+        By default this is using a local mirror of the operations guide. Must be
+        a valid value for the call to "git clone".
+      type: string
+    ox-lab-ref:
+      default: "dovecot_cert_name"
+      description: |
+        Branch or tag name to use when cloning the ox operations-guide
+        repository.
+
+        Must be a valid value for the parameter "--branch" in the call to "git
+        clone".
+      type: string
+    job-prefix:
+      default: "ox-lab"
+      description: |
+        Prefix all jobs with this value and a dash "-".
+
+        Intended to help with clashing job names.
+      type: string
+    stage:
+      default: "deploy"
+      description: |
+        The CI stage for the jobs.
+    needs:
+      default: []
+      description: |
+        Extra needs to add to the configure job.
+      type: array
+
+---
+"$[[ inputs.job-prefix ]]-configure":
+  stage: "$[[ inputs.stage ]]"
+  needs: $[[ inputs.needs ]]
+  script:
+    # TODO: Use "envsubst" with template from file
+    - |
+      cat <<EOT | tee lab.nubus-ci.yml
+      # Template of the OX lab configuration.
+      #
+      # This template should be processed via envsubst.
+
+      # Dynamic values of the CI deployment
+      as_hostname: $[[ inputs.domain ]]
+      namespace: $[[ inputs.namespace ]]
+      release: $[[ inputs.release ]]
+
+      # Static values
+      ox_admin_user: oxadminmaster
+
+      # Ingress handling
+      #
+      # Our environment has ingress-nginx already provided. Disable all bundled
+      # components like istio or ingress-nginx.
+
+      install_istio: false
+      use_istio: false
+      install_ingress_nginx: false
+      use_ingress_nginx: true
+
+      # Avoid certificates. Our CI deployment uses the copied over ci
+      # certificates.
+      create_certs: false
+
+      as8_cert_name: "certificates-ci-tls"
+      as7_cert_name: "certificates-ci-tls"
+      as2_cert_name: "certificates-ci-tls"
+      keycloak_cert_name: "certificates-ci-tls"
+      slapd_cert_name: "certificates-ci-tls"
+      dovecot_cert_name: "certificates-ci-tls"
+      grafana_cert_name: "certificates-ci-tls"
+      prometheus_cert_name: "certificates-ci-tls"
+
+      # No contexts to be provisioned
+      do_provisioning: false
+      EOT
+  artifacts:
+    paths:
+      - lab.nubus-ci.yml
+    expire_in: 1 week
+    expose_as: "OX Lab Configuration"
+
+"$[[ inputs.job-prefix ]]-render":
+  stage: "$[[ inputs.stage ]]"
+  needs:
+    - "$[[ inputs.job-prefix ]]-configure"
+  script:
+    # TODO: Needs a utility image
+    - echo "Installing tools"
+    - |
+      apt-get update
+      apt-get install -y --no-install-recommends \
+        ca-certificates \
+        git \
+        python3 \
+        python3-pip
+    - echo "Cloning the ox-lab sources (operations-guide)"
+    - >-
+      git clone
+      --depth 1
+      --branch "$[[ inputs.ox-lab-ref ]]"
+      "$[[ inputs.ox-lab-repository ]]"
+    - pushd ox-operations-guide-mirror
+    - pip install -r requirements.txt
+    - python3 render.py -f ../lab.nubus-ci.yml
+    - rm -fr .git __pycache__
+    - popd
+  variables:
+    GIT_STRATEGY: none
+  artifacts:
+    paths:
+      - ox-operations-guide-mirror
+    expire_in: 1 week
+    expose_as: "OX Lab Install Script"
+
+"$[[ inputs.job-prefix ]]-deploy":
+  stage: "$[[ inputs.stage ]]"
+  needs:
+    - "$[[ inputs.job-prefix ]]-render"
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    # TODO: Needs an adjusted image
+    - >-
+      wget https://github.com/mikefarah/yq/releases/download/v4.47.2/yq_linux_amd64.tar.gz -O - |
+      tar xz && mv yq_linux_amd64 /usr/local/bin/yq
+
+    - kubectl cluster-info
+    - pushd ox-operations-guide-mirror/rendered/lab.nubus-ci
+    - ./install.sh
+    - popd
+  variables:
+    GIT_STRATEGY: none

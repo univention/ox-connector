@@ -1,0 +1,134 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2024-2025 Univention GmbH
+
+---
+include:
+  - project: "univention/dev/nubus-for-k8s/common-ci"
+    ref: "v1.42.1"
+    file:
+      - "defaults/nubus-workflow.yaml"
+  - local: ".gitlab-ci/deploy-ox-lab.yaml"
+    inputs:
+      namespace: "${DEPLOY_NAMESPACE}"
+      domain: "${DEPLOY_SUBDOMAIN}-ox.review.univention.dev"
+      needs:
+        - deploy-namespace
+
+stages:
+  - prepare
+  - deploy
+  - test
+  - cleanup
+
+
+variables:
+  ENVIRONMENT_NAME: "${CI_COMMIT_REF_SLUG}/e2e-testrun-${DEPLOY_NAMESPACE}"
+  NUBUS_HELM_BRANCH: "develop"
+
+
+pipeline-configuration:
+  stage: prepare
+  script:
+    - echo "Original values which may be modified:"
+    - |
+      cat <<EOF
+      DEPLOY_NAMESPACE: ${DEPLOY_NAMESPACE}
+      DEPLOY_SUBDOMAIN: ${DEPLOY_SUBDOMAIN}
+      EOF
+    - |
+      cat > deploy.env <<EOF
+      DEPLOY_NAMESPACE=$( echo ${DEPLOY_NAMESPACE:0:63} | sed 's/-$//' )
+      DEPLOY_SUBDOMAIN=$( echo ${DEPLOY_SUBDOMAIN:0:63} | sed 's/-$//' )
+      RELEASE_VERSION=${RELEASE_VERSION}
+      SEMANTIC_VERSION=${SEMANTIC_VERSION}
+      EOF
+    - echo "dotenv content:"
+    - cat deploy.env
+  variables:
+    GIT_STRATEGY: none
+  artifacts:
+    reports:
+      dotenv: deploy.env
+
+
+deploy-namespace:
+  stage: "prepare"
+  needs:
+    - pipeline-configuration
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - echo "Ensure cleanup of namespace"
+    - >
+      kubectl delete namespace "${DEPLOY_NAMESPACE}"
+      --wait
+      --timeout=600s
+      --ignore-not-found
+
+    # TODO: Add annotations into namespace
+    - echo "Creating namespace ${DEPLOY_NAMESPACE}"
+    - kubectl create namespace "${DEPLOY_NAMESPACE}"
+
+
+deploy-nubus-with-ox-connector:
+  needs:
+    - deploy-namespace
+  stage: "deploy"
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - export OX_CHART_VERSION=${RELEASE_VERSION}
+    - export REVIEW_PREFIX=${DEPLOY_SUBDOMAIN}
+
+    - echo "Grab the nubus-helm sources to include the nubus ci helmfile"
+    - "[ ! -e nubus-helm ]"
+    - >
+      git clone
+      --depth 1
+      --branch "${NUBUS_HELM_BRANCH}"
+      "${CI_SERVER_URL}/univention/dev/nubus-for-k8s/nubus-helm.git"
+
+    - echo "Deploy nubus via nubus-helm/ci/helmfile"
+    - pushd nubus-helm/ci
+    - helmfile -n "${DEPLOY_NAMESPACE}" --state-values-file=../../ci/nubus-ci-overrides.yaml sync
+    - popd
+
+    - echo "Deploy ox-connector via ci/helmfile"
+    - pushd ci
+    - helmfile -n "${DEPLOY_NAMESPACE}" sync
+    - popd
+
+  environment:
+    name: ${ENVIRONMENT_NAME}
+    url: https://${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+    on_stop: stop-deployment
+    auto_stop_in: 1 hours
+    deployment_tier: development
+  resource_group: gaia-${DEPLOY_NAMESPACE}
+
+
+stop-deployment:
+  stage: cleanup
+  allow_failure: true
+  needs:
+    - deploy-nubus-with-ox-connector
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - >
+      kubectl delete namespace "${DEPLOY_NAMESPACE}"
+      --wait
+      --timeout=600s
+      --ignore-not-found
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: ${ENVIRONMENT_NAME}
+    action: stop
+  rules:
+    - when: manual
+
+cleanup-failed-deployment:
+  extends: stop-deployment
+  rules:
+    - when: on_failure

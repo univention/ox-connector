@@ -1,0 +1,22 @@
+---
+
+openXchange:
+  # TODO: inject value as parameter to keep logic in pipeline
+  domainName: {{ printf "%s-ox.%s" .Values.reviewPrefix .Values.reviewBaseDomain | quote }}
+  auth:
+    username: oxadminmaster
+    existingSecret:
+      name: ox-core-mw-secret-envvars
+      keyMapping:
+        password: MASTER_ADMIN_PW
+  oxLocalTimezone: "Europe/Berlin"
+  oxLanguage: "de_DE"
+  oxDefaultContext: "10"
+  oxSmtpServer: "imap://dovecot-ce:587"
+  oxImapServer: "imap://dovecot-ce:147"
+  oxSoapServer: "http://ox-core-mw-admin"
+  logLevel: "INFO"
+
+provisioningApi:
+  connection:
+    baseUrl: "http://nubus-provisioning-api"

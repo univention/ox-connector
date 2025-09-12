@@ -32,6 +32,22 @@ variables:
   UNIVENTION_BASECONF: "/dev/null"
   SOUVAP_HELM_PROJECT_ID: "128"
 
+  # Variables for deploy-and-test
+  AUTO_TRIGGER_TESTS:
+    description: |
+      Deployment and e2e test run will be triggered automatically if this is set
+      to "yes".
+    value: "no"
+    options:
+      - "yes"
+      - "no"
+  DEPLOY_NAMESPACE:
+    description: "The namespace to deploy into."
+    value: "ci-ox-con-${CI_COMMIT_REF_SLUG}"
+  DEPLOY_SUBDOMAIN:
+    description: "The subdomain to prepend during the deployment."
+    value: "ci-ox-con-${CI_COMMIT_REF_SLUG}"
+
 .build-matrix: &build-matrix
   - IMAGE_NAME: "ox-connector-appcenter"
     DOCKERFILE_PATH: "Dockerfile"
@@ -124,6 +140,25 @@ push-image-external:
 container-sign-external:
   parallel:
     matrix: *publish-matrix
+
+deploy-and-test:
+  stage: deploy
+  allow_failure: true
+  needs:
+    - job: publish-chart-external
+      artifacts: false
+    - job: pre-semantic-release
+      artifacts: true
+  trigger:
+    include:
+      - local: .gitlab-ci/deploy-and-test.yaml
+    forward:
+      pipeline_variables: true
+    strategy: depend
+  rules:
+    - if: '$AUTO_TRIGGER_TESTS == "yes"'
+      when: on_success
+    - when: manual
 
 generate-docs-pipeline-config:
   stage: prepare

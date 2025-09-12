@@ -46,7 +46,7 @@ RUN \
   # dependency pytz of ${PYPKG}/zeep/xsd/types/builtins.py
   python3-tz=2022.7.* \
   # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
-  python3-zeep=4.2.* && \
+  python3-zeep=4.2.*
   # python3-minimal \
   # python3.9-minimal
   rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
