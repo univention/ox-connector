@@ -2,6 +2,6 @@
 
 [Documentation]
 
-docs/*  @ngulden
+docs/*  @ngulden @tkintscher @jconde @jtorres
 .gitlab-ci/doc-builder    @ngulden
 .gitlab-ci/base-doc.yml   @ngulden
