@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.28.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.2...v0.28.3) (2025-09-15)
+
+
+### Bug Fixes
+
+* lint issues ([af4ffc9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/af4ffc9d2c46072d5465d27da8db7ed87ee760d7)), closes [univention/dev/internal/team-nubus#1368](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1368)
+* missing security context ([5309499](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/53094993dbe67f97c0d92dfbc883f5c8cd3ff245)), closes [univention/dev/internal/team-nubus#1368](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1368)
+
 ## [0.28.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.1...v0.28.2) (2025-09-12)
 
 
