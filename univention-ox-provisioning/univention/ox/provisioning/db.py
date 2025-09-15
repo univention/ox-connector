@@ -111,6 +111,8 @@ def move_task_to_old(task_id: int):
         else:
             old = Old(obj_id=task.obj_id, udm_module=task.udm_module, dn=task.dn, attrs=task.attrs)
         db_session.add(old)
+        for error in filter_error(task.obj_id, print_json=False):
+            db_session.delete(error)
         db_session.delete(task)
         db_session.commit()
 
@@ -124,7 +126,8 @@ def filter_error(obj_id, print_json: bool=True, retry: bool=False, fresh_resync:
             resync)
     """
     with Session() as db_session:
-        for error in db_session.query(Dead).where(Dead.obj_id.like(obj_id)):
+        errors = error in db_session.query(Dead).where(Dead.obj_id.like(obj_id)).all()
+        for error in errors:
             if print_json:
                 print(json.dumps({
                     "db_id": error.id,
@@ -142,6 +145,7 @@ def filter_error(obj_id, print_json: bool=True, retry: bool=False, fresh_resync:
             if delete:
                 db_session.delete(error)
         db_session.commit()
+        return errors
 
 
 def _call(func, args):
