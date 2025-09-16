@@ -22,7 +22,7 @@ Released: ???
 Changed
 -------
 
-The App now stores its queue of tasks in a Postgres database instead of having
+The App now stores its queue of tasks in a `Postgres` database instead of having
 all data in JSON files. This includes the tasks as well as the data of those
 objects already seen. GDBM based key value stores have been removed.
 
@@ -31,7 +31,7 @@ Added
 
 The App can now be configured in a way that it *does not* stop on the first
 error it encounters but instead continue to process the queue. This option is
-deactivated by default, meaning the behaviour does not change. Note that we may
+deactivated by default, meaning the behavior does not change. Note that we may
 eventually release another version and enable that feature.
 
 .. _app-changelog-v2.3.5:
