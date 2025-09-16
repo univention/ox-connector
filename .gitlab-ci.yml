@@ -13,7 +13,6 @@ include:
       - "jobs/semantic-release-env.yaml"
       - "jobs/container-build-external.yaml"
       - "jobs/package-and-publish-helm-charts-external.yaml"
-      - "jobs/check-debian-updates.yaml"
       - "templates/sonarqube.yaml"
 
 workflow:
@@ -188,12 +187,6 @@ upload-docker-image:
       ssh ${SSH_ARGS} "docker pull ${BUILD_IMAGE_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker tag ${BUILD_IMAGE_PATH_AND_TAG} ${PUB_REGISTRY_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker push ${PUB_REGISTRY_PATH_AND_TAG}"
-
-check-debian-updates:
-  parallel:
-    matrix: *publish-matrix
-  variables:
-    TARGET_IMAGE: "${CI_REGISTRY_IMAGE}/ox-connector-standalone:latest"
 
 sonarqube:
   extends: .sonarqube
