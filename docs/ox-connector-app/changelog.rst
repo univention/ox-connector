@@ -12,6 +12,28 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v3.0.0:
+
+v3.0.0
+======
+
+Released: ???
+
+Changed
+-------
+
+The App now stores its queue of tasks in a Postgres database instead of having
+all data in JSON files. This includes the tasks as well as the data of those
+objects already seen. GDBM based key value stores have been removed.
+
+Added
+-----
+
+The App can now be configured in a way that it *does not* stop on the first
+error it encounters but instead continue to process the queue. This option is
+deactivated by default, meaning the behaviour does not change. Note that we may
+eventually release another version and enable that feature.
+
 .. _app-changelog-v2.3.5:
 
 v2.3.5

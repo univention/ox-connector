@@ -50,7 +50,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from univention.ox.provisioning import helpers, run
-from univention.ox.provisioning.key_value_store import KeyValueStore
+from univention.ox.provisioning.db import increment_error_count, move_task_to_old, move_task_to_dead_letters, get_tasks, add_task, get_old, create_task_from_old, remove_old
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -72,87 +72,28 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-
-# logger = logging.getLogger("zeep.transports")
-# logger.setLevel(logging.DEBUG)
-# logger.addHandler(handler)
-
-Base = declarative_base()
-engine = create_engine("postgresql+psycopg2://ox-connector:9495e8a97a1403124dea880bcb2a3ed6de2a40cd0270f5373158b0ec3afc7b48@master.ucs.test:5432/ox-connector")
-
-class Error_entry(Base):
-    __tablename__ = "ox-connector-rejected"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    uuid = Column(String, nullable=False)
-    dn = Column(String, nullable=False)
-    errormessage = Column(String, nullable=False)
-    traceback = Column(String, nullable=False)
-
-class Meta_information(Base):
-    __tablename__ = "meta-information"
-    id = Column(Integer, primary_key=True)
-    conerrors = Column(Integer, default=0)
-
-class DN_file_mapping(Base):
-    __tablename__ = "dn-file-mapping"
-    dn = Column(String, primary_key=True, nullable=False)
-    path = Column(String, nullable=False)
-
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-db_session = Session()
-
-Base.metadata.create_all(engine)
+if log_level == "DEBUG":
+    logger = logging.getLogger("zeep.transports")
+    logger.addHandler(handler)
+    logger = logging.getLogger("univention.ox")
 
 
-def set_error_count(error):
-    db_session.query(Meta_information).filter(Meta_information.id == 0).update({'conerrors': error})
-    db_session.commit()
+def obj_from_row(row):
+    return TriggerObject(
+        row.obj_id,
+        row.udm_module,
+        row.dn,
+        json.loads(row.attrs),
+        [],
+        None,
+    )
 
-def get_error_count():
-    match = db_session.query(Meta_information).filter_by(id=0).first()
-    return match.conerrors if match else 0 
-
-
-def set_mapping(dn, path):
-    match = db_session.query(DN_file_mapping).filter(dn == 0)
-    if match:
-        match.update({'path': str(path)})
-    else:
-        db_session.add(DN_file_mapping(dn=dn, path=str(path)))
-    db_session.commit()
-
-def get_mapping(dn):
-    match = db_session.query(DN_file_mapping).filter_by(dn=dn).first()
-    return match.path if match else None
-
-def unset_mapping(obj):
-    db_session.query(DN_file_mapping).filter_by(dn=obj.distinguished_name).delete()
-
-def save_error(obj, error):
-    traceback.print_exc()
-    db_session.add(Error_entry(uuid=obj.object_identifier, dn=obj.distinguished_name, errormessage=str(error), traceback=traceback.format_exc()))
-    db_session.commit()
-    logger.info("Saved %s", obj)
-
-def cleanup_errors(obj):
-    logger.info(f'Obj sync {obj.distinguished_name} successful, removing all objects matching uuid {obj.object_identifier} from error table')
-    db_session.query(Error_entry).filter_by(uuid=obj.object_identifier).delete()
-    db_session.commit()
 
 def _get_old_object(distinguished_name):
-    normalized_dn = helpers.normalized_dn(distinguished_name)
-    if normalized_dn != distinguished_name:
-        logger.info(f"Searching for {normalized_dn} instead of {distinguished_name}!")
-    path_to_old_user = get_mapping(normalized_dn)
-    if not path_to_old_user:
-        return None
-    path_to_old_user = Path(path_to_old_user)
-    if not os.path.isfile(path_to_old_user):
-        raise Exception(
-            f"Old object file {path_to_old_user} for {distinguished_name} does not exist!\nYou need to re-provision \"{distinguished_name}\" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#traceback-provisioning-groups).",
-        )
-    logger.info("Loading old object from %s", path_to_old_user)
-    return object_from_path(path_to_old_user)
+    logger.info("Loading old object for %s", distinguished_name)
+    old = get_old(distinguished_name)
+    if old:
+        return obj_from_row(old)
 
 
 helpers.get_old_obj = _get_old_object
@@ -160,12 +101,7 @@ helpers.get_old_obj = _get_old_object
 
 def _update_group_queue(entry_uuid):
     if entry_uuid not in GROUP_EUUID:
-        file_name = f"{entry_uuid}.json"
-        file_path = OLD_FILES_DIR / file_name
-        # Make a copy of old in the queue
-        timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
-        new_file_path = NEW_FILES_DIR / f"{timestamp}.json"
-        shutil.copy(str(file_path), str(new_file_path))
+        create_task_from_old(entry_uuid)
         logger.info(
             "Added %s to the listener queue as %s",
             file_path,
@@ -176,17 +112,6 @@ def _update_group_queue(entry_uuid):
 
 
 helpers.update_group_queue = _update_group_queue
-
-
-def load_from_json_file(path):
-    """
-    Just a helper function to get JSON content from a file, if it
-    exists
-    """
-    if not path.exists():
-        return None
-    with path.open() as file_handler:
-        return json.load(file_handler)
 
 
 class TriggerObject(object):
@@ -209,7 +134,6 @@ class TriggerObject(object):
         self.object_type = object_type
         self.distinguished_name = distinguished_name
         self.attributes = attributes
-        self.object_identifier = attributes["univentionObjectIdentifier"] if attributes else None
         self.options = options
         self.old_distinguished_name = None
         self.old_attributes = None
@@ -218,51 +142,13 @@ class TriggerObject(object):
         self._old_loaded = False
         self._enriched = {}
 
-    def ordering(self, other):
-        """Sort incoming objects if needed. Return True whenever self should be
-        placed BEFORE other. So return False would be the default."""
-        sorted_object_types = [
-            "oxmail/oxcontext",
-            "users/user",
-            "groups/group",
-            "oxmail/functional_account",
-            "oxresources/oxresources",
-        ]
-        if (self.object_type == "oxmail/oxcontext") and (
-            self.attributes is None
-        ):
-            # deleting a context should always come last
-            return False
-        if (other.object_type == "oxmail/oxcontext") and (
-            other.attributes is None
-        ):
-            # deleting a context should always come last
-            return True
-        if (self.object_type == "oxmail/accessprofile") or (
-            other.object_type == "oxmail/accessprofile"
-        ):
-            # do not change order in accessprofiles
-            return False
-        lidx = sorted_object_types.index(self.object_type)
-        ridx = sorted_object_types.index(other.object_type)
-        return lidx < ridx
-
-    def get_old_file_path(self):
-        """
-        Name of the old file. May or may not be present. Is used by
-        objects_from_files to move files if specified.
-        """
-        file_name = f"{self.entry_uuid}.json"
-        return OLD_FILES_DIR / file_name
-
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
-        old_path = self.get_old_file_path()
-        content = load_from_json_file(old_path)
-        if content:
-            self.old_distinguished_name = content["dn"]
-            self.old_attributes = content["object"]
-            self.old_options = content["options"]
+        old = _get_old_object(self.distinguished_name)
+        if old:
+            self.old_distinguished_name = old.distinguished_name
+            self.old_attributes = old.attributes
+            self.old_options = []
         self._old_loaded = True
 
     def was_added(self):
@@ -270,6 +156,8 @@ class TriggerObject(object):
         Whether this object is new. Needs the have read an old file
         for this to give a meaningful response
         """
+        if self.attributes is None:
+            return False
         if not self._old_loaded:
             return None
         return self.old_distinguished_name is None
@@ -279,7 +167,7 @@ class TriggerObject(object):
         Whether this object was modified. Needs the have read an old
         file for this to give a meaningful response
         """
-        if self.was_deleted():
+        if self.attributes is None:
             return False
         if self._old_loaded is False:
             return None
@@ -287,7 +175,7 @@ class TriggerObject(object):
 
     def was_deleted(self):
         """Whether this object was deleted."""
-        return self.attributes is None
+        return self.attributes is None and self.old_attributes is not None
 
     def was_enriched(self):
         """Whether the obj was modified via set_attr during processing."""
@@ -300,208 +188,45 @@ class TriggerObject(object):
             self.attributes[attr] = value
             self._enriched[attr] = value
 
-    def dump(self, filename=None):
-        """Save the object into a filename."""
-        content = {
-            "id": self.entry_uuid,
-            "udm_object_type": self.object_type,
-            "dn": self.distinguished_name,
-            "object": self.attributes,
-            "options": self.options,
-        }
-        filename = filename or self.path
-        with open(f"{filename}.tmp", "w", encoding="utf-8") as file_handler:
-            os.fchmod(file_handler.fileno(), 0o600)
-            json.dump(content, file_handler, sort_keys=True, indent=4)
-        os.replace(f"{filename}.tmp", filename)
-
     def __repr__(self):
         return f"Object({self.object_type!r}, {self.distinguished_name!r})"
-
-
-meta = KeyValueStore(
-    str(NEW_FILES_DIR / "meta.db"),
-)  # store consecutive errors
-mapping = KeyValueStore(
-    str(NEW_FILES_DIR / "old.db"),
-)  # stores dn -> path to last json file
-
-
-def object_from_path(path):
-    """Extract object information from JSON file"""
-    content = load_from_json_file(path)
-    entry_uuid = content["id"]
-    object_type = content["udm_object_type"]
-    distinguished_name = content["dn"]
-    attributes = content["object"]
-    options = content["options"]
-    obj = TriggerObject(
-        entry_uuid,
-        object_type,
-        distinguished_name,
-        attributes,
-        options,
-        path,
-    )
-    return obj
 
 
 GROUP_EUUID = set()
 
 
-def objects_from_files(delete_files=True, move_files=False):
-    """
-    Iterates over all JSON files and yields a TriggerObject. After the
-    caller is done with it, it can delete or move the file. If it moves the
-    file, a copy of this very JSON file is created so that a new run can
-    reload it (useful if you need to act on various changes in
-    attributes)
-    """
-    objs = []
-    obj_dict = defaultdict(list)
-    num_files = len(os.listdir(str(NEW_FILES_DIR)))
-    curr = 1
-    for path in sorted(NEW_FILES_DIR.glob("*.json")):
-        if not curr % 10000:
-            logger.info(f"file {curr} of {num_files}")
-        obj = object_from_path(path)
-        if move_files:
-            obj.load_old()
-        if obj.attributes is None and obj.old_attributes is None:
-            # happens when creation and deletion happens within one
-            # "listener cycle" => nothing happened
-            path.unlink()
-        else:
-            obj_dict[obj.object_type].append(path)
-            if obj.object_type == "groups/group":
-                GROUP_EUUID.add(obj.entry_uuid)
-        curr += 1
-
-    # The order here is important
-    ################################
-    # join obj_dict sorted.
-    # oxcontext removal should be done at the end.
-    removed_ctxs = []
-    for path in obj_dict["oxmail/oxcontext"]:
-        if obj.attributes is None:
-            removed_ctxs.append(path)
-        else:
-            objs.append(path)
-
-    objs.extend(obj_dict["oxmail/accessprofile"])
-    objs.extend(obj_dict["users/user"])
-    objs.extend(obj_dict["groups/group"])
-    objs.extend(obj_dict["oxmail/functional_account"])
-    objs.extend(obj_dict["oxresources/oxresources"])
-    objs.extend(removed_ctxs)
-
-    ################################
-
-    for path in objs:
-        # load the file again because storing all of them in objs can result in out of memory errors when provisioning hundred of thousand objects
-        obj = object_from_path(path)
-        if move_files:
-            obj.load_old()
-        yield obj
-        if move_files:
-            old_file_path = obj.get_old_file_path()
-            if old_file_path.exists():
-                old_file_path.unlink()
-            if obj.was_deleted():
-                logger.info("Object was deleted. Deleting %s", path)
-                path.unlink()
-                if obj.old_distinguished_name:
-                    unset_mapping(helpers.normalized_dn(obj.old_distinguished_name))
-                unset_mapping(helpers.normalized_dn(obj.distinguished_name))
-            else:
-                logger.info("mv %s -> %s", path, old_file_path)
-                old_file_path.parent.mkdir(parents=True, exist_ok=True)
-                path.replace(old_file_path)
-                if obj.was_enriched():
-                    logger.info(
-                        "... not done yet; enriching object by rewriting JSON file...",
-                    )
-                    obj.dump(old_file_path)
-                if obj.old_distinguished_name and obj.old_distinguished_name != obj.distinguished_name:
-                    unset_mapping(helpers.normalized_dn(obj.old_distinguished_name))
-                set_mapping(helpers.normalized_dn(obj.distinguished_name), old_file_path)
-        elif delete_files:
-            logger.info("Deleting %s", path)
-            path.unlink()
-
-
-
-def continue_on_error(obj, e):
-    traceback.print_exc()
-    save_error(obj, e)
-    
-def stop_on_error(pause_after_errors_num, pause_after_errors_length):
-    traceback.print_exc()
-    errors = get_error_count()
-    if 0 < pause_after_errors_num <= errors:
-        logger.warning("This is consecutive error #%s", errors)
-        logger.warning(
-            "Sleeping for %s sec",
-            pause_after_errors_length,
-        )
-        time.sleep(pause_after_errors_length)
-    set_error_count(errors + 1) 
-    return -1
-
-def run_on_files(
-    objs,
-    function,
-    stop_at_first_error=False,
-    pause_after_errors_num=0,
-    pause_after_errors_length=0,
-):
-    """
-    Iterate over objects (returned by objects_from_files) and runs a
-    function f on this object. May continue to do so even if one iteration
-    failed. Returns the number of objects that were successfully processed OR
-    an error code (in this case, the number is negative)
-    """
-    ret = 0
-    seen = 0
-    for obj in objs:
-        logger.info("Handling %r", obj.path)
-        try:
-            function(obj)
-        except (requests.exceptions.HTTPError) as e:
-            if stop_at_first_error:
-                ret = stop_on_error(pause_after_errors_num, pause_after_errors_length)
-                break
-            else:
-                continue_on_error(obj, e)
-        except Exception as e:
-            continue_on_error(obj, e)
-        else:
-            set_error_count(0)
-            seen += 1
-
-    logger.info("Successfully processed %s files during this run", seen) 
-    if ret == -1:
-        return ret
-    return seen
-
-
 def main():
     """Handles listener-JSON-files"""
     # run forever and only exit on error
-    while True:
-        objs = objects_from_files(delete_files=False, move_files=True)
-        files_seen = run_on_files(
-            objs,
-            run,
-            pause_after_errors_num=3,
-            pause_after_errors_length=0,
-        )
-        mapping.commit()
-        meta.commit()
-        if files_seen <= 0:
-            return -files_seen
-    # never reached
-    return 0
+    for json_file in NEW_FILES_DIR.glob("*.json"):
+        logger.info("Adding a new task from %s", json_file)
+        add_task(json_file)
+        os.unlink(json_file)
+    ret_value = 0
+    for task in get_tasks():
+        try:
+            logger.info("Processing Task %s", task)
+            obj = obj_from_row(task)
+            obj.load_old()
+            logger.info("... %r", obj)
+            run(obj)
+        except requests.exceptions.HTTPError as exc:
+            logger.exception(exc)
+            increment_error_count(task.id)
+            ret_value = 1
+            break
+        except Exception as exc:
+            logger.exception(exc)
+            move_task_to_dead_letters(task.id, traceback.format_exc())
+            ret_value = 1
+        else:
+            if obj.was_deleted():
+                remove_old(obj.old_distinguished_name)
+            else:
+                if obj.attributes:
+                    ox_db_id = obj.attributes.get("oxDbId")
+                    move_task_to_old(task.id, ox_db_id)
+    return ret_value
 
 
 if __name__ == '__main__':

@@ -230,7 +230,6 @@ def test_unset_all_attributes_resource(
     default_ox_context,
     new_resource_name,
     udm,
-    create_ox_context,
     create_ox_user,
     domainname,
     new_user_name,

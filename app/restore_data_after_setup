@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+from pathlib import Path
+
+from univention.ox.provisioning.db import add_old
+
+old_files = Path()
+
+for json_file in old_files.glob("*.json"):
+    print("Migrating %s" % json_file)
+    add_old(json_file)
