@@ -220,6 +220,10 @@ def main():
             move_task_to_dead_letters(task.id, traceback.format_exc())
             ret_value = 1
         else:
+            try:
+                GROUP_EUUID.remove(obj.entry_uuid)
+            except KeyError:
+                pass
             if obj.was_deleted():
                 remove_old(obj.old_distinguished_name)
             else:
