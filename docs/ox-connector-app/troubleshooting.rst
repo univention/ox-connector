@@ -35,7 +35,7 @@ Listener Converter: :file:`/var/log/univention/listener_modules/ox-connector.log
    single: database management script; log file
 
 Database management script: :file:`/var/lib/univention-appcenter/apps/ox-connector/data/db.log`
-   Contains log information from the :term:`Database management script` that is described below.
+   Contains log information from the `Database management script` that is described below.
 
 .. index::
    single: log file; app center

@@ -113,7 +113,7 @@ use the following steps:
 #. Fill in the mandatory values for the following settings.
 
    For the optional settings with their default values,
-   see `README file of the OX Consumer <https://github.com/univention/ox-connector/blob/ucs5.0/helm/ox-connector/README.md>`_.
+   see `README file of the OX Consumer <https://github.com/univention/ox-connector/blob/ucs5.2/helm/ox-connector/README.md>`_.
 
    Section ``openXchange``
       For information about their meaning,
@@ -158,7 +158,7 @@ use the following steps:
 
 .. seealso::
 
-   `README file of the OX Consumer <https://github.com/univention/ox-connector/blob/ucs5.0/helm/ox-connector/README.md>`_
+   `README file of the OX Consumer <https://github.com/univention/ox-connector/blob/ucs5.2/helm/ox-connector/README.md>`_
       for information about the available Helm Chart values and their default settings.
 
    :external+uv-nubus-kubernetes-customization:ref:`customization-api-provisioning-endpoint-access`

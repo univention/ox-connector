@@ -57,7 +57,7 @@ use the following steps:
    To pick an appropriate version number for the packaged integration
    in the ``tag`` attribute,
    see the `tags <https://github.com/univention/ox-connector/tags>`_
-   and the `changelog <https://github.com/univention/ox-connector/blob/ucs5.0/CHANGELOG.md>`_
+   and the `changelog <https://github.com/univention/ox-connector/blob/ucs5.2/CHANGELOG.md>`_
    in the repository.
 
    .. literalinclude:: nubus-values.yaml

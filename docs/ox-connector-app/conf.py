@@ -149,7 +149,7 @@ rst_epilog = """
 """
 
 intersphinx_mapping = {
-    "uv-manual": ("https://docs.software-univention.de/manual/5.0/en", None),
+    "uv-manual": ("https://docs.software-univention.de/manual/5.2/en", None),
 }
 
 latex_engine = "lualatex"
