@@ -32,6 +32,12 @@ Listener Converter: :file:`/var/log/univention/listener_modules/ox-connector.log
    API`.
 
 .. index::
+   single: database management script; log file
+
+Database management script: :file:`/var/lib/univention-appcenter/apps/ox-connector/data/db.log`
+   Contains log information from the :term:`Database management script` that is described below.
+
+.. index::
    single: log file; app center
 
 App Center: :file:`/var/log/univention/appcenter.log`
@@ -60,7 +66,7 @@ Health check
 First, have a look at the log file for the :term:`Listener Converter` and look
 for warnings and errors, see :ref:`log-files`.
 
-The OX Connector has a good health when the number of files for provisioning
+The OX Connector has a good health when the number of tasks for provisioning
 for the :term:`Listener` and the :term:`Listener Converter` is low. For a quick
 verification, run the following command on the UCS system with the OX Connector
 installed:
@@ -73,11 +79,10 @@ installed:
    0
 
 .. code-block:: console
-   :caption: Verify the number of unprocessed files for the :term:`Listener Converter`.
+   :caption: Verify the number of unprocessed tasks for the :term:`Listener Converter`.
 
-   $ DIR_CONVERTER="/var/lib/univention-appcenter/apps/ox-connector/data/listener"
-   $ ls -1 "$DIR_CONVERTER"/*.json 2> /dev/null | wc -l
-   0
+   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db show-task-summary
+   Total: 0
 
 The :term:`Listener Converter` logs consecutive errors in the log file, for
 example:

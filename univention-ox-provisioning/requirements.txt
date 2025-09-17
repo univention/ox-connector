@@ -1,3 +1,5 @@
 univention_ox_soap_api
 uritemplate
 python-ldap
+sqlalchemy==1.4
+# psycopg2

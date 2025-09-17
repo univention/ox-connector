@@ -133,8 +133,6 @@ RUN apk add --no-cache \
     libldap \
     py3-multidict~=5.1 \
     py3-yarl~=1.6 \
-    py3-sqlalchemy \
-    py3-psycopg2 \
     vim~=8.2 && \
   pip3 install --no-cache-dir --compile \
     udm-rest-client~=1.2 && \

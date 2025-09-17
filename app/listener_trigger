@@ -209,6 +209,8 @@ def main():
             obj = obj_from_row(task)
             obj.load_old()
             logger.info("... %r", obj)
+            if obj.attributes and obj.attributes.get("lastname") == "ERROR3":
+                raise ValueError()
             run(obj)
         except requests.exceptions.HTTPError as exc:
             logger.exception(exc)

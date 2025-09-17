@@ -45,9 +45,11 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-db_password = os.environ["DB_PASSWORD"]
-docker_host_name = os.environ["DOCKER_HOST_NAME"]
-engine = create_engine(f"postgresql+psycopg2://ox-connector:{db_password}@{docker_host_name}:5432/ox-connector")
+# db_password = os.environ["DB_PASSWORD"]
+# docker_host_name = os.environ["DOCKER_HOST_NAME"]
+# engine = create_engine(f"postgresql+psycopg2://ox-connector:{db_password}@{docker_host_name}:5432/ox-connector")
+
+engine = create_engine("sqlite:////var/lib/univention-appcenter/apps/ox-connector/data/listener/db.sqlite")
 
 
 logger = logging.getLogger("listener")
@@ -109,7 +111,7 @@ def get_tasks():
     """
     with _get_session() as db_session:
         for task in db_session.query(Task).order_by(Task.created_at):
-            logger.info("Yielding task %s", task)
+            logger.debug("Yielding task %s", task)
             yield task
 
 
@@ -239,44 +241,64 @@ def move_task_to_old(task_id: int, ox_db_id: int=None):
         task = db_session.query(Task).get(task_id)
         old = db_session.query(Old).filter_by(obj_id=task.obj_id).first()
         if old:
-            logger.info("Updating entry in old db %s", old)
-            old.obj_id = task.obj_id
-            old.udm_module = task.udm_module
-            old.dn = task.dn
-            old.attrs = task.attrs
-            old.ox_db_id = ox_db_id
-        else:
+            if task.attrs:
+                logger.info("Updating entry in old db %s", old)
+                old.obj_id = task.obj_id
+                old.udm_module = task.udm_module
+                old.dn = task.dn
+                old.attrs = task.attrs
+                old.ox_db_id = ox_db_id
+            else:
+                logger.info("Removing entry in old db %s", old)
+                db_session.delete(old)
+        elif task.attrs:
             old = Old(obj_id=task.obj_id, udm_module=task.udm_module, dn=task.dn, attrs=task.attrs, ox_db_id=ox_db_id)
             db_session.add(old)
             db_session.commit()
             logger.info("Created entry in old db %s", old)
+        else:
+            logger.info("No old entry found for deletion task %s. Doing nothing", task)
         for error in db_session.query(Dead).filter_by(obj_id=task.obj_id):
+            logger.info("Removing %s", error)
             db_session.delete(error)
         db_session.delete(task)
-    logger.info("Deleted task %s", task)
+        logger.info("Deleted task %s", task)
 
 
-def filter_error(obj_id, print_json: bool=True, retry: bool=False, fresh_resync: bool=False, delete: bool=False):
+def filter_error(obj_id, output_format: str="human", retry: bool=False, fresh_resync: bool=False, delete: bool=False):
     """
-    Filter in the "dead queue". Objects found can be printed, retried (the
-    exact same data are moved to the list of active tasks), fresh resync (this
-    object is freshly added from the leading database to the list of active
-    tasks), delete (error is deleted; makes sense to combine this with retry or
-            resync)
+    Filter in the "dead queue". Objects found can be printed ("human" or
+    "json"), retried (the exact same data is moved to the list of active
+    tasks), fresh resync (this object is freshly added from the leading
+    database to the list of active tasks), delete (error is deleted; makes
+    sense to combine this with retry or resync)
     """
     with _get_session() as db_session:
         obj_id = obj_id.replace("*", "%")  # SQL LIKE
         errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
+        json_output = []
         for error in errors:
-            if print_json:
-                print(json.dumps({
+            if output_format == "json":
+                json_output.append({
                     "db_id": error.id,
                     "univention_object_identifier": error.obj_id,
                     "dn": error.dn,
                     "udm_module": error.udm_module,
                     "attrs": json.loads(error.attrs),
                     "error": error.error_msg,
-                }, sort_keys=True, indent=2))
+                })
+            elif output_format == "human":
+                print("DN:", error.dn)
+                print("Object Identifier:", error.obj_id)
+                print("UDM module:", error.udm_module)
+                print("ID (database):", error.id)
+                print("Attributes:")
+                for name, value in sorted(json.loads(error.attrs).items()):
+                    print(" ", name, ":", value)
+                print("Error:")
+                for line in error.error_msg.splitlines():
+                    print("  ", line)
+                print()
             if retry:
                 task = Task(obj_id=error.obj_id, udm_module=error.udm_module, dn=error.dn, attrs=error.attrs, status="retry")
                 db_session.add(task)
@@ -294,6 +316,44 @@ def filter_error(obj_id, print_json: bool=True, retry: bool=False, fresh_resync:
                     json.dump(attrs, fd, sort_keys=True, indent=4)
             if delete:
                 db_session.delete(error)
+    if json_output:
+        print(json.dumps(json_output, sort_keys=True, indent=2))
+
+
+def show_task_summary(output_format: str="human"):
+    """
+    Shows the current size of to be processed tasks. Output can be "human"
+    readable or "json".
+    """
+    start_date = None
+    end_date = None
+    tasks = {}
+    total = 0
+    for task in get_tasks():
+        if start_date is None:
+            start_date = task.created_at
+        end_date = task.created_at
+        num = tasks.get(task.udm_module, 0)
+        num += 1
+        tasks[task.udm_module] = num
+        total += 1
+    if output_format == "json":
+        print(json.dumps(tasks | {
+            "total": total,
+            "creation_start": str(start_date),
+            "creation_end": str(end_date),
+        }, sort_keys=True, indent=2))
+    else:
+        for udm_module, num in tasks.items():
+            print(f"{udm_module}: {num}")
+        if tasks:
+            print("======")
+        print("Total:", total)
+        if start_date and end_date:
+            if start_date != end_date:
+                print(f"Created between {start_date} and {end_date}")
+            else:
+                print(f"Created at {end_date}")
 
 
 def _normalized_dn(dn: str) -> str:
@@ -359,6 +419,7 @@ if __name__ == "__main__":
     _add_action(subparsers, move_task_to_old)
     _add_action(subparsers, move_task_to_dead_letters)
     _add_action(subparsers, filter_error)
+    _add_action(subparsers, show_task_summary)
 
     args = parser.parse_args()
     if not getattr(args, "func", None):
