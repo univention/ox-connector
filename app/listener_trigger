@@ -50,7 +50,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from univention.ox.provisioning import helpers, run
-from univention.ox.provisioning.db import increment_error_count, move_task_to_old, move_task_to_dead_letters, get_tasks, add_task, get_old, create_task_from_old, remove_old
+from univention.ox.provisioning.db import increment_error_count, move_task_to_old, move_task_to_dead_letters, get_tasks, add_task, get_old, create_task_from_old, remove_old, remove_task
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -89,9 +89,9 @@ def obj_from_row(row):
     )
 
 
-def _get_old_object(distinguished_name):
-    logger.info("Loading old object for %s", distinguished_name)
-    old = get_old(distinguished_name)
+def _get_old_object(distinguished_name, obj_id=None):
+    logger.info("Loading old object for %s", obj_id or distinguished_name)
+    old = get_old(distinguished_name, obj_id)
     if old:
         return obj_from_row(old)
 
@@ -144,7 +144,7 @@ class TriggerObject(object):
 
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
-        old = _get_old_object(self.distinguished_name)
+        old = _get_old_object(None, self.entry_uuid)
         if old:
             self.old_distinguished_name = old.distinguished_name
             self.old_attributes = old.attributes
@@ -199,39 +199,66 @@ def main():
     """Handles listener-JSON-files"""
     # run forever and only exit on error
     for json_file in NEW_FILES_DIR.glob("*.json"):
+        if os.path.basename(json_file) == "restart.json":
+            continue
         logger.info("Adding a new task from %s", json_file)
         add_task(json_file)
         os.unlink(json_file)
     ret_value = 0
-    for task in get_tasks():
-        try:
-            logger.info("Processing Task %s", task)
-            obj = obj_from_row(task)
-            obj.load_old()
-            logger.info("... %r", obj)
-            if obj.attributes and obj.attributes.get("lastname") == "ERROR3":
-                raise ValueError()
-            run(obj)
-        except requests.exceptions.HTTPError as exc:
-            logger.exception(exc)
-            increment_error_count(task.id)
-            ret_value = 1
-            break
-        except Exception as exc:
-            logger.exception(exc)
-            move_task_to_dead_letters(task.id, traceback.format_exc())
-            ret_value = 1
-        else:
+    stop_on_error = os.getenv("OX_CONNECTOR_STOP_ON_ERROR", "True") != "False"
+    for udm_module, empty_attributes in [
+            ("oxmail/oxcontext", False),
+            ("oxmail/accessprofile", None),
+            ("users/user", None),
+            ("groups/group", None),
+            ("oxmail/functional_account", None),
+            ("oxresources/oxresources", None),
+            ("oxmail/oxcontext", True),
+    ]:
+        for task in get_tasks(udm_module, empty_attributes):
             try:
-                GROUP_EUUID.remove(obj.entry_uuid)
-            except KeyError:
-                pass
-            if obj.was_deleted():
-                remove_old(obj.old_distinguished_name)
+                logger.info("Processing Task %s", task)
+                obj = obj_from_row(task)
+                obj.load_old()
+                logger.info("... %r", obj)
+                run(obj)
+            except requests.exceptions.HTTPError as exc:
+                logger.error("Error while handling %s", task)
+                logger.exception(exc)
+                increment_error_count(task.id)
+                ret_value = 1
+                break
+            except Exception as exc:
+                logger.error("Error while handling %s", task)
+                logger.exception(exc)
+                if stop_on_error or task.udm_module == "oxmail/oxcontext":
+                    # oxcontext is so important, we can never continue here
+                    increment_error_count(task.id)
+                    ret_value = 1
+                    break
+                move_task_to_dead_letters(task.id, traceback.format_exc())
+                ret_value = 1
             else:
-                if obj.attributes:
-                    ox_db_id = obj.attributes.get("oxDbId")
-                    move_task_to_old(task.id, ox_db_id)
+                try:
+                    GROUP_EUUID.remove(obj.entry_uuid)
+                except KeyError:
+                    pass
+                if obj.was_deleted():
+                    remove_old(obj.old_distinguished_name)
+                    remove_task(task.id)
+                else:
+                    move_task_to_old(task.id, obj.attributes)
+        else:
+            # no break from stop_on_error: continue
+            continue
+        break
+    if ret_value == 0:
+        try:
+            os.unlink(NEW_FILES_DIR / "restart.json")
+        except OSError:
+            pass
+    else:
+        open(NEW_FILES_DIR / "restart.json", "w")  # it is hacky, sorry
     return ret_value
 
 

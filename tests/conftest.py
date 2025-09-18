@@ -11,7 +11,7 @@ import pytest
 from udm_rest import UDM
 
 from univention.ox.soap.config import _CREDENTIALS
-from univention.ox.provisioning.key_value_store import KeyValueStore
+from univention.ox.provisioning.helpers import normalized_dn
 
 TEST_LOG_FILE = Path("/tmp/test.log")
 
@@ -34,6 +34,7 @@ def wait_for_listener(truncate_wait_for_listener_log):
     truncate_wait_for_listener_log()  # truncate before starting the test
 
     def _wait_for_dn(dn: str, timeout=60.0) -> None:
+        dn = normalized_dn(dn)
         start_time = time.time()
         with TEST_LOG_FILE.open("r") as fp:
             pos = fp.tell()
@@ -165,19 +166,6 @@ def udm_admin_password():
 @pytest.fixture
 def ox_host():
     return os.environ["OX_SOAP_SERVER"]
-
-
-@pytest.fixture
-def load_obj_from_json():
-    def f(distinguished_name):
-        db_file = "/var/lib/univention-appcenter/apps/ox-connector/data/listener/old.db"
-        db = KeyValueStore(db_file)
-        path_to_old_user = db.get(distinguished_name.lower())
-        if not path_to_old_user:
-            return None
-        return json.load(open(path_to_old_user))
-
-    return f
 
 
 class UDMTest(object):

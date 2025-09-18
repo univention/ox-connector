@@ -526,7 +526,7 @@ def modify_user(obj):
             )
             user.create()
         else:
-            raise()
+            raise
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)

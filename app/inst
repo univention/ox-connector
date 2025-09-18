@@ -66,8 +66,6 @@ main () {
   create_accessprofiles "${@}"
   migrate_user_access_profiles "${@}"
 
-  rebuild_key_value_store_if_necessary
-
   setup_umc "${@}"
 
   joinscript_save_current_version
@@ -439,16 +437,6 @@ migrate_user_oxAccessUSM() {
 migrate_user_access_profiles() {
   if [[ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]]; then
     python3 "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/migrate-user-access-profiles.py" --write --apply --file "/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/migrate-user-access-profiles-results" "${@}"  || die
-  fi
-}
-
-rebuild_key_value_store_if_necessary() {
-  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt "18" ]]; then
-    # https://git.knut.univention.de/univention/dev/internal/dev-issues/dev-incidents/-/issues/143 - some leftover keys in the key value store are causing real problems
-    mkdir -p "/var/lib/univention-appcenter/apps/ox-connector/data/listener/"
-    service univention-appcenter-listener-converter@ox-connector stop
-    univention-app shell ox-connector rebuild-old.db --fix-existing-keys
-    service univention-appcenter-listener-converter@ox-connector start
   fi
 }
 

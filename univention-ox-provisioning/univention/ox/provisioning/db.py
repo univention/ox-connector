@@ -49,7 +49,9 @@ Base = declarative_base()
 # docker_host_name = os.environ["DOCKER_HOST_NAME"]
 # engine = create_engine(f"postgresql+psycopg2://ox-connector:{db_password}@{docker_host_name}:5432/ox-connector")
 
-engine = create_engine("sqlite:////var/lib/univention-appcenter/apps/ox-connector/data/listener/db.sqlite")
+LISTENER_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/")
+
+engine = create_engine("sqlite:///%s/db.sqlite" % LISTENER_DIR)
 
 
 logger = logging.getLogger("listener")
@@ -76,7 +78,6 @@ class Old(Base):
     udm_module = Column(String, nullable=False)
     dn = Column(String, nullable=False)
     attrs = Column(String, nullable=False)
-    ox_db_id = Column(Integer, nullable=True)
 
     __table_args__ = (Index("old_entries_obj_id", "obj_id"), Index("old_entries_dn", "dn"), )
 
@@ -105,23 +106,34 @@ Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(engine)
 
 
-def get_tasks():
+def get_tasks(udm_module: str=None, filter_empty_attributes: bool=None):
     """
     Return all tasks sorted by creation time.
     """
     with _get_session() as db_session:
-        for task in db_session.query(Task).order_by(Task.created_at):
+        tasks = db_session.query(Task)
+        if udm_module:
+            tasks = tasks.filter_by(udm_module=udm_module)
+        if filter_empty_attributes is True:
+            tasks = tasks.filter(Task.attrs.is_(None))
+        elif filter_empty_attributes is False:
+            tasks = tasks.filter(Task.attrs.is_not(None))
+        for task in tasks.order_by(Task.created_at):
             logger.debug("Yielding task %s", task)
             yield task
 
 
-def get_old(dn: str):
+def get_old(dn: str, obj_id: str=None):
     """
-    Returns old data of given object id
+    Returns old data of given dn or object id
+    object id takes precedence over dn
     """
     dn = _normalized_dn(dn)
     with _get_session() as db_session:
-        old = db_session.query(Old).filter_by(dn=dn).first()
+        if obj_id:
+            old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        else:
+            old = db_session.query(Old).filter_by(dn=dn).first()
         if old:
             logger.info("Found old object %s", old)
             return deepcopy(old)
@@ -138,6 +150,7 @@ def create_task_from_old(obj_id: str):
             db_session.add(task)
             db_session.commit()
             logger.info("Added task %s", task)
+            open(LISTENER_DIR / "restart.json", "w")
         else:
             logger.info("No old object found for %s; not creating any task", obj_id)
 
@@ -149,7 +162,7 @@ def increment_error_count(task_id: int):
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
         task.num_errors += 1
-    logger.info("Task %s now has an error count of %d", task, task.num_errors)
+        logger.info("Task %s now has an error count of %d", task, task.num_errors)
 
 
 def add_task(path: Path):
@@ -168,6 +181,7 @@ def add_task(path: Path):
         db_session.add(task)
         db_session.commit()
         logger.info("Task %s created", task)
+    open(LISTENER_DIR / "restart.json", "w")
 
 
 def add_old(path: Path):
@@ -216,6 +230,19 @@ def remove_old(dn: str):
             logger.info("Removing old entry impossible, %s does not exist", obj_id)
 
 
+def remove_task(task_id: str):
+    """
+    Removes an entry from the "old db"
+    """
+    with _get_session() as db_session:
+        task = db_session.query(Task).get(task_id)
+        if task:
+            logger.info("Removing %s", task)
+            db_session.delete(task)
+        else:
+            logger.info("Removing task impossible, %s does not exist", task_id)
+
+
 def move_task_to_dead_letters(task_id: int, error_msg: str):
     """
     Move the task to the "dead queue", meaning that it needs further, manual
@@ -231,7 +258,7 @@ def move_task_to_dead_letters(task_id: int, error_msg: str):
         logger.info("Deleted task %s", task)
 
 
-def move_task_to_old(task_id: int, ox_db_id: int=None):
+def move_task_to_old(task_id: int, attributes: dict=None):
     """
     Move the task to the "old database", meaning that this data is now
     considered the last snapshot for further updates of this object. Removed
@@ -240,24 +267,27 @@ def move_task_to_old(task_id: int, ox_db_id: int=None):
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
         old = db_session.query(Old).filter_by(obj_id=task.obj_id).first()
+        if attributes:
+            attributes = json.dumps(attributes)
+        else:
+            attributes = task.attrs
         if old:
-            if task.attrs:
+            if attributes:
                 logger.info("Updating entry in old db %s", old)
                 old.obj_id = task.obj_id
                 old.udm_module = task.udm_module
                 old.dn = task.dn
-                old.attrs = task.attrs
-                old.ox_db_id = ox_db_id
+                old.attrs = attributes
             else:
                 logger.info("Removing entry in old db %s", old)
                 db_session.delete(old)
-        elif task.attrs:
-            old = Old(obj_id=task.obj_id, udm_module=task.udm_module, dn=task.dn, attrs=task.attrs, ox_db_id=ox_db_id)
+        elif attributes:
+            old = Old(obj_id=task.obj_id, udm_module=task.udm_module, dn=task.dn, attrs=attributes)
             db_session.add(old)
             db_session.commit()
             logger.info("Created entry in old db %s", old)
         else:
-            logger.info("No old entry found for deletion task %s. Doing nothing", task)
+            logger.info("No old entry found while deleting task %s. Doing nothing", task)
         for error in db_session.query(Dead).filter_by(obj_id=task.obj_id):
             logger.info("Removing %s", error)
             db_session.delete(error)
@@ -318,6 +348,8 @@ def filter_error(obj_id, output_format: str="human", retry: bool=False, fresh_re
                 db_session.delete(error)
     if json_output:
         print(json.dumps(json_output, sort_keys=True, indent=2))
+    if retry:
+        open(LISTENER_DIR / "restart.json", "w")
 
 
 def show_task_summary(output_format: str="human"):
@@ -354,6 +386,87 @@ def show_task_summary(output_format: str="human"):
                 print(f"Created between {start_date} and {end_date}")
             else:
                 print(f"Created at {end_date}")
+
+
+def show_old(obj_id: str, output_format: str="human"):
+    """
+    Shows data the Connector has stored for that object
+    It has been saved the last time the object was processed
+    successfully. If the object has been deleted, so was this data
+    """
+    with _get_session() as db_session:
+        old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        if output_format == "json":
+            pass
+        else:
+            print("DN:", old.dn)
+            print("Object Identifier:", old.obj_id)
+            print("UDM module:", old.udm_module)
+            print("ID (database):", old.id)
+            print("Attributes:")
+            for name, value in sorted(json.loads(old.attrs).items()):
+                print(" ", name, ":", value)
+
+
+def search_for(obj_id: str, output_format: str="human"):
+    """
+    Shows all we got for an object:
+    * Last time it was synced successfully
+    * Pending tasks that shall be processed
+    * Current failures that may need interaction (see filter_error)
+    """
+    with _get_session() as db_session:
+        if output_format != "json":
+            print("Searching for", obj_id)
+        old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        if old:
+            if output_format == "json":
+                pass
+            else:
+                print("Synced as", old)
+        else:
+            if output_format == "json":
+                pass
+            else:
+                print("Not found as successfully synced")
+
+        tasks = db_session.query(Task).filter_by(obj_id=obj_id)
+        one_task = False
+        for task in tasks:
+            if not one_task:
+                one_task = True
+                if output_format == "json":
+                    pass
+                else:
+                    print("Current tasks:")
+            if output_format == "json":
+                pass
+            else:
+                print("*", task)
+        if not one_task:
+            if output_format == "json":
+                pass
+            else:
+                print("Currently no pending tasks")
+
+        errors = db_session.query(Dead).filter_by(obj_id=obj_id)
+        one_error = False
+        for error in errors:
+            if not one_error:
+                one_error = True
+                if output_format == "json":
+                    pass
+                else:
+                    print("Current errors:")
+            if output_format == "json":
+                pass
+            else:
+                print("*", error)
+        if not one_error:
+            if output_format == "json":
+                pass
+            else:
+                print("Currently no errors")
 
 
 def _normalized_dn(dn: str) -> str:
@@ -420,6 +533,8 @@ if __name__ == "__main__":
     _add_action(subparsers, move_task_to_dead_letters)
     _add_action(subparsers, filter_error)
     _add_action(subparsers, show_task_summary)
+    _add_action(subparsers, search_for)
+    _add_action(subparsers, show_old)
 
     args = parser.parse_args()
     if not getattr(args, "func", None):
