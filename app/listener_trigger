@@ -103,11 +103,10 @@ def _update_group_queue(entry_uuid):
     if entry_uuid not in GROUP_EUUID:
         create_task_from_old(entry_uuid)
         logger.info(
-            "Added %s to the listener queue as %s",
-            file_path,
-            new_file_path,
+            "Added %s to the listener queue",
+            entry_uuid,
         )
-        # Register it so it is processed later
+        # Register it so it is not processed twice
         GROUP_EUUID.add(entry_uuid)
 
 

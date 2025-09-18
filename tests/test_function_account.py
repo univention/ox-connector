@@ -436,7 +436,6 @@ def test_modify_user(
     )
     assert user.dn != new_dn
     wait_for_listener(new_dn)
-    wait_for_listener(dn)
     for account in udm.search(
         "oxmail/functional_account",
         f"cn={new_functional_account_name}",

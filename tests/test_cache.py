@@ -96,6 +96,7 @@ def get_db_id(dn: str, max_retry: int = 5, db: KeyValueStore = mapping) -> int:
     return ox_id
 
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") is None, reason="UCS does not use KeyValueStore")
 def test_ignore_user(create_ox_user):
     """
     Test a non ox-user. Should not find a DB ID in cache
@@ -105,6 +106,7 @@ def test_ignore_user(create_ox_user):
     assert db_id is None
 
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") is None, reason="UCS does not use KeyValueStore")
 def test_add_user(create_ox_context, create_ox_user, new_user_name):
     """
     Test a new user. Should find a DB ID in cache
@@ -116,6 +118,7 @@ def test_add_user(create_ox_context, create_ox_user, new_user_name):
     assert obj.id == db_id
 
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") is None, reason="UCS does not use KeyValueStore")
 def test_rename_user(
     create_ox_user,
     udm,
@@ -139,7 +142,7 @@ def test_rename_user(
 
 @pytest.mark.skipif(
     os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="Requires Nubus/Kubernetes deployment",
+    reason="UCS does not use KeyValueStore",
 )
 def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
     create_ox_user,
@@ -168,7 +171,7 @@ def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
 
 @pytest.mark.skipif(
     os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="Requires Nubus/Kubernetes deployment",
+    reason="UCS does not use KeyValueStore",
 )
 def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
     create_ox_user,
@@ -198,7 +201,7 @@ def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
 
 @pytest.mark.skipif(
     os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="Requires Nubus/Kubernetes deployment",
+    reason="UCS does not use KeyValueStore",
 )
 def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     create_ox_user,
@@ -226,6 +229,7 @@ def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     assert db_id is not None
 
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") is None, reason="UCS does not use KeyValueStore")
 def test_change_context(
     create_ox_user,
     create_ox_context,
@@ -251,6 +255,7 @@ def test_change_context(
     assert db_id != new_db_id
 
 
+@pytest.mark.skipif(os.environ.get("STANDALONE_KUBERNETES_TESTS") is None, reason="UCS does not use KeyValueStore")
 def test_remove_user(
     create_ox_user,
     create_ox_context,

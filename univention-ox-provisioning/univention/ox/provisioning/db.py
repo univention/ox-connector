@@ -396,6 +396,8 @@ def show_old(obj_id: str, output_format: str="human"):
     """
     with _get_session() as db_session:
         old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        if not old:
+            return
         if output_format == "json":
             pass
         else:

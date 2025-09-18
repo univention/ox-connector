@@ -37,7 +37,7 @@ LongDescription = <p>
 	</p>
 
 Logo = logo.svg
-ListenerUDMVersion = 1
+ListenerUDMVersion = 3
 AppCategories = Identity Management, Collaboration & Groupware
 LogoDetailPage = logo_detail_page.svg
 

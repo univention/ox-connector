@@ -133,7 +133,7 @@ def test_change_context_for_group_multi_user(
     )
     find_obj(context_id, new_group_name)
     udm.modify("users/user", user_dn, {"oxContext": new_context_id})
-    wait_for_listener(group_dn)
+    wait_for_listener(user_dn)
     assert len(find_obj(context_id, new_group_name).members) == 1
     assert len(find_obj(new_context_id, new_group_name).members) == 2
 
