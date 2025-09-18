@@ -108,8 +108,8 @@ repos:
         name: "Check or add license headers to files"
 
 
-  - repo: "https://git.knut.univention.de/univention/customers/dataport/upx/kyverno-test-pre-commit"
-    rev: "v0.3.0"
+  - repo: "https://git.knut.univention.de/univention/dev/tooling/kyverno-test-pre-commit"
+    rev: "jconde/kyverno-automated-policies"
     hooks:
       - id: kyverno-test
 
