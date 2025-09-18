@@ -1,33 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2024-2025 Univention GmbH
+# SPDX-FileCopyrightText: 2025 Univention GmbH
 ---
 # Service-specific configuration for Kyverno tests
-global:
-  # No registry specified - defaults to Docker Hub
-  imagePullPolicy: "Always"
 
 oxConnector:
   image:
-    # No registry specified - defaults to Docker Hub
-    repository: "busybox"
-    tag: "1.36.1@sha256:3fbc632167424a6d997e74f52b878d7cc478225cffac6bc977eedfe51c7f4e79"
-    pullPolicy: "Always"
-
-waitForDependency:
-  image:
-    # No registry specified - defaults to Docker Hub
-    repository: "busybox"
-    tag: "1.36.1@sha256:3fbc632167424a6d997e74f52b878d7cc478225cffac6bc977eedfe51c7f4e79"
-    pullPolicy: "Always"
-
-# Add resource limits for init containers (wait-for-dependency)
-resourcesWaitForDependency:
-  requests:
-    memory: "64Mi"
-    cpu: "100m"
-  limits:
-    memory: "128Mi"
-    cpu: "200m"
-
-ox-connector:
-  replicaCount: 42
+    tag: "kyverno@sha256:0000000000000000000000000000000000000000000000000000000000000000"

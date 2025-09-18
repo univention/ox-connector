@@ -50,6 +50,7 @@ A Helm chart for the ox-connector
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `1000` |  |
 | podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
+| probes.liveness.enabled | bool | `true` |  |
 | probes.liveness.exec.command[0] | string | `"/bin/sh"` |  |
 | probes.liveness.exec.command[1] | string | `"-c"` |  |
 | probes.liveness.exec.command[2] | string | `"exit 0\n"` |  |
@@ -58,6 +59,7 @@ A Helm chart for the ox-connector
 | probes.liveness.periodSeconds | int | `30` |  |
 | probes.liveness.successThreshold | int | `1` |  |
 | probes.liveness.timeoutSeconds | int | `3` |  |
+| probes.readiness.enabled | bool | `true` |  |
 | probes.readiness.exec.command[0] | string | `"/bin/sh"` |  |
 | probes.readiness.exec.command[1] | string | `"-c"` |  |
 | probes.readiness.exec.command[2] | string | `"exit 0\n"` |  |
@@ -79,7 +81,7 @@ A Helm chart for the ox-connector
 | resources.limits.memory | string | `"4Gi"` |  |
 | resources.requests.cpu | string | `"250m"` |  |
 | resources.requests.memory | string | `"512Mi"` |  |
-| resourcesWaitForDependency | object | `{}` | Deployment resources for the dependency waiters |
+| resourcesWaitForDependency | object | `{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"100m","memory":"64Mi"}}` | Deployment resources for the dependency waiters |
 | securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | securityContext.privileged | bool | `false` |  |

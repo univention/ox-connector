@@ -109,7 +109,7 @@ repos:
 
 
   - repo: "https://git.knut.univention.de/univention/dev/tooling/kyverno-test-pre-commit"
-    rev: "jconde/kyverno-automated-policies"
+    rev: "v0.5.0"
     hooks:
       - id: kyverno-test
 
