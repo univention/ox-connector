@@ -224,8 +224,7 @@ COPY --from=ox-connector /usr/lib/python3.9/importlib/ ${PYPKG}/importlib/
 
 COPY tests /tests
 
-RUN apt-get update && \
-  DEBIAN_FRONTEND=noninteractive \
+RUN DEBIAN_FRONTEND=noninteractive \
   apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
   procps \
   python3-pygments \
