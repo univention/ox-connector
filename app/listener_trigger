@@ -39,6 +39,7 @@ import sys
 import time
 import traceback
 import requests
+from requests.exceptions import Timeout, ConnectionError, HTTPError
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -221,7 +222,7 @@ def main():
                 obj.load_old()
                 logger.info("... %r", obj)
                 run(obj)
-            except requests.exceptions.HTTPError as exc:
+            except (HTTPError, ConnectionError, Timeout) as exc:
                 logger.error("Error while handling %s", task)
                 logger.exception(exc)
                 increment_error_count(task.id)
