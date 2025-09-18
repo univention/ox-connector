@@ -49,7 +49,6 @@ RUN \
   python3-zeep=4.2.*
   # python3-minimal \
   # python3.9-minimal
-  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 ###############################################################################
 # Final debian container near to distroless
@@ -85,7 +84,6 @@ RUN \
   python3-minimal=3.11.* \
   python3-pip=23.0.* \
   python3.11-minimal=3.11.* && \
-  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \
   # Avoid unused dependency on PIL
   echo "" > "${PYPKG}/PIL.py" && \
   pip3 install --break-system-packages --no-cache-dir \
@@ -229,7 +227,6 @@ RUN DEBIAN_FRONTEND=noninteractive \
   procps \
   python3-pygments \
   python3-pip && \
-  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* && \
   pip3 install --break-system-packages --no-cache-dir \
   uritemplate==4.1.1 \
   iniconfig==2.0.0 \
