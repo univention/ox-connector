@@ -65,6 +65,7 @@ class Dead(Base):
     dn = Column(String, nullable=False)
     attrs = Column(String, nullable=False)
     error_msg = Column(String, nullable=False)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
     __table_args__ = (Index("rejected_tasks_obj_id", "obj_id"), )
 
@@ -232,7 +233,7 @@ def remove_old(dn: str):
 
 def remove_task(task_id: str):
     """
-    Removes an entry from the "old db"
+    Removes an entry from the active tasks.
     """
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
@@ -243,10 +244,10 @@ def remove_task(task_id: str):
             logger.info("Removing task impossible, %s does not exist", task_id)
 
 
-def move_task_to_dead_letters(task_id: int, error_msg: str):
+def move_task_to_morgue(task_id: int, error_msg: str):
     """
     Move the task to the "dead queue", meaning that it needs further, manual
-    investigation. Removed from the list of active tasks.
+    investigation. This can be used to unblock the connector. Removed from the list of active tasks.
     """
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
@@ -254,7 +255,7 @@ def move_task_to_dead_letters(task_id: int, error_msg: str):
         db_session.add(dead)
         db_session.delete(task)
         db_session.commit()
-        logger.info("Created dead letter entry %s", dead)
+        logger.info("Created morgue entry %s", dead)
         logger.info("Deleted task %s", task)
 
 
@@ -294,18 +295,61 @@ def move_task_to_old(task_id: int, attributes: dict=None):
         db_session.delete(task)
         logger.info("Deleted task %s", task)
 
+def get_objects(db_session, obj_id):
+    obj_id = obj_id.replace("*", "%")  # SQL LIKE
+    errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
+    return errors
 
-def filter_error(obj_id, output_format: str="human", retry: bool=False, fresh_resync: bool=False, delete: bool=False):
+def resync_object(obj_id,):
     """
-    Filter in the "dead queue". Objects found can be printed ("human" or
-    "json"), retried (the exact same data is moved to the list of active
-    tasks), fresh resync (this object is freshly added from the leading
-    database to the list of active tasks), delete (error is deleted; makes
-    sense to combine this with retry or resync)
+    Objects are resynced using the new object data that is currently saved in UDM
     """
     with _get_session() as db_session:
-        obj_id = obj_id.replace("*", "%")  # SQL LIKE
-        errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
+        errors = get_objects(db_session, obj_id)
+        for error in errors:
+            attrs = {
+                "entry_uuid": error.obj_id,
+                "dn": error.dn,
+                "object_type": error.udm_module,
+                "command": "m",
+            }
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
+            filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
+            logger.info("Resynced object %s with ID %s", error.dn, error.obj_id)
+        with open(filename, "w") as fd:
+            json.dump(attrs, fd, sort_keys=True, indent=4)
+
+
+def retry_rejected(obj_id):
+    """
+    Objects are retried using the exact same data that was saved during the error occurance
+    """
+    with _get_session() as db_session:
+        errors = get_objects(db_session, obj_id)
+        for error in errors:
+            task = Task(obj_id=error.obj_id, udm_module=error.udm_module, dn=error.dn, attrs=error.attrs, status="retry")
+            db_session.add(task)
+        logger.info("Retrying %s", task)
+        open(LISTENER_DIR / "restart.json", "w")
+
+def remove_rejected(obj_id, retry: bool=False, fresh_resync: bool=False, delete: bool=False):
+    """
+    Filter in the "dead queue". Objects found can be printed ("simple" or
+    "fuller" or "json")
+    """
+    with _get_session() as db_session:
+        errors = get_objects(db_session, obj_id)
+        for error in errors:
+            logger.info("Removed error %s", error)
+            db_session.delete(error)
+
+def list_rejected(obj_id: str="*", output_format: str="simple"):
+    """
+    List objects in the "error queue". Objects found can be printed in different formats
+    ("simple" or "fuller" or "json")
+    """
+    with _get_session() as db_session:
+        errors = get_objects(db_session, obj_id)
         json_output = []
         for error in errors:
             if output_format == "json":
@@ -317,44 +361,57 @@ def filter_error(obj_id, output_format: str="human", retry: bool=False, fresh_re
                     "attrs": json.loads(error.attrs),
                     "error": error.error_msg,
                 })
-            elif output_format == "human":
+            if output_format = ["simple", "fuller"]:
                 print("DN:", error.dn)
                 print("Object Identifier:", error.obj_id)
                 print("UDM module:", error.udm_module)
                 print("ID (database):", error.id)
-                print("Attributes:")
-                for name, value in sorted(json.loads(error.attrs).items()):
-                    print(" ", name, ":", value)
-                print("Error:")
-                for line in error.error_msg.splitlines():
-                    print("  ", line)
-                print()
-            if retry:
-                task = Task(obj_id=error.obj_id, udm_module=error.udm_module, dn=error.dn, attrs=error.attrs, status="retry")
-                db_session.add(task)
-            if fresh_resync:
-                attrs = {
-                    "entry_uuid": error.obj_id,
-                    "dn": error.dn,
-                    "object_type": error.udm_module,
-                    "command": "m",
-                }
-                timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
-                filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
-
-                with open(filename, "w") as fd:
-                    json.dump(attrs, fd, sort_keys=True, indent=4)
-            if delete:
-                db_session.delete(error)
+                print("Timestamp:", error.timestamp)
+                print("ERROR: ", error.error_msg.splitlines()[-1])
+                if output_format == "fuller":
+                    print("Attributes:")
+                    for name, value in sorted(json.loads(error.attrs).items()):
+                        print(" ", name, ":", value)
+                    print("Error:")
+                    for line in error.error_msg.splitlines():
+                        print("  ", line)
+                print("-")
     if json_output:
         print(json.dumps(json_output, sort_keys=True, indent=2))
-    if retry:
-        open(LISTENER_DIR / "restart.json", "w")
 
 
-def show_task_summary(output_format: str="human"):
+def list_tasks(output_format: str="simple"):
+    json_output = []
+    for task in get_tasks():
+        if output_format in ["simple", "fuller"]:
+            print("DN:", task.dn)
+            print("Object Identifier:", task.obj_id)
+            print("UDM module:", task.udm_module)
+            print("ID (database):", task.id)
+            print("Created date:", task.created_at)
+            print("Status:", task.status)
+            print("Error count:", task.num_errors)
+            if output_format == "fuller":
+                print("Attributes:")
+                for name, value in sorted(json.loads(task.attrs).items()):
+                    print(" ", name, ":", value)
+            print("-")
+        if output_format == "json":
+            json_output.append({
+                "db_id": error.id,
+                "univention_object_identifier": error.obj_id,
+                "dn": error.dn,
+                "udm_module": error.udm_module,
+                "attrs": json.loads(error.attrs),
+                "error": error.error_msg,
+            })
+        if json_output:
+            print(json.dumps(json_output, sort_keys=True, indent=2))
+
+
+def show_task_summary(output_format: str="simple"):
     """
-    Shows the current size of to be processed tasks. Output can be "human"
+    Shows the current size of to be processed tasks. Output can be "simple"
     readable or "json".
     """
     start_date = None
@@ -388,7 +445,7 @@ def show_task_summary(output_format: str="human"):
                 print(f"Created at {end_date}")
 
 
-def show_old(obj_id: str, output_format: str="human"):
+def show_old(obj_id: str, output_format: str="simple"):
     """
     Shows data the Connector has stored for that object
     It has been saved the last time the object was processed
@@ -410,12 +467,12 @@ def show_old(obj_id: str, output_format: str="human"):
                 print(" ", name, ":", value)
 
 
-def search_for(obj_id: str, output_format: str="human"):
+def search_for(obj_id: str, output_format: str="simple"):
     """
     Shows all we got for an object:
     * Last time it was synced successfully
     * Pending tasks that shall be processed
-    * Current failures that may need interaction (see filter_error)
+    * Current failures that may need interaction (see list_rejected)
     """
     with _get_session() as db_session:
         if output_format != "json":
@@ -532,8 +589,12 @@ if __name__ == "__main__":
     _add_action(subparsers, add_task)
     _add_action(subparsers, add_old)
     _add_action(subparsers, move_task_to_old)
-    _add_action(subparsers, move_task_to_dead_letters)
-    _add_action(subparsers, filter_error)
+    _add_action(subparsers, move_task_to_morgue)
+    _add_action(subparsers, list_rejected)
+    _add_action(subparsers, remove_rejected)
+    _add_action(subparsers, retry_rejected)
+    _add_action(subparsers, list_tasks)
+    _add_action(subparsers, resync_object)
     _add_action(subparsers, show_task_summary)
     _add_action(subparsers, search_for)
     _add_action(subparsers, show_old)
