@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 
+import os
 from pathlib import Path
 
 from univention.ox.provisioning.db import add_old
 
-old_files = Path()
+old_files = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/old")
 
 for json_file in old_files.glob("*.json"):
     print("Migrating %s" % json_file)
     add_old(json_file)
+    os.remove(json_file)
+

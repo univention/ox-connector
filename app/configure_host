@@ -13,3 +13,8 @@ if [[ "${1}" = "install" ]]; then
 elif [[ "${1}" = "settings" ]]; then
   univention-app reinitialize "${APP_ID}"
 fi
+
+# remove later
+if [[ "${1}" = "upgrade" ]] && [[ "${2}" = "3.0.0" ]]; then
+    service univention-directory-listener restart
+fi
