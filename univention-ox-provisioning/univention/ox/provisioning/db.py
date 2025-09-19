@@ -36,6 +36,7 @@ from pathlib import Path
 import datetime
 from contextlib import contextmanager
 from copy import deepcopy
+from pwd import getpwnam
 
 import ldap.dn
 
@@ -52,7 +53,9 @@ Base = declarative_base()
 LISTENER_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/")
 
 engine = create_engine("sqlite:///%s/db.sqlite" % LISTENER_DIR)
-
+listener_uid = getpwnam('listener').pw_uid
+os.chown(f"{LISTENER_DIR}/db.sqlite", listener_uid, -1)
+os.chmod(f"{LISTENER_DIR}/db.sqlite", 0o644)
 
 logger = logging.getLogger("listener")
 
@@ -295,29 +298,30 @@ def move_task_to_old(task_id: int, attributes: dict=None):
         db_session.delete(task)
         logger.info("Deleted task %s", task)
 
-def get_objects(db_session, obj_id):
+def get_errors(obj_id='*'):
     obj_id = obj_id.replace("*", "%")  # SQL LIKE
-    errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
-    return errors
+    with _get_session() as db_session:
+        errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
+        for error in errors:
+            yield error
 
 def resync_object(obj_id,):
     """
     Objects are resynced using the new object data that is currently saved in UDM
     """
-    with _get_session() as db_session:
-        errors = get_objects(db_session, obj_id)
-        for error in errors:
-            attrs = {
-                "entry_uuid": error.obj_id,
-                "dn": error.dn,
-                "object_type": error.udm_module,
-                "command": "m",
-            }
-            timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
-            filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
-            logger.info("Resynced object %s with ID %s", error.dn, error.obj_id)
-        with open(filename, "w") as fd:
-            json.dump(attrs, fd, sort_keys=True, indent=4)
+    errors = get_errors(obj_id=obj_id)
+    for error in errors:
+        attrs = {
+            "entry_uuid": error.obj_id,
+            "dn": error.dn,
+            "object_type": error.udm_module,
+            "command": "m",
+        }
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
+        filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
+        logger.info("Resynced object %s with ID %s", error.dn, error.obj_id)
+    with open(filename, "w") as fd:
+        json.dump(attrs, fd, sort_keys=True, indent=4)
 
 
 def retry_rejected(obj_id):
@@ -325,7 +329,7 @@ def retry_rejected(obj_id):
     Objects are retried using the exact same data that was saved during the error occurance
     """
     with _get_session() as db_session:
-        errors = get_objects(db_session, obj_id)
+        errors = get_errors(obj_id=obj_id)
         for error in errors:
             task = Task(obj_id=error.obj_id, udm_module=error.udm_module, dn=error.dn, attrs=error.attrs, status="retry")
             db_session.add(task)
@@ -338,7 +342,7 @@ def remove_rejected(obj_id, retry: bool=False, fresh_resync: bool=False, delete:
     "fuller" or "json")
     """
     with _get_session() as db_session:
-        errors = get_objects(db_session, obj_id)
+        errors = get_errors(obj_id=obj_id)
         for error in errors:
             logger.info("Removed error %s", error)
             db_session.delete(error)
@@ -348,34 +352,34 @@ def list_rejected(obj_id: str="*", output_format: str="simple"):
     List objects in the "error queue". Objects found can be printed in different formats
     ("simple" or "fuller" or "json")
     """
-    with _get_session() as db_session:
-        errors = get_objects(db_session, obj_id)
-        json_output = []
-        for error in errors:
-            if output_format == "json":
-                json_output.append({
-                    "db_id": error.id,
-                    "univention_object_identifier": error.obj_id,
-                    "dn": error.dn,
-                    "udm_module": error.udm_module,
-                    "attrs": json.loads(error.attrs),
-                    "error": error.error_msg,
-                })
-            if output_format = ["simple", "fuller"]:
-                print("DN:", error.dn)
-                print("Object Identifier:", error.obj_id)
-                print("UDM module:", error.udm_module)
-                print("ID (database):", error.id)
-                print("Timestamp:", error.timestamp)
-                print("ERROR: ", error.error_msg.splitlines()[-1])
-                if output_format == "fuller":
-                    print("Attributes:")
-                    for name, value in sorted(json.loads(error.attrs).items()):
-                        print(" ", name, ":", value)
-                    print("Error:")
-                    for line in error.error_msg.splitlines():
-                        print("  ", line)
-                print("-")
+    errors = get_errors(obj_id=obj_id)
+    json_output = []
+    for error in errors:
+        print(error)
+        if output_format == "json":
+            json_output.append({
+                "db_id": error.id,
+                "univention_object_identifier": error.obj_id,
+                "dn": error.dn,
+                "udm_module": error.udm_module,
+                "attrs": json.loads(error.attrs),
+                "error": error.error_msg,
+            })
+        if output_format in ["simple", "fuller"]:
+            print("DN:", error.dn)
+            print("Object Identifier:", error.obj_id)
+            print("UDM module:", error.udm_module)
+            print("ID (database):", error.id)
+            print("Timestamp:", error.timestamp)
+            print("ERROR: ", error.error_msg.splitlines()[-1])
+            if output_format == "fuller":
+                print("Attributes:")
+                for name, value in sorted(json.loads(error.attrs).items()):
+                    print(" ", name, ":", value)
+                print("Error:")
+                for line in error.error_msg.splitlines():
+                    print("  ", line)
+            print("-")
     if json_output:
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
@@ -409,7 +413,7 @@ def list_tasks(output_format: str="simple"):
             print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
-def show_task_summary(output_format: str="simple"):
+def show_summary(output_format: str="simple"):
     """
     Shows the current size of to be processed tasks. Output can be "simple"
     readable or "json".
@@ -432,7 +436,7 @@ def show_task_summary(output_format: str="simple"):
             "creation_start": str(start_date),
             "creation_end": str(end_date),
         }, sort_keys=True, indent=2))
-    else:
+     else:
         for udm_module, num in tasks.items():
             print(f"{udm_module}: {num}")
         if tasks:
@@ -452,20 +456,28 @@ def show_old(obj_id: str, output_format: str="simple"):
     successfully. If the object has been deleted, so was this data
     """
     with _get_session() as db_session:
-        old = db_session.query(Old).filter_by(obj_id=obj_id).first()
-        if not old:
+        json_output = []
+        obj_id = obj_id.replace("*", "%")  # SQL LIKE
+        print(obj_id)
+        olds = db_session.query(Old).filter(Old.obj_id.like(obj_id)).all()
+        print(olds)
+        if not olds:
             return
-        if output_format == "json":
-            pass
-        else:
-            print("DN:", old.dn)
-            print("Object Identifier:", old.obj_id)
-            print("UDM module:", old.udm_module)
-            print("ID (database):", old.id)
-            print("Attributes:")
-            for name, value in sorted(json.loads(old.attrs).items()):
-                print(" ", name, ":", value)
-
+        for old in olds:
+            if output_format == "json":
+                json_output.append(json.loads(old))
+            else:
+                print("DN:", old.dn)
+                print("Object Identifier:", old.obj_id)
+                print("UDM module:", old.udm_module)
+                print("ID (database):", old.id)
+                print("Attributes:")
+                for name, value in sorted(json.loads(old.attrs).items()):
+                    print(" ", name, ":", value)
+                print("-")
+            if json_output:
+                print(json.dumps(json_output, sort_keys=True, indent=2))
+        print(f"{len(olds)} old objects saved")
 
 def search_for(obj_id: str, output_format: str="simple"):
     """
@@ -595,7 +607,7 @@ if __name__ == "__main__":
     _add_action(subparsers, retry_rejected)
     _add_action(subparsers, list_tasks)
     _add_action(subparsers, resync_object)
-    _add_action(subparsers, show_task_summary)
+    _add_action(subparsers, show_summary)
     _add_action(subparsers, search_for)
     _add_action(subparsers, show_old)
 
