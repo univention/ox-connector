@@ -48,7 +48,7 @@ LDAP directory with relevance to OX App Suite.
    Listener
       The App Center creates a *Listener* module for the :program:`OX Connector`
       app, when it installs the app on a |UCS| system. The *Listener* writes the
-      ``entryUUID`` of the LDAP object that changed, in JSON format to
+      ``UniventionObjectIdentifier`` of the LDAP object that changed, in JSON format to
       :file:`/var/lib/univention-appcenter/listener/ox-connector/{timestamp}.json`.
       Each change creates one file.
 
@@ -63,7 +63,7 @@ LDAP directory with relevance to OX App Suite.
       #. Process the JSON files from the :term:`Listener` ordered by the
          timestamp in the filename.
       #. Request the LDAP object attributes through |UDM| for each
-         ``entryUUID``.
+         ``UniventionObjectIdentifier``.
 
       The converter writes the results in JSON format to
       :file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/{timestamp}.json`.
@@ -81,12 +81,9 @@ LDAP directory with relevance to OX App Suite.
    Script
       The *Script* runs inside the Docker container of the OX Connector. It
       handles the files in JSON format from the :term:`Listener Converter`,
-      processes it and sends data to the :term:`SOAP API`.
+      consumes it and sends data to the :term:`SOAP API`.
 
       The *Script* doesn't run multiple times at the same time.
-
-      It exits upon the first failed :term:`SOAP API` request and repeats once
-      the :term:`Listener Converter` triggers the *Script*.
 
    OX App Suite
       *OX App Suite* is the groupware and collaboration software from Open-Xchange.
@@ -171,13 +168,13 @@ In detail, the provisioning has the following steps, see
 #. The *Listener Converter* triggers the :term:`Script` in the OX Connector
    Docker container.
 
-#. In the Docker container, the :term:`Script` iterates over the JSON files from
+#. In the Docker container, the :term:`Script` consumes all the JSON files from
    the :term:`Listener Converter`.
 
 #. After the :term:`SOAP API` received the data and processed them successfully,
    the *Script* deletes each JSON file.
 
-#. The *Listener Converter* waits for 5 seconds and restarts the at step 2.
+#. The *Listener Converter* waits for 5 seconds and restarts at step 2.
 
 For more information about the file contents of the :term:`Listener` and
 :term:`Listener Converter`, see :ref:`architecture-overview`.
@@ -210,30 +207,32 @@ run the following command on the UCS system with OX Connector installed. Replace
 Likewise, the attributes for groups, context, and resources locate in the
 respective source files in the ``update_*()`` function.
 
-.. _cache-internal-id:
+.. _db-old-entries:
 
-Cache
-=====
+Database of old entries
+=======================
 
 .. index::
    single: cache
    single: OX App Suite; internal ID
-   single: cache; directory
    pair: JSON; cache
 
-.. versionadded:: 2.0.0
+.. versionadded:: 3.0.0
 
 :term:`OX App Suite` creates an *internal ID* for every user object it creates
-or updates. The OX Connector saves this *internal ID* in the JSON files, when it
+or updates. The OX Connector saves this *internal ID* in its own database, when it
 processed the objects without errors. The connector doesn't store that ID in the
-UCS LDAP directory, but maintains a file based cache on *internal ID*\ s created
-by OX App Suite.
+UCS LDAP directory, but maintains a database in which it stores the data old
+object's it processed for later reference (i.e., for retrieving the *internal
+ID*)
 
-The directory for the JSON files is
-:file:`var/lib/univention-appcenter/apps/ox-connector/data/listener/old/`.
+The database files is located at
+:file:`var/lib/univention-appcenter/apps/ox-connector/data/listener/database.sqlite`.
+The table is named `old_entries`. Administrators are highly adviced to use the
+CLI the App provides to manipulate this database, see :ref:`app-troubleshooting`.
 
 When the :term:`Listener Converter` updates groups in OX App Suite, the request
 to the :term:`SOAP API` must include the internal ID of all group members. The
 connector would need to ask the database of OX App Suite for the *internal ID*
 of each group member, involving network requests and database queries. To speed
-up the processing, the OX Connector uses the *internal ID* from the cache.
+up the processing, the OX Connector uses the *internal ID* from the database.

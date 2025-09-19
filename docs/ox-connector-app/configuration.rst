@@ -377,6 +377,29 @@ App Settings
       `Deputy permissions : Technical Documentation <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/deputy_permission.html>`_
          for more information about OX deputy permissions.
 
+.. envvar:: OX_CONNECTOR_STOP_ON_ERROR
+
+   Changes the bahavior of the app :program:`OX Connector` when it handles
+   errors during synchronization. It can either stop on any error and retry the
+   failed action until it succeeds or the Administrator resolves it manually
+   (``True``). The App can also continue with other actions in its queue and
+   instead put the failed action "aside", meaning it will no longer interfere
+   with the execution of the connector, but can be examined by the
+   Administrator at any later stage (``False``). See also
+   :ref:`app-troubleshooting`.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - Boolean
+        - ``True``
+
 .. _ucr-variables:
 
 |UCSUCRV|\ s
@@ -506,7 +529,7 @@ With the *modify* operation, you can use the following additional operations:
          modify \
          --set_alternatives email1 CustomAttributeUserMail CustomAttributeUserMail2
 
-.. option:: unset_alternatives
+.. option:: --unset_alternatives
 
    Unset the current alternatives for an OX property
 

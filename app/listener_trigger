@@ -198,7 +198,7 @@ GROUP_EUUID = set()
 def main():
     """Handles listener-JSON-files"""
     # run forever and only exit on error
-    for json_file in NEW_FILES_DIR.glob("*.json"):
+    for json_file in sorted(NEW_FILES_DIR.glob("*.json")):
         if os.path.basename(json_file) == "restart.json":
             continue
         logger.info("Adding a new task from %s", json_file)

@@ -37,10 +37,36 @@ The username of the administrative account is ``oxadminmaster``.
 You need to set the credentials in the app settings of the :program:`OX Connecor`,
 see :ref:`app-configuration`.
 
+.. _how-the-connector-handles-fauly-items:
+
+How the Connector handles faulty items
+======================================
+
+The :program:`OX Connector` knows two strategies how to handle faulty items it
+cannot synchronize. You can choose which strategy to use: :ref:`settings`.
+
 .. _limit-stop-at-conflict:
 
+OX Connector continues after faulty items
+-----------------------------------------
+
+.. index::
+   single: provisioning; faulty item
+
+When the :program:`OX Connector` encounters a faulty queue item that it can't
+process, it continues with the next queue items. The faulty item is put aside
+for the Administrator to examine at a later stage. The problem is written in
+the log file, see :ref:`log-files`.
+
+The app ships a CLI to manage the list of errors, see
+:ref:`app-troubleshooting`. 
+
+As administrator, you need to monitor the list of errors manually and decide what to do (delete or retry). Meanwhile, the :program:`OX Connector` continues to process data it gets from the :term:`Listener`. Note that this may or may not cause a certain de-sync between :term:`` and the OX App Suite.
+see :ref:`provision-stopped`. After the conflict resolution, the connector
+continues to process the provisioning queue.
+
 OX Connector stops at faulty items
-==================================
+----------------------------------
 
 .. index::
    single: provisioning; faulty item

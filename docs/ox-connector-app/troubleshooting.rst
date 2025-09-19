@@ -271,7 +271,7 @@ Rebuild cache
 
 The *internal ID* of objects in the database of OX App Suite can become
 corrupted, for example after a backup restore of the database. For more
-information about the cache, see :ref:`cache-internal-id`.
+information about the cache, see :ref:`db-old-entries`.
 
 To rebuild the cache, run the following commands:
 
