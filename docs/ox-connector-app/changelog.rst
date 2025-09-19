@@ -17,20 +17,26 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 v3.0.0
 ======
 
-Released: ???
+Released: 2025-09-22
 
 Changed
 -------
 
-The App now stores its queue of tasks in a `Postgres` database instead of having
+The App now stores its queue of tasks in a `SQLite` database instead of having
 all data in JSON files. This includes the tasks as well as the data of those
-objects already seen. GDBM based key value stores have been removed.
+objects already seen. GDBM based key value stores have been removed. For now,
+some helper scripts will not work anymore, namely `rebuild-old.db`,
+`remove-from-ox-db-cache`, `check_sync_status.py`. Existing monitoring plugins
+may need adjustments.
+
+Migration of old data is automated but may take some time depending on your
+environment.
 
 Added
 -----
 
 The App can now be configured in a way that it *does not* stop on the first
-error it encounters but instead continue to process the queue. This option is
+error it encounters but instead continues to process the queue. This option is
 deactivated by default, meaning the behavior does not change. Note that we may
 eventually release another version and enable that feature.
 

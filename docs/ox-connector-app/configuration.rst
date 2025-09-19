@@ -379,7 +379,7 @@ App Settings
 
 .. envvar:: OX_CONNECTOR_STOP_ON_ERROR
 
-   Changes the bahavior of the app :program:`OX Connector` when it handles
+   Changes the behavior of the app :program:`OX Connector` when it handles
    errors during synchronization. It can either stop on any error and retry the
    failed action until it succeeds or the Administrator resolves it manually
    (``True``). The App can also continue with other actions in its queue and

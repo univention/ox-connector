@@ -55,7 +55,7 @@ LISTENER_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listen
 engine = create_engine("sqlite:///%s/db.sqlite" % LISTENER_DIR)
 listener_uid = getpwnam('listener').pw_uid
 os.chown(f"{LISTENER_DIR}/db.sqlite", listener_uid, -1)
-os.chmod(f"{LISTENER_DIR}/db.sqlite", 0o644)
+os.chmod(f"{LISTENER_DIR}/db.sqlite", 0o640)
 
 logger = logging.getLogger("listener")
 
@@ -305,10 +305,12 @@ def get_errors(obj_id='*'):
         for error in errors:
             yield error
 
-def resync_object(obj_id,):
+def resync_object(obj_id):
     """
-    Objects are resynced using the new object data that is currently saved in UDM
+    Objects are resynced using the new object data that is currently saved in
+    UDM
     """
+    # TODO: maybe we want to search in old, too? Resyncing may make sense from old, too? Probably search in errors first? (DN is "more recent")
     errors = get_errors(obj_id=obj_id)
     for error in errors:
         attrs = {
@@ -319,15 +321,18 @@ def resync_object(obj_id,):
         }
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
         filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
-        logger.info("Resynced object %s with ID %s", error.dn, error.obj_id)
+        logger.info("Resynced %s", error)
+        break  # only needs to be done once
     with open(filename, "w") as fd:
         json.dump(attrs, fd, sort_keys=True, indent=4)
 
 
 def retry_rejected(obj_id):
     """
-    Objects are retried using the exact same data that was saved during the error occurance
+    Objects are retried using the exact same data that was saved during the
+    error occurance
     """
+    # TODO support obj_id and "db_id"?
     with _get_session() as db_session:
         errors = get_errors(obj_id=obj_id)
         for error in errors:
@@ -336,16 +341,16 @@ def retry_rejected(obj_id):
         logger.info("Retrying %s", task)
         open(LISTENER_DIR / "restart.json", "w")
 
-def remove_rejected(obj_id, retry: bool=False, fresh_resync: bool=False, delete: bool=False):
+def remove_rejected(obj_id):
     """
-    Filter in the "dead queue". Objects found can be printed ("simple" or
-    "fuller" or "json")
+    Remove all items from the "error queue" that belong to a specific object.
     """
+    # TODO support obj_id and "db_id"?
     with _get_session() as db_session:
         errors = get_errors(obj_id=obj_id)
         for error in errors:
-            logger.info("Removed error %s", error)
             db_session.delete(error)
+            logger.info("Removed error %s", error)
 
 def list_rejected(obj_id: str="*", output_format: str="simple"):
     """
@@ -355,7 +360,6 @@ def list_rejected(obj_id: str="*", output_format: str="simple"):
     errors = get_errors(obj_id=obj_id)
     json_output = []
     for error in errors:
-        print(error)
         if output_format == "json":
             json_output.append({
                 "db_id": error.id,
@@ -370,9 +374,10 @@ def list_rejected(obj_id: str="*", output_format: str="simple"):
             print("Object Identifier:", error.obj_id)
             print("UDM module:", error.udm_module)
             print("ID (database):", error.id)
-            print("Timestamp:", error.timestamp)
-            print("ERROR: ", error.error_msg.splitlines()[-1])
-            if output_format == "fuller":
+            print("Error occurred:", error.timestamp)
+            if output_format == "simple":
+                print("Error: ", error.error_msg.splitlines()[-1])
+            else:
                 print("Attributes:")
                 for name, value in sorted(json.loads(error.attrs).items()):
                     print(" ", name, ":", value)
@@ -385,6 +390,10 @@ def list_rejected(obj_id: str="*", output_format: str="simple"):
 
 
 def list_tasks(output_format: str="simple"):
+    """
+    List objects in the "currrent tasks queue". Objects found can be printed in
+    different formats ("simple" or "fuller" or "json")
+    """
     json_output = []
     for task in get_tasks():
         if output_format in ["simple", "fuller"]:
@@ -392,7 +401,7 @@ def list_tasks(output_format: str="simple"):
             print("Object Identifier:", task.obj_id)
             print("UDM module:", task.udm_module)
             print("ID (database):", task.id)
-            print("Created date:", task.created_at)
+            print("Created at:", task.created_at)
             print("Status:", task.status)
             print("Error count:", task.num_errors)
             if output_format == "fuller":
@@ -458,11 +467,7 @@ def show_old(obj_id: str, output_format: str="simple"):
     with _get_session() as db_session:
         json_output = []
         obj_id = obj_id.replace("*", "%")  # SQL LIKE
-        print(obj_id)
         olds = db_session.query(Old).filter(Old.obj_id.like(obj_id)).all()
-        print(olds)
-        if not olds:
-            return
         for old in olds:
             if output_format == "json":
                 json_output.append(json.loads(old))
@@ -475,9 +480,8 @@ def show_old(obj_id: str, output_format: str="simple"):
                 for name, value in sorted(json.loads(old.attrs).items()):
                     print(" ", name, ":", value)
                 print("-")
-            if json_output:
-                print(json.dumps(json_output, sort_keys=True, indent=2))
-        print(f"{len(olds)} old objects saved")
+        if output_format == "json":
+            print(json.dumps(json_output, sort_keys=True, indent=2))
 
 def search_for(obj_id: str, output_format: str="simple"):
     """
@@ -610,6 +614,8 @@ if __name__ == "__main__":
     _add_action(subparsers, show_summary)
     _add_action(subparsers, search_for)
     _add_action(subparsers, show_old)
+    # TODO: rebuild_cache: See the CLI update-ox-db-cache - it basically retrieves all OxDbIds again from the live OX DB...
+    # TODO: check_sync_status.py: See the CLI update-ox-db-cache - it compares live OX DB with UDM
 
     args = parser.parse_args()
     if not getattr(args, "func", None):

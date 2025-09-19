@@ -228,7 +228,7 @@ ID*)
 
 The database files is located at
 :file:`var/lib/univention-appcenter/apps/ox-connector/data/listener/database.sqlite`.
-The table is named `old_entries`. Administrators are highly adviced to use the
+The table is named `old_entries`. Administrators are highly advised to use the
 CLI the App provides to manipulate this database, see :ref:`app-troubleshooting`.
 
 When the :term:`Listener Converter` updates groups in OX App Suite, the request

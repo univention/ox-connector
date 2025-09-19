@@ -54,22 +54,15 @@ Domain join: :file:`/var/log/univention/join.log`
    Contains log information from the join processes. When the App Center install
    OX Connector, the app also joins the domain.
 
-.. _health-check:
+.. _troubleshoot-listener:
 
-Health check
-============
+Checking the Listener
+=====================
 
-.. index::
-   pair: listener converter; health check
-   pair: listener; health check
-
-First, have a look at the log file for the :term:`Listener Converter` and look
-for warnings and errors, see :ref:`log-files`.
-
-The OX Connector has a good health when the number of tasks for provisioning
-for the :term:`Listener` and the :term:`Listener Converter` is low. For a quick
-verification, run the following command on the UCS system with the OX Connector
-installed:
+Before checking the OX Connector, you may want to have a look at the connection
+between the :term:`Listener` and the :term:`Listener Converter`. The Listener
+should create files and the Listener Converter should translate these files
+rather quickly.
 
 .. code-block:: console
    :caption: Verify the number of unprocessed files for the :term:`Listener`.
@@ -78,69 +71,89 @@ installed:
    $ ls -1 "$DIR_LISTENER"/*.json 2> /dev/null | wc -l
    0
 
+If files here are not created upon a change or are piling up, this indicates a
+problem in the Listener or Listener Converter. See :ref:`log-files`.
+
+.. _app-cli:
+
+CLI to monitor the current state
+================================
+
+The OX Connector ships a command-line interface that you can use to query and
+manipulate the database it uses to keep track of current tasks, objects already
+synced and errors it may have found.
+
+.. code-block:: console
+   :caption: List all commands of the CLI.
+
+   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db --help
+
+.. _health-check:
+
+Health check
+------------
+
+.. index::
+   pair: listener converter; health check
+   pair: listener; health check
+
+First, have a look at the log file for the :term:`Listener Converter` and look
+for warnings and errors, see :ref:`log-files`.
+
+Second you can get a brief summary of current tasks. This can indicate if the
+OX Connector can process the items fast enough or at all.
+
+.. code-block:: console
+   :caption: Show all tasks the OX Connector is yet to process.
+
+   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db list-tasks
+
+Third, you can get a brief summary of current errors. Every error is an object
+not synchronized. Note that this only makes sense should you have chosen
+:ref:`limit-continue-at-conflict` 
+
 .. code-block:: console
    :caption: Verify the number of unprocessed tasks for the :term:`Listener Converter`.
 
-   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db show-task-summary
-   Total: 0
+   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db list-rejected
 
-The :term:`Listener Converter` logs consecutive errors in the log file, for
-example:
+.. _handling-errors:
 
-.. code-block:: text
+Handling errors
+---------------
 
-   INFO    This is consecutive error #{some number}
+You can decide what to do with the items that have been moved to the list of
+errors. All commands assume that you have the ``UniventionObjectIdentifier`` of
+that object. For each error you have the option to
 
-Such entries indicate that the provisioning has issues with processing the
-queue. For more information, see :ref:`trouble-queue`.
+#. Delete it from the list: It is as if this item never hit the OX Connector.
+   The underlying object can of course be synchronized again if it is modified
+   in the LDAP directory (creating a completely new item in the OX Connector's
+   list to process).
 
-You can use the script `get_current_error.py` to automate the health check
-on your preferred monitoring system.
+   .. code-block:: console
+      :caption: Remove an error from the list.
 
-.. code-block:: console
+      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db remove-rejected --obj-id=...
 
-   univention-app shell ox-connector /usr/local/share/ox-connector/resources/get_current_error.py
+#. Retry the very same item: The erroneous item in the list is again copied to
+   the list of active tasks, assuming that the problem is now fixed (e.g. a
+   validation on the OX App Suite's side has been disabled).
 
-This script outputs a json with some information about the current state of the OX Connector.
+   .. code-block:: console
+      :caption: Retry an error from the list.
 
-If there is an error:
+      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db retry-rejected --obj-id=...
 
-.. code-block:: console
+#. Fresh synchronization of the object: The object is again put into the list
+   of active tasks but not with the attributes it had when the synchronization
+   happened (and failed). Instead, it is freshly fetched from the LDAP
+   database.
 
-   {'errors': '10', 'message': "HTTPSConnectionPool(host='ucs11.ucs.net', port=443): Max retries exceeded with url: /webservices/OXContextService?wsdl (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f7b1083a610>: Failed to establish a new connection: [Errno 111] Connection refused'))", 'filename': '/var/lib/univention-appcenter/apps/ox-connector/data/listener/2023-12-11-11-22-22-856263.json'}
+   .. code-block:: console
+      :caption: Retry an error from the list.
 
-If the ox-connector is working:
-
-.. code-block:: console
-
-   {'errors': '0'}
-
-The script `get_current_error.py` can easily be integrated into a Nagios plugin script, as shown in the following example:
-
-.. code-block:: bash
-
-    #!/bin/bash
-
-    nagiosCheck () {
-        result=$(/var/lib/univention-appcenter/apps/ox-connector/data/resources/get_current_error.py)
-        status=$(echo ${result} | jq ' if .errors == "0" then 0 else 1 end')
-
-        case $status in
-        0)
-            echo "OK: No errors found."
-            exit 0
-            ;;
-        1)
-            error_msg=$(echo ${result} | jq ' .message ')
-            error_file=$(echo ${result} | jq ' .filename ')
-            echo "WARNING: ${error_msg}. This error is caused by the listener file ${error_file}"
-            exit 1
-            ;;
-        esac
-    }
-
-    nagiosCheck
-
+      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db resync-object --obj-id=...
 
 .. _provision-stopped:
 
@@ -160,78 +173,13 @@ First, see the :ref:`log-files` and look for warnings and errors. If it's not a
 temporary problem like for example network connectivity, the fix requires manual
 action.
 
-As a last resort, the administrator can delete the flawed file. The log file
-reveals the flawed file and its path, see :ref:`queue-delete-one`.
+As a last resort, the administrator can move the task aside. The log file
+reveals the ``Database ID`` of that object (e.g. ``uid=...; $object_identifier; tasks:$database_id``).
 
-.. _trouble-queue:
+.. code-block:: console
+   :caption: Retry an error from the list.
 
-Queuing
-=======
-
-.. index::
-   single: provisioning; queue
-   see: queue; provisioning
-
-The queue for provisioning consists of JSON files. :ref:`app-how-it-works`
-describes the connector's data processing. Administrators can manually intervene
-with the queue in the following cases.
-
-.. _queue-delete-one:
-
-Delete one item from the queue
-------------------------------
-
-Administrators can remove an item in the queue, if the connector can't process
-it and interrupts the provisioning process. The connector retries to
-provision this item and continually fails.
-
-To find and remove the problematic item from the queue, follow these steps:
-
-#. Open the log file of the :term:`Listener Converter`. For the log file
-   location, see :ref:`log-files`.
-
-#. Find the filename of the item that the *Listener Converter* retries to
-   provision. For example, the log file shows:
-
-   .. code-block:: text
-
-      Error while processing /var/lib/univention-appcenter/apps/ox-connector/data/listener/$timestamp.json
-
-   ``$timestamp`` has the format ``%Y-%m-%d-%H-%M-%S``.
-
-#. Remove the problematic item:
-
-   .. code-block:: console
-
-      $ rm /var/lib/univention-appcenter/apps/ox-connector/data/listener/$timestamp.json
-
-.. _queue-reprovision-one:
-
-Re-provision one specific UDM object
-------------------------------------
-
-The OX Connector allows to re-provision one UDM object to OX App Suite. The
-following snippet provisions one user object:
-
-.. code-block:: bash
-   :caption: Re-provision one UDM object
-
-   dn="uid=ox1,cn=users,dc=example,dc=com" # -> CHANGE to the actual dn
-
-   entry_uuid="$(univention-ldapsearch -b "$dn" + | grep entryUUID | awk '{ print $2 }')"
-   if [ -n "$entry_uuid" ]; then
-       cat > /var/lib/univention-appcenter/listener/ox-connector/$(date +%Y-%m-%d-%H-%M-%S).json <<- EOF
-   {
-       "entry_uuid": "$entry_uuid",
-       "dn": "$dn",
-       "object_type": "users/user",
-       "command": "modify"
-   }
-   EOF
-   else
-       echo "$dn no longer exists, deleting from ox-connector db"
-       univention-app shell ox-connector remove-from-ox-db-cache "$dn"
-   fi
+   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db move-task-to-morgue --task-id=...  --error-msg="Manual intervention after careful consideration"
 
 .. _queue-reprovision-all:
 
@@ -260,58 +208,6 @@ only adds existing UDM objects to the queue.
 
    The OX Connector may decide to delete objects based on data in the JSON
    files. For example ``isOxGroup = Not`` in a group object.
-
-.. _cache-rebuild:
-
-Rebuild cache
-=============
-
-.. index::
-   single: cache; rebuild
-
-The *internal ID* of objects in the database of OX App Suite can become
-corrupted, for example after a backup restore of the database. For more
-information about the cache, see :ref:`db-old-entries`.
-
-To rebuild the cache, run the following commands:
-
-.. code-block:: console
-   :caption: Rebuild cache for *internal ID*
-
-   $ univention-app shell ox-connector
-   /oxp # update-ox-db-cache --delete
-   /oxp # update-ox-db-cache
-
-.. versionchanged:: 2.0.0
-
-   Rebuild the cache after an update to version 2.0.0, because previous
-   versions didn't maintain the cache for the *internal ID*.
-
-   Otherwise, the OX Connector app falls back into the much slower mechanism and
-   runs a database query per user during the provisioning.
-
-.. tip::
-
-   Retrieve all users per context in one request
-      Rebuilding the cache may take a long time and depends on the amount of
-      users in the OX App Suite database.
-
-      :command:`update-ox-db-cache --build-cache` can speed up the rebuild,
-      because it retrieves all users of a context with one request.
-
-.. warning::
-
-   .. index::
-      single: cache; memory consumption
-      single: cache; system load
-
-   Memory consumption
-      On the UCS system with the OX Connector, the rebuild process may use up to
-      1 GB memory per 10,000 users in the database for OX App Suite.
-
-   System load
-      Furthermore, the process may generate a lot of load on the OX App Suite
-      system and the OX Connector app.
 
 Duplicated *displaynames*
 =========================
@@ -390,39 +286,9 @@ that have already been synchronized is stored. If any user is part of such group
 
 You need to re-provision the user object
 (*uid=oxuser1,cn=users,dc=example,dc=com* in this case) manually. Follow the
-instructions in :ref:`queue-reprovision-one` to synchronize the missing users.
+instructions in :ref:`handling-errors` to synchronize the missing users.
 After this manual intervention the connector automatically continues with the
 synchronization of the group object.
-
-Verify data consistency
-=======================
-
-In OX Connector version 2.2.8 a new script called `check_sync_status.py` can be used to verify that the data
-in *UDM*, the listener/old directory and the OX database are the same. If the App settings :envvar:`OX_USER_IDENTIFIER`,
-:envvar:`OX_GROUP_IDENTIFIER`, :envvar:`OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE`, :envvar:`OX_IMAP_LOGIN` are set to non default
-values, the script can detect and report inconsistencies between the OX database, listener files and UDM.
-
-.. code-block:: console
-
-   $ univention-app shell ox-connector
-   /oxp # ./check_sync_status.py --dn uid=qwert,cn=users,dc=test,dc=ucs --udm_admin_account administrator --udm_password_file udm.secret --udm_host https://master.master.ucs
-
-.. note::
-
-   `./check_sync_status.py --help`
-
-  --dn DN               Check the object with the specified dn
-  --udm_module UDM_MODULE
-                        Object's udm module. Required if the property is missing in the old/ directory object.
-  --ox_context OX_CONTEXT
-                        Object's ox context. Required if the property is missing in the old/ directory object.
-  --resync              Re-sync object data by creating a new file in the listener. Re-synchronizing groups will only work if its users are correctly provisioned.
-  --udm_admin_account UDM_ADMIN_ACCOUNT
-                        Udm user used for connection.
-  --udm_password_file UDM_PASSWORD_FILE
-                        Udm password
-  --udm_host UDM_HOST   Udm host
-
 
 Collect information for support ticket
 ======================================

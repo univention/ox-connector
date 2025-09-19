@@ -43,9 +43,9 @@ How the Connector handles faulty items
 ======================================
 
 The :program:`OX Connector` knows two strategies how to handle faulty items it
-cannot synchronize. You can choose which strategy to use: :ref:`settings`.
+can't synchronize. You can choose which strategy to use: :ref:`settings`.
 
-.. _limit-stop-at-conflict:
+.. _limit-continue-at-conflict:
 
 OX Connector continues after faulty items
 -----------------------------------------
@@ -61,9 +61,21 @@ the log file, see :ref:`log-files`.
 The app ships a CLI to manage the list of errors, see
 :ref:`app-troubleshooting`. 
 
-As administrator, you need to monitor the list of errors manually and decide what to do (delete or retry). Meanwhile, the :program:`OX Connector` continues to process data it gets from the :term:`Listener`. Note that this may or may not cause a certain de-sync between :term:`` and the OX App Suite.
-see :ref:`provision-stopped`. After the conflict resolution, the connector
-continues to process the provisioning queue.
+As administrator, you need to monitor the list of errors manually and decide
+what to do (delete or retry). Meanwhile, the :program:`OX Connector` continues
+to process data it gets from the :term:`Listener`.
+
+Note that certain errors are excluded from that behavior. When the :program:`OX
+Connector` encounters a problem that hints to a network error, it retries this
+one task over and over again as continuing will most probably result in the
+same error for all items anyway. Synchronizing objects from the UDM module
+``oxmail/oxcontext`` will also be retried as these objects are extremely
+important to by in sync. All following items in the queue will likely fail,
+therefore the app does not just continue in this case. The strategy of stopping
+instead of continuing is also described in the next chapter
+:ref:`limit-stop-at-conflict`.
+
+.. _limit-stop-at-conflict:
 
 OX Connector stops at faulty items
 ----------------------------------
@@ -82,18 +94,6 @@ continues to process the queue and also takes care of the added items.
 As administrator, you need to resolve that conflict manually when it happens,
 see :ref:`provision-stopped`. After the conflict resolution, the connector
 continues to process the provisioning queue.
-
-.. admonition:: Design decision
-
-   The OX Connector doesn't provide logic to resolve conflicts automatically,
-   because the conflict causes can vary a lot. For example, when connector would
-   ignore the conflict and continue, a later operation may refer to the ignored
-   item. The connector can't complete it, because the current queue item refers
-   to a previous, unprocessed item. The OX Connector could ignore the next
-   conflict again, and again. The ignores pile up unresolved conflicts that can
-   lead to a heavy conflict or a serious problem with the user provisioning
-   without any relation to the actual root cause. Administrators would have
-   quite a hard job to resolve the conflict.
 
 .. _limit-access-profiles:
 
