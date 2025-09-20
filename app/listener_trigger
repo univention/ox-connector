@@ -51,7 +51,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from univention.ox.provisioning import helpers, run
-from univention.ox.provisioning.db import increment_error_count, move_task_to_old, move_task_to_dead_letters, get_tasks, add_task, get_old, create_task_from_old, remove_old, remove_task
+from univention.ox.provisioning.db import increment_error_count, move_task_to_old, move_task_to_morgue, get_tasks, add_task, get_old, create_task_from_old, remove_old, remove_task
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -236,7 +236,7 @@ def main():
                     increment_error_count(task.id)
                     ret_value = 1
                     break
-                move_task_to_dead_letters(task.id, traceback.format_exc())
+                move_task_to_morgue(task.id, traceback.format_exc())
                 ret_value = 1
             else:
                 try:

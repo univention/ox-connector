@@ -53,9 +53,6 @@ Base = declarative_base()
 LISTENER_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/")
 
 engine = create_engine("sqlite:///%s/db.sqlite" % LISTENER_DIR)
-listener_uid = getpwnam('listener').pw_uid
-os.chown(f"{LISTENER_DIR}/db.sqlite", listener_uid, -1)
-os.chmod(f"{LISTENER_DIR}/db.sqlite", 0o640)
 
 logger = logging.getLogger("listener")
 
@@ -108,6 +105,8 @@ class Task(Base):
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(engine)
+os.chown(f"{LISTENER_DIR}/db.sqlite", 0, 0)
+os.chmod(f"{LISTENER_DIR}/db.sqlite", 0o640)
 
 
 def get_tasks(udm_module: str=None, filter_empty_attributes: bool=None):
@@ -389,7 +388,7 @@ def list_rejected(obj_id: str="*", output_format: str="simple"):
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
-def list_tasks(output_format: str="simple"):
+def list_tasks(output_format: str="simple", first: bool=False):
     """
     List objects in the "currrent tasks queue". Objects found can be printed in
     different formats ("simple" or "fuller" or "json")
@@ -409,6 +408,7 @@ def list_tasks(output_format: str="simple"):
                 for name, value in sorted(json.loads(task.attrs).items()):
                     print(" ", name, ":", value)
             print("-")
+
         if output_format == "json":
             json_output.append({
                 "db_id": error.id,
@@ -418,8 +418,10 @@ def list_tasks(output_format: str="simple"):
                 "attrs": json.loads(error.attrs),
                 "error": error.error_msg,
             })
-        if json_output:
-            print(json.dumps(json_output, sort_keys=True, indent=2))
+        if first:
+            break
+    if json_output:
+        print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
 def show_summary(output_format: str="simple"):
@@ -445,17 +447,17 @@ def show_summary(output_format: str="simple"):
             "creation_start": str(start_date),
             "creation_end": str(end_date),
         }, sort_keys=True, indent=2))
-     else:
-        for udm_module, num in tasks.items():
-            print(f"{udm_module}: {num}")
-        if tasks:
-            print("======")
-        print("Total:", total)
-        if start_date and end_date:
-            if start_date != end_date:
-                print(f"Created between {start_date} and {end_date}")
-            else:
-                print(f"Created at {end_date}")
+    else:
+       for udm_module, num in tasks.items():
+           print(f"{udm_module}: {num}")
+       if tasks:
+           print("======")
+       print("Total:", total)
+       if start_date and end_date:
+           if start_date != end_date:
+               print(f"Created between {start_date} and {end_date}")
+           else:
+               print(f"Created at {end_date}")
 
 
 def show_old(obj_id: str, output_format: str="simple"):
