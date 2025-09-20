@@ -170,7 +170,7 @@ def increment_error_count(task_id: int):
 
 def add_task(path: Path):
     """
-    Adds the content of a JSON file to the queue of tasks
+    Adds the content of a JSON file as a new item to the tasks table
     """
     logger.info("Parsing %s", path)
     with path.open() as file_handler:
@@ -189,8 +189,9 @@ def add_task(path: Path):
 
 def add_old(path: Path):
     """
-    Adds the content of a JSON file to the database of already seen objects
-    ("old db")
+    Adds the content of a JSON file to the old table. If that item already
+    exist (by UniventionObjectIdentifier), it is updated, otherwise a new item
+    is created.
     """
     logger.info("Parsing %s", path)
     with path.open() as file_handler:
@@ -220,7 +221,7 @@ def add_old(path: Path):
 
 def remove_old(dn: str):
     """
-    Removes an entry from the "old db"
+    Removes an item from the old table.
     """
     if not dn:
         return
@@ -235,7 +236,7 @@ def remove_old(dn: str):
 
 def remove_task(task_id: str):
     """
-    Removes an entry from the active tasks.
+    Removes an item from the tasks table.
     """
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
@@ -248,8 +249,9 @@ def remove_task(task_id: str):
 
 def move_task_to_morgue(task_id: int, error_msg: str):
     """
-    Move the task to the "dead queue", meaning that it needs further, manual
-    investigation. This can be used to unblock the connector. Removed from the list of active tasks.
+    Move the task to the morgue table, meaning that it needs further, manual
+    investigation. This can be used to unblock the connector. Removed from the
+    tasks table.
     """
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
@@ -263,9 +265,9 @@ def move_task_to_morgue(task_id: int, error_msg: str):
 
 def move_task_to_old(task_id: int, attributes: dict=None):
     """
-    Move the task to the "old database", meaning that this data is now
+    Move the task to the old table, meaning that this data is now
     considered the last snapshot for further updates of this object. Removed
-    from the list of active tasks.
+    from the list of the tasks table.
     """
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
@@ -304,13 +306,13 @@ def get_errors(obj_id='*'):
         for error in errors:
             yield error
 
-def resync_object(obj_id):
+def resync_item(obj_id):
     """
-    Objects are resynced using the new object data that is currently saved in
-    UDM
+    An item is resynced using the latest data that is currently saved in UDM
     """
     # TODO: maybe we want to search in old, too? Resyncing may make sense from old, too? Probably search in errors first? (DN is "more recent")
     errors = get_errors(obj_id=obj_id)
+    filename = None
     for error in errors:
         attrs = {
             "entry_uuid": error.obj_id,
@@ -322,14 +324,20 @@ def resync_object(obj_id):
         filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
         logger.info("Resynced %s", error)
         break  # only needs to be done once
+    if not filename:
+        logger.warn("No Error for object ID %s found in database, resync not possible")
     with open(filename, "w") as fd:
         json.dump(attrs, fd, sort_keys=True, indent=4)
 
 
-def retry_rejected(obj_id):
+def retry_from_morgue(obj_id):
     """
-    Objects are retried using the exact same data that was saved during the
-    error occurance
+    An item is retried to be synchronized by using the exact same data that
+    was saved during the error occurance. Make sure that this item has not
+    been / will not be synchronized with a more recent set of attributes as
+    these would be overwritten by this retry (e.g., do not "retry" while a
+    "resync" is still in the tasks db). If more than one item matches, all
+    items are retried.
     """
     # TODO support obj_id and "db_id"?
     with _get_session() as db_session:
@@ -337,12 +345,13 @@ def retry_rejected(obj_id):
         for error in errors:
             task = Task(obj_id=error.obj_id, udm_module=error.udm_module, dn=error.dn, attrs=error.attrs, status="retry")
             db_session.add(task)
-        logger.info("Retrying %s", task)
+            logger.info("Retrying %s", task)
         open(LISTENER_DIR / "restart.json", "w")
 
-def remove_rejected(obj_id):
+def remove_from_morgue(obj_id):
     """
-    Remove all items from the "error queue" that belong to a specific object.
+    Remove an item from the morgue table. If more than one item matches, all
+    items are removed.
     """
     # TODO support obj_id and "db_id"?
     with _get_session() as db_session:
@@ -351,10 +360,10 @@ def remove_rejected(obj_id):
             db_session.delete(error)
             logger.info("Removed error %s", error)
 
-def list_rejected(obj_id: str="*", output_format: str="simple"):
+def search_morgue(obj_id: str="*", output_format: str="simple"):
     """
-    List objects in the "error queue". Objects found can be printed in different formats
-    ("simple" or "fuller" or "json")
+    Search items in the morgue db. Items found can be printed in different
+    formats ("simple" or "fuller" or "json")
     """
     errors = get_errors(obj_id=obj_id)
     json_output = []
@@ -384,14 +393,14 @@ def list_rejected(obj_id: str="*", output_format: str="simple"):
                 for line in error.error_msg.splitlines():
                     print("  ", line)
             print("-")
-    if json_output:
+    if output_format == "json":
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
-def list_tasks(output_format: str="simple", first: bool=False):
+def search_tasks(output_format: str="simple", first: bool=False):
     """
-    List objects in the "currrent tasks queue". Objects found can be printed in
-    different formats ("simple" or "fuller" or "json")
+    Search items from the tasks database (queue of current tasks). Items found
+    can be printed in different formats ("simple" or "fuller" or "json")
     """
     json_output = []
     for task in get_tasks():
@@ -420,14 +429,14 @@ def list_tasks(output_format: str="simple", first: bool=False):
             })
         if first:
             break
-    if json_output:
+    if output_format == "json":
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
-def show_summary(output_format: str="simple"):
+def summarize_tasks(output_format: str="simple"):
     """
-    Shows the current size of to be processed tasks. Output can be "simple"
-    readable or "json".
+    Shows a brief summary of the tasks table (queue of current tasks). Output
+    can be "simple" readable or "json".
     """
     start_date = None
     end_date = None
@@ -460,11 +469,11 @@ def show_summary(output_format: str="simple"):
                print(f"Created at {end_date}")
 
 
-def show_old(obj_id: str, output_format: str="simple"):
+def search_old(obj_id: str, output_format: str="simple"):
     """
-    Shows data the Connector has stored for that object
-    It has been saved the last time the object was processed
-    successfully. If the object has been deleted, so was this data
+    Search an item from the old table. It contains data the Connector has
+    stored for item the last time it was processed successfully from the tasks
+    table. Note: If the task was to delete, so was the item in the old table.
     """
     with _get_session() as db_session:
         json_output = []
@@ -485,25 +494,30 @@ def show_old(obj_id: str, output_format: str="simple"):
         if output_format == "json":
             print(json.dumps(json_output, sort_keys=True, indent=2))
 
-def search_for(obj_id: str, output_format: str="simple"):
+def show_item(obj_id: str, output_format: str="simple"):
     """
-    Shows all we got for an object:
+    Shows all we got for an item:
     * Last time it was synced successfully
     * Pending tasks that shall be processed
-    * Current failures that may need interaction (see list_rejected)
+    * Current failures that may need interaction (see search_morgue)
     """
     with _get_session() as db_session:
+        json_output = {"old": {}, "tasks": [], "morgue": []}
         if output_format != "json":
             print("Searching for", obj_id)
         old = db_session.query(Old).filter_by(obj_id=obj_id).first()
         if old:
             if output_format == "json":
-                pass
+                json_output["old"] = {
+                    "dn": old.dn,
+                    "obj_id": old.obj_id,
+                    "db_id": old.id,
+                }
             else:
                 print("Synced as", old)
         else:
             if output_format == "json":
-                pass
+                json_output["old"] = {}
             else:
                 print("Not found as successfully synced")
 
@@ -517,7 +531,11 @@ def search_for(obj_id: str, output_format: str="simple"):
                 else:
                     print("Current tasks:")
             if output_format == "json":
-                pass
+                json_output["tasks"].append({
+                    "dn": task.dn,
+                    "obj_id": task.obj_id,
+                    "db_id": task.id,
+                })
             else:
                 print("*", task)
         if not one_task:
@@ -536,7 +554,11 @@ def search_for(obj_id: str, output_format: str="simple"):
                 else:
                     print("Current errors:")
             if output_format == "json":
-                pass
+                json_output["morgue"].append({
+                    "dn": error.dn,
+                    "obj_id": error.obj_id,
+                    "db_id": error.id,
+                })
             else:
                 print("*", error)
         if not one_error:
@@ -544,6 +566,8 @@ def search_for(obj_id: str, output_format: str="simple"):
                 pass
             else:
                 print("Currently no errors")
+        if output_format == "json":
+            print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
 def _normalized_dn(dn: str) -> str:
@@ -570,8 +594,11 @@ def _add_action(subparsers, func):
         arg_params = {"required": param.default == inspect._empty}
         if not arg_params["required"]:
             arg_params["default"] = param.default
-        if param.annotation in [Path, int, bool]:
+        if param.annotation in [Path, int]:
             arg_params["type"] = param.annotation
+        if param.annotation == bool:
+            store_action = not param.default if param.default != inspect._empty else False
+            arg_params["action"] = f"store_{str(store_action).lower()}"
         subparser.add_argument(name, **arg_params)
     subparser.set_defaults(func=partial(_call, func))
 
@@ -588,7 +615,8 @@ def _get_session():
 
 
 if __name__ == "__main__":
-    from argparse import ArgumentParser
+    from argparse import ArgumentParser, RawTextHelpFormatter
+    from logging.handlers import RotatingFileHandler
     import sys
 
     logger.setLevel("INFO")
@@ -596,26 +624,32 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    handler = logging.FileHandler("/var/lib/univention-appcenter/apps/ox-connector/data/db.log")
+    handler = RotatingFileHandler("/var/lib/univention-appcenter/apps/ox-connector/data/db.log", maxBytes=1024 * 1024 * 500)  # rotate after 500MB
     handler.setLevel("DEBUG")
     formatter = logging.Formatter("%(asctime)s %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-    parser = ArgumentParser()
+    help_text = """This program lets you manage the database of the OX Connector.
+    There are three tables:
+    tasks: Each row represents one current task of the Connector, it has not yet been successfully processed. Tasks are ordered by their creation time.
+    old: Each row represents an object in the state it was synchronized successfully. Used when processing a task that references this object.
+    morgue: Each row represents a task that failed to be synchronized with a certain error. These failed tasks will not be processed, they need to be handled by an Administrator.
+    """
+    parser = ArgumentParser(description=help_text, formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers(description='type %(prog)s <action> --help for further help and possible arguments', metavar='action')
+    _add_action(subparsers, show_item)
+    _add_action(subparsers, resync_item)
+    _add_action(subparsers, summarize_tasks)
     _add_action(subparsers, add_task)
-    _add_action(subparsers, add_old)
+    _add_action(subparsers, search_tasks)
     _add_action(subparsers, move_task_to_old)
     _add_action(subparsers, move_task_to_morgue)
-    _add_action(subparsers, list_rejected)
-    _add_action(subparsers, remove_rejected)
-    _add_action(subparsers, retry_rejected)
-    _add_action(subparsers, list_tasks)
-    _add_action(subparsers, resync_object)
-    _add_action(subparsers, show_summary)
-    _add_action(subparsers, search_for)
-    _add_action(subparsers, show_old)
+    _add_action(subparsers, add_old)
+    _add_action(subparsers, search_old)
+    _add_action(subparsers, search_morgue)
+    _add_action(subparsers, remove_from_morgue)
+    _add_action(subparsers, retry_from_morgue)
     # TODO: rebuild_cache: See the CLI update-ox-db-cache - it basically retrieves all OxDbIds again from the live OX DB...
     # TODO: check_sync_status.py: See the CLI update-ox-db-cache - it compares live OX DB with UDM
 

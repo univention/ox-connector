@@ -110,12 +110,12 @@ OX Connector can process the items fast enough or at all.
 
 Third, you can get a brief summary of current errors. Every error is an object
 not synchronized. Note that this only makes sense should you have chosen
-:ref:`limit-continue-at-conflict` 
+:ref:`limit-continue-at-conflict`.
 
 .. code-block:: console
    :caption: Verify the number of unprocessed tasks for the :term:`Listener Converter`.
 
-   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db list-rejected
+   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db search-morgue
 
 .. _handling-errors:
 
@@ -134,7 +134,7 @@ that object. For each error you have the option to
    .. code-block:: console
       :caption: Remove an error from the list.
 
-      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db remove-rejected --obj-id=...
+      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db remove-from-morgue --obj-id=...
 
 #. Retry the very same item: The erroneous item in the list is again copied to
    the list of active tasks, assuming that the problem is now fixed (e.g. a
@@ -143,7 +143,7 @@ that object. For each error you have the option to
    .. code-block:: console
       :caption: Retry an error from the list.
 
-      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db retry-rejected --obj-id=...
+      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db retry-from-morgue --obj-id=...
 
 #. Fresh synchronization of the object: The object is again put into the list
    of active tasks but not with the attributes it had when the synchronization
@@ -153,7 +153,7 @@ that object. For each error you have the option to
    .. code-block:: console
       :caption: Retry an error from the list.
 
-      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db resync-object --obj-id=...
+      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db resync-item --obj-id=...
 
 .. _provision-stopped:
 
