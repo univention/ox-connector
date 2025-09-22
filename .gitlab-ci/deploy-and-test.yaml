@@ -58,6 +58,9 @@ deploy-namespace:
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
   script:
+    - echo "Cluster information:"
+    - kubectl cluster-info
+
     - echo "Ensure cleanup of namespace"
     - >
       kubectl delete namespace "${DEPLOY_NAMESPACE}"
