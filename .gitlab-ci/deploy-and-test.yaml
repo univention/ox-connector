@@ -34,6 +34,7 @@ pipeline-configuration:
       cat <<EOF
       DEPLOY_NAMESPACE: ${DEPLOY_NAMESPACE}
       DEPLOY_SUBDOMAIN: ${DEPLOY_SUBDOMAIN}
+      NUBUS_HELM_BRANCH: ${NUBUS_HELM_BRANCH}
       EOF
     - |
       cat > deploy.env <<EOF
@@ -68,7 +69,6 @@ deploy-namespace:
       --timeout=600s
       --ignore-not-found
 
-    # TODO: Add annotations into namespace
     - echo "Creating namespace ${DEPLOY_NAMESPACE}"
     - kubectl create namespace "${DEPLOY_NAMESPACE}"
 
@@ -83,17 +83,17 @@ deploy-nubus-with-ox-connector:
     - export OX_CHART_VERSION=${RELEASE_VERSION}
     - export REVIEW_PREFIX=${DEPLOY_SUBDOMAIN}
 
-    - echo "Grab the nubus-helm sources to include the nubus ci helmfile"
+    - echo "Grab the nubus-helm sources to use the nubus ci helmfile"
     - "[ ! -e nubus-helm ]"
     - >
       git clone
       --depth 1
       --branch "${NUBUS_HELM_BRANCH}"
-      "${CI_SERVER_URL}/univention/dev/nubus-for-k8s/nubus-helm.git"
+      https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/univention/dev/nubus-for-k8s/nubus-helm.git
 
     - echo "Deploy nubus via nubus-helm/ci/helmfile"
     - pushd nubus-helm/ci
-    - helmfile -n "${DEPLOY_NAMESPACE}" --state-values-file=../../ci/nubus-ci-overrides.yaml sync
+    - helmfile -n "${DEPLOY_NAMESPACE}" --state-values-file=../../ci/nubus-ci-overrides.yaml.gotmpl sync
     - popd
 
     - echo "Deploy ox-connector via ci/helmfile"

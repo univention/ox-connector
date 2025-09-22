@@ -124,7 +124,7 @@ spec:
       --branch "$[[ inputs.ox-lab-ref ]]"
       "$[[ inputs.ox-lab-repository ]]"
     - pushd ox-operations-guide-mirror
-    - pip install -r requirements.txt
+    - pip install --break-system-packages -r requirements.txt
     - python3 render.py -f ../lab.nubus-ci.yml
     - rm -fr .git __pycache__
     - popd

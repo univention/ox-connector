@@ -1,7 +1,6 @@
 ---
 
 openXchange:
-  # TODO: inject value as parameter to keep logic in pipeline
   domainName: {{ printf "%s-ox.%s" .Values.reviewPrefix .Values.reviewBaseDomain | quote }}
   auth:
     username: oxadminmaster

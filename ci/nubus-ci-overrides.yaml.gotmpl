@@ -10,16 +10,14 @@ releases:
             - name: "ox"
               image:
                 registry: "artifacts.software-univention.de"
-                repository: "nubus/images/ox-extension"
-                # TODO: Use version from pipeline
-                tag: "0.27.10"
+                repository: "nubus-dev/images/ox-extension"
+                tag: {{ env "OX_CHART_VERSION" | default "latest" | quote }}
 
         nubusStackDataUms:
           templateContext:
             oxDefaultContext: "10"
             oxSystemUserPassword: "univention"
-            # TODO: Use generated domain from pipeline
-            portalOxLinkBase: "https://ox.review.univention.dev"
+            portalOxLinkBase: "https://{{ env "DEPLOY_SUBDOMAIN" }}.review.univention.dev"
 
         nubusProvisioning:
           registerConsumers:
