@@ -54,12 +54,11 @@ OX Connector continues after faulty items
    single: provisioning; faulty item
 
 When the :program:`OX Connector` encounters a faulty queue item that it can't
-process, it continues with the next queue items. The faulty item is put aside
-for the Administrator to examine at a later stage. The problem is written in
-the log file, see :ref:`log-files`.
+process, it continues with the next queue items. The OX Connector puts the
+faulty item aside for the Administrator to examine at a later stage. The
+problem is written in the log file, see :ref:`log-files`.
 
-The app ships a CLI to manage the list of errors, see
-:ref:`app-troubleshooting`. 
+The app ships a CLI to manage the list of errors, see :ref:`app-cli`.
 
 As administrator, you need to monitor the list of errors manually and decide
 what to do (delete or retry). Meanwhile, the :program:`OX Connector` continues
@@ -70,7 +69,7 @@ Connector` encounters a problem that hints to a network error, it retries this
 one task over and over again as continuing will most probably result in the
 same error for all items anyway. Synchronizing objects from the UDM module
 ``oxmail/oxcontext`` will also be retried as these objects are extremely
-important to by in sync. All following items in the queue will likely fail,
+important to be in sync. All following items in the queue will likely fail,
 therefore the app does not just continue in this case. The strategy of stopping
 instead of continuing is also described in the next chapter
 :ref:`limit-stop-at-conflict`.
@@ -84,8 +83,8 @@ OX Connector stops at faulty items
    single: provisioning; faulty item
 
 When the :program:`OX Connector` encounters a faulty queue item that it can't
-process, it stops the provisioning at the item and logs the filename with its
-path in the :term:`Listener Converter` log file, see :ref:`log-files`.
+process, it stops the provisioning at the item and the problematic task in the
+:term:`Listener Converter` log file, see :ref:`log-files`.
 
 Despite the stop, the :term:`Listener` continues to add items to the queue.
 After the administrator removed the faulty queue item, the Listener Converter

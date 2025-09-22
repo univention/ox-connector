@@ -86,7 +86,32 @@ synced and errors it may have found.
 .. code-block:: console
    :caption: List all commands of the CLI.
 
-   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db --help
+   $ /usr/sbin/univention-ox-connector-task-management --help
+
+The tool operates on the :program:`SQLite` database
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`.
+The terminology of the tool is as follows:
+
+.. glossary::
+
+   Tasks
+      A database table managed by the OX Connector. A row represents an active
+      task. The OX Connector iterates over all tasks and synchronizes them to
+      the OX App Suite.
+
+   Old
+      A database table managed by the OX Connector. A row represents the state
+      of an item at the moment it was successfully synchronized. It is more or
+      less a copy of a former task. Needed when certain items are synchronized
+      and reference other items (e.g., when synchronizing a group that contains
+      users). Also used for faster lookups by storing the database ID given by
+      OX.
+
+   Morgue
+      A database table managed by the OX Connector. A row represents a failed
+      task. It was moved automatically or manually to this table and is not
+      actively processed by the OX Connector. Administrators can examine the
+      items in the morgue and decide how to proceed with them (see below).
 
 .. _health-check:
 
@@ -106,54 +131,55 @@ OX Connector can process the items fast enough or at all.
 .. code-block:: console
    :caption: Show all tasks the OX Connector is yet to process.
 
-   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db list-tasks
+   $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
+   $ /usr/sbin/univention-ox-connector-task-management search-tasks
 
-Third, you can get a brief summary of current errors. Every error is an object
+Third, you can get a brief summary of past errors. Every item is an object
 not synchronized. Note that this only makes sense should you have chosen
 :ref:`limit-continue-at-conflict`.
 
 .. code-block:: console
-   :caption: Verify the number of unprocessed tasks for the :term:`Listener Converter`.
+   :caption: Show all items in the morgue.
 
-   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db search-morgue
+   $ /usr/sbin/univention-ox-connector-task-management search-morgue
 
 .. _handling-errors:
 
 Handling errors
 ---------------
 
-You can decide what to do with the items that have been moved to the list of
-errors. All commands assume that you have the ``UniventionObjectIdentifier`` of
-that object. For each error you have the option to
+You can decide what to do with the items that have been moved to the morgue.
+All commands assume that you have the ``UniventionObjectIdentifier`` of that
+object. For each item you have the option to
 
 #. Delete it from the list: It is as if this item never hit the OX Connector.
    The underlying object can of course be synchronized again if it is modified
    in the LDAP directory (creating a completely new item in the OX Connector's
-   list to process).
+   tasks).
 
    .. code-block:: console
-      :caption: Remove an error from the list.
+      :caption: Remove an item from the morgue.
 
-      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db remove-from-morgue --obj-id=...
+      $ /usr/sbin/univention-ox-connector-task-management remove-from-morgue --obj-id=...
 
 #. Retry the very same item: The erroneous item in the list is again copied to
-   the list of active tasks, assuming that the problem is now fixed (e.g. a
+   the list of tasks, assuming that the problem is now fixed (e.g., a
    validation on the OX App Suite's side has been disabled).
 
    .. code-block:: console
-      :caption: Retry an error from the list.
+      :caption: Retry an item from the morgue.
 
-      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db retry-from-morgue --obj-id=...
+      $ /usr/sbin/univention-ox-connector-task-management retry-from-morgue --obj-id=...
 
 #. Fresh synchronization of the object: The object is again put into the list
-   of active tasks but not with the attributes it had when the synchronization
+   of tasks but not with the attributes it had when the synchronization
    happened (and failed). Instead, it is freshly fetched from the LDAP
    database.
 
    .. code-block:: console
-      :caption: Retry an error from the list.
+      :caption: Retry an item from the morgue.
 
-      $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db resync-item --obj-id=...
+      $ /usr/sbin/univention-ox-connector-task-management resync-item --obj-id=...
 
 .. _provision-stopped:
 
@@ -174,12 +200,13 @@ temporary problem like for example network connectivity, the fix requires manual
 action.
 
 As a last resort, the administrator can move the task aside. The log file
-reveals the ``Database ID`` of that object (e.g. ``uid=...; $object_identifier; tasks:$database_id``).
+reveals the ``Database ID`` of that object (e.g. ``uid=...; $object_identifier;
+tasks:$database_id``).
 
 .. code-block:: console
    :caption: Retry an error from the list.
 
-   $ univention-app shell ox-connector python3 -m univention.ox.provisioning.db move-task-to-morgue --task-id=...  --error-msg="Manual intervention after careful consideration"
+   $ /usr/sbin/univention-ox-connector-task-management move-task-to-morgue --task-id=$database_id  --error-msg="Manual intervention after careful consideration"
 
 .. _queue-reprovision-all:
 

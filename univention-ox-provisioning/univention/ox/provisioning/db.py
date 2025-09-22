@@ -30,13 +30,11 @@
 
 import os
 import logging
-import pprint
 import json
 from pathlib import Path
 import datetime
 from contextlib import contextmanager
 from copy import deepcopy
-from pwd import getpwnam
 
 import ldap.dn
 
@@ -52,13 +50,13 @@ Base = declarative_base()
 
 LISTENER_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/")
 
-engine = create_engine("sqlite:///%s/db.sqlite" % LISTENER_DIR)
+engine = create_engine("sqlite:///%s/ox-connector.db" % LISTENER_DIR)
 
 logger = logging.getLogger("listener")
 
 
 class Dead(Base):
-    __tablename__ = "rejected_tasks"
+    __tablename__ = "morgue"
     id = Column(Integer, primary_key=True, autoincrement=True)
     obj_id = Column(String, nullable=False)
     udm_module = Column(String, nullable=False)
@@ -67,20 +65,20 @@ class Dead(Base):
     error_msg = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
-    __table_args__ = (Index("rejected_tasks_obj_id", "obj_id"), )
+    __table_args__ = (Index("morgue_obj_id", "obj_id"), )
 
     def __str__(self):
         return f"{self.dn} ({self.obj_id}; {self.udm_module}; {self.__tablename__}:{self.id})"
 
 class Old(Base):
-    __tablename__ = "old_entries"
+    __tablename__ = "old"
     id = Column(Integer, primary_key=True, autoincrement=True)
     obj_id = Column(String, nullable=False)
     udm_module = Column(String, nullable=False)
     dn = Column(String, nullable=False)
     attrs = Column(String, nullable=False)
 
-    __table_args__ = (Index("old_entries_obj_id", "obj_id"), Index("old_entries_dn", "dn"), )
+    __table_args__ = (Index("old_obj_id", "obj_id"), Index("old_dn", "dn"), )
 
     def __str__(self):
         return f"{self.dn} ({self.obj_id}; {self.udm_module}; {self.__tablename__}:{self.id})"
@@ -435,8 +433,8 @@ def search_tasks(output_format: str="simple", first: bool=False):
 
 def summarize_tasks(output_format: str="simple"):
     """
-    Shows a brief summary of the tasks table (queue of current tasks). Output
-    can be "simple" readable or "json".
+    Shows a brief summary of the tasks table (queue of current tasks).
+    Output can be either "simple" or "json"
     """
     start_date = None
     end_date = None
@@ -474,6 +472,7 @@ def search_old(obj_id: str, output_format: str="simple"):
     Search an item from the old table. It contains data the Connector has
     stored for item the last time it was processed successfully from the tasks
     table. Note: If the task was to delete, so was the item in the old table.
+    Output can be either "simple" or "json".
     """
     with _get_session() as db_session:
         json_output = []
@@ -496,10 +495,12 @@ def search_old(obj_id: str, output_format: str="simple"):
 
 def show_item(obj_id: str, output_format: str="simple"):
     """
-    Shows all we got for an item:
-    * Last time it was synced successfully
-    * Pending tasks that shall be processed
-    * Current failures that may need interaction (see search_morgue)
+    Shows all rows in our tables that we got for an item. Other commands can
+    give a more verbose output:
+    * Last time it was synced successfully (see search-old)
+    * Pending tasks that shall be processed (see search-tasks)
+    * Current failures that may need interaction (see search-morgue)
+    Output can be either "simple" or "json"
     """
     with _get_session() as db_session:
         json_output = {"old": {}, "tasks": [], "morgue": []}
@@ -624,7 +625,7 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    handler = RotatingFileHandler("/var/lib/univention-appcenter/apps/ox-connector/data/db.log", maxBytes=1024 * 1024 * 500)  # rotate after 500MB
+    handler = RotatingFileHandler("%s/univention-ox-connector-task-management.log" % LISTENER_DIR, maxBytes=1024 * 1024 * 500)  # rotate after 500MB
     handler.setLevel("DEBUG")
     formatter = logging.Formatter("%(asctime)s %(message)s")
     handler.setFormatter(formatter)
@@ -634,7 +635,7 @@ if __name__ == "__main__":
     There are three tables:
     tasks: Each row represents one current task of the Connector, it has not yet been successfully processed. Tasks are ordered by their creation time.
     old: Each row represents an object in the state it was synchronized successfully. Used when processing a task that references this object.
-    morgue: Each row represents a task that failed to be synchronized with a certain error. These failed tasks will not be processed, they need to be handled by an Administrator.
+    morgue: Each row represents a task that failed to be synchronized with a certain error. These failed tasks will not be processed, they need to be individually examined by an administrator.
     """
     parser = ArgumentParser(description=help_text, formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers(description='type %(prog)s <action> --help for further help and possible arguments', metavar='action')

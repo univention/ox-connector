@@ -227,9 +227,9 @@ object's it processed for later reference (i.e., for retrieving the *internal
 ID*)
 
 The database files is located at
-:file:`var/lib/univention-appcenter/apps/ox-connector/data/listener/database.sqlite`.
-The table is named `old_entries`. Administrators are highly advised to use the
-CLI the App provides to manipulate this database, see :ref:`app-troubleshooting`.
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`.
+The table is named `old`. Administrators are highly advised to use the
+CLI the App provides to manipulate this database, see :ref:`app-cli`.
 
 When the :term:`Listener Converter` updates groups in OX App Suite, the request
 to the :term:`SOAP API` must include the internal ID of all group members. The

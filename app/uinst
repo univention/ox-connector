@@ -74,6 +74,8 @@ if ucs_isServiceUnused "${SERVICE}" "${@}"; then
   stop_udm_cli_server
 fi
 
+rm /usr/sbin/univention-ox-connector-task-management
+
 joinscript_remove_script_from_status_file "${APP_ID}"
 
 exit 0
