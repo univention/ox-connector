@@ -104,7 +104,7 @@ The terminology of the tool is as follows:
       of an item at the moment it was successfully synchronized. It is more or
       less a copy of a former task. Needed when certain items are synchronized
       and reference other items (e.g., when synchronizing a group that contains
-      users). Also used for faster lookups by storing the database ID given by
+      users). Also used for faster look-ups by storing the database ID given by
       OX.
 
    Morgue
