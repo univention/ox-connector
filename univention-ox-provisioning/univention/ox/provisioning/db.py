@@ -103,8 +103,8 @@ class Task(Base):
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(engine)
-os.chown(f"{LISTENER_DIR}/db.sqlite", 0, 0)
-os.chmod(f"{LISTENER_DIR}/db.sqlite", 0o640)
+os.chown(f"{LISTENER_DIR}/ox-connector.db", 0, 0)
+os.chmod(f"{LISTENER_DIR}/ox-connector.db", 0o640)
 
 
 def get_tasks(udm_module: str=None, filter_empty_attributes: bool=None):
