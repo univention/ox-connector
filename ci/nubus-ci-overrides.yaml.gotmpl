@@ -16,7 +16,10 @@ releases:
         nubusStackDataUms:
           templateContext:
             oxDefaultContext: "10"
-            oxSystemUserPassword: "univention"
+            oxSystemUserPassword: {{
+              derivePassword 1 "long" ( env "MASTER_PASSWORD" ) "ox-system-user" "review.univention.dev"
+              | sha1sum | quote
+              }}
             portalOxLinkBase: "https://{{ env "DEPLOY_SUBDOMAIN" }}.review.univention.dev"
 
         nubusProvisioning:
