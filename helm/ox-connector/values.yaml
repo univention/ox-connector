@@ -97,6 +97,8 @@ openXchange:
   # -- OX Connector log level
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
+  # -- Ox Connector deputy permissions flag.
+  oxDeputyPermissions: false
 
 waitForDependency:
   image:

@@ -33,6 +33,7 @@ A Helm chart for the ox-connector
 | openXchange.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
 | openXchange.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
 | openXchange.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
+| openXchange.oxDeputyPermissions | bool | `false` | Ox Connector deputy permissions flag. |
 | openXchange.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
 | openXchange.oxLanguage | string | `"de_DE"` | Default language for new users |
 | openXchange.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
