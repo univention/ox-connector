@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.28.4](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.3...v0.28.4) (2025-09-23)
+
+
+### Bug Fixes
+
+* Remove call to apt-get update ([2ea59b9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/2ea59b94df15b0adb2941f337b01e84f7f168754)), closes [univention/dev/internal/team-nubus#1377](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1377)
+* Remove the cleanup of APT data ([3a55318](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/3a55318efd6a2e8ca1399b20db47d49ec134da97)), closes [univention/dev/internal/team-nubus#1377](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1377)
+
 ## [0.28.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.2...v0.28.3) (2025-09-15)
 
 
