@@ -26,7 +26,7 @@ spec:
         a valid value for the call to "git clone".
       type: string
     ox-lab-ref:
-      default: "dovecot_cert_name"
+      default: "jtorres/test"
       description: |
         Branch or tag name to use when cloning the ox operations-guide
         repository.
@@ -71,6 +71,9 @@ spec:
       # Static values
       ox_admin_user: oxadminmaster
 
+      # Enable optional features
+      deputy_enabled: true
+  
       # Ingress handling
       #
       # Our environment has ingress-nginx already provided. Disable all bundled
