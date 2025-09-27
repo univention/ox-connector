@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.6](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.5...v0.28.6) (2025-09-27)
+
+
+### Bug Fixes
+
+* **deps:** Update gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner Docker tag to v0.26.1 ([751bc3b](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/751bc3b76ed8b0a22eb3d118bd0a848b5460c8a5)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+
 ## [0.28.5](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.4...v0.28.5) (2025-09-25)
 
 
