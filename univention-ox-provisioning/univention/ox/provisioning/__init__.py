@@ -156,7 +156,7 @@ def run(obj):  # noqa: C901
                     f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
                 )
 
-    # logging for tests
+    logger.debug("Processed: %s", obj.distinguished_name)
     if TEST_LOG_FILE.exists():
         with TEST_LOG_FILE.open("a") as fp:
             fp.write(f"{obj.distinguished_name}\n")
