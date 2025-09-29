@@ -38,7 +38,14 @@ from copy import deepcopy
 
 import ldap.dn
 
-from sqlalchemy import create_engine, Column, Integer, String, insert, update, DateTime, Index
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    DateTime,
+    Index,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -48,7 +55,9 @@ Base = declarative_base()
 # docker_host_name = os.environ["DOCKER_HOST_NAME"]
 # engine = create_engine(f"postgresql+psycopg2://ox-connector:{db_password}@{docker_host_name}:5432/ox-connector")
 
-LISTENER_DIR = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/")
+LISTENER_DIR = Path(
+    "/var/lib/univention-appcenter/apps/ox-connector/data/listener/",
+)
 
 engine = create_engine("sqlite:///%s/ox-connector.db" % LISTENER_DIR)
 
@@ -65,10 +74,11 @@ class Dead(Base):
     error_msg = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
-    __table_args__ = (Index("morgue_obj_id", "obj_id"), )
+    __table_args__ = (Index("morgue_obj_id", "obj_id"),)
 
     def __str__(self):
         return f"{self.dn} ({self.obj_id}; {self.udm_module}; {self.__tablename__}:{self.id})"
+
 
 class Old(Base):
     __tablename__ = "old"
@@ -78,10 +88,14 @@ class Old(Base):
     dn = Column(String, nullable=False)
     attrs = Column(String, nullable=False)
 
-    __table_args__ = (Index("old_obj_id", "obj_id"), Index("old_dn", "dn"), )
+    __table_args__ = (
+        Index("old_obj_id", "obj_id"),
+        Index("old_dn", "dn"),
+    )
 
     def __str__(self):
         return f"{self.dn} ({self.obj_id}; {self.udm_module}; {self.__tablename__}:{self.id})"
+
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -94,7 +108,7 @@ class Task(Base):
     num_errors = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-    __table_args__ = (Index("tasks_created_at", "created_at"), )
+    __table_args__ = (Index("tasks_created_at", "created_at"),)
 
     def __str__(self):
         return f"{self.dn} ({self.obj_id}; {self.udm_module}; {self.__tablename__}:{self.id})"
@@ -107,7 +121,7 @@ os.chown(f"{LISTENER_DIR}/ox-connector.db", 0, 0)
 os.chmod(f"{LISTENER_DIR}/ox-connector.db", 0o640)
 
 
-def get_tasks(udm_module: str=None, filter_empty_attributes: bool=None):
+def get_tasks(udm_module: str = None, filter_empty_attributes: bool = None):
     """
     Return all tasks sorted by creation time.
     """
@@ -124,7 +138,7 @@ def get_tasks(udm_module: str=None, filter_empty_attributes: bool=None):
             yield task
 
 
-def get_old(dn: str, obj_id: str=None):
+def get_old(dn: str, obj_id: str = None):
     """
     Returns old data of given dn or object id
     object id takes precedence over dn
@@ -147,13 +161,22 @@ def create_task_from_old(obj_id: str):
         old = db_session.query(Old).filter_by(obj_id=obj_id).first()
         if old:
             logger.info("Found old object %s", old)
-            task = Task(obj_id=old.obj_id, udm_module=old.udm_module, dn=old.dn, attrs=old.attrs, status="retry")
+            task = Task(
+                obj_id=old.obj_id,
+                udm_module=old.udm_module,
+                dn=old.dn,
+                attrs=old.attrs,
+                status="retry",
+            )
             db_session.add(task)
             db_session.commit()
             logger.info("Added task %s", task)
             open(LISTENER_DIR / "restart.json", "w")
         else:
-            logger.info("No old object found for %s; not creating any task", obj_id)
+            logger.info(
+                "No old object found for %s; not creating any task",
+                obj_id,
+            )
 
 
 def increment_error_count(task_id: int):
@@ -163,7 +186,11 @@ def increment_error_count(task_id: int):
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
         task.num_errors += 1
-        logger.info("Task %s now has an error count of %d", task, task.num_errors)
+        logger.info(
+            "Task %s now has an error count of %d",
+            task,
+            task.num_errors,
+        )
 
 
 def add_task(path: Path):
@@ -178,7 +205,12 @@ def add_task(path: Path):
     attrs = content["object"]
     obj_id = content["id"]
     with _get_session() as db_session:
-        task = Task(obj_id=obj_id, udm_module=udm_module, dn=dn, attrs=json.dumps(attrs))
+        task = Task(
+            obj_id=obj_id,
+            udm_module=udm_module,
+            dn=dn,
+            attrs=json.dumps(attrs),
+        )
         db_session.add(task)
         db_session.commit()
         logger.info("Task %s created", task)
@@ -199,7 +231,10 @@ def add_old(path: Path):
     attrs = content["object"]
     obj_id = attrs.get("univentionObjectIdentifier", "")
     if not obj_id:
-        logger.info("Did not find univentionObjectIdentifier in %s. Skipping", path)
+        logger.info(
+            "Did not find univentionObjectIdentifier in %s. Skipping",
+            path,
+        )
         return
     with _get_session() as db_session:
         old = db_session.query(Old).filter_by(obj_id=obj_id).first()
@@ -211,7 +246,12 @@ def add_old(path: Path):
             old.attrs = json.dumps(attrs)
             logger.info("Updating...")
         else:
-            old = Old(obj_id=obj_id, udm_module=udm_module, dn=dn, attrs=json.dumps(attrs))
+            old = Old(
+                obj_id=obj_id,
+                udm_module=udm_module,
+                dn=dn,
+                attrs=json.dumps(attrs),
+            )
             db_session.add(old)
             db_session.commit()
             logger.info("Created entry in old db %s", old)
@@ -229,7 +269,7 @@ def remove_old(dn: str):
             logger.info("Removing %s", old)
             db_session.delete(old)
         else:
-            logger.info("Removing old entry impossible, %s does not exist", obj_id)
+            logger.info("Removing old entry impossible, %s does not exist", dn)
 
 
 def remove_task(task_id: str):
@@ -253,7 +293,13 @@ def move_task_to_morgue(task_id: int, error_msg: str):
     """
     with _get_session() as db_session:
         task = db_session.query(Task).get(task_id)
-        dead = Dead(obj_id=task.obj_id, udm_module=task.udm_module, dn=task.dn, attrs=task.attrs, error_msg=error_msg)
+        dead = Dead(
+            obj_id=task.obj_id,
+            udm_module=task.udm_module,
+            dn=task.dn,
+            attrs=task.attrs,
+            error_msg=error_msg,
+        )
         db_session.add(dead)
         db_session.delete(task)
         db_session.commit()
@@ -261,7 +307,7 @@ def move_task_to_morgue(task_id: int, error_msg: str):
         logger.info("Deleted task %s", task)
 
 
-def move_task_to_old(task_id: int, attributes: dict=None):
+def move_task_to_old(task_id: int, attributes: dict = None):
     """
     Move the task to the old table, meaning that this data is now
     considered the last snapshot for further updates of this object. Removed
@@ -285,17 +331,26 @@ def move_task_to_old(task_id: int, attributes: dict=None):
                 logger.info("Removing entry in old db %s", old)
                 db_session.delete(old)
         elif attributes:
-            old = Old(obj_id=task.obj_id, udm_module=task.udm_module, dn=task.dn, attrs=attributes)
+            old = Old(
+                obj_id=task.obj_id,
+                udm_module=task.udm_module,
+                dn=task.dn,
+                attrs=attributes,
+            )
             db_session.add(old)
             db_session.commit()
             logger.info("Created entry in old db %s", old)
         else:
-            logger.info("No old entry found while deleting task %s. Doing nothing", task)
+            logger.info(
+                "No old entry found while deleting task %s. Doing nothing",
+                task,
+            )
         for error in db_session.query(Dead).filter_by(obj_id=task.obj_id):
             logger.info("Removing %s", error)
             db_session.delete(error)
         db_session.delete(task)
         logger.info("Deleted task %s", task)
+
 
 def get_errors(obj_id='*'):
     obj_id = obj_id.replace("*", "%")  # SQL LIKE
@@ -303,6 +358,7 @@ def get_errors(obj_id='*'):
         errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
         for error in errors:
             yield error
+
 
 def resync_item(obj_id):
     """
@@ -319,11 +375,16 @@ def resync_item(obj_id):
             "command": "m",
         }
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
-        filename = '%s/%s.json' % ("/var/lib/univention-appcenter/listener/ox-connector", timestamp)
+        filename = '%s/%s.json' % (
+            "/var/lib/univention-appcenter/listener/ox-connector",
+            timestamp,
+        )
         logger.info("Resynced %s", error)
         break  # only needs to be done once
     if not filename:
-        logger.warn("No Error for object ID %s found in database, resync not possible")
+        logger.warn(
+            "No Error for object ID %s found in database, resync not possible",
+        )
     with open(filename, "w") as fd:
         json.dump(attrs, fd, sort_keys=True, indent=4)
 
@@ -341,10 +402,17 @@ def retry_from_morgue(obj_id):
     with _get_session() as db_session:
         errors = get_errors(obj_id=obj_id)
         for error in errors:
-            task = Task(obj_id=error.obj_id, udm_module=error.udm_module, dn=error.dn, attrs=error.attrs, status="retry")
+            task = Task(
+                obj_id=error.obj_id,
+                udm_module=error.udm_module,
+                dn=error.dn,
+                attrs=error.attrs,
+                status="retry",
+            )
             db_session.add(task)
             logger.info("Retrying %s", task)
         open(LISTENER_DIR / "restart.json", "w")
+
 
 def remove_from_morgue(obj_id):
     """
@@ -358,7 +426,8 @@ def remove_from_morgue(obj_id):
             db_session.delete(error)
             logger.info("Removed error %s", error)
 
-def search_morgue(obj_id: str="*", output_format: str="simple"):
+
+def search_morgue(obj_id: str = "*", output_format: str = "simple"):
     """
     Search items in the morgue db. Items found can be printed in different
     formats ("simple" or "fuller" or "json")
@@ -367,14 +436,16 @@ def search_morgue(obj_id: str="*", output_format: str="simple"):
     json_output = []
     for error in errors:
         if output_format == "json":
-            json_output.append({
-                "db_id": error.id,
-                "univention_object_identifier": error.obj_id,
-                "dn": error.dn,
-                "udm_module": error.udm_module,
-                "attrs": json.loads(error.attrs),
-                "error": error.error_msg,
-            })
+            json_output.append(
+                {
+                    "db_id": error.id,
+                    "univention_object_identifier": error.obj_id,
+                    "dn": error.dn,
+                    "udm_module": error.udm_module,
+                    "attrs": json.loads(error.attrs),
+                    "error": error.error_msg,
+                },
+            )
         if output_format in ["simple", "fuller"]:
             print("DN:", error.dn)
             print("Object Identifier:", error.obj_id)
@@ -395,7 +466,7 @@ def search_morgue(obj_id: str="*", output_format: str="simple"):
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
-def search_tasks(output_format: str="simple", first: bool=False):
+def search_tasks(output_format: str = "simple", first: bool = False):
     """
     Search items from the tasks database (queue of current tasks). Items found
     can be printed in different formats ("simple" or "fuller" or "json")
@@ -417,21 +488,23 @@ def search_tasks(output_format: str="simple", first: bool=False):
             print("-")
 
         if output_format == "json":
-            json_output.append({
-                "db_id": error.id,
-                "univention_object_identifier": error.obj_id,
-                "dn": error.dn,
-                "udm_module": error.udm_module,
-                "attrs": json.loads(error.attrs),
-                "error": error.error_msg,
-            })
+            json_output.append(
+                {
+                    "db_id": task.id,
+                    "univention_object_identifier": task.obj_id,
+                    "dn": task.dn,
+                    "udm_module": task.udm_module,
+                    "attrs": json.loads(task.attrs),
+                    "num_errors": task.num_errors,
+                },
+            )
         if first:
             break
     if output_format == "json":
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
-def summarize_tasks(output_format: str="simple"):
+def summarize_tasks(output_format: str = "simple"):
     """
     Shows a brief summary of the tasks table (queue of current tasks).
     Output can be either "simple" or "json"
@@ -449,25 +522,32 @@ def summarize_tasks(output_format: str="simple"):
         tasks[task.udm_module] = num
         total += 1
     if output_format == "json":
-        print(json.dumps(tasks | {
-            "total": total,
-            "creation_start": str(start_date),
-            "creation_end": str(end_date),
-        }, sort_keys=True, indent=2))
+        print(
+            json.dumps(
+                tasks
+                | {
+                    "total": total,
+                    "creation_start": str(start_date),
+                    "creation_end": str(end_date),
+                },
+                sort_keys=True,
+                indent=2,
+            ),
+        )
     else:
-       for udm_module, num in tasks.items():
-           print(f"{udm_module}: {num}")
-       if tasks:
-           print("======")
-       print("Total:", total)
-       if start_date and end_date:
-           if start_date != end_date:
-               print(f"Created between {start_date} and {end_date}")
-           else:
-               print(f"Created at {end_date}")
+        for udm_module, num in tasks.items():
+            print(f"{udm_module}: {num}")
+        if tasks:
+            print("======")
+        print("Total:", total)
+        if start_date and end_date:
+            if start_date != end_date:
+                print(f"Created between {start_date} and {end_date}")
+            else:
+                print(f"Created at {end_date}")
 
 
-def search_old(obj_id: str, output_format: str="simple"):
+def search_old(obj_id: str, output_format: str = "simple"):
     """
     Search an item from the old table. It contains data the Connector has
     stored for item the last time it was processed successfully from the tasks
@@ -493,7 +573,8 @@ def search_old(obj_id: str, output_format: str="simple"):
         if output_format == "json":
             print(json.dumps(json_output, sort_keys=True, indent=2))
 
-def show_item(obj_id: str, output_format: str="simple"):
+
+def show_item(obj_id: str, output_format: str = "simple"):
     """
     Shows all rows in our tables that we got for an item. Other commands can
     give a more verbose output:
@@ -532,11 +613,13 @@ def show_item(obj_id: str, output_format: str="simple"):
                 else:
                     print("Current tasks:")
             if output_format == "json":
-                json_output["tasks"].append({
-                    "dn": task.dn,
-                    "obj_id": task.obj_id,
-                    "db_id": task.id,
-                })
+                json_output["tasks"].append(
+                    {
+                        "dn": task.dn,
+                        "obj_id": task.obj_id,
+                        "db_id": task.id,
+                    },
+                )
             else:
                 print("*", task)
         if not one_task:
@@ -555,11 +638,13 @@ def show_item(obj_id: str, output_format: str="simple"):
                 else:
                     print("Current errors:")
             if output_format == "json":
-                json_output["morgue"].append({
-                    "dn": error.dn,
-                    "obj_id": error.obj_id,
-                    "db_id": error.id,
-                })
+                json_output["morgue"].append(
+                    {
+                        "dn": error.dn,
+                        "obj_id": error.obj_id,
+                        "db_id": error.id,
+                    },
+                )
             else:
                 print("*", error)
         if not one_error:
@@ -586,9 +671,14 @@ def _call(func, args):
 def _add_action(subparsers, func):
     import inspect
     from functools import partial
+
     name = func.__name__.replace("_", "-")
     description = func.__doc__
-    subparser = subparsers.add_parser(name, description=description, help=description)
+    subparser = subparsers.add_parser(
+        name,
+        description=description,
+        help=description,
+    )
     signature = inspect.signature(func)
     for name, param in signature.parameters.items():
         name = f"--{name.replace('_', '-')}"
@@ -597,8 +687,10 @@ def _add_action(subparsers, func):
             arg_params["default"] = param.default
         if param.annotation in [Path, int]:
             arg_params["type"] = param.annotation
-        if param.annotation == bool:
-            store_action = not param.default if param.default != inspect._empty else False
+        if param.annotation is bool:
+            store_action = (
+                not param.default if param.default != inspect._empty else False
+            )
             arg_params["action"] = f"store_{str(store_action).lower()}"
         subparser.add_argument(name, **arg_params)
     subparser.set_defaults(func=partial(_call, func))
@@ -625,7 +717,10 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    handler = RotatingFileHandler("%s/univention-ox-connector-task-management.log" % LISTENER_DIR, maxBytes=1024 * 1024 * 500)  # rotate after 500MB
+    handler = RotatingFileHandler(
+        "%s/univention-ox-connector-task-management.log" % LISTENER_DIR,
+        maxBytes=1024 * 1024 * 500,
+    )  # rotate after 500MB
     handler.setLevel("DEBUG")
     formatter = logging.Formatter("%(asctime)s %(message)s")
     handler.setFormatter(formatter)
@@ -637,8 +732,14 @@ if __name__ == "__main__":
     old: Each row represents an object in the state it was synchronized successfully. Used when processing a task that references this object.
     morgue: Each row represents a task that failed to be synchronized with a certain error. These failed tasks will not be processed, they need to be individually examined by an administrator.
     """
-    parser = ArgumentParser(description=help_text, formatter_class=RawTextHelpFormatter)
-    subparsers = parser.add_subparsers(description='type %(prog)s <action> --help for further help and possible arguments', metavar='action')
+    parser = ArgumentParser(
+        description=help_text,
+        formatter_class=RawTextHelpFormatter,
+    )
+    subparsers = parser.add_subparsers(
+        description='type %(prog)s <action> --help for further help and possible arguments',
+        metavar='action',
+    )
     _add_action(subparsers, show_item)
     _add_action(subparsers, resync_item)
     _add_action(subparsers, summarize_tasks)

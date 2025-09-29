@@ -11,4 +11,3 @@ for json_file in old_files.glob("*.json"):
     print("Migrating %s" % json_file)
     add_old(json_file)
     os.remove(json_file)
-

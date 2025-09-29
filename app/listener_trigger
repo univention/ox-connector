@@ -34,24 +34,24 @@ Entry point for listener_trigger script.
 import json
 import logging
 import os
-import shutil
 import sys
-import time
 import traceback
-import requests
 from requests.exceptions import Timeout, ConnectionError, HTTPError
-from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
-import zeep.exceptions
 
-from sqlalchemy import create_engine, Column, Integer, String, insert, update
-
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 from univention.ox.provisioning import helpers, run
-from univention.ox.provisioning.db import increment_error_count, move_task_to_old, move_task_to_morgue, get_tasks, add_task, get_old, create_task_from_old, remove_old, remove_task
+from univention.ox.provisioning.db import (
+    increment_error_count,
+    move_task_to_old,
+    move_task_to_morgue,
+    get_tasks,
+    add_task,
+    get_old,
+    create_task_from_old,
+    remove_old,
+    remove_task,
+)
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -207,13 +207,13 @@ def main():
     ret_value = 0
     stop_on_error = os.getenv("OX_CONNECTOR_STOP_ON_ERROR", "True") != "False"
     for udm_module, empty_attributes in [
-            ("oxmail/oxcontext", False),
-            ("oxmail/accessprofile", None),
-            ("users/user", None),
-            ("groups/group", None),
-            ("oxmail/functional_account", None),
-            ("oxresources/oxresources", None),
-            ("oxmail/oxcontext", True),
+        ("oxmail/oxcontext", False),
+        ("oxmail/accessprofile", None),
+        ("users/user", None),
+        ("groups/group", None),
+        ("oxmail/functional_account", None),
+        ("oxresources/oxresources", None),
+        ("oxmail/oxcontext", True),
     ]:
         for task in get_tasks(udm_module, empty_attributes):
             try:
