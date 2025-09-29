@@ -1,9 +1,19 @@
 <p>
-	Achtung: Ab Version 2.0 der App setzt der Connector voraus, dass Open-Xchange mindestens in Version 7.10.6 vorliegt. Andernfalls wird der Connector nicht funktionieren.
+	Achtung: Ab Version 3.0 der App liegen die Änderungen, die der
+	Connector noch synchronisieren muss oder schon synchronisiert hat,
+	nicht mehr als einzelne Dateien im JSON-Format in bestimmten Ordnern.
+	Stattdessen werden alle Daten nun in einer Datenbank gespeichert. Das
+	Tool /usr/sbin/univention-ox-connector-task-management wurde
+	hinzugefügt, um mit dieser zu interagieren.
+</p><p>
+	Die App hat die Option bekommen, bei Fehlern nicht mehr solange
+	stehenzubleiben, bis der Fehler behoben wurde, sondern den Fehler zur
+	Seite zu schieben und fortzufahren. Diese Option kann das Verhalten des
+	Connectors ändern und ist zunächst so eingestellt, wie es zuvor war:
+	Der Connector bleibt stehen.
 </p>
 <p>
-	Bitte stellen Sie sicher, dass Open-Xchange aktualisiert wurde, bevor Sie diese App aktualisieren.
-</p>
-<p>
-	Eine Liste der Änderungen ist <a href="https://docs.software-univention.de/ox-connector-app/latest/changelog.html" target="_blank">hier</a> zu finden.
+	Eine Liste der Änderungen ist <a
+	href="https://docs.software-univention.de/ox-connector-app/latest/changelog.html"
+	target="_blank">hier</a> zu finden.
 </p>

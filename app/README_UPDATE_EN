@@ -1,9 +1,18 @@
 <p>
-	Attention: Starting with version 2.0 of the App, it requires at least version 7.10.6 of Open-Xchange. Otherwise, the connector will not work.
+	Attention: Starting with version 3.0 of the App, the changes to objects
+	yet to be or already synchronized are not stored in individual JSON
+	files anymore. Instead they are stored in a dedicated database and the
+	tool /usr/sbin/univention-ox-connector-task-management has been added
+	to interact with it.
 </p>
 <p>
-	Please make sure that Open-Xchange has been upgraded before you upgrade this App.
+	The App received a new option to no longer stop on an error, but put it
+	aside and continue to process other changes. This option may change the
+	bahavior of the App and is by default configured as it was before: The
+	Connector will stop on errors.
 </p>
 <p>
-	A list of changes can be found <a href="https://docs.software-univention.de/ox-connector-app/latest/changelog.html" target="_blank">here</a>.
+	A list of changes can be found <a
+	href="https://docs.software-univention.de/ox-connector-app/latest/changelog.html"
+	target="_blank">here</a>.
 </p>

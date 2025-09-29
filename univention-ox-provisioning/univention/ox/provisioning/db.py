@@ -188,7 +188,7 @@ def add_task(path: Path):
 def add_old(path: Path):
     """
     Adds the content of a JSON file to the old table. If that item already
-    exist (by UniventionObjectIdentifier), it is updated, otherwise a new item
+    exists (by UniventionObjectIdentifier), it is updated, otherwise a new item
     is created.
     """
     logger.info("Parsing %s", path)
