@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.7](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.6...v0.28.7) (2025-09-29)
+
+
+### Bug Fixes
+
+* Kyverno lint issues ([425dbc7](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/425dbc71ed28e4c0dd4dc808a7fb573710ee463a)), closes [univention/dev/internal/team-nubus#1426](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1426)
+
 ## [0.28.6](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.5...v0.28.6) (2025-09-27)
 
 
