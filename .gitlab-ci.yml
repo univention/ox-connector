@@ -24,7 +24,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "webide"'
 
 variables:
-  APPCENTER_VERSION: "3.0.0"
+  APPCENTER_VERSION: "3.0.1"
 
   # Variables for sphinx-docs
   LANG: "C.UTF-8"

@@ -12,6 +12,35 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v3.0.1:
+
+v3.0.1
+======
+
+Released: 2025-10-06
+
+Changed
+-------
+
+The sub-command :program:`/usr/sbin/univention-ox-connector-task-management
+resync-item` can now re-sync from the morgue and from the old table.
+
+In case of consecutive errors, the OX Connector now sleeps longer and longer
+between runs. This is done to prevent log files filling up with the same error
+rather quickly. The delay between runs increases with every consecutive error
+up to 20 minutes.
+
+Added
+-----
+
+Added the sub-command
+:program:`/usr/sbin/univention-ox-connector-task-management
+rewrite-ox-db-id`.
+
+Added the sub-command
+:program:`/usr/sbin/univention-ox-connector-task-management
+export-old`.
+
 .. _app-changelog-v3.0.0:
 
 v3.0.0

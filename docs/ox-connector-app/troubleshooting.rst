@@ -236,6 +236,49 @@ only adds existing UDM objects to the queue.
    The OX Connector may decide to delete objects based on data in the JSON
    files. For example ``isOxGroup = Not`` in a group object.
 
+.. _cache-rebuild:
+
+Ensuring the OX database ID integrity
+=====================================
+
+.. index::
+   single: cache; rebuild
+
+The *internal ID* of objects in the database of OX App Suite can become
+corrupted, for example after a backup restore of the database. For more
+information about the cache, see :ref:`db-old-entries`.
+
+To rewrite that cache, run the following commands:
+
+.. code-block:: console
+   :caption: Rebuild cache for *internal ID*
+
+   $ /usr/sbin/univention-ox-connector-task-management rewrite-ox-db-id
+
+.. tip::
+
+   Retrieve all users per context in one request
+      Rebuilding the cache may take a long time and depends on the amount of
+      users in the OX App Suite database.
+
+      :command:`/usr/sbin/univention-ox-connector-task-management
+      rewrite-ox-db-id --build-cache-size=1000` can speed up the rebuild,
+      because it retrieves up to 1000 users of one context with one request.
+
+.. warning::
+
+   .. index::
+      single: cache; memory consumption
+      single: cache; system load
+
+   Memory consumption
+      On the UCS system with the OX Connector, the rebuild process may use up to
+      1 GB memory per 10,000 users in the database for OX App Suite.
+
+   System load
+      Furthermore, the process may generate a lot of load on the OX App Suite
+      system and the OX Connector app.
+
 Duplicated *displaynames*
 =========================
 

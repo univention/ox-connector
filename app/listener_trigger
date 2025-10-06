@@ -35,6 +35,7 @@ import json
 import logging
 import os
 import sys
+import time
 import traceback
 from requests.exceptions import Timeout, ConnectionError, HTTPError
 from pathlib import Path
@@ -205,6 +206,7 @@ def main():
         add_task(json_file)
         os.unlink(json_file)
     ret_value = 0
+    error_count = 0
     stop_on_error = os.getenv("OX_CONNECTOR_STOP_ON_ERROR", "True") != "False"
     for udm_module, empty_attributes in [
         ("oxmail/oxcontext", False),
@@ -224,16 +226,17 @@ def main():
                 run(obj)
             except (HTTPError, ConnectionError, Timeout) as exc:
                 logger.error("Error while handling %s", task)
+                error_count = increment_error_count(task.id)
                 logger.exception(exc)
-                increment_error_count(task.id)
                 ret_value = 1
                 break
             except Exception as exc:
+                error_count = increment_error_count(task.id)
                 logger.error("Error while handling %s", task)
                 logger.exception(exc)
                 if stop_on_error or task.udm_module == "oxmail/oxcontext":
                     # oxcontext is so important, we can never continue here
-                    increment_error_count(task.id)
+                    error_count = increment_error_count(task.id)
                     ret_value = 1
                     break
                 move_task_to_morgue(task.id, traceback.format_exc())
@@ -258,6 +261,16 @@ def main():
         except OSError:
             pass
     else:
+        # sleep for increments
+        delay = error_count * 5 if error_count < 240 else 1200
+        if log_level == 'DEBUG':
+            logger.debug("Skipping sleep for faster debugging")
+        else:
+            logger.info(
+                "Waiting for %s seconds for retry. In case you want to retry now, restart the univention-appcenter-listener-converter@ox-connector service",
+                delay,
+            )
+            time.sleep(delay)
         open(NEW_FILES_DIR / "restart.json", "w")  # it is hacky, sorry
     return ret_value
 

@@ -32,6 +32,7 @@ import os
 import logging
 import json
 from pathlib import Path
+from itertools import chain
 import datetime
 from contextlib import contextmanager
 from copy import deepcopy
@@ -49,6 +50,10 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from univention.ox.soap.backend_base import get_ox_integration_class
+from univention.ox.soap.config import NoContextAdminPassword
+from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
+
 Base = declarative_base()
 
 # db_password = os.environ["DB_PASSWORD"]
@@ -60,7 +65,8 @@ LISTENER_DIR = Path(
 )
 
 engine = create_engine("sqlite:///%s/ox-connector.db" % LISTENER_DIR)
-
+User = get_ox_integration_class("SOAP", "User")
+CACHE = {}
 logger = logging.getLogger("listener")
 
 
@@ -156,6 +162,99 @@ def get_old(dn: str, obj_id: str = None):
             logger.info("No old data found for %s", dn)
 
 
+def find_db_id(ox_context, username, build_cache_size):
+    if build_cache_size and ox_context not in CACHE:
+        logger.info(f"Building cache for {ox_context}")
+        users = {}
+        try:
+            empty_objs = User.service(ox_context).list_all()
+        except NoContextAdminPassword:
+            logger.warning("... no password configured for context!")
+        else:
+            logger.info(f"Retrieved {len(empty_objs)} ids")
+
+            def chunks(objs):
+                return (
+                    objs[pos : pos + build_cache_size]
+                    for pos in range(0, len(objs), build_cache_size)
+                )
+
+            for chunk in chunks(empty_objs):
+                soap_objs = User.service(ox_context).get_multiple_data(chunk)
+                logger.info(f"Loaded {len(soap_objs) + len(users)}")
+                for soap_obj in soap_objs:
+                    users[soap_obj.name] = soap_obj.id
+        logger.info("... built cache")
+        CACHE[ox_context] = users
+    if ox_context in CACHE:
+        return CACHE[ox_context].get(username)
+    try:
+        user = get_obj_by_name_from_ox(User, ox_context, username)
+    except NoContextAdminPassword:
+        logger.warning("... no password configured for context!")
+        return None
+    if not user:
+        logger.warning(f"{username}... not found!")
+        return None
+    return user.id
+
+
+def get_all_old_objects(obj_id):
+    oldies = []
+    with _get_session() as db_session:
+        oldies = db_session.query(Old).filter(Old.obj_id.like(obj_id)).first()
+        for old in oldies:
+            yield old
+
+
+def get_all_old_users():
+    oldies = []
+    with _get_session() as db_session:
+        oldies = db_session.query(Old).filter_by(udm_module="users/user").all()
+        for old in oldies:
+            yield old
+
+
+def rewrite_ox_db_id(
+    build_cache_size: int = 0,
+    dry_run: bool = False,
+):
+    """
+    Rewrites the oxDbId attribute for all users known to the Connector.
+    This command iterates over all users and fetches the OX ID live from OX and
+    then updates it in the OX Connector's old table.
+    Users that are not found in OX will have their oxDbId removed.
+    This may take a long time and depends on the amount of users in the OX App
+    Suite database. You may speed things up by specifying a BUILD_CACHE_SIZE,
+    although this may take a considerable amount of memory.
+    """
+    for old in get_all_old_users():
+        attrs = deepcopy(json.loads(old.attrs))
+        username = attrs.get("username", "")
+        ox_context = attrs.get("oxContext", 10)
+        cache_db_id = attrs.get("oxDbId", None)
+        if not cache_db_id:
+            continue
+        ox_db_id = find_db_id(
+            ox_context,
+            username,
+            build_cache_size=build_cache_size,
+        )
+        if not ox_db_id:
+            logger.info(
+                f"Removing oxDbId of {old} ({cache_db_id}): Not found in OX DB",
+            )
+            del attrs["oxDbId"]
+        elif ox_db_id != cache_db_id:
+            logger.info(
+                f"Updating oxDbId of {old}: {cache_db_id} -> {ox_db_id}",
+            )
+            attrs["oxDbId"] = ox_db_id
+
+        if not dry_run:
+            old.attrs = json.dumps(attrs)
+
+
 def create_task_from_old(obj_id: str):
     with _get_session() as db_session:
         old = db_session.query(Old).filter_by(obj_id=obj_id).first()
@@ -191,11 +290,14 @@ def increment_error_count(task_id: int):
             task,
             task.num_errors,
         )
+        return task.num_errors
 
 
 def add_task(path: Path):
     """
-    Adds the content of a JSON file as a new item to the tasks table
+    Adds the content of a JSON file as a new item to the tasks table.
+    Note: PATH needs to be accessible from inside the OX Connector container,
+    e.g., in /var/lib/univention-appcenter/apps/ox-connector/data/
     """
     logger.info("Parsing %s", path)
     with path.open() as file_handler:
@@ -203,7 +305,13 @@ def add_task(path: Path):
     udm_module = content["udm_object_type"]
     dn = _normalized_dn(content["dn"])
     attrs = content["object"]
-    obj_id = content["id"]
+    obj_id = attrs.get("univentionObjectIdentifier")
+    if not obj_id:
+        logger.info(
+            "Did not find univentionObjectIdentifier in %s. Skipping",
+            path,
+        )
+        return
     with _get_session() as db_session:
         task = Task(
             obj_id=obj_id,
@@ -220,8 +328,10 @@ def add_task(path: Path):
 def add_old(path: Path):
     """
     Adds the content of a JSON file to the old table. If that item already
-    exists (by UniventionObjectIdentifier), it is updated, otherwise a new item
+    exists (by univentionObjectIdentifier), it is updated, otherwise a new item
     is created.
+    Note: PATH needs to be accessible from inside the OX Connector container,
+    e.g., in /var/lib/univention-appcenter/apps/ox-connector/data/
     """
     logger.info("Parsing %s", path)
     with path.open() as file_handler:
@@ -355,7 +465,12 @@ def move_task_to_old(task_id: int, attributes: dict = None):
 def get_errors(obj_id='*'):
     obj_id = obj_id.replace("*", "%")  # SQL LIKE
     with _get_session() as db_session:
-        errors = db_session.query(Dead).filter(Dead.obj_id.like(obj_id)).all()
+        errors = (
+            db_session.query(Dead)
+            .filter(Dead.obj_id.like(obj_id))
+            .order_by(Dead.id)
+            .all()
+        )
         for error in errors:
             yield error
 
@@ -364,14 +479,15 @@ def resync_item(obj_id):
     """
     An item is resynced using the latest data that is currently saved in UDM
     """
-    # TODO: maybe we want to search in old, too? Resyncing may make sense from old, too? Probably search in errors first? (DN is "more recent")
-    errors = get_errors(obj_id=obj_id)
-    filename = None
-    for error in errors:
+    items = chain(
+        get_errors(obj_id=obj_id),
+        get_all_old_objects(obj_id=obj_id),
+    )
+    for item in items:
         attrs = {
-            "entry_uuid": error.obj_id,
-            "dn": error.dn,
-            "object_type": error.udm_module,
+            "entry_uuid": item.obj_id,
+            "dn": item.dn,
+            "object_type": item.udm_module,
             "command": "m",
         }
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
@@ -379,14 +495,13 @@ def resync_item(obj_id):
             "/var/lib/univention-appcenter/listener/ox-connector",
             timestamp,
         )
-        logger.info("Resynced %s", error)
-        break  # only needs to be done once
-    if not filename:
-        logger.warn(
-            "No Error for object ID %s found in database, resync not possible",
-        )
-    with open(filename, "w") as fd:
-        json.dump(attrs, fd, sort_keys=True, indent=4)
+        with open(filename, "w") as fd:
+            json.dump(attrs, fd, sort_keys=True, indent=4)
+        logger.info("Resynced %s", item)
+        return  # only needs to be done once
+    logger.warn(
+        "No Error for object ID %s found in database, resync not possible",
+    )
 
 
 def retry_from_morgue(obj_id):
@@ -427,7 +542,10 @@ def remove_from_morgue(obj_id):
             logger.info("Removed error %s", error)
 
 
-def search_morgue(obj_id: str = "*", output_format: str = "simple"):
+def search_morgue(
+    obj_id: str = "*",
+    output_format: str = "simple",
+):
     """
     Search items in the morgue db. Items found can be printed in different
     formats ("simple" or "fuller" or "json")
@@ -504,6 +622,45 @@ def search_tasks(output_format: str = "simple", first: bool = False):
         print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
+def summarize_morgue(output_format: str = "simple"):
+    """
+    Shows a brief summary of the morgue table.
+    Output can be either "simple", "fuller" or "json"
+    """
+    total = 0
+    errors = {}
+    for error in get_errors():
+        total += 1
+        errors.setdefault(error.udm_module, {})
+        errors[error.udm_module][error.obj_id] = (
+            errors[error.udm_module].get(error.obj_id, 0) + 1
+        )
+    if output_format == "json":
+        print(
+            json.dumps(
+                errors
+                | {
+                    "total": total,
+                },
+                sort_keys=True,
+                indent=2,
+            ),
+        )
+    else:
+        for module, ids in errors.items():
+            num = 0
+            for ob_id, error_count in ids.items():
+                if output_format == "fuller":
+                    print(f"  {ob_id}: {error_count}")
+                num += error_count
+            print(f"{module}: {num}")
+            if output_format == "fuller":
+                print("======")
+        if errors and output_format == "simple":
+            print("======")
+        print(f"Total: {total}")
+
+
 def summarize_tasks(output_format: str = "simple"):
     """
     Shows a brief summary of the tasks table (queue of current tasks).
@@ -545,6 +702,25 @@ def summarize_tasks(output_format: str = "simple"):
                 print(f"Created between {start_date} and {end_date}")
             else:
                 print(f"Created at {end_date}")
+
+
+def export_old(obj_id: str):
+    """
+    Exports an item from the old table. It prints the item as JSON for you to
+    save and examine. This file can be edited and re-added with the add-old
+    command.
+    """
+    with _get_session() as db_session:
+        old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        if not old:
+            return
+        json_output = {
+            "id": old.obj_id,
+            "udm_object_type": old.udm_module,
+            "dn": old.dn,
+            "object": json.loads(old.attrs),
+        }
+        print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
 def search_old(obj_id: str, output_format: str = "simple"):
@@ -743,16 +919,18 @@ if __name__ == "__main__":
     _add_action(subparsers, show_item)
     _add_action(subparsers, resync_item)
     _add_action(subparsers, summarize_tasks)
+    _add_action(subparsers, summarize_morgue)
     _add_action(subparsers, add_task)
     _add_action(subparsers, search_tasks)
     _add_action(subparsers, move_task_to_old)
     _add_action(subparsers, move_task_to_morgue)
     _add_action(subparsers, add_old)
+    _add_action(subparsers, export_old)
     _add_action(subparsers, search_old)
     _add_action(subparsers, search_morgue)
     _add_action(subparsers, remove_from_morgue)
     _add_action(subparsers, retry_from_morgue)
-    # TODO: rebuild_cache: See the CLI update-ox-db-cache - it basically retrieves all OxDbIds again from the live OX DB...
+    _add_action(subparsers, rewrite_ox_db_id)
     # TODO: check_sync_status.py: See the CLI update-ox-db-cache - it compares live OX DB with UDM
 
     args = parser.parse_args()
