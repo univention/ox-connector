@@ -19,6 +19,10 @@ Kubernetes* documentation.
      - Section
      - Change
 
+   * - 6. Oct 2026
+     - :ref:`install-packaged-integration`
+     - Fix type of value into number for `oxDefaultContext`.
+
    * - 24. Jun 2025
      - :ref:`user-provisioning-installation`
      - Fix listing for installation and adjust reference to available versions.

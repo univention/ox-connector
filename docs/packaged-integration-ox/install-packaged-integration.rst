@@ -44,7 +44,10 @@ use the following steps:
    You **must** define values for the following variables here:
 
    ``oxDefaultContext``
-      You must define the name for the first and default context in *OX App Suite*.
+      You must define the number of the context as integer value,
+      for the first and default context in *OX App Suite*.
+      You can define the value as number,
+      for example ``10``, or as string, for example ``"10"``.
 
    ``oxSystemUserPassword``
       You can pick any secure password and use it later to set up LDAP in *Open-Xchange*.
