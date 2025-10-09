@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.29.0...v0.30.0) (2025-10-09)
+
+
+### Features
+
+* **error-handling:** Issue univention/dev/projects/open-xchange/connector[#136](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/136) - Improve CLI tool univention-ox-connector-task-management ([eeeef8a](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/eeeef8aa1ecb290ba7001679eef0287d487ea799))
+
 ## [0.29.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.28.7...v0.29.0) (2025-09-30)
 
 
