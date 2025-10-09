@@ -74,6 +74,10 @@ spec:
       # Enable optional features
       deputy_enabled: true
 
+      # Allow username changes
+      contacts_provider_ldap_enabled: true
+      enable_username_editable: true
+
       # Ingress handling
       #
       # Our environment has ingress-nginx already provided. Disable all bundled
