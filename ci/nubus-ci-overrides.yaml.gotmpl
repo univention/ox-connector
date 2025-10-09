@@ -28,3 +28,8 @@ releases:
               oxConsumer:
                 existingSecret:
                   name: "ox-connector-provisioning-api"
+
+      # TODO: Workaround for a deployment issue of Nubus, remove as soon as possible
+      - global:
+          ldap:
+            domainName: stub.example

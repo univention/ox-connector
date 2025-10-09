@@ -23,7 +23,7 @@ stages:
 
 variables:
   ENVIRONMENT_NAME: "${CI_COMMIT_REF_SLUG}/e2e-testrun-${DEPLOY_NAMESPACE}"
-  NUBUS_HELM_BRANCH: "main"
+  NUBUS_HELM_BRANCH: "develop"
   NUBUS_CHART_VERSION: "*"
 
 
