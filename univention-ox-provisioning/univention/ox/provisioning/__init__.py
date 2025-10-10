@@ -79,7 +79,6 @@ TEST_LOG_FILE = Path("/tmp/test.log")
 
 
 def run(obj):  # noqa: C901
-    """This is your main function. Implement all your logic here"""
     if obj.object_type == "oxmail/oxcontext":
         if obj.was_added():
             create_context(obj)
