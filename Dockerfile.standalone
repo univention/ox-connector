@@ -205,9 +205,9 @@ ENV PYTHON_DIST_PACKAGES="/usr/local/lib/python3.11/dist-packages"
 COPY entrypoint.sh /entrypoint.d/75-entrypoint.sh
 
 RUN \
-  python3.11 -V && \
-  python3.11 -m site && \
-  python3.11 -c 'from univention.ox.provisioning import helpers, run'
+  python3 -V && \
+  python3 -m site && \
+  python3 -c 'from univention.ox.provisioning import helpers, run'
 
 CMD ["/usr/bin/python3", "/consumer.py"]
 
