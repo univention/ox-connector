@@ -71,25 +71,25 @@ LABEL \
 RUN \
   DEBIAN_FRONTEND=noninteractive \
   apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-  # for dbm.gnu used by app/listener_trigger
-  # python3-gdbm
-  ca-certificates=2023* \
-  jq=1.* \
-  libpython3.11-minimal=3.11.* \
-  libpython3.11-stdlib=3.11.* \
-  libpython3.11=3.11.* \
-  # for univention/ox/provisioning/helpers.py
-  python3-ldap \
-  procps=2:4.0.* \
-  python3-minimal=3.11.* \
-  python3-pip=23.0.* \
-  python3.11-minimal=3.11.* && \
+    # for dbm.gnu used by app/listener_trigger
+    # python3-gdbm
+    ca-certificates=2023* \
+    jq=1.* \
+    libpython3.11-minimal=3.11.* \
+    libpython3.11-stdlib=3.11.* \
+    libpython3.11=3.11.* \
+    # for univention/ox/provisioning/helpers.py
+    python3-ldap \
+    procps=2:4.0.* \
+    python3-minimal=3.11.* \
+    python3-pip=23.0.* \
+    python3.11-minimal=3.11.* && \
   # Avoid unused dependency on PIL
   echo "" > "${PYPKG}/PIL.py" && \
   pip3 install --break-system-packages --no-cache-dir \
-  nubus-provisioning-consumer==0.42.0 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
-  appdirs==1.4.* \
-  platformdirs==2.6.*
+    nubus-provisioning-consumer==0.42.0 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
+    appdirs==1.4.* \
+    platformdirs==2.6.*
 
 # install appcenter listener script to use as package
 COPY app/listener_trigger ${PYPKG}/listener_trigger.py
