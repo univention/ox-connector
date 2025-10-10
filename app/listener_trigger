@@ -53,6 +53,7 @@ from univention.ox.provisioning.db import (
     remove_old,
     remove_task,
 )
+from univention.ox.provisioning.models import TriggerObject
 
 APP = "ox-connector"
 DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
@@ -81,7 +82,7 @@ if log_level == "DEBUG":
 
 
 def obj_from_row(row):
-    return TriggerObject(
+    return TriggerObjectFileBased(
         row.obj_id,
         row.udm_module,
         row.dn,
@@ -115,33 +116,7 @@ def _update_group_queue(entry_uuid):
 helpers.update_group_queue = _update_group_queue
 
 
-class TriggerObject(object):
-    """
-    A thin wrapper over a JSON file. Holds all the information from that
-    file. May also hold information of this object from a previous run
-    (needs a second, backup file for that)
-    """
-
-    def __init__(
-        self,
-        entry_uuid,
-        object_type,
-        distinguished_name,
-        attributes,
-        options,
-        path=None,
-    ):
-        self.entry_uuid = entry_uuid
-        self.object_type = object_type
-        self.distinguished_name = distinguished_name
-        self.attributes = attributes
-        self.options = options
-        self.old_distinguished_name = None
-        self.old_attributes = None
-        self.old_options = None
-        self.path = path  # file where it originates from
-        self._old_loaded = False
-        self._enriched = {}
+class TriggerObjectFileBased(TriggerObject):
 
     def load_old(self):
         """Loads the old filename and sets attributes accordingly"""
@@ -151,46 +126,6 @@ class TriggerObject(object):
             self.old_attributes = old.attributes
             self.old_options = []
         self._old_loaded = True
-
-    def was_added(self):
-        """
-        Whether this object is new. Needs the have read an old file
-        for this to give a meaningful response
-        """
-        if self.attributes is None:
-            return False
-        if not self._old_loaded:
-            return None
-        return self.old_distinguished_name is None
-
-    def was_modified(self):
-        """
-        Whether this object was modified. Needs the have read an old
-        file for this to give a meaningful response
-        """
-        if self.attributes is None:
-            return False
-        if self._old_loaded is False:
-            return None
-        return not self.was_added() and not self.was_deleted()
-
-    def was_deleted(self):
-        """Whether this object was deleted."""
-        return self.attributes is None and self.old_attributes is not None
-
-    def was_enriched(self):
-        """Whether the obj was modified via set_attr during processing."""
-        return bool(self._enriched)
-
-    def set_attr(self, attr, value):
-        """Enrich an object's attributes. Will be preserved should the
-        old object be kept (i.e. files are moved at the end)"""
-        if self.attributes.get(attr) != value:
-            self.attributes[attr] = value
-            self._enriched[attr] = value
-
-    def __repr__(self):
-        return f"Object({self.object_type!r}, {self.distinguished_name!r})"
 
 
 GROUP_EUUID = set()

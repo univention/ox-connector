@@ -22,7 +22,7 @@ from config import (
     OXConsumerSettings,
     get_ox_consumer_settings,
 )
-from listener_trigger import TriggerObject
+from univention.ox.provisioning.models import TriggerObject
 
 from univention.ox.provisioning import helpers, run
 from univention.ox.provisioning.contexts import Context
