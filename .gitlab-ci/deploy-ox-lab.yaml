@@ -117,7 +117,6 @@ spec:
         com.openexchange.deputy.provider.imap.doveadm.personalNamespace: "/"
         com.openexchange.deputy.provider.imap.doveadm.sharedNamespace: "shared/"
         com.openexchange.deputy.provider.imap.doveadm.publicNamespace: "shared/"
-
       EOT
   artifacts:
     paths:
@@ -138,7 +137,8 @@ spec:
         ca-certificates \
         git \
         python3 \
-        python3-pip
+        python3-pip \
+        yq
     - echo "Cloning the ox-lab sources (operations-guide)"
     - >-
       git clone
@@ -147,6 +147,20 @@ spec:
       "$[[ inputs.ox-lab-repository ]]"
     - pushd ox-operations-guide-mirror
     - pip install --break-system-packages -r requirements.txt
+
+    # NOTE: Generate the doveadm password upfront, so that we can use it also in
+    # the configuration. This uses the "vault.py" script of the OX operations
+    # guide so that we can avoid customizing the lab deployment scripts from OX.
+    - export PASSWORD_DOVEADM="$(openssl rand -base64 18)"
+    - mkdir -p rendered/lab.nubus-ci
+    - >-
+      python3 vault.py -c -v ./rendered/lab.nubus-ci/vault.json
+      -s "dovecot.doveconf.doveadm_api_key=${PASSWORD_DOVEADM}"
+    - >-
+      yq -y -i
+      ".core_mw_extra_properties.\"com.openexchange.dovecot.doveadm.apiSecret\" = \"${PASSWORD_DOVEADM}\""
+      ../lab.nubus-ci.yml
+
     - python3 render.py -f ../lab.nubus-ci.yml
     - rm -fr .git __pycache__
     - popd
