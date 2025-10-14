@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.30.1...v0.30.2) (2025-10-14)
+
+
+### Bug Fixes
+
+* **ox-connector:** Correct retrieval of the ID from the task file when deleting an object ([955b1cc](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/955b1cc24a23d310712c915ba9c7eefc93df7193))
+
 ## [0.30.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.30.0...v0.30.1) (2025-10-14)
 
 
