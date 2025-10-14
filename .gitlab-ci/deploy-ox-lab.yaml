@@ -26,7 +26,7 @@ spec:
         a valid value for the call to "git clone".
       type: string
     ox-lab-ref:
-      default: "jtorres/test"
+      default: "ci-0.0.2"
       description: |
         Branch or tag name to use when cloning the ox operations-guide
         repository.
