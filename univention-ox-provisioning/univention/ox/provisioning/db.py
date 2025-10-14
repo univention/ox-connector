@@ -305,7 +305,14 @@ def add_task(path: Path):
     udm_module = content["udm_object_type"]
     dn = _normalized_dn(content["dn"])
     attrs = content["object"]
-    obj_id = attrs.get("univentionObjectIdentifier")
+    if attrs:
+        obj_id = attrs.get("univentionObjectIdentifier")
+    else:
+        # should be univentionObjectIdentifier - therefore this line is more correct than
+        # attrs.get("univentionObjectIdentifier"). but during the migration of old
+        # tasks (json files) where the id was still entry_uuid, we better use
+        # the univentionObjectIdentifier
+        obj_id = content["id"]
     if not obj_id:
         logger.info(
             "Did not find univentionObjectIdentifier in %s. Skipping",
