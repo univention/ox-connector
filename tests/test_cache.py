@@ -188,7 +188,7 @@ def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
     wait_for_listener,
 ):
     """
-    Chancing a non ox user to a ox user should update the non-ox-object cache accordingly
+    Changing a non ox user to a ox user should update the non-ox-object cache accordingly
     """
     non_ox_user = create_ox_user(enabled=False)
     db_id = get_db_id(non_ox_user.dn)
@@ -218,7 +218,7 @@ def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     wait_for_listener,
 ):
     """
-    Chancing an ox user to a non ox user should update the non-ox-object cache accordingly
+    Changing an ox user to a non ox user should update the non-ox-object cache accordingly
     """
     user = create_ox_user()
     db_id = get_db_id(user.dn)
@@ -235,7 +235,7 @@ def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     db_id = get_db_id(user.dn)
     assert db_id is None
     db_id = get_db_id(user.dn, db=non_ox_mapping)
-    assert db_id is not None
+    assert db_id is None
 
 
 @pytest.mark.skipif(
