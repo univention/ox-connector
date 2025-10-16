@@ -24,6 +24,7 @@ stages:
 variables:
   ENVIRONMENT_NAME: "${CI_COMMIT_REF_SLUG}/e2e-testrun-${DEPLOY_NAMESPACE}"
   NUBUS_HELM_BRANCH: "main"
+  NUBUS_CHART_VERSION: "*"
 
 
 pipeline-configuration:
@@ -80,6 +81,7 @@ deploy-nubus-with-ox-connector:
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
   script:
+    - export CHART_VERSION=${NUBUS_CHART_VERSION}
     - export OX_CHART_VERSION=${RELEASE_VERSION}
     - export REVIEW_PREFIX=${DEPLOY_SUBDOMAIN}
 
