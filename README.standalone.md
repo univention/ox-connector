@@ -76,11 +76,15 @@ Currently known to fail tests are:
 
 ### test_accessprofile ✅
 
-### test/test_cache ✅
+### test/test_cache ❌
+```
+tests/test_cache.py::test_missing_user_cache_entry_gets_reloaded_during_group_creation
+```
+> This test is failing due to a non normalized DNs in k8s. This should be address in a future ticket.
 
-Our cache implementation is different from the one used in the tests.
-While they save the dn as key and the path to a file as value, we store
-the whole object as value. This is why the tests are failing.
+The k8s cache implementation is different from the one used in the Appcenter version.
+While the Appcenter uses SQLite, we store
+the whole object as value in a KeyValueStore.
 
 The tests can be run with `STANDALONE_KUBERNETES_TESTS=1` to use the correct caching
 but for the `tests/test_cache.py::test_create_group_with_user_not_in_cache` test to succeed
@@ -105,8 +109,14 @@ FAILED tests/test_group.py::test_change_context_for_group_user - Failed: Listene
 ```
 
 > For some reason, the wait_for_listener is timing out when listening for the group changes.
+> Maybe a missmatch in strings, not sure.
 
-### tests/test_resource ✅
+### tests/test_resource ❌
+```
+tests/test_resource.py::test_unset_all_attributes_resource
+```
+> This test is failing due to a non normalized DNs in k8s. This should be address in a future ticket.
+
 
 ### tests/test_user ❌
 ```
