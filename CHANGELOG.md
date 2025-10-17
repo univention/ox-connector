@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.31.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.30.2...v0.31.0) (2025-10-17)
+
+
+### Features
+
+* Move "TriggerObject" into a new models module ([f57a88a](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/f57a88ac5c91139f3a24bcfad458c931cd00ff73)), closes [univention/dev/internal/team-nubus#1369](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1369)
+
+
+### Bug Fixes
+
+* adjust test_converting_ox_user_to_non_ox_user_updates_cache_correctly test ([a4f179d](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/a4f179d542ff5f18a3a1239292cc3f75039e4bab)), closes [univention/dev/internal/team-nubus#1369](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1369)
+
 ## [0.30.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.30.1...v0.30.2) (2025-10-14)
 
 
