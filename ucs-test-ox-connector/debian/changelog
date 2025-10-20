@@ -1,3 +1,9 @@
+ucs-test-ox-connector (1.0.1) unstable; urgency=medium
+
+  * Issue #39: Increase changelog version for 5.2 appsuite tests
+
+ -- Julia Bremer <bremer@univention.de>  Tue, 21 Oct 2025 00:48:35 +0200
+
 ucs-test-ox-connector (1.0.0) unstable; urgency=medium
 
   * Issue #39: add test for context.json
