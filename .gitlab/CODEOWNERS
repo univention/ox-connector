@@ -1,7 +1,10 @@
+# GitLab documenation: https://docs.gitlab.com/user/project/codeowners/reference/#add-a-group-as-a-code-owner
+# Default code owners
 * @dwiesent @ccastens @jbornhold @jconde @jgarcia @jlohmer @tkintscher @fbotner @jkoeniger @jtorres @arequate @dpapoutsis @jburgmeier
 
 [Documentation]
+/docs/*  @ngulden @tkintscher @jconde @jtorres
 
-docs/*  @ngulden @tkintscher @jconde @jtorres
-.gitlab-ci/doc-builder    @ngulden
-.gitlab-ci/base-doc.yml   @ngulden
+[Documentation CI/CD]
+/.gitlab-ci/doc-builder    @ngulden
+/.gitlab-ci/base-doc.yml   @ngulden
