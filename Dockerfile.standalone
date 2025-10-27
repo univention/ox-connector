@@ -110,10 +110,10 @@ COPY --from=ox-connector \
   # dependency six of /usr/sbin/ucr
   /usr/lib/python3.9/site-packages/six.py \
 
-  # dependency requests_file of ${PYPKG}/zeep/transports.py
-  /usr/lib/python3.9/site-packages/requests_file.py \
-
   ${PYPKG}/
+
+# dependency requests_file of ${PYPKG}/zeep/transports.py
+COPY --from=ox-connector /usr/lib/python3.9/site-packages/requests_file/ ${PYPKG}/requests_file/
 
 COPY --from=debian-python-deps \
   # dependency dbm.gnu of /usr/local/lib/python3.11/dist-packages/listener_trigger.py
@@ -172,8 +172,8 @@ COPY --from=debian-python-deps ${PDPKG}/lxml/ ${PYPKG}/lxml/
 # dependency dbm.gnu of /usr/local/lib/python3.11/dist-packages/listener_trigger.py
 COPY --from=debian-python-deps /usr/lib/python3.11/lib-dynload/_gdbm.cpython-311-x86_64-linux-gnu.so /usr/lib/python3.11/lib-dynload/
 
-# dependency charset_normalizer of /usr/local/lib/python3.11/dist-packages/requests/compat.py
-COPY --from=ox-connector /usr/lib/python3.9/site-packages/charset_normalizer/ ${PYPKG}/charset_normalizer/
+# dependency chardet of /usr/local/lib/python3.11/dist-packages/requests/compat.py
+COPY --from=ox-connector /usr/lib/python3.9/site-packages/chardet ${PYPKG}/chardet/
 
 # dependency idna of /usr/local/lib/python3.11/dist-packages/requests/packages.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/idna/ ${PYPKG}/idna/
