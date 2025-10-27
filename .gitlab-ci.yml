@@ -97,6 +97,10 @@ container-build-appcenter:
   extends: ".kaniko"
   variables:
     KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+    # NOTE: Disabled caching due to issues in undetected failing build on
+    # branches due to the reuse of the version / tag name based on the branch
+    # name.
+    KANIKO_CACHE_ARGS: ""
   parallel:
     matrix:
       - IMAGE_NAME: "ox-connector-appcenter"
@@ -118,6 +122,10 @@ test-chart-ox-connector:
 container-build:
   variables:
     KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+    # NOTE: Disabled caching due to issues in undetected failing build on
+    # branches due to the reuse of the version / tag name based on the branch
+    # name.
+    KANIKO_CACHE_ARGS: ""
   parallel:
     matrix:
       - IMAGE_NAME: "ox-connector-standalone"
