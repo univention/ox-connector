@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.32.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.31.0...v0.32.0) (2025-10-28)
+
+
+### Features
+
+* Add logging to support tests ([ec73b36](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/ec73b36953656afc927534dbaa7527370dbeb467)), closes [univention/dev/internal/team-nubus#1369](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1369)
+
+
+### Bug Fixes
+
+* Correct copying of updated / changed dependencies ([4db680c](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/4db680c71ac7db6605da68b23f52088ee3fc7c55)), closes [univention/dev/internal/team-nubus#1369](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1369)
+* **deps:** Update gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base Docker tag to v5.2.3-build.20251023 ([d9cdc05](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/d9cdc05e5ad83c87b7e831748c94794044914a71)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+* **docs/packaged-integration:** Value of oxDefaultContext from string to integer ([1ebeae7](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/1ebeae7e7b817c05e232978466327aa4cfabe1f2)), closes [univention/dev/projects/open-xchange/connector#141](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/141)
+
 ## [0.31.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.30.2...v0.31.0) (2025-10-17)
 
 
