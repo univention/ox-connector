@@ -72,7 +72,18 @@ deploy-namespace:
       --ignore-not-found
 
     - echo "Creating namespace ${DEPLOY_NAMESPACE}"
-    - kubectl create namespace "${DEPLOY_NAMESPACE}"
+    - |
+      kubectl create -f - <<EOT
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: ${DEPLOY_NAMESPACE}
+          annotations:
+            kubernetes.io/description: Used and managed by the CI system of the OX Connector via Gitlab
+            nubus.univention.dev/owner: Nautilus Team
+            nubus.univention.dev/repository: ${CI_PROJECT_URL}
+            nubus.univention.dev/pipeline: ${CI_PIPELINE_URL}
+      EOT
   variables:
     GIT_STRATEGY: none
 
