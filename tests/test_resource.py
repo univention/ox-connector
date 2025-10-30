@@ -226,6 +226,9 @@ def test_all_empty_attributes_resource(
         wait_for_listener(dn)
 
 
+@pytest.mark.k8s_skip(
+    reason="TODO: Follow up fix needed to make this work in Kubernetes.",
+)
 def test_unset_all_attributes_resource(
     default_ox_context,
     new_resource_name,

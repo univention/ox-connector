@@ -59,6 +59,7 @@ def get_default_containers(uri, username, password):
     return [i.get('id') for i in res.json().get('result')]
 
 
+@pytest.mark.k8s_skip(reason="Needs further investigation")
 def test_functional_account_default_container(
     udm,
     udm_admin_username,

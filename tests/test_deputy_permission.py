@@ -266,15 +266,22 @@ def test_modify_deputy_permission_after_rename(
     ]
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
-@pytest.mark.parametrize(
-    "perm1,perm2,send_as",
-    itertools.product(
+def make_params():
+    for perm1, perm2, send_as in itertools.product(
         ["00000", "02400", "02440", "08444"],
         ["00000", "02400", "02440", "08444"],
         [True, False],
-    ),
-)
+    ):
+        marks = []
+        if perm1 == "00000" and perm2 == "00000":
+            marks.append(
+                pytest.mark.k8s_skip(reason="TODO: Fix test for Kubernetes."),
+            )
+        yield pytest.param(perm1, perm2, send_as, marks=marks)
+
+
+@pytest.mark.skipif(not is_enabled(), reason="Deputy permission not enabled")
+@pytest.mark.parametrize("perm1, perm2, send_as", list(make_params()))
 # FIXME: AttributeError: 'NoneType' object has no attribute 'userId'
 def test_create_deputy_permission(
     create_ox_user,

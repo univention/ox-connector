@@ -25,6 +25,7 @@ variables:
   ENVIRONMENT_NAME: "${CI_COMMIT_REF_SLUG}/e2e-testrun-${DEPLOY_NAMESPACE}"
   NUBUS_HELM_BRANCH: "develop"
   NUBUS_CHART_VERSION: "*"
+  OX_CONNECTOR_READY_TIMEOUT: "5m"
 
 
 pipeline-configuration:
@@ -72,12 +73,14 @@ deploy-namespace:
 
     - echo "Creating namespace ${DEPLOY_NAMESPACE}"
     - kubectl create namespace "${DEPLOY_NAMESPACE}"
+  variables:
+    GIT_STRATEGY: none
 
 
 deploy-nubus-with-ox-connector:
   needs:
     - deploy-namespace
-  stage: "deploy"
+  stage: deploy
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
   script:
@@ -103,13 +106,265 @@ deploy-nubus-with-ox-connector:
     - helmfile -n "${DEPLOY_NAMESPACE}" sync
     - popd
 
+    - >
+      echo TESTS_UDM_ADMIN_PASSWORD=$(
+      kubectl get secret nubus-ldap-server-admin -n ${DEPLOY_NAMESPACE}
+      -o jsonpath='{.data.password}' | base64 -d
+      ) >> deploy.env
+  artifacts:
+    reports:
+      dotenv: deploy.env
   environment:
     name: ${ENVIRONMENT_NAME}
     url: https://${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
     on_stop: stop-deployment
-    auto_stop_in: 1 hours
     deployment_tier: development
   resource_group: gaia-${DEPLOY_NAMESPACE}
+
+
+wait-until-ready:
+  needs:
+    - deploy-nubus-with-ox-connector
+    - ox-lab-deploy
+  stage: deploy
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - echo "Waiting for the ox-connector Pod to become ready"
+    - >
+      kubectl -n "${DEPLOY_NAMESPACE}" rollout status --timeout="${OX_CONNECTOR_READY_TIMEOUT}"
+      statefulset -l "app.kubernetes.io/name=ox-connector"
+
+
+collect-k8s-skip-tests:
+  needs:
+    - wait-until-ready
+    # NOTE: Ensure that the artifacts are available, e.g. the admin password.
+    - deploy-nubus-with-ox-connector
+  stage: "deploy"
+  image: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
+  script:
+    - >
+      pytest --k8s --k8s-namespace="${DEPLOY_NAMESPACE}"
+      --collect-only
+      -m "k8s_skip"
+      tests
+  variables:
+    DOMAINNAME: review.univention.dev
+    OX_ENABLE_DEPUTY_PERMISSIONS: "true"
+    OX_SOAP_SERVER: https://${DEPLOY_SUBDOMAIN}-ox.review.univention.dev
+    OX_MASTER_ADMIN: stub-value
+    OX_MASTER_PASSWORD: stub-value
+    OX_SMTP_SERVER: stub-value
+    OX_IMAP_SERVER: imap://dovecot-ce:143
+    TESTS_UDM_ADMIN_USERNAME: cn=admin
+    STANDALONE_KUBERNETES_TESTS: "1"
+    LDAP_BASE: dc=univention-organization,dc=intranet
+    DEFAULT_CONTEXT: 10
+    PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+
+
+run-tests-k8s:
+  # Run the tests against the deployment through the Kubernetes API.
+  needs:
+    - wait-until-ready
+    # NOTE: Ensure that the artifacts are available, e.g. the admin password.
+    - deploy-nubus-with-ox-connector
+  stage: "deploy"
+  image: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
+  script:
+    - >
+      pytest --k8s --k8s-namespace="${DEPLOY_NAMESPACE}"
+      -vl --log-level=info
+      -m "not k8s_skip"
+      -k "not test_user_attribute_mapping"
+      tests
+  variables:
+    DOMAINNAME: review.univention.dev
+    OX_ENABLE_DEPUTY_PERMISSIONS: "true"
+    OX_SOAP_SERVER: https://${DEPLOY_SUBDOMAIN}-ox.review.univention.dev
+    OX_MASTER_ADMIN: stub-value
+    OX_MASTER_PASSWORD: stub-value
+    OX_SMTP_SERVER: stub-value
+    OX_IMAP_SERVER: imap://dovecot-ce:143
+    TESTS_UDM_ADMIN_USERNAME: cn=admin
+    STANDALONE_KUBERNETES_TESTS: "1"
+    LDAP_BASE: dc=univention-organization,dc=intranet
+    DEFAULT_CONTEXT: 10
+    PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+  allow_failure: true
+  rules:
+    - when: manual
+
+run-tests-prod:
+  needs:
+    - wait-until-ready
+    # NOTE: Ensure that the artifacts are available, e.g. the admin password.
+    - deploy-nubus-with-ox-connector
+  stage: "deploy"
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - echo "Patching ox-connector StatefulSet for test run"
+    - >
+      kubectl patch statefulset ox-connector \
+        -n ${DEPLOY_NAMESPACE} \
+        --type strategic \
+        -p '
+      spec:
+        template:
+          spec:
+            containers:
+            - name: main
+              securityContext:
+                readOnlyRootFilesystem: false
+                runAsUser: 0
+                runAsGroup: 0
+                runAsNonRoot: false
+                capabilities:
+                  drop: []
+              env:
+              - name: TESTS_UDM_ADMIN_USERNAME
+                value: "Administrator"
+              - name: TESTS_UDM_ADMIN_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: nubus-nubus-credentials
+                    key: administrator_password
+              - name: DOMAINNAME
+                value: "review.univention.dev"
+              - name: STANDALONE_KUBERNETES_TESTS
+                value: "1"
+              - name: LDAP_MASTER
+                value: "'${DEPLOY_NAMESPACE}'.portal.review.univention.dev"
+              - name: LDAP_BASE
+                value: "dc=univention-organization,dc=intranet"
+      '
+    - echo "Waiting for the ox-connector Pod to become ready after patch"
+    - >
+      kubectl -n "${DEPLOY_NAMESPACE}" rollout status --timeout=5m
+      statefulset -l "app.kubernetes.io/name=ox-connector"
+    - >
+      kubectl wait --for=condition=Ready pod -l "app.kubernetes.io/name=ox-connector"
+      -n "${DEPLOY_NAMESPACE}" --timeout="2m"
+    - |
+      kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
+      python3 -m pip install --break-system-packages \
+        pytest \
+        pytest-mock \
+        python-dateutil \
+        uritemplate \
+        kubernetes
+      mkdir -p /usr/local/share/ox-connector/resources/
+      EOT
+    - echo "Copying tests, pyproject.toml and share into ox-connector Pod"
+    - kubectl cp --no-preserve tests ox-connector-0:/ -n "${DEPLOY_NAMESPACE}"
+    - kubectl cp --no-preserve pyproject.toml ox-connector-0:/ -n "${DEPLOY_NAMESPACE}"
+    - kubectl cp --no-preserve share/ ox-connector-0:/usr/local/share/ox-connector/resources/ -n "${DEPLOY_NAMESPACE}"
+    - echo "Installing python packages inside ox-connector Pod"
+    - echo "Running tests inside ox-connector Pod"
+    - |
+      kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
+      pytest \
+        -vl \
+        -m "not k8s_skip" \
+        -k "not test_user_attribute_mapping" \
+        tests
+      EOT
+  variables:
+    DOMAINNAME: review.univention.dev
+    OX_ENABLE_DEPUTY_PERMISSIONS: "true"
+    OX_SOAP_SERVER: https://${DEPLOY_SUBDOMAIN}-ox.review.univention.dev
+    OX_MASTER_ADMIN: stub-value
+    OX_MASTER_PASSWORD: stub-value
+    OX_SMTP_SERVER: stub-value
+    OX_IMAP_SERVER: imap://dovecot-ce:143
+    TESTS_UDM_ADMIN_USERNAME: cn=admin
+    STANDALONE_KUBERNETES_TESTS: "1"
+    LDAP_BASE: dc=univention-organization,dc=intranet
+    DEFAULT_CONTEXT: 10
+    PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+  allow_failure: true
+  rules:
+    - when: manual
+
+run-tests-testimage:
+  needs:
+    - wait-until-ready
+    # NOTE: Ensure that the artifacts are available, e.g. the admin password.
+    - deploy-nubus-with-ox-connector
+  stage: "deploy"
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - echo "Patching ox-connector StatefulSet to use test image"
+    - >
+      kubectl patch statefulset ox-connector \
+        -n ${DEPLOY_NAMESPACE} \
+        --type strategic \
+        -p '
+      spec:
+        template:
+          spec:
+            containers:
+            - name: main
+              image: artifacts.software-univention.de/nubus-dev/images/ox-connector-standalone-test:'${RELEASE_VERSION}'
+              imagePullPolicy: Always
+              securityContext:
+                readOnlyRootFilesystem: false
+                runAsUser: 0
+                runAsGroup: 0
+                runAsNonRoot: false
+                capabilities:
+                  drop: []
+              env:
+              - name: TESTS_UDM_ADMIN_USERNAME
+                value: "Administrator"
+              - name: TESTS_UDM_ADMIN_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: nubus-nubus-credentials
+                    key: administrator_password
+              - name: DOMAINNAME
+                value: "review.univention.dev"
+              - name: STANDALONE_KUBERNETES_TESTS
+                value: "1"
+              - name: LDAP_MASTER
+                value: "'${DEPLOY_NAMESPACE}'.portal.review.univention.dev"
+              - name: LDAP_BASE
+                value: "dc=univention-organization,dc=intranet"
+      '
+    - echo "Waiting for the ox-connector Pod to become ready after patch"
+    - >
+      kubectl -n "${DEPLOY_NAMESPACE}" rollout status --timeout=5m
+      statefulset -l "app.kubernetes.io/name=ox-connector"
+    - echo "Running tests inside ox-connector test image using uv environment"
+    - |
+      kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
+      pushd test-env
+      uv run pytest \
+        -vl \
+        -m "not k8s_skip" \
+        -k "not test_user_attribute_mapping" \
+        tests
+      EOT
+  variables:
+    DOMAINNAME: review.univention.dev
+    OX_ENABLE_DEPUTY_PERMISSIONS: "true"
+    OX_SOAP_SERVER: https://${DEPLOY_SUBDOMAIN}-ox.review.univention.dev
+    OX_MASTER_ADMIN: stub-value
+    OX_MASTER_PASSWORD: stub-value
+    OX_SMTP_SERVER: stub-value
+    OX_IMAP_SERVER: imap://dovecot-ce:143
+    TESTS_UDM_ADMIN_USERNAME: cn=admin
+    STANDALONE_KUBERNETES_TESTS: "1"
+    LDAP_BASE: dc=univention-organization,dc=intranet
+    DEFAULT_CONTEXT: 10
+    PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+  rules:
+    - if: '$SKIP_TESTRUN == "yes"'
+      when: manual
+    - when: on_success
 
 
 stop-deployment:
@@ -117,6 +372,8 @@ stop-deployment:
   allow_failure: true
   needs:
     - deploy-nubus-with-ox-connector
+    - ox-lab-deploy
+    - run-tests-testimage
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
   script:
@@ -131,9 +388,15 @@ stop-deployment:
     name: ${ENVIRONMENT_NAME}
     action: stop
   rules:
-    - when: manual
+    - if: '$SKIP_CLEANUP == "yes"'
+      when: manual
+    - if: '$SKIP_TESTRUN == "yes"'
+      when: manual
+    - when: on_success
 
 cleanup-failed-deployment:
   extends: stop-deployment
   rules:
+    - if: '$SKIP_CLEANUP == "yes"'
+      when: manual
     - when: on_failure

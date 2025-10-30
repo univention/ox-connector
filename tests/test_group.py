@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
+import pytest
+
 from univention.ox.soap.backend_base import get_ox_integration_class
 
 
@@ -109,6 +111,7 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     assert len(obj.members) == 1
 
 
+@pytest.mark.k8s_skip(reason="Needs further investigation")
 def test_change_context_for_group_multi_user(
     create_ox_context,
     create_ox_user,
@@ -138,6 +141,7 @@ def test_change_context_for_group_multi_user(
     assert len(find_obj(new_context_id, new_group_name).members) == 2
 
 
+@pytest.mark.k8s_skip(reason="Needs further investigation")
 def test_change_context_for_group_user(
     create_ox_context,
     create_ox_user,

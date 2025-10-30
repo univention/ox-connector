@@ -6,7 +6,6 @@ import random
 import string
 import json
 
-# Typing imports removed - not used in runtime code
 
 DEFAULT_IMAP_SERVER = os.environ.get("OX_IMAP_SERVER", "imap://localhost:143")
 DEFAULT_SMTP_SERVER = os.environ.get("OX_SMTP_SERVER", "smtp://localhost:587")

@@ -15,7 +15,7 @@ import setuptools
 dir_here = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(dir_here, "requirements.txt")) as fp:
     requirements = fp.read().splitlines()
-version = os.environ["OX_PROVISIONING_VERSION"]
+version = os.environ.get("OX_PROVISIONING_VERSION", "0.0.1.dev0")
 
 setuptools.setup(
     name="univention-ox-provisioning",

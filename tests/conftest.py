@@ -1,64 +1,169 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
+import logging
 import os
-import time
+import warnings
 from pathlib import Path
 
 import pytest
 
-from udm_rest import UDM
-
 from univention.ox.soap.config import _CREDENTIALS
-from univention.ox.provisioning.helpers import normalized_dn
+
+from udm_rest import UDM
+from utils import FileUtility, FileLogs, SubprocessRunner
 
 TEST_LOG_FILE = Path("/tmp/test.log")
 
+log = logging.getLogger(__name__)
+
+
+def pytest_addoption(parser):
+    k8s_group = parser.getgroup("k8s", "Kubernetes related options")
+    k8s_group.addoption(
+        "--k8s",
+        action="store_true",
+        default=False,
+        help="Enable Kubernetes-backed fixtures",
+    )
+    k8s_group.addoption(
+        "--k8s-namespace",
+        default=None,
+        help="Override the kubeconfig default namespace",
+    )
+    k8s_group.addoption(
+        "--k8s-logs-poll",
+        action="store_true",
+        default=False,
+        help="Use polling for Kubernetes logs instead of streaming (workaround for fsnotify limits)",
+    )
+    parser.addoption(
+        "--timeout",
+        default=60,
+        type=float,
+        help="Timeout in seconds for the listener / consumer to process the changes. Defaults to 60 seconds.",
+    )
+
 
 @pytest.fixture(scope="session")
-def truncate_wait_for_listener_log():
-    def _func():
-        with TEST_LOG_FILE.open("w"):
-            pass
+def file_utility(session_mocker, k8s_enabled, request):
+    """
+    File utility fixture.
 
-        TEST_LOG_FILE.chmod(0o666)
+    Use like:
+        with file_utility.open(path) as fp:
+            content = fp.read()
+    """
 
-    yield _func
+    if not k8s_enabled:
+        return FileUtility()
 
-    TEST_LOG_FILE.unlink(missing_ok=True)
+    deployment = request.getfixturevalue("k8s_ox_connector")
+    from k8s_support import KubernetesFileUtility
+
+    k8s_file_utility = KubernetesFileUtility(deployment)
+    # NOTE: Some modules try to read files directly from the file system. Those
+    # have to be mocked when running against a remote instance in Kubernetes.
+    session_mocker.patch(
+        'univention.ox.provisioning.accessprofiles.open',
+        k8s_file_utility.open,
+    )
+
+    return k8s_file_utility
+
+
+@pytest.fixture(scope="session")
+def log_utility_session(k8s_enabled, request, pytestconfig):
+    """
+    Session-scoped log utility fixture.
+
+    This fixture is mainly a supporting fixture for `log_utility`. In test
+    cases typically the usage of `log_utility` is the right thing to do.
+
+    The fixture is an instance of `BaseLogs`.
+    """
+    timeout = pytestconfig.getoption("--timeout")
+    if not k8s_enabled:
+        return FileLogs(timeout=timeout)
+
+    deployment = request.getfixturevalue("k8s_ox_connector")
+    from k8s_support import KubernetesLogs
+
+    use_polling = pytestconfig.getoption("--k8s-logs-poll")
+    return KubernetesLogs(deployment, use_polling=use_polling, timeout=timeout)
 
 
 @pytest.fixture
-def wait_for_listener(truncate_wait_for_listener_log):
-    truncate_wait_for_listener_log()  # truncate before starting the test
+def log_utility(log_utility_session):
+    """
+    Function-scoped log utility fixture.
 
-    def _wait_for_dn(dn: str, timeout=60.0) -> None:
-        dn = normalized_dn(dn)
-        start_time = time.time()
-        with TEST_LOG_FILE.open("r") as fp:
-            pos = fp.tell()
-            while True:
-                txt = fp.read()
-                time_passed = time.time() - start_time
-                if dn in txt:
-                    print(
-                        f"Listener_trigger finished handling {dn} after {time_passed:.1f} seconds.",
-                    )
-                    # truncate, so this function can be used multiple times in the same test
-                    truncate_wait_for_listener_log()
-                    break
-                if time_passed >= timeout:
-                    pytest.fail(
-                        f"Listener_trigger did NOT handle {dn} for {timeout:.1f} seconds.",
-                    )
-                    break
-                pos_new = fp.tell()
-                if pos == pos_new:
-                    time.sleep(0.1)
-                pos = pos_new
-        time.sleep(1)
+    Provides a fresh log utility instance for each test by resetting the session-scoped
+    log utility. Use this fixture to wait for log entries and manage log state in tests.
 
-    return _wait_for_dn
+    Example:
+        def test_something(log_utility):
+            # Wait for a specific log entry
+            log_utility.expect_log("some text", timeout=30.0)
+
+            # Reset logs manually if needed
+            log_utility.reset()
+
+    Returns:
+        BaseLogs: Log utility instance for the current test.
+    """
+    log_utility_session.reset()
+    return log_utility_session
+
+
+@pytest.fixture
+def run_command(pytestconfig, k8s_enabled, request):
+    """
+    Fixture which supports running a command either locally or via the Kubernetes API.
+    """
+    if not k8s_enabled:
+        return SubprocessRunner()
+
+    from k8s_support import KubernetesRunner
+
+    deployment = request.getfixturevalue("k8s_ox_connector")
+    return KubernetesRunner(deployment)
+
+
+@pytest.fixture(scope="session")
+def truncate_wait_for_listener_log(log_utility_session):
+    """
+    Legacy fixture for log management.
+
+    .. deprecated::
+
+       Use `log_utility_session` fixture instead for better log handling capabilities.
+    """
+    warnings.warn(
+        "truncate_wait_for_listener_log is deprecated. Use log_utility_session fixture instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    yield log_utility_session.reset
+    log_utility_session.cleanup()
+
+
+@pytest.fixture
+def wait_for_listener(log_utility):
+    """
+    Legacy fixture for waiting for listener log entries.
+
+    .. deprecated::
+
+       Use `log_utility` fixture instead. Call `log_utility.expect_log` directly.
+    """
+    warnings.warn(
+        "wait_for_listener is deprecated. Use log_utility fixture instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    return log_utility.expect_dn
 
 
 def _new_id(cache):
@@ -339,3 +444,50 @@ def create_ox_group(udm, wait_for_listener, default_ox_context):
         return dn
 
     return _func
+
+
+@pytest.fixture(scope="session")
+def k8s(pytestconfig):
+    """
+    Session-scoped fixture that returns a Kubernetes helper object.
+    """
+    from k8s_support import KubernetesCluster, discover_namespace
+
+    ns = pytestconfig.getoption("--k8s-namespace") or discover_namespace()
+    return KubernetesCluster(namespace=ns)
+
+
+@pytest.fixture(scope="session")
+def k8s_enabled(pytestconfig):
+    """
+    Boolean fixture that reflects the --k8s CLI option for convenience.
+    """
+    return pytestconfig.getoption("--k8s")
+
+
+@pytest.fixture(scope="session")
+def k8s_ox_connector(k8s_enabled, request):
+    """
+    Returning an OxConnectorDeployment when Kubernetes is enabled.
+    """
+    if not k8s_enabled:
+        return None
+    k8s = request.getfixturevalue("k8s")
+    from k8s_support import OxConnectorDeployment
+
+    return OxConnectorDeployment(k8s)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def k8s_patch_ox_credentials_reader(session_mocker, request, k8s_enabled):
+    if not k8s_enabled:
+        return
+
+    from k8s_support import K8sOXCredentialsReader
+
+    deployment = request.getfixturevalue("k8s_ox_connector")
+    reader = K8sOXCredentialsReader(deployment)
+    log.info(
+        "Patching univention.ox.soap.config._get_credentials to read from the Kubernetes Pod.",
+    )
+    session_mocker.patch("univention.ox.soap.config._get_credentials", reader)

@@ -215,21 +215,39 @@ CMD ["/usr/bin/python3", "/consumer.py"]
 # A separate stage for tests
 FROM final AS test
 
-COPY --from=ox-connector /usr/lib/python3.9/site-packages/pytest/ ${PYPKG}/pytest/
-COPY --from=ox-connector /usr/lib/python3.9/site-packages/_pytest/ ${PYPKG}/_pytest/
-COPY --from=ox-connector /usr/lib/python3.9/site-packages/pluggy/ ${PYPKG}/pluggy/
-COPY --from=ox-connector /usr/lib/python3.9/importlib/ ${PYPKG}/importlib/
+COPY --from=ghcr.io/astral-sh/uv:0.9.3@sha256:ecfea7316b266ba82a5e9efb052339ca410dd774dc01e134a30890e6b85c7cd1 /uv /usr/local/bin/uv
 
-COPY tests /tests
-
+# NOTE: Needed for the ldap dependency which is being compiled.
+# hadolint ignore=DL3008
 RUN DEBIAN_FRONTEND=noninteractive \
   apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-  procps \
-  python3-pygments \
-  python3-pip && \
-  pip3 install --break-system-packages --no-cache-dir \
-  uritemplate==4.1.1 \
-  iniconfig==2.0.0 \
-  exceptiongroup==1.1.3 \
-  py==1.11.0 \
-  importlib-metadata==6.7.0
+    gcc \
+    libldap2-dev \
+    libsasl2-dev \
+    libssl-dev \
+    make \
+    python3-dev
+
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PYTHON=python3.11 \
+    PATH=/test-env/.venv/bin:$PATH
+
+COPY ./univention-ox-provisioning /test-env/univention-ox-provisioning
+COPY ./univention-ox-soap-api /test-env/univention-ox-soap-api
+COPY ./tests /test-env/tests
+COPY ./uv.lock /test-env/uv.lock
+COPY ./pyproject.toml /test-env/pyproject.toml
+
+WORKDIR /test-env
+
+RUN --mount=type=cache,target=/root/.cache \
+    uv sync \
+    --locked \
+    --no-install-project && \
+    uv export -o ./requirements.txt
+
+RUN uv sync --locked --no-editable
+
+WORKDIR /

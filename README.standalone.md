@@ -1,6 +1,6 @@
 # Nubus provisioning
 
-This document describes the process to QA the `ox-connector` in an openDesk
+This document describes the process to QA the `ox-connector` in a Kubernetes
 environment.
 
 ## Helm
@@ -10,10 +10,42 @@ environment.
 You can run the helm unittests with the following command:
 
 ```sh
-docker compose -f helm/docker-compose.yaml run --rm test`
+docker compose -f helm/docker-compose.yaml run --rm test
 ```
 
-## Start an openDesk environment
+## Test via Nubus and OX Lab deployment
+
+The testing is fully automated within the pipeline in the following files:
+
+- [`./.gitlab-ci/deploy-and-test.yaml`](./.gitlab-ci/deploy-and-test.yaml)
+- [`./.gitlab-ci/deploy-ox-lab.yaml`](./.gitlab-ci/deploy-ox-lab.yaml)
+
+The pipeline supports a variable `SKIP_TESTRUN` so that it can be used to create
+a deployment.
+
+The tests can run in three different ways:
+
+- In the production image.
+
+  This requires modifications of the *StatefulSet* and also copying the tests
+  into the container.
+
+- In the test image.
+
+  This requires modifications of the *StatefulSet*.
+
+  Tests are included in the image already. In case you changed the tests, then
+  they have to be copied into the container if you want to run them this way.
+
+- Via the Kubernetes API.
+
+  This allows to run against an unmodified production setup. We have seen some
+  instabilities in this approach. It works well for running only some tests, but
+  it does not deliver stable results when running the full test suite.
+
+  Pytest has to be run with the parameter `--k8s` in this case.
+
+## Test via openDesk deployment
 
 This process is expected to be run before releasing a new version. See the
 current tests status at the bottom of this file to compare your test run. It is
@@ -69,60 +101,40 @@ It is also recommended to set the pyest dir to a writeabke location, for example
 
 ## Tests status
 
-FYI: Executing the test as explained before, leads to some leftovers in the system, as users/ id ,etc.
-It's higly recomended to execute them in a fresh deployment.
+All tests which need tweaking for Kubernetes have been marked with the marker
+`k8s_skip`. They are by default deselected based on the condition `-m "not
+k8s_skip"`.
 
-Currently known to fail tests are:
+The current status can be inspected in the output of the job
+`collect-k8s-skip-tests` and locally with the following command:
 
-### test_accessprofile ✅
-
-### test/test_cache ❌
 ```
-tests/test_cache.py::test_missing_user_cache_entry_gets_reloaded_during_group_creation
-```
-> This test is failing due to a non normalized DNs in k8s. This should be address in a future ticket.
-
-The k8s cache implementation is different from the one used in the Appcenter version.
-While the Appcenter uses SQLite, we store
-the whole object as value in a KeyValueStore.
-
-The tests can be run with `STANDALONE_KUBERNETES_TESTS=1` to use the correct caching
-but for the `tests/test_cache.py::test_create_group_with_user_not_in_cache` test to succeed
-the `consumer.py` must also be started with `DEBUG_RELOAD_OX_DB_ID=1` to allow manipulating the
-cache from outside.
-
-### test/test_context ✅
-
-### test/test_function_account ✅
-
-### test/test_functional_account_setting ❌
-```
-FAILED tests/test_functional_account_setting.py::test_functional_account_default_container - udm_rest.UnprocessableEntity: PUT https://portal.uv-jconde.opendesk.site/univention/udm/settings/directory/cn%3Ddefault%20containers%2Ccn%3Dunivention%2Cdc%3Dswp-ldap%2Cdc%3Dinternal: 422
-1 error(s) occurred:
-Request argument "ox_functional_accounts" The Preferences: Default Container module has no property ox_functional_accounts.
+pytest --k8s --collect-only -m k8s_skip tests
 ```
 
-### test/test_group ❌
-```
-FAILED tests/test_group.py::test_change_context_for_group_multi_user - Failed: Listener_trigger did NOT handle cn=group304,cn=groups,dc=swp-ldap,dc=internal for 60.0 seconds.
-FAILED tests/test_group.py::test_change_context_for_group_user - Failed: Listener_trigger did NOT handle cn=group311,cn=groups,dc=swp-ldap,dc=internal for 60.0 seconds.
-```
+This does require a deployment currently because the `test_deputy_permission.py`
+module does initialize the OX SOAP client during collection already.
 
-> For some reason, the wait_for_listener is timing out when listening for the group changes.
-> Maybe a missmatch in strings, not sure.
+### Status as of 2025-10-30
 
-### tests/test_resource ❌
-```
-tests/test_resource.py::test_unset_all_attributes_resource
-```
-> This test is failing due to a non normalized DNs in k8s. This should be address in a future ticket.
+The following test cases are currently known to fail and marked with `k8s_skip`:
 
-
-### tests/test_user ❌
 ```
-FAILED tests/test_user.py::test_modify_context_admin[True] - FileNotFoundError: [Errno 2] No such file or directory: 'update-ox-db-cache'
+<Dir connector>
+  <Dir tests>
+    <Module test_cache.py>
+      <Function test_missing_user_cache_entry_gets_reloaded_during_group_creation>
+    <Module test_deputy_permission.py>
+      <Function test_create_deputy_permission[00000-00000-True]>
+      <Function test_create_deputy_permission[00000-00000-False]>
+    <Module test_functional_account_setting.py>
+      <Function test_functional_account_default_container>
+    <Module test_group.py>
+      <Function test_change_context_for_group_multi_user>
+      <Function test_change_context_for_group_user>
+    <Module test_resource.py>
+      <Function test_unset_all_attributes_resource>
+    <Module test_user.py>
+      <Function test_modify_context_admin[False]>
+      <Function test_modify_context_admin[True]>
 ```
-
-### tests/test_user_attribute_mapping ❌
-All the tests are failing, since we do not support custom mappings.
-> We do not ship nor support the file `/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json`

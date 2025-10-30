@@ -3,18 +3,17 @@
 
 import json
 import os
-import subprocess
 import typing
 import uuid
 from random import randrange
 from datetime import timedelta, datetime
-
 
 import pytest
 from univention.ox.provisioning.default_user_mapping import (
     DEFAULT_USER_MAPPING,
 )
 from univention.ox.soap.backend_base import User, get_ox_integration_class
+
 
 T = typing.TypeVar("T")
 
@@ -543,6 +542,7 @@ def test_unset_set_mapping(
     domainname,
     user_test,
     wait_for_listener,
+    run_command,
 ):
     """
     Unsetting an OX property from the mapping should prevent the synchronization.
@@ -566,7 +566,7 @@ def test_unset_set_mapping(
     assert soap_value is not None
 
     # Check that after unsetting the mapping the value is None
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",
@@ -586,7 +586,7 @@ def test_unset_set_mapping(
     soap_value = getattr(obj, user_test.soap_name)
     assert soap_value is None
 
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",
@@ -618,8 +618,9 @@ def test_change_mapping(
     udm,
     domainname,
     wait_for_listener,
+    run_command,
 ):
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",
@@ -647,7 +648,7 @@ def test_change_mapping(
     obj = find_obj(new_context_id, new_user_name)
     assert obj.userfield01 == description
 
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",
@@ -671,7 +672,7 @@ def test_change_mapping(
     obj = find_obj(new_context_id, new_user_name)
     assert obj.userfield01 == description2
 
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",
@@ -691,8 +692,9 @@ def test_use_alternative(
     udm,
     domainname,
     wait_for_listener,
+    run_command,
 ):
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",
@@ -735,7 +737,7 @@ def test_use_alternative(
     obj = find_obj(new_context_id, new_user_name)
     assert obj.email1 == new_mail_address2
 
-    subprocess.run(
+    run_command.run(
         [
             "python3",
             "/usr/local/share/ox-connector/resources/change_attribute_mapping.py",

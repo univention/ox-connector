@@ -41,6 +41,21 @@ variables:
     options:
       - "yes"
       - "no"
+  SKIP_TESTRUN:
+    description: |
+      Allows to skip the testrun itself, so that the pipeline can be used to
+      create a deployment only.
+    value: "no"
+    options:
+      - "yes"
+      - "no"
+  SKIP_CLEANUP:
+    description: |
+      Skips the automatic cleanup after the testrun.
+    value: "no"
+    options:
+      - "yes"
+      - "no"
   DEPLOY_NAMESPACE:
     description: "The namespace to deploy into."
     value: "ci-ox-con-${CI_COMMIT_REF_SLUG}"

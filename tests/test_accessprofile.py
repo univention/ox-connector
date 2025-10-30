@@ -90,6 +90,7 @@ def test_every_one_right_access_profile(
     domainname,
     right,
     right_soap,
+    file_utility,
 ):
     """
     Create a right object for every right and test existance.
@@ -99,7 +100,7 @@ def test_every_one_right_access_profile(
     dn = create_obj(udm, ox_access, right)
     wait_for_listener(dn)
     fname = "/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties"
-    with open(fname) as fd:
+    with file_utility.open(fname) as fd:
         content = fd.read()
         assert f"{ox_access}={right}\n" in content
     get_access_profiles(force_reload=True)
@@ -129,7 +130,7 @@ def test_every_one_right_access_profile(
     wait_for_listener(dn)
     get_access_profiles(force_reload=True)
     assert get_access_profile(ox_access) is None
-    with open(fname) as fd:
+    with file_utility.open(fname) as fd:
         content = fd.read()
         assert f"{ox_access}={right}\n" not in content
 
@@ -168,6 +169,7 @@ def test_accessprofile_with_special_characters(
     wait_for_listener,
     domainname,
     special_character,
+    file_utility,
 ):
     """
     Create an access profile with special characters and test existance.
@@ -177,7 +179,7 @@ def test_accessprofile_with_special_characters(
     dn = create_obj(udm, ox_access, "usm")
     wait_for_listener(dn)
     fname = "/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties"
-    with open(fname) as fd:
+    with file_utility.open(fname) as fd:
         content = fd.read()
         assert f"{ox_access}=usm\n" in content
     get_access_profiles(force_reload=True)
@@ -207,6 +209,6 @@ def test_accessprofile_with_special_characters(
     wait_for_listener(dn)
     get_access_profiles(force_reload=True)
     assert get_access_profile(ox_access) is None
-    with open(fname) as fd:
+    with file_utility.open(fname) as fd:
         content = fd.read()
         assert f"{ox_access}=usm\n" not in content

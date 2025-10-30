@@ -56,7 +56,22 @@ To summarize:
  * The script exits on the first failed SOAP call. It can repeat processing the JSON file after 5 seconds because it runs again
  * Proper Queue Management is not yet implemented. But you may do `rm /var/lib/univention-appcenter/apps/ox-connector/listener/$broken.json` at any time
 
-## Setup (Dev and QA)
+## QA checklist
+
+The OX Connector app does exist in two flavors:
+
+- The UCS Appcenter version.
+- The "standalone" version which is used in Nubus for Kubernetes.
+
+Every change needs a testrun in both flavors to ensure that there is no
+accidental breakage of the respective other version:
+
+- The UCS Appcenter path can be tested based on Jenkins. See the "Release"
+  section regarding further details.
+- The "standalone" path can be tested via the manual Job `deploy-and-test` on
+  any MR.
+
+## Setup (Dev and QA) for UCS
 
 The whole point is to decouple OX and the integration. Yet, we want to run against a real OX.
 
@@ -231,6 +246,7 @@ Please copy this block to your release issue:
   - pre-condition is to start the `trigger-docs` pipeline job!
   - and the `docs-merge-to-one-artifact`, this jobs create a MR in the docs.univention.de repo, go to this merge request and set automerge to false
   - **TODO: improve the pipeline so that we can run upload-docker-image before docs-merge-to-one-artifact**
+- [ ] Run the Pipeline job `deploy-and-test` and ensure that the standalone version is not broken.
 - [ ] Run the product tests -> https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/ and `COMPONENT_VERSION=testing`
 - [ ] Documentation
   - [ ] Update the symlink `latest` the new version in the
@@ -275,12 +291,25 @@ and a `ssl` folder. All of them are needed for development on this repository.
 
 Three scenarios must be tested:
 
-1. OX connector and OX installed in k8s (SouvWP).
+1. OX connector and OX installed in Kubernetes.
+
+   This is supported by the CI pipeline job `deploy-and-test` which deploys into
+   the *Gaia* cluster and runs the tests against this deployment.
+
+   More details are in [`README.standalone.md`](/README.standalone.md).
+
 2. OX connector and OX installed both in UCS by the apps `ox-connector` and `oxseforucs`.
+
+   This is supported by a Jenkins job which installs the OX connector (using app
+   `ox-connector`) and OX (using app `oxseforucs`) on the same UCS primary:
+   <https://jenkins2022.knut.univention.de/job/UCS-5.2/job/UCS-5.2-3/view/all/job/product-test-component-ox-connector/>
+
 3. OX connector installed in UCS by the app `ox-connector` and OX separately (platform irrelevant).
 
-The test suite found in the `tests` directory can be executed in each environment using the following services:
-
-1. Deployment on our `gaia` k8s cluster and manually run tests using `tilt up` on this repository. Detailed instructions can be found on [`README.standalone.md`](/README.standalone.md)
-2. Jenkins job that installs the OX connector (using app `ox-connector`) and OX (using app `oxseforucs`) on the same UCS primary: https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-appsuite/ (replace `5.0-4` with the current stable UCS release).
-3. Jenkins job that installs the OX connector app (using app `ox-connector`) on a UCS primary and OX on a Debian Buster system (another UCS primary, not joined to the 1st), using `apt-get` from OX' original repo, exactly how the OX documentation describes it. The UCS integration (`oxseforucs`) is _not_ used.: https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-connector/ (replace `5.0-4` with the current stable UCS release).
+   Jenkins job that installs the OX connector app (using app `ox-connector`) on
+   a UCS primary and OX on a Debian Buster system (another UCS primary, not
+   joined to the 1st), using `apt-get` from OX' original repo, exactly how the
+   OX documentation describes it. The UCS integration (`oxseforucs`) is _not_
+   used.:
+   https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-4/view/all/job/product-test-component-ox-connector/
+   (replace `5.0-4` with the current stable UCS release).

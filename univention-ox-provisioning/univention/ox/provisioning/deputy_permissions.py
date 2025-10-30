@@ -68,7 +68,7 @@ def get_permission_representation_from_oxDeputyPermissionGivenTo(
     """UDM: ["user01", "02400", "02400", ""]
     -> SOAP {userId: int, sendOnBehalfOf: bool, modulePermissions: list}
     """
-    sendOnBehalfOf = permission[3] == "1"
+    sendOnBehalfOf = permission[3] in ["1", True]
     mail = permission[1]
     calendar = permission[2]
     mailPermission = {

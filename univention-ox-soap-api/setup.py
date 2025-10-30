@@ -15,17 +15,19 @@ UNIVENTION_OX_SOAP_API_ROOT = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(UNIVENTION_OX_SOAP_API_ROOT, "requirements.txt")) as fp:
     requirements = fp.read().splitlines()
 
-os.chdir("modules")  # to find 'modules'
+packages = ["univention.ox.soap"]
+package_dir = {"": "modules"}
 
 setuptools.setup(
     name="univention-ox-soap-api",
-    version=os.environ["OX_PROVISIONING_VERSION"],
+    version=os.environ.get("OX_PROVISIONING_VERSION", "0.0.1.dev0"),
     author="Univention GmbH",
     author_email="packages@univention.de",
     description="Library to access OX' SOAP API",
     url="https://www.univention.de/",
     install_requires=requirements,
-    packages=["univention.ox.soap"],
+    packages=packages,
+    package_dir=package_dir,
     license="GNU Affero General Public License v3",
     classifiers=[
         "Development Status :: 4 - Beta",
