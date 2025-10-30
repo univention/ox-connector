@@ -17,31 +17,30 @@ Then the ox-lab chart is also using the latest version, this is the main cause t
 This requires 3 more options to be configured on the script:
 
 ```
-    com.openexchange.deputy.provider.imap.doveadm.personalNamespace: "inbox/"
-    com.openexchange.deputy.provider.imap.doveadm.sharedNamespace: "shared/"
-    com.openexchange.deputy.provider.imap.doveadm.publicNamespace: "shared/"
+        com.openexchange.dovecot.doveadm.enabled: "true"
+        com.openexchange.dovecot.doveadm.endpoints: "http://dovecot-ce:8080/doveadm/v1"
+        com.openexchange.dovecot.doveadm.endpoints.totalConnections: "100"
+        com.openexchange.dovecot.doveadm.endpoints.maxConnectionsPerRoute: "0"
+        com.openexchange.dovecot.doveadm.endpoints.readTimeout: "20000"
+        com.openexchange.dovecot.doveadm.endpoints.connectTimeout: "5000"
+        com.openexchange.dovecot.doveadm.apiSecret: "value-will-be-replaced"
+        com.openexchange.deputy.provider.imap.doveadm.personalNamespace: "/"
+        com.openexchange.deputy.provider.imap.doveadm.sharedNamespace: "shared/"
+        com.openexchange.deputy.provider.imap.doveadm.publicNamespace: "shared/"
 ```
 
 This configuration specify where are the namespace to look for the users inboxes.
 After applying all the suggested changes, the test suite for the UCS jenkins job should work again.
 
 # Nubus for k8s + ox
-In this case, there was a small adjustment on the chart level. As we were missing an env var to enable the deputy permissions.
 
-I use the recently developed CI pipeline that does a similar deployment to the Jenkins job. We also had to adjust the custom values. Which we can't right now with the current implementation.
-
-After discussing possible alternatives with @jbornhold we decide to add and extra step in the pipeline that customize the generated chart by ox-lab.
-
-These are the changes that were needed on the mirrored ox-lab repo.
-https://git.knut.univention.de/univention/dev/projects/open-xchange/ox-operations-guide-mirror/-/merge_requests/1/diffs
-
-This will need an update after the new pipeline step is done.
+Using the manual pipeline `deploy-and-test` will test the deputy permission on the K8s deployment.
 
 # OpenDesk
 
-Similar to the explained on the previous section, some configuration adjustment are required on the ox deployment level and on the dovecot level. The last part can be trickier as they use a custom made chart.
+Some configuration adjustment are required on the ox appsuite deployment level and on the dovecot level.
 
-I don't know how they can configure the dovadm rest api there.
+I don't know how they can configure the doveadm rest api there.
 
 
 Useful links:
