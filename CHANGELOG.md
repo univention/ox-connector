@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.1...v0.32.2) (2025-10-30)
+
+
+### Bug Fixes
+
+* trigger release and update DEPUTY_PERMISSION.md ([8178a12](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/8178a12816984bb24aa0bb4f9f32b6c4c8a54e06)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+
 ## [0.32.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.0...v0.32.1) (2025-10-29)
 
 
