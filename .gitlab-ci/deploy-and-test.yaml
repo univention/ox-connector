@@ -326,8 +326,7 @@ run-tests-testimage:
                 runAsUser: 0
                 runAsGroup: 0
                 runAsNonRoot: false
-                capabilities:
-                  drop: []
+                capabilities: null
               env:
               - name: TESTS_UDM_ADMIN_USERNAME
                 value: "Administrator"

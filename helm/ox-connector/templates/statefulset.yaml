@@ -59,7 +59,17 @@ spec:
               mountPath: /scripts
           resources:
             {{- toYaml .Values.resourcesWaitForDependency | nindent 12 }}
-
+        - name: migrate-database
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command: [ "/usr/bin/python3", "/migrate.py" ]
+          image: "{{ coalesce .Values.oxConnector.image.registry .Values.global.imageRegistry }}/{{ .Values.oxConnector.image.repository }}:{{ .Values.oxConnector.image.tag }}"
+          imagePullPolicy: {{ coalesce .Values.oxConnector.image.pullPolicy .Values.global.imagePullPolicy | quote }}
+          volumeMounts:
+            - name: {{ include "common.names.fullname" . }}-appcenter
+              mountPath: /var/lib/univention-appcenter/apps/ox-connector
+          resources:
+            {{- toYaml .Values.resourcesWaitForDependency | nindent 12 }}
       containers:
         - name: "main"
           securityContext:

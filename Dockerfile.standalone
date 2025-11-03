@@ -228,11 +228,13 @@ RUN DEBIAN_FRONTEND=noninteractive \
     make \
     python3-dev
 
+# Set PYTHONPATH to allow importing from migrate.py for tests
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_DOWNLOADS=never \
     UV_PYTHON=python3.11 \
-    PATH=/test-env/.venv/bin:$PATH
+    PATH=/test-env/.venv/bin:$PATH \
+    PYTHONPATH="/:$PYTHONPATH"
 
 COPY ./univention-ox-provisioning /test-env/univention-ox-provisioning
 COPY ./univention-ox-soap-api /test-env/univention-ox-soap-api

@@ -116,10 +116,33 @@ def _get_existing_object_ox_id(distinguished_name: str):
     if os.environ.get("DEBUG_RELOAD_OX_DB_ID"):
         ox_db_id = KeyValueStore(str(NEW_FILES_DIR / "ox_db_id.db"))
 
-    object_ox_id = ox_contexts.get(distinguished_name)
-    object_ox_db_id = ox_db_id.get(distinguished_name)
-    object_ox_db_uid = usernames.get(distinguished_name)
-    is_ox_object = non_ox_objs.get(distinguished_name) is None
+    if distinguished_name is None:
+        logger.error(
+            "Distinguished name is None -> return None object",
+        )
+        fake_obj = FakeObject(
+            {
+                "oxContext": None,
+                "oxDbId": None,
+                "username": None,
+            },
+        )
+        return fake_obj
+
+    normalized_dn = helpers.normalized_dn(distinguished_name)
+    if normalized_dn != distinguished_name:
+        logger.info(
+            f"Searching for {normalized_dn} instead of {distinguished_name}!",
+        )
+    else:
+        logger.info(
+            f"Searching for {normalized_dn}!",
+        )
+
+    object_ox_id = ox_contexts.get(normalized_dn)
+    object_ox_db_id = ox_db_id.get(normalized_dn)
+    object_ox_db_uid = usernames.get(normalized_dn)
+    is_ox_object = non_ox_objs.get(normalized_dn) is None
 
     if (
         object_ox_db_id is None
@@ -128,7 +151,7 @@ def _get_existing_object_ox_id(distinguished_name: str):
     ):
         if is_ox_object:
             logger.info(
-                f"User {distinguished_name} not found in cache, searching it now",
+                f"Object {normalized_dn} not found in cache, searching it now in OX unnormalized {distinguished_name}",
             )
             object_ox_id, object_ox_db_id, object_ox_db_uid = (
                 _search_ox_context_for_user(distinguished_name)
@@ -139,10 +162,10 @@ def _get_existing_object_ox_id(distinguished_name: str):
                 and object_ox_db_id is not None
                 and object_ox_db_uid is not None
             ):
-                ox_contexts.set(distinguished_name, object_ox_id)
-                ox_db_id.set(distinguished_name, object_ox_db_id)
-                usernames.set(distinguished_name, object_ox_db_uid)
-                non_ox_objs.unset(distinguished_name)
+                ox_contexts.set(normalized_dn, object_ox_id)
+                ox_db_id.set(normalized_dn, object_ox_db_id)
+                usernames.set(normalized_dn, object_ox_db_uid)
+                non_ox_objs.unset(normalized_dn)
 
                 ox_contexts.commit()
                 ox_db_id.commit()
@@ -151,12 +174,12 @@ def _get_existing_object_ox_id(distinguished_name: str):
                 logger.info(
                     "User not found in OX, assuming it is a non OX-User",
                 )
-                non_ox_objs.set(distinguished_name, 1)
+                non_ox_objs.set(normalized_dn, 1)
 
             non_ox_objs.commit()
         else:
             logger.info(
-                f"User {distinguished_name} is a non OX user, ignoring it",
+                f"User {normalized_dn} is a non OX user, ignoring it",
             )
 
     logger.info("Loading object OX ID from known objects")
@@ -229,6 +252,11 @@ class OXConsumer:
 
         new_obj = body.new
         old_obj = body.old
+
+        if "dn" in new_obj:
+            new_obj["dn"] = helpers.normalized_dn(new_obj.get("dn"))
+        if old_obj and "dn" in old_obj:
+            old_obj["dn"] = helpers.normalized_dn(old_obj.get("dn"))
 
         if old_obj and new_obj:
             if old_obj.get("properties").get("isOxUser") != new_obj.get(

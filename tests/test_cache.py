@@ -9,6 +9,9 @@ import logging
 from contextlib import contextmanager
 from pathlib import Path
 
+from migrate import db_version_key, migrate_db
+
+from univention.ox.provisioning.helpers import normalized_dn
 from univention.ox.provisioning.users import User
 from univention.ox.provisioning.groups import Group
 
@@ -38,6 +41,9 @@ class KeyValueStore(object):
                 value,
             ).encode()
 
+    def commit(self):
+        pass
+
 
 @pytest.fixture
 def ox_mapping(file_utility):
@@ -46,6 +52,16 @@ def ox_mapping(file_utility):
         'id_mapping': KeyValueStore("ox_db_id.db", file_utility),
         'non_ox_mapping': KeyValueStore("non_ox_objs.db", file_utility),
     }
+
+
+@pytest.fixture
+def test_db(file_utility):
+    db = KeyValueStore("migrate.db", file_utility)
+
+    yield db
+
+    with file_utility.open(db.db_fname, "w") as f:
+        f.truncate(0)
 
 
 def find_obj(
@@ -171,7 +187,6 @@ def test_rename_user(
     assert db_id == new_db_id
 
 
-@pytest.mark.k8s_skip(reason="TODO: Follow up needed to fix this test.")
 @pytest.mark.skipif(
     os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
     reason="UCS does not use KeyValueStore",
@@ -319,3 +334,74 @@ def test_remove_user(
     wait_for_listener(dn)
     db_id = get_db_id(dn, db=ox_mapping['id_mapping'])
     assert db_id is None
+
+
+@pytest.mark.skipif(
+    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
+    reason="UCS does not use KeyValueStore",
+)
+def test_migrate_db_v1(test_db, new_user_name_generator):
+    with test_db.open("cs") as data:
+        for i in range(100):
+            if (i % 6) == 0:
+                name = new_user_name_generator().upper()
+            else:
+                name = new_user_name_generator()
+
+            if (i % 3) == 0:
+                dn = f"uid={name},ou=Sales+cn=users,dc=swp-ldap,dc=internal"
+            else:
+                dn = f"uid={name},cn=users,dc=swp-ldap,dc=internal"
+            data[dn] = str(i)
+
+    assert migrate_db(test_db)
+
+    with test_db.open() as data:
+        for k in data.keys():
+            if k.decode("UTF-8").lower() == db_version_key.lower():
+                continue
+
+            assert k.decode("UTF-8") == normalized_dn(k)
+
+    # DB is migrated so don't do it again
+    assert not migrate_db(test_db)
+
+
+@pytest.mark.skipif(
+    os.environ.get("PERFORMANCE_TESTS") is None,
+    reason="Performance tests are disabled by default, if you want to run them add the env var PERFORMANCE_TESTS",
+)
+def test_migrate_performance(test_db, new_user_name_generator):
+    start = time.perf_counter()
+    with test_db.open("cs") as data:
+        for i in range(100000):
+            dn = f"uid=TEST-USER-{i},ou=Sales+cn=users,dc=swp-ldap,dc=internal"
+            data[dn] = str(i)
+
+    end = time.perf_counter()
+    print(f"Time: Adding 100000 users to DB - {end - start:.2f}s")
+
+    migrate_start = time.perf_counter()
+    assert migrate_db(test_db)
+    end = time.perf_counter()
+    print(
+        f"Time: Migrating DB with 100000 entries - {end - migrate_start:.2f}s",
+    )
+
+    check_results_start = time.perf_counter()
+    with test_db.open() as data:
+        for k in data.keys():
+            if k.decode("UTF-8").lower() == db_version_key.lower():
+                continue
+
+            assert k.decode("UTF-8") == normalized_dn(k)
+
+    end = time.perf_counter()
+    print(
+        f"Time: Checking results after migration  - {end - check_results_start:.2f}s",
+    )
+
+    # DB is migrated so don't do it again
+    assert not migrate_db(test_db)
+    end = time.perf_counter()
+    print(f"Time: Overall - {end - start:.2f}s")
