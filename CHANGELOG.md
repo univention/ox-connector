@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.2...v0.32.3) (2025-11-04)
+
+
+### Bug Fixes
+
+* **deps:** Update gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base Docker tag to v5.2.3-build.20251030 ([7923e4a](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/7923e4a6ae335f887669305c6b45225eb7eb6a69)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+
 ## [0.32.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.1...v0.32.2) (2025-10-30)
 
 
