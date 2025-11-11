@@ -4,7 +4,7 @@
 ---
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
-    ref: "v1.44.2"
+    ref: "v1.50.0"
     file:
       - "defaults/stages.yaml"
       - "defaults/nubus-workflow.yaml"
@@ -161,6 +161,10 @@ push-image-external:
     matrix: *publish-matrix
 
 container-sign-external:
+  parallel:
+    matrix: *publish-matrix
+
+container-release-attestation:
   parallel:
     matrix: *publish-matrix
 
