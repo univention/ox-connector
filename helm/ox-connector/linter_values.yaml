@@ -22,9 +22,3 @@ openXchange:
 provisioningApi:
   connection:
     baseUrl: ""
-
-## Docker image
-oxConnector:
-  image:
-    tag: "latest"
-...
