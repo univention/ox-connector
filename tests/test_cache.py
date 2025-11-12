@@ -340,6 +340,33 @@ def test_remove_user(
     os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
     reason="UCS does not use KeyValueStore",
 )
+def test_non_normalized_dn(
+    create_ox_user,
+    create_ox_group,
+    default_ox_context,
+    ox_mapping,
+):
+    """
+    Make sure, normalized DNs are stored in the DB
+    """
+    create_ox_group("TEST+1")
+
+    user = create_ox_user(ldap_path="cn=TEST\+1,cn=groups")
+
+    # When searching for unnormalized DN it will return None
+    db_id = get_db_id(user.dn, db=ox_mapping['id_mapping'])
+    assert db_id is None
+
+    # When searching for normalized DN it will return the DB entry
+    db_id = get_db_id(normalized_dn(user.dn), db=ox_mapping['id_mapping'])
+    obj = find_obj(default_ox_context, user.properties["username"])
+    assert obj.id == db_id
+
+
+@pytest.mark.skipif(
+    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
+    reason="UCS does not use KeyValueStore",
+)
 def test_migrate_db_v1(test_db, new_user_name_generator):
     with test_db.open("cs") as data:
         for i in range(100):
@@ -372,20 +399,21 @@ def test_migrate_db_v1(test_db, new_user_name_generator):
     reason="Performance tests are disabled by default, if you want to run them add the env var PERFORMANCE_TESTS",
 )
 def test_migrate_performance(test_db, new_user_name_generator):
+    num_useres = 100000
     start = time.perf_counter()
     with test_db.open("cs") as data:
-        for i in range(100000):
+        for i in range(num_useres):
             dn = f"uid=TEST-USER-{i},ou=Sales+cn=users,dc=swp-ldap,dc=internal"
             data[dn] = str(i)
 
     end = time.perf_counter()
-    print(f"Time: Adding 100000 users to DB - {end - start:.2f}s")
+    print(f"Time: Adding {num_useres} users to DB - {end - start:.2f}s")
 
     migrate_start = time.perf_counter()
     assert migrate_db(test_db)
     end = time.perf_counter()
     print(
-        f"Time: Migrating DB with 100000 entries - {end - migrate_start:.2f}s",
+        f"Time: Migrating DB with {num_useres} entries - {end - migrate_start:.2f}s",
     )
 
     check_results_start = time.perf_counter()

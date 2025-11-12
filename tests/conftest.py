@@ -10,7 +10,7 @@ import pytest
 
 from univention.ox.soap.config import _CREDENTIALS
 
-from udm_rest import UDM
+from udm_rest import UDM, UnprocessableEntity
 from utils import FileUtility, FileLogs, SubprocessRunner
 
 TEST_LOG_FILE = Path("/tmp/test.log")
@@ -339,12 +339,19 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
             "oxmail/accessprofile",
         ]:
             if module_name in modules:
-                modules.remove(module_name)
+                try:
+                    modules.remove(module_name)
+                except UnprocessableEntity:
+                    pass
+
                 modules.append(module_name)
         for module in modules:
             dns = _udm.new_objs[module]
             for dn in dns:
-                _udm.remove(module, dn, remove_from_new_objs=False)
+                try:
+                    _udm.remove(module, dn, remove_from_new_objs=False)
+                except UnprocessableEntity:
+                    pass
 
 
 @pytest.fixture
@@ -393,6 +400,7 @@ def create_ox_user(
         enabled=True,
         wait=True,
         further_udm_attrs=None,
+        ldap_path="cn=users",
     ):
         name = name or new_user_name_generator()
         attrs = {
@@ -407,7 +415,7 @@ def create_ox_user(
         }
         dn = udm.create(
             "users/user",
-            "cn=users",
+            ldap_path,
             attrs | (further_udm_attrs or {}),
         )
         print("Created user", dn, "in UDM")
