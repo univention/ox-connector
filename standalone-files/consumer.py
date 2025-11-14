@@ -11,11 +11,11 @@ from typing import Any, Dict
 from pathlib import Path
 
 # 3rd party
-from univention.provisioning.consumer import (
+from univention.provisioning.consumer.api import (
     MessageHandler,
     ProvisioningConsumerClient,
 )
-from univention.provisioning.models import ProvisioningMessage
+from univention.provisioning.models.message import ProvisioningMessage
 
 # internal
 from config import (

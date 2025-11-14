@@ -11,7 +11,7 @@ ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-ba
 # Reference ox-connector as source for listener_trigger dependencies
 # based on alpine:3.14
 # hadolint ignore=DL3007
-ARG APPCENTER_BASE_IMAGE_TAG=0.17.0
+ARG APPCENTER_BASE_IMAGE_TAG=0.32.0
 FROM gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-appcenter:${APPCENTER_BASE_IMAGE_TAG} AS ox-connector
 
 ###############################################################################
@@ -87,7 +87,7 @@ RUN \
   # Avoid unused dependency on PIL
   echo "" > "${PYPKG}/PIL.py" && \
   pip3 install --break-system-packages --no-cache-dir \
-    nubus-provisioning-consumer==0.42.0 --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
+    nubus-provisioning-common=='v0.64.0' nubus-provisioning-consumer=='v0.64.0' --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
     appdirs==1.4.* \
     platformdirs==2.6.*
 
