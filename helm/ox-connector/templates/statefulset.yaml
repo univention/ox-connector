@@ -69,7 +69,7 @@ spec:
             - name: {{ include "common.names.fullname" . }}-appcenter
               mountPath: /var/lib/univention-appcenter/apps/ox-connector
           resources:
-            {{- toYaml .Values.resourcesWaitForDependency | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       containers:
         - name: "main"
           securityContext:
