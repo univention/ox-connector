@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.32.4](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.3...v0.32.4) (2025-11-17)
+
+
+### Bug Fixes
+
+* **ox-connector k8s:** Add unit test testing if normalized DNs are stored in the DB ([4325407](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/4325407351a0b1dd6054448073148e328dc37289)), closes [univention/dev/internal/team-nubus#1482](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1482)
+* **ox-connector k8s:** Normalize DNs and migrate existing databases ([88cd3df](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/88cd3df0fa7f265a96f453b191d2f2df591bcf30)), closes [univention/dev/internal/team-nubus#1482](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1482)
+* **ox-connector k8s:** Use resources from main container for migration init container ([8c81ba9](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/8c81ba95fce294200c005095a595cef52ca9be4b)), closes [univention/dev/internal/team-nubus#1482](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1482)
+
 ## [0.32.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.2...v0.32.3) (2025-11-04)
 
 
