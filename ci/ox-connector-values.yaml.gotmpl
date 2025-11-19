@@ -20,3 +20,15 @@ openXchange:
 provisioningApi:
   connection:
     baseUrl: "http://nubus-provisioning-api"
+
+extraVolumes:
+  - name: ox-connector-tmp
+    emptyDir: {}
+  - name: ox-connector-var-tmp
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: ox-connector-tmp
+    mountPath: /tmp
+  - name: ox-connector-var-tmp
+    mountPath: /var/tmp

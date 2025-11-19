@@ -227,13 +227,6 @@ run-tests-prod:
           spec:
             containers:
             - name: main
-              securityContext:
-                readOnlyRootFilesystem: false
-                runAsUser: 0
-                runAsGroup: 0
-                runAsNonRoot: false
-                capabilities:
-                  drop: []
               env:
               - name: TESTS_UDM_ADMIN_USERNAME
                 value: "Administrator"
@@ -321,12 +314,6 @@ run-tests-testimage:
             - name: main
               image: artifacts.software-univention.de/nubus-dev/images/ox-connector-standalone-test:'${RELEASE_VERSION}'
               imagePullPolicy: Always
-              securityContext:
-                readOnlyRootFilesystem: false
-                runAsUser: 0
-                runAsGroup: 0
-                runAsNonRoot: false
-                capabilities: null
               env:
               - name: TESTS_UDM_ADMIN_USERNAME
                 value: "Administrator"
@@ -352,7 +339,8 @@ run-tests-testimage:
     - |
       kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
       pushd test-env
-      uv run pytest \
+      pytest \
+        -o cache_dir=/tmp/.pytest_cache \
         -vl \
         -m "not k8s_skip" \
         -k "not test_user_attribute_mapping" \
