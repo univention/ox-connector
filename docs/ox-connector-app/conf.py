@@ -120,6 +120,12 @@ html_theme_options = {
     "typesense_document_version": release,
     "univention_matomo_tracking": True,
     "univention_docs_deployment": True,
+    "announcement": "<p><i class='fa-solid fa-circle-exclamation'></i> "
+    + "This app documentation doesn't apply to Nubus for Kubernetes yet. "
+    + "If you miss information, send us your "
+    + "<a href='https://www.univention.com/feedback/?ox-connector=missing-n4k' "
+    + "target='blank' "
+    + "style='color: var(--pst-color-secondary)'>feedback</a>.</p>",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
