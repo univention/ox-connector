@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.33.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.4...v0.33.0) (2025-11-28)
+
+
+### Features
+
+* update to use large-groups version of nubus-provisioning-consumer ([4410a6f](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/4410a6f5856ec21a5a23f244249addca4e5a8963)), closes [univention/dev/projects/open-xchange/connector#143](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/143)
+* use prod Dependency-Track URLs ([a6650b6](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/a6650b6027ff2ee7a9c7679122316a2a50a6769b)), closes [univention/dev/internal/team-nubus#1512](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1512)
+
+
+### Bug Fixes
+
+* Add vulnerability scanning pipeline jobs to the Gitlab CI ([52af181](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/52af181e49d9b1946bf7033d33bad3247fa47c99)), closes [univention/dev/internal/team-nubus#1471](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1471)
+* bump wait-for-dependency image. ([969797a](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/969797a2dc5209b2551a9983fa750dc2f1cd8aaf)), closes [univention/dev/internal/team-nubus#1476](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1476)
+* ci: vul-man SBOM upload cleans tag before uploading new SBOMs for a tag ([5946e18](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/5946e18daa7b6e7f2e77df4310ada1bdaa24fb61)), closes [univention/dev/internal/team-nubus#1529](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1529)
+* **ci:** Bump common-ci ([ab06a22](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/ab06a220388e3e75476fd6c60ce27fd6e0d6bf08)), closes [univention/dev/internal/team-nubus#1532](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1532)
+* **ci:** Disable sonarqube it is broken and shadows errors of the vulnerability scan ([0c26639](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/0c266395aade01680cb5b4a1044232fa7ab96bbd)), closes [univention/dev/internal/team-nubus#1471](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1471)
+* **ci:** Failing test with securityContext enabled ([54becc0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/54becc0529af09321b4ad6b51d48c9ce46c5f7dd)), closes [univention/dev/internal/team-nubus#1522](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1522)
+
 ## [0.32.4](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.3...v0.32.4) (2025-11-17)
 
 
