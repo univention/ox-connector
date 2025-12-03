@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.33.0...v0.33.1) (2025-12-03)
+
+
+### Bug Fixes
+
+* bump image to errata 298 ([eaec7b2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/eaec7b25a0a522306f9bd8e8b48c3293e85e4ae4)), closes [univention/dev/internal/team-nubus#1543](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1543)
+
 ## [0.33.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.32.4...v0.33.0) (2025-11-28)
 
 
