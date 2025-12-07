@@ -54,6 +54,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
+          {{- with .Values.oxConnector.extraEnvVars }}
+          env:
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: wait-for-api
               mountPath: /scripts
@@ -65,6 +69,10 @@ spec:
           command: [ "/usr/bin/python3", "/migrate.py" ]
           image: "{{ coalesce .Values.oxConnector.image.registry .Values.global.imageRegistry }}/{{ .Values.oxConnector.image.repository }}:{{ .Values.oxConnector.image.tag }}"
           imagePullPolicy: {{ coalesce .Values.oxConnector.image.pullPolicy .Values.global.imagePullPolicy | quote }}
+          {{- with .Values.oxConnector.extraEnvVars }}
+          env:
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: {{ include "common.names.fullname" . }}-appcenter
               mountPath: /var/lib/univention-appcenter/apps/ox-connector
@@ -87,6 +95,9 @@ spec:
                 secretKeyRef:
                   key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.auth.existingSecret "key" "password") | quote }}
                   name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.auth.existingSecret "defaultNameSuffix" "ox-master-password" "context" .) | quote }}
+          {{- with .Values.oxConnector.extraEnvVars }}
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}

@@ -39,6 +39,7 @@ A Helm chart for the ox-connector
 | openXchange.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
 | openXchange.oxSmtpServer | string | `nil` | Default SMTP server for new users (if not set explicitely there) |
 | openXchange.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
+| oxConnector.extraEnvVars | list | `[]` | Array with extra environment variables to add to containers.  extraEnvVars:   - name: FOO     value: "bar" |
 | oxConnector.image.pullPolicy | string | `nil` |  |
 | oxConnector.image.registry | string | `nil` |  |
 | oxConnector.image.repository | string | `"nubus-dev/images/ox-connector-standalone"` |  |

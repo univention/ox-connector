@@ -63,6 +63,13 @@ oxConnector:
     repository: "nubus-dev/images/ox-connector-standalone"
     tag: "latest"
 
+  # -- Array with extra environment variables to add to containers.
+  #
+  # extraEnvVars:
+  #   - name: FOO
+  #     value: "bar"
+  extraEnvVars: []
+
 # Configuration for OX CONNECTOR
 openXchange:
   # -- OX-Mail-Domain to generate OX-email-addresses
