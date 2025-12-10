@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.33.2...v0.34.0) (2025-12-10)
+
+
+### Features
+
+* **helm:** Add component-specific extraEnvVars support ([a2e63bd](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/a2e63bdab031e488218b651e817ab97cdab141f3)), closes [univention/dev/internal/team-nubus#977](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/977)
+
 ## [0.33.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.33.1...v0.33.2) (2025-12-10)
 
 
