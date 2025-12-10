@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.33.1...v0.33.2) (2025-12-10)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency univention/dev/nubus-for-k8s/common-ci to v1.54.0 ([bb91690](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/bb91690d470e76c3c1260b5ef026e54830c9404a)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+
 ## [0.33.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.33.0...v0.33.1) (2025-12-03)
 
 
