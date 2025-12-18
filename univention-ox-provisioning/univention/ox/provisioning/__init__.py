@@ -164,12 +164,12 @@ def run(obj):  # noqa: C901
 def get_group_objs(obj):  # noqa: C901
     users = []
     ignored_group = True
-    if obj.old_attributes:
+    if getattr(obj, "old_attributes", None):
         users.extend(obj.old_attributes.get("users"))
         if is_ox_group(obj.old_attributes):
             logger.info(f"Group {obj.old_attributes['name']} was OX Group")
             ignored_group = False
-    if obj.attributes:
+    if getattr(obj, "attributes", None):
         users.extend(obj.attributes.get("users"))
         if is_ox_group(obj.attributes):
             logger.info(f"Group {obj.attributes['name']} will be OX Group")
@@ -193,12 +193,12 @@ def get_group_objs(obj):  # noqa: C901
         contexts[context] = users_in_context
     for context, users in contexts.items():
         new_obj = deepcopy(obj)
-        if new_obj.old_attributes:
+        if getattr(new_obj, "old_attributes", None):
             new_obj.old_attributes["oxContext"] = context
             new_obj.old_attributes["users"] = sorted(
                 set(users) & set(new_obj.old_attributes.get("users")),
             )
-        if new_obj.attributes:
+        if getattr(new_obj, "attributes", None):
             new_obj.attributes["oxContext"] = context
             new_obj.attributes["users"] = sorted(
                 set(users) & set(new_obj.attributes.get("users")),
@@ -210,10 +210,10 @@ def get_group_objs(obj):  # noqa: C901
 def get_account_objs(obj):  # noqa: C901
     users = []
     groups = []
-    if obj.old_attributes:
+    if getattr(obj, "old_attributes", None):
         users.extend(obj.old_attributes.get("users"))
         groups.extend(obj.old_attributes.get("groups"))
-    if obj.attributes:
+    if getattr(obj, "attributes", None):
         users.extend(obj.attributes.get("users"))
         groups.extend(obj.attributes.get("groups"))
     contexts = {}
@@ -248,9 +248,9 @@ def get_account_objs(obj):  # noqa: C901
             contexts[context] = users_in_context, groups_in_context
     for context, (users, groups) in contexts.items():
         new_obj = deepcopy(obj)
-        if new_obj.old_attributes:
+        if getattr(new_obj, "old_attributes", None):
             new_obj.old_attributes["oxContext"] = context
-        if new_obj.attributes:
+        if getattr(new_obj, "attributes", None):
             new_obj.attributes["oxContext"] = context
             new_obj.attributes["users"] = sorted(
                 set(users) & set(new_obj.attributes.get("users")),
