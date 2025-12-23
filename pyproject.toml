@@ -20,9 +20,10 @@ dependencies = [
 [dependency-groups]
 dev = [
   "pytest",
+  "pytest-cov>=4.1.0",
+  "pytest-mock>=3.15.1",
   "uritemplate",
   "kubernetes",
-  "pytest-mock>=3.15.1",
   "pdbpp>=0.11.7",
   "python-dateutil>=2.9.0.post0",
 ]
@@ -38,6 +39,7 @@ univention-ox-provisioning = { path = "./univention-ox-provisioning/", editable 
 univention-ox-soap-api = { path = "./univention-ox-soap-api/", editable = true }
 
 [tool.pytest.ini_options]
+pythonpath = ["standalone-files"]
 markers = [
     "k8s_skip(reason): mark test as expected to skip in Kubernetes context, provide a reason"
 ]
