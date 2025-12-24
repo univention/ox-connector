@@ -9,74 +9,89 @@ to allow testing the provisioning logic in isolation.
 """
 
 import sys
-from copy import deepcopy
 from unittest.mock import MagicMock
 
 import pytest
 
-
-class MockProvisioningObject:
-    """
-    A mock object that simulates the provisioning objects passed to
-    get_group_objs and get_account_objs.
-    """
-
-    def __init__(
-        self,
-        attributes=None,
-        old_attributes=None,
-        distinguished_name="cn=test,dc=example,dc=test",
-        set_attributes=True,
-        set_old_attributes=True,
-    ):
-        self.distinguished_name = distinguished_name
-
-        # Only set attributes if explicitly requested
-        # This allows testing getattr() defensive behavior
-        if set_attributes and attributes is not None:
-            self.attributes = attributes
-        elif set_attributes:
-            self.attributes = {}
-
-        if set_old_attributes and old_attributes is not None:
-            self.old_attributes = old_attributes
-        elif set_old_attributes:
-            self.old_attributes = {}
-
-    def __deepcopy__(self, memo):
-        """Support deepcopy for the object splitting logic."""
-        new_obj = MockProvisioningObject.__new__(MockProvisioningObject)
-        new_obj.distinguished_name = self.distinguished_name
-
-        if hasattr(self, "attributes"):
-            new_obj.attributes = deepcopy(self.attributes, memo)
-        if hasattr(self, "old_attributes"):
-            new_obj.old_attributes = deepcopy(self.old_attributes, memo)
-
-        return new_obj
-
-    def __repr__(self):
-        return f"MockProvisioningObject(dn={self.distinguished_name})"
+from univention.ox.provisioning.models import TriggerObject
 
 
 @pytest.fixture
-def mock_provisioning_object():
-    """Factory fixture to create mock provisioning objects."""
-    return MockProvisioningObject
+def trigger_object():
+    """
+    Factory fixture to create TriggerObject instances for testing.
+
+    Uses the actual TriggerObject class from univention.ox.provisioning.models.
+    Allows setting old_attributes to None to simulate objects without old state
+    (like FakeObject or newly created objects).
+    """
+
+    def _create(
+        attributes=None,
+        old_attributes=None,
+        distinguished_name="cn=test,dc=example,dc=test",
+        object_type="groups/group",
+        entry_uuid="test-uuid",
+        set_old_attributes=True,
+        set_attributes=True,
+    ):
+        obj = TriggerObject(
+            entry_uuid=entry_uuid,
+            object_type=object_type,
+            distinguished_name=distinguished_name,
+            attributes=attributes or {},
+            options=["default"],
+            path=None,
+        )
+        # Mark old as loaded so was_added/was_modified/was_deleted work
+        obj._old_loaded = True
+
+        if set_old_attributes:
+            obj.old_attributes = old_attributes or {}
+            obj.old_distinguished_name = distinguished_name
+        else:
+            # Simulate object without old_attributes (like FakeObject)
+            # by deleting the attribute entirely
+            del obj.old_attributes
+
+        if not set_attributes:
+            # Simulate object without attributes (deletion scenario)
+            del obj.attributes
+
+        return obj
+
+    return _create
+
+
+@pytest.fixture
+def mock_provisioning_object(trigger_object):
+    """Alias for trigger_object fixture for backward compatibility."""
+    return trigger_object
 
 
 @pytest.fixture
 def mock_user_object():
-    """Factory fixture to create mock user objects returned by get_old_obj."""
+    """
+    Factory fixture to create mock user objects returned by get_old_obj.
+
+    Uses the actual TriggerObject class to be consistent.
+    """
 
     def _create_user(context_id, username="testuser"):
-        user = MagicMock()
-        user.attributes = {
-            "oxContext": context_id,
-            "username": username,
-            "isOxUser": "OK",
-        }
-        return user
+        obj = TriggerObject(
+            entry_uuid="user-uuid",
+            object_type="users/user",
+            distinguished_name=f"uid={username},dc=example,dc=test",
+            attributes={
+                "oxContext": context_id,
+                "username": username,
+                "isOxUser": "OK",
+            },
+            options=["default"],
+            path=None,
+        )
+        obj._old_loaded = True
+        return obj
 
     return _create_user
 
