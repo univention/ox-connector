@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.34.1...v0.34.2) (2026-01-16)
+
+
+### Bug Fixes
+
+* Check object attributes defensively ([eee4f87](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/eee4f876256fbd1dc69b5b6cc1dbb4afc565014c)), closes [univention/dev/projects/open-xchange/connector#146](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/146)
+
 ## [0.34.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.34.0...v0.34.1) (2026-01-15)
 
 
