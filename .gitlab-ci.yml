@@ -272,11 +272,11 @@ upload-docker-image:
       ssh ${SSH_ARGS} "docker tag ${BUILD_IMAGE_PATH_AND_TAG} ${PUB_REGISTRY_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker push ${PUB_REGISTRY_PATH_AND_TAG}"
 
-#sonarqube:
-#  extends: .sonarqube
-#  needs: []
-#  rules:
-#    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-#    - if: $CI_COMMIT_BRANCH == 'ucs5.2'
+sonarqube:
+  extends: .sonarqube
+  needs: []
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'ucs5.2'
 
 ...
