@@ -139,6 +139,36 @@ test-chart-ox-connector:
     - helm dep build helm/ox-connector
     - pytest -W error helm-unittests/
 
+lint-render-manifests:
+  stage: lint
+  needs: []
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.0"
+  script:
+    - helm dep build helm/ox-connector
+    - helm template test helm/ox-connector
+        -f helm/ox-connector/linter_values.yaml
+        --output-dir manifests/
+  artifacts:
+    name: rendered-manifests
+    expire_in: 1 week
+    expose_as: Rendered Kubernetes Manifests
+    paths:
+      - manifests/
+
+lint-kubeconform:
+  stage: lint
+  needs:
+    - lint-render-manifests
+  image:
+    name: ghcr.io/yannh/kubeconform:latest-alpine
+    entrypoint: [""]
+  script:
+    - /kubeconform -strict -ignore-missing-schemas -summary -output junit manifests/ > kubeconform-report.xml || true
+    - /kubeconform -strict -ignore-missing-schemas -summary -output text manifests/
+  artifacts:
+    reports:
+      junit: kubeconform-report.xml
+
 unit-tests:
   stage: test
   image:
