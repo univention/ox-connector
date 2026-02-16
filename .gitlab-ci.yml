@@ -15,12 +15,10 @@ include:
       - "jobs/package-and-publish-helm-charts-external.yaml"
       - "templates/sonarqube.yaml"
 
-
   - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.55.3"
     inputs:
       helm_chart_name: "ox-connector"
       helm_values: "--helm-values ${CI_PROJECT_DIR}/helm/ox-connector/linter_values.yaml"
-
 
 workflow:
   rules:
@@ -219,9 +217,12 @@ generate-docs-pipeline-config:
       .gitlab-ci/doc-builder
       --yaml .gitlab-ci/base-doc.yml
       --out generated-config-doc.yml
+  rules:
+    - changes: &changes-docs
+        - "docs/**/*"
   artifacts:
     paths:
-    - generated-config-doc.yml
+      - generated-config-doc.yml
 
 # Uses APPCENTER_VERSION internally
 trigger-docs:
@@ -240,14 +241,12 @@ trigger-docs:
       variables:
         DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
         DOC_TARGET_VERSION: "${DOCKER_BUILD_VERSION}"
-      changes:
-        - "docs/**/*"
+      changes: *changes-docs
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
         DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
         DOC_TARGET_VERSION: "${DOCKER_BUILD_VERSION}"
-      changes:
-        - "docs/**/*"
+      changes: *changes-docs
       when: "manual"
 
 upload-docker-image:
@@ -278,5 +277,3 @@ sonarqube:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'ucs5.2'
-
-...
