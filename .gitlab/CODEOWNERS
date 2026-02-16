@@ -3,8 +3,8 @@
 * @dwiesent @ccastens @jbornhold @jconde @jgarcia @jlohmer @tkintscher @fbotner @jtorres @arequate @dpapoutsis @jburgmeier @mmeschter @cgarcia
 
 [Documentation]
-/docs/*  @ngulden @tkintscher @jconde @jtorres
+/docs/*  @ngulden @tkintscher @jconde @jtorres @dwiesent @fbotner @sschwardt @mmeschter @idelgado
 
 [Documentation CI/CD]
-/.gitlab-ci/doc-builder    @ngulden
-/.gitlab-ci/base-doc.yml   @ngulden
+/.gitlab-ci/doc-builder    @ngulden @jconde @mmeschter @idelgado
+/.gitlab-ci/base-doc.yml   @ngulden @jconde @mmeschter @idelgado
