@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.34.2...v0.35.0) (2026-02-16)
+
+
+### Features
+
+* **error-handling:** restart listener during upgrade to account for udm listener api version change ([6d0b276](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/6d0b276951a076666107627e430d4c42b29f3d66)), closes [univention/dev/projects/open-xchange/connector#136](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/136)
+
 ## [0.34.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.34.1...v0.34.2) (2026-01-16)
 
 
