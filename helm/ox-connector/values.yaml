@@ -140,7 +140,6 @@ extraVolumeMounts: []
 ## Container deployment probes
 probes:
   liveness:
-    enabled: true
     initialDelaySeconds: 120
     timeoutSeconds: 3
     periodSeconds: 30
@@ -154,7 +153,6 @@ probes:
           exit 0
 
   readiness:
-    enabled: true
     initialDelaySeconds: 30
     timeoutSeconds: 3
     periodSeconds: 15

@@ -52,7 +52,6 @@ A Helm chart for the ox-connector
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `1000` |  |
 | podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
-| probes.liveness.enabled | bool | `true` |  |
 | probes.liveness.exec.command[0] | string | `"/bin/sh"` |  |
 | probes.liveness.exec.command[1] | string | `"-c"` |  |
 | probes.liveness.exec.command[2] | string | `"exit 0\n"` |  |
@@ -61,7 +60,6 @@ A Helm chart for the ox-connector
 | probes.liveness.periodSeconds | int | `30` |  |
 | probes.liveness.successThreshold | int | `1` |  |
 | probes.liveness.timeoutSeconds | int | `3` |  |
-| probes.readiness.enabled | bool | `true` |  |
 | probes.readiness.exec.command[0] | string | `"/bin/sh"` |  |
 | probes.readiness.exec.command[1] | string | `"-c"` |  |
 | probes.readiness.exec.command[2] | string | `"exit 0\n"` |  |
