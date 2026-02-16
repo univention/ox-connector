@@ -15,6 +15,9 @@ elif [[ "${1}" = "settings" ]]; then
 fi
 
 # remove later
-if [[ "${1}" = "upgrade" ]] && [[ "${3}" = "3.0.0" ]]; then
+# between version 2.3.5 and 3.0.0 there we changed the udm listener api version for the appcenter listener.
+# because of this, the listener must be restarted after an upgrade from v 2.x to v 3.x.
+# Once we are sure that this update has happened for all customers, we can remove this.
+if [[ "${1}" = "upgrade" ]] ; then
     systemctl restart univention-directory-listener.service
 fi
