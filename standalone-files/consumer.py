@@ -302,7 +302,7 @@ class OXConsumer:
     def create(self, new: Dict[str, Any], dn: str) -> None:
         t0 = time.perf_counter()
         obj = TriggerObject(
-            new['uuid'],
+            new['properties']['univentionObjectIdentifier'],
             new['objectType'],
             dn,
             new.get("properties"),
@@ -362,7 +362,7 @@ class OXConsumer:
 
         # Emulate the listener_trigger.load_old() method
         obj = TriggerObject(
-            new['uuid'],
+            new['properties']['univentionObjectIdentifier'],
             new['objectType'],
             dn,
             new.get("properties"),
@@ -426,7 +426,7 @@ class OXConsumer:
     def remove(self, old: Dict[str, Any], dn: str) -> None:
         t0 = time.perf_counter()
         obj = TriggerObject(
-            old['uuid'],
+            old['properties']['univentionObjectIdentifier'],
             old['objectType'],
             dn,
             None,  # for listener_trigger.TriggerObject.was_deleted() method
