@@ -4,7 +4,7 @@
 ---
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
-    ref: "v1.55.3"
+    ref: "v1.58.0"
     file:
       - "defaults/stages.yaml"
       - "defaults/nubus-workflow.yaml"
@@ -134,7 +134,7 @@ container-build-appcenter:
 test-chart-ox-connector:
   stage: test
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.0"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.10"
   script:
     - helm dep build helm/ox-connector
     - pytest -W error helm-unittests/
@@ -142,7 +142,7 @@ test-chart-ox-connector:
 lint-render-manifests:
   stage: lint
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.0"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.10"
   script:
     - helm dep build helm/ox-connector
     - helm template test helm/ox-connector
