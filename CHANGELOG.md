@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.35.0...v0.35.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* fix kubeconform issues in ox-connector helm chart ([0d880ec](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/0d880ec74ee86ae03b7fb6ac8f6f4a5483c8f14b)), closes [univention/dev/internal/team-nubus#1576](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1576)
+
 ## [0.35.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.34.2...v0.35.0) (2026-02-16)
 
 
