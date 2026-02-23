@@ -23,7 +23,7 @@ stages:
 
 variables:
   ENVIRONMENT_NAME: "${CI_COMMIT_REF_SLUG}/e2e-testrun-${DEPLOY_NAMESPACE}"
-  NUBUS_HELM_BRANCH: "develop"
+  NUBUS_HELM_BRANCH: "jtorres/integrate-transformer"
   NUBUS_CHART_VERSION: "*"
   OX_CONNECTOR_READY_TIMEOUT: "5m"
 

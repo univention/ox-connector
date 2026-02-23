@@ -57,7 +57,7 @@ variables:
   SKIP_CLEANUP:
     description: |
       Skips the automatic cleanup after the testrun.
-    value: "no"
+    value: "yes"
     options:
       - "yes"
       - "no"
