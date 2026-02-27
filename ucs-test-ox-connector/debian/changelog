@@ -1,4 +1,4 @@
-ucs-test-ox-connector (1.0.2) unstable; urgency=medium
+ucs-test-ox-connector (1.0.3) unstable; urgency=medium
 
   *  Issue univention/dev/projects/open-xchange/appsuite#40: Add dovecot fupo auth test
 

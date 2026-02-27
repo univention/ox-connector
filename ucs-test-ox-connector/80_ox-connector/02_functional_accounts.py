@@ -119,6 +119,16 @@ def test_func_acc_login(
                 'univention',
             ],
         )
+        with pytest.raises(subprocess.CalledProcessError):
+            subprocess.check_output(
+                [
+                    'doveadm',
+                    'auth',
+                    'login',
+                    f'{uoid}{username}',
+                    'univention123',
+                ],
+            )
     else:
         with pytest.raises(subprocess.CalledProcessError):
             subprocess.check_output(
