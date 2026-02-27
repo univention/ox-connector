@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.35.1...v0.36.0) (2026-02-27)
+
+
+### Features
+
+* migrate from entryUUID to univentionObjectIdentifier in the provisioning message ([2f993c8](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/2f993c8b13c8db0de52607d8d68db4fad5868a24)), closes [univention/dev/projects/open-xchange/connector#149](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/149)
+
 ## [0.35.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.35.0...v0.35.1) (2026-02-19)
 
 
