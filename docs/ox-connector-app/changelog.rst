@@ -12,7 +12,28 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-.. _app-changelog-v3.0.1:
+.. _app-changelog-v3.1.0:
+
+v3.1.0
+======
+
+Released: 2025-03-12
+
+Removed
+-------
+
+The property `groups` in the Functional Accounts module has been removed.
+Adding groups to Functional Accounts was never supported
+and thus not an available option in the Univention Management Console.
+The logic that still made it possible to set groups via direct Univention Directory Manager access
+has been removed.
+
+.. important::
+    If groups were used as Functional Account members,
+    please add their members directly to the Functional Account.
+    Attempting to add a group to a Functional Account will raise an error in UDM after this update.
+
+.. _app-changelog-v3.0.2:
 
 v3.0.2
 ======
@@ -25,6 +46,8 @@ Fixed
 Users can give deputy permissions to other users (`oxDeputyPermissionGivenTo`).
 These references have to be updated on changes to that user. This was not done
 in case of a move operation in LDAP. This has been fixed.
+
+.. _app-changelog-v3.0.1:
 
 v3.0.1
 ======

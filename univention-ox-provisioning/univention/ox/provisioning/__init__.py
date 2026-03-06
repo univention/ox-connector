@@ -209,13 +209,10 @@ def get_group_objs(obj):  # noqa: C901
 
 def get_account_objs(obj):  # noqa: C901
     users = []
-    groups = []
     if getattr(obj, "old_attributes", None):
         users.extend(obj.old_attributes.get("users"))
-        groups.extend(obj.old_attributes.get("groups"))
     if getattr(obj, "attributes", None):
         users.extend(obj.attributes.get("users"))
-        groups.extend(obj.attributes.get("groups"))
     contexts = {}
     for user in set(users):
         user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
@@ -228,25 +225,10 @@ def get_account_objs(obj):  # noqa: C901
             context = get_context_id(user_obj.attributes)
         except Skip:
             continue
-        users_in_context, groups_in_context = contexts.get(context, ([], []))
+        users_in_context = contexts.get(context, [])
         users_in_context.append(user)
-        contexts[context] = users_in_context, groups_in_context
-    for group in set(groups):
-        group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
-        if group_obj is None:
-            logger.info(
-                f"Account wants {group} as group. But the group is unknown. Ignoring...",
-            )
-            continue
-        for new_obj in get_group_objs(group_obj):
-            context = new_obj.attributes.get("oxContext")
-            users_in_context, groups_in_context = contexts.get(
-                context,
-                ([], []),
-            )
-            groups_in_context.append(group)
-            contexts[context] = users_in_context, groups_in_context
-    for context, (users, groups) in contexts.items():
+        contexts[context] = users_in_context
+    for context, users in contexts.items():
         new_obj = deepcopy(obj)
         if getattr(new_obj, "old_attributes", None):
             new_obj.old_attributes["oxContext"] = context
@@ -254,9 +236,6 @@ def get_account_objs(obj):  # noqa: C901
             new_obj.attributes["oxContext"] = context
             new_obj.attributes["users"] = sorted(
                 set(users) & set(new_obj.attributes.get("users")),
-            )
-            new_obj.attributes["groups"] = sorted(
-                set(groups) & set(new_obj.attributes.get("groups")),
             )
         logger.info(f"{obj} will be processed with context {context}")
         yield new_obj

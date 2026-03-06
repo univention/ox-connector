@@ -14,7 +14,29 @@ This changelog documents all notable changes to *OX Consumer*.
 This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-.. _consumer-changelog-v0.36.0:
+.. _consumer-changelog-v0.36.2:
+
+v0.36.2
+=======
+
+Released: 2026-03-12
+
+Removed
+-------
+
+The property `groups` in the Functional Accounts module has been removed.
+Adding groups to Functional Accounts was never supported
+and thus not an available option in the Univention Management Console.
+The logic that still made it possible to set groups via direct Univention Directory Manager access
+has been removed.
+
+.. important::
+    If groups were used as Functional Account members,
+    please add their members directly to the Functional Account.
+    Attempting to add a group to a Functional Account will raise an error in UDM after this update.
+
+
+.. _consumer-changelog-v0.36.1:
 
 v0.36.1
 =======
@@ -27,6 +49,8 @@ Fixed
 Users can give deputy permissions to other users (`oxDeputyPermissionGivenTo`).
 These references have to be updated on changes to that user. This was not done
 in case of a move operation in LDAP. This has been fixed.
+
+.. _consumer-changelog-v0.36.0:
 
 v0.36.0
 =======

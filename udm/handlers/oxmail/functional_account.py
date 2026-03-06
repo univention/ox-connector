@@ -96,12 +96,6 @@ property_descriptions = {
         multivalue=True,
         copyable=True,
     ),
-    'groups': univention.admin.property(
-        short_description=_('Groups'),
-        long_description='',
-        syntax=univention.admin.syntax.GroupDN,
-        multivalue=True,
-    ),
 }
 
 layout = [
@@ -122,7 +116,6 @@ layout = [
                 _('Access Rights'),
                 layout=[
                     'users',
-                    # 'groups',
                 ],
             ),
         ],
@@ -158,20 +151,15 @@ class object(univention.admin.handlers.simpleLdap):
     def open(self):
         super(object, self).open()
         self['users'] = []
-        self['groups'] = []
         if self.exists():
             for member in self.oldattr.get('uniqueMember', []):
                 if member.startswith(b'uid='):
                     self['users'].append(member.decode('utf-8'))
-                else:
-                    self['groups'].append(member.decode('utf-8'))
             self.save()
 
     def _ldap_modlist(self):
         ml = super(object, self)._ldap_modlist()
-        new_members = [
-            member.encode('utf-8') for member in self['users'] + self['groups']
-        ]
+        new_members = [member.encode('utf-8') for member in self['users']]
         ml.append(
             (
                 'uniqueMember',
