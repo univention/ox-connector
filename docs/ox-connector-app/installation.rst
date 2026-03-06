@@ -56,13 +56,20 @@ For the *OX App Suite* server, you must ensure the following prerequisites:
    For manually managing OX contexts without the OX Connector, see
    :ref:`usage-contexts`.
 
-#. Since version 2.2.0, OX must allow the use of duplicated *displaynames*.
-   To enable it, add the following lines to the :file:`user.properties` file.
+#. Since version 2.2.0, OX must allow the use of duplicated *displaynames*. To
+   enable it, add the following lines to the :file:`user.properties` file.
 
    .. code-block:: console
 
       com.openexchange.user.enforceUniqueDisplayName=false
       com.openexchange.folderstorage.database.preferDisplayName=false
+
+   OX must also allow all group names that you can enter in UDM. For that, add
+   the following line to the :file:`Group.properties`.
+
+   .. code-block:: console
+
+      CHECK_GROUP_UID_FOR_NOT_ALLOWED_CHARS=false
 
    .. note::
       This is configured by default in version 7.10.6-ucs7 of :program:`OX App Suite` from the App Center.
