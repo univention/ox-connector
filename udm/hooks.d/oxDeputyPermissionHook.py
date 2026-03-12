@@ -29,6 +29,7 @@
 # License with the Debian GNU/Linux or Univention distribution in file
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
+from ldap.dn import str2dn, dn2str
 from ldap.filter import filter_format
 
 import univention.debug as ud
@@ -52,6 +53,21 @@ DEFAULT_CONTEXT = ucr.get('ox/context/id')
 
 class oxDeputyPermissionHook(simpleHook):
     type = "oxDeputyPermissionHook"
+
+    def _get_user(self, lo, dn):
+        """Returns the user with the given DN"""
+        try:
+            user = univention.admin.handlers.users.user.lookup(
+                None,
+                lo,
+                filter_s='',
+                base=dn,
+            )[0]
+            user.open()
+            return user
+        except univention.admin.uexceptions.noObject:
+            # base=dn raises an error
+            return None
 
     def hook_open(self, obj):
         """Split entries for correct representation in UMC"""
@@ -112,38 +128,51 @@ class oxDeputyPermissionHook(simpleHook):
                 "oxDeputyPermissionHook: clear all permissions because users context changed",
             )
             self.clear_referencing_deputies(obj)
+        if obj.info.get("_no_validate_user_in_ox_deputy_permission_hook"):
+            del obj.info["_no_validate_user_in_ox_deputy_permission_hook"]
+            return
+
         self.validate_user(obj)
 
     def hook_ldap_post_modify(self, obj):
         if not isinstance(obj, univention.admin.handlers.users.user.object):
             return
-        if obj.old_dn == obj.dn:
+        if obj.lo.compare_dn(obj.old_dn.lower(), obj.dn.lower()):
             return
+        search_for_dn = dn2str(str2dn(obj.old_dn))
         user_dn = obj.lo.searchDn(
             filter_format(
                 'oxDeputyPermissionGivenTo=%s |:$:| *',
-                [obj.old_dn],
+                [search_for_dn],
             ),
         )
-        for dn in user_dn:
-            for user in univention.admin.handlers.users.user.lookup(
-                obj.co,
-                obj.lo,
-                filter_s='',
-                base=dn,
-            ):
-                # should be exactly one... but who knows...
-                user.open()
-                oxDeputyPermissionGivenTo = []
-                for entry in user.info.get("oxDeputyPermissionGivenTo", []):
-                    if entry[0] == obj.old_dn:
-                        oxDeputyPermissionGivenTo.append([obj.dn] + entry[1:])
-                    else:
-                        oxDeputyPermissionGivenTo.append(entry)
-                user.info["oxDeputyPermissionGivenTo"] = (
-                    oxDeputyPermissionGivenTo
-                )
-                user.modify(ignore_license=True)
+        for user in user_dn:
+            user = self._get_user(obj.lo, user)
+            if not user:
+                continue
+            oxDeputyPermissionGivenTo = []
+            for entry in user.info.get("oxDeputyPermissionGivenTo", []):
+                if obj.lo.compare_dn(entry[0].lower(), obj.old_dn.lower()):
+                    oxDeputyPermissionGivenTo.append([obj.dn] + entry[1:])
+                else:
+                    oxDeputyPermissionGivenTo.append(entry)
+            user.info["oxDeputyPermissionGivenTo"] = oxDeputyPermissionGivenTo
+            user.info["_no_validate_user_in_ox_deputy_permission_hook"] = True
+            user.modify(ignore_license=True)
+
+    def hook_ldap_pre_move(self, obj):
+        # FIXME: Bug #57709
+        old = obj.info.get("oxDeputyPermissionGivenTo", [])
+        new = [u' |:$:| '.join(entry) for entry in old]
+        obj.info['oxDeputyPermissionGivenTo'] = new
+
+        # i think this is not needed. but _maybe_ a second, yet unknown
+        # ldap_pre_move hook would set the oxContext based on the container or
+        # so? although... how would the hook ensure it runs first?
+        # self.validate_user(obj)
+
+    def hook_ldap_post_move(self, obj):
+        self.hook_ldap_post_modify(obj)
 
     def hook_ldap_post_remove(self, obj):
         self.clear_referencing_deputies(obj)
@@ -170,28 +199,23 @@ class oxDeputyPermissionHook(simpleHook):
             )
         for entry in entries:
             user_dn = entry[0]
-            if user_dn == obj.dn:
+            if obj.lo.compare_dn(user_dn.lower(), obj.dn.lower()):
                 raise univention.admin.uexceptions.valueError(
                     _(
                         "The deputy permission cannot be granted for the same object.",
                     ),
                 )
-            for user in univention.admin.handlers.users.user.lookup(
-                obj.co,
-                obj.lo,
-                filter_s='',
-                base=user_dn,
-            ):
-                # should be exactly one... but who knows...
-                user.open()
-                user_ox_context = user["oxContext"]
-                obj_ox_context = obj["oxContext"]
-                if str(user_ox_context) != str(obj_ox_context):
-                    raise univention.admin.uexceptions.valueError(
-                        _(
-                            "Deputy permissions can only be granted for users in the same OX context.",
-                        ),
-                    )
+            user = self._get_user(obj.lo, user_dn)
+            if not user:
+                continue
+            user_ox_context = user["oxContext"]
+            obj_ox_context = obj["oxContext"]
+            if str(user_ox_context) != str(obj_ox_context):
+                raise univention.admin.uexceptions.valueError(
+                    _(
+                        "Deputy permissions can only be granted for users in the same OX context.",
+                    ),
+                )
 
     def clear_referencing_deputies(self, obj):
         """Search all users with deputy permission regarding obj and remove this entry"""
@@ -201,21 +225,14 @@ class oxDeputyPermissionHook(simpleHook):
             filter_format('oxDeputyPermissionGivenTo=%s |:$:| *', [obj.dn]),
         )
         for dn in user_dn:
-            for user in univention.admin.handlers.users.user.lookup(
-                obj.co,
-                obj.lo,
-                filter_s='',
-                base=dn,
-            ):
-                # should be exactly one... but who knows...
-                user.open()
-                oxDeputyPermissionGivenTo = []
-                for entry in user.info.get("oxDeputyPermissionGivenTo", []):
-                    if entry[0] == obj.old_dn:
-                        pass
-                    else:
-                        oxDeputyPermissionGivenTo.append(entry)
-                user.info["oxDeputyPermissionGivenTo"] = (
-                    oxDeputyPermissionGivenTo
-                )
-                user.modify(ignore_license=True)
+            user = self._get_user(obj.lo, dn)
+            if not user:
+                continue
+            oxDeputyPermissionGivenTo = []
+            for entry in user.info.get("oxDeputyPermissionGivenTo", []):
+                if obj.compare_dn(entry[0].lower(), obj.old_dn.lower()):
+                    pass
+                else:
+                    oxDeputyPermissionGivenTo.append(entry)
+            user.info["oxDeputyPermissionGivenTo"] = oxDeputyPermissionGivenTo
+            user.modify(ignore_license=True)

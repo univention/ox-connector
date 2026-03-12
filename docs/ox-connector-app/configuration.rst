@@ -329,7 +329,7 @@ App Settings
    Administrators then can set, modify, or delete deputy permissions for users in the UMC.
 
    For example, administrators can grant ``user01`` the roles *Viewer*, *Editor*, and *Author*
-   for the calendar and mail module for ``user01``.
+   for the calendar and mail module for ``user02``.
    Furthermore, ``user01`` can send emails on behalf of ``user02``.
 
    The default value is ``False``.

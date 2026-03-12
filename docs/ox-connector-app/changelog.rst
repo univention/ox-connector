@@ -12,6 +12,20 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v2.3.6:
+
+v2.3.6
+======
+
+Released: 2026-03-12
+
+Fixed
+-----
+
+Users can give deputy permissions to other users (`oxDeputyPermissionGivenTo`).
+These references have to be updated on changes to that user. This was not done
+in case of a move operation in LDAP. This has been fixed.
+
 .. _app-changelog-v2.3.5:
 
 v2.3.5
