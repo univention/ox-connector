@@ -9,7 +9,8 @@ import logging
 from contextlib import contextmanager
 from pathlib import Path
 
-from migrate import db_version_key, migrate_db
+if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
+    from migrate import db_version_key, migrate_db
 
 from univention.ox.provisioning.helpers import normalized_dn
 from univention.ox.provisioning.users import User
