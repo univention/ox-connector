@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.0...v0.36.1) (2026-03-12)
+
+
+### Bug Fixes
+
+* Bump ucs-base-image ([64d1b0b](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/64d1b0b41e23cc930c4cfb31c7c8e0bab194d55d)), closes [univention/dev/internal/team-nubus#1477](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1477)
+
 ## [0.36.0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.35.1...v0.36.0) (2026-02-27)
 
 
