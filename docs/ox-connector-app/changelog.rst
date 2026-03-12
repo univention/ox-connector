@@ -26,6 +26,14 @@ Users can give deputy permissions to other users (`oxDeputyPermissionGivenTo`).
 These references have to be updated on changes to that user. This was not done
 in case of a move operation in LDAP. This has been fixed.
 
+Please note that the fix is not automatically applied during an upgrade of the
+App. You need to manually run the integration scripts.
+
+.. code-block:: console
+   :caption: Run the join script even though this version of the script has already been executed.
+
+   $ univention-run-join-scripts --run-scripts 50ox-connector.inst --force
+
 .. _app-changelog-v2.3.5:
 
 v2.3.5

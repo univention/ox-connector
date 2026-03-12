@@ -40,11 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-<<<<<<< HEAD
 VERSION=18
-=======
-VERSION=20
->>>>>>> 1051573 (fix(oxdeputy-hook): Fix references on user moves)
 APP_ID="ox-connector"
 SERVICE='ox'
 
