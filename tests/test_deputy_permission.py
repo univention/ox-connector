@@ -106,6 +106,75 @@ def test_disallow_permissions_with_different_contexts(
 
 
 @pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
+def test_update_reference(
+    new_user_name_generator,
+    create_ox_user,
+    udm,
+    get_udm_user,
+):
+    manager_name = new_user_name_generator()
+    manager = create_ox_user(manager_name)
+    deputy_name = new_user_name_generator()
+    deputy = create_ox_user(deputy_name)
+    udm.modify(
+        "users/user",
+        manager.dn,
+        {
+            "oxDeputyPermissionGivenTo": [
+                [deputy.dn, "08444", "08444", True],
+            ],
+        },
+    )
+
+    # normal
+    manager = get_udm_user(manager_name)
+    assert manager.properties["oxDeputyPermissionGivenTo"] == [
+        [deputy.dn, "08444", "08444", True],
+    ]
+    old_deputy_dn = deputy.dn
+
+    # rename deputy
+    deputy_name = deputy_name + "-2"
+    new_deputy_dn = udm.modify(
+        "users/user",
+        old_deputy_dn,
+        {"username": deputy_name},
+    )
+    assert new_deputy_dn != old_deputy_dn
+    manager = get_udm_user(manager_name)
+    assert manager.properties["oxDeputyPermissionGivenTo"] == [
+        [new_deputy_dn, "08444", "08444", True],
+    ]
+
+    # move deputy
+    old_deputy_dn = new_deputy_dn
+    container_name = new_user_name_generator()
+    container_dn = udm.create("container/cn", None, {"name": container_name})
+    new_deputy_dn = udm.move("users/user", old_deputy_dn, container_dn)
+    assert new_deputy_dn != old_deputy_dn
+    manager = get_udm_user(manager_name)
+    assert manager.properties["oxDeputyPermissionGivenTo"] == [
+        [new_deputy_dn, "08444", "08444", True],
+    ]
+
+    # rename container
+    old_deputy_dn = new_deputy_dn
+    container_name = new_user_name_generator()
+    new_container_dn = udm.modify(
+        "container/cn",
+        container_dn,
+        {"name": container_name},
+    )
+    assert new_container_dn != container_dn
+    new_deputy_dn = get_udm_user(deputy_name).dn
+    assert new_deputy_dn != old_deputy_dn
+    manager = get_udm_user(manager_name)
+    assert manager.properties["oxDeputyPermissionGivenTo"] == [
+        [new_deputy_dn, "08444", "08444", True],
+    ]
+
+
+@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_create_deputy_with_user_create(create_ox_user, get_udm_user):
     deputy = create_ox_user()
     permission = [deputy.dn, "00000", "08444", True]
@@ -280,7 +349,7 @@ def make_params():
         yield pytest.param(perm1, perm2, send_as, marks=marks)
 
 
-@pytest.mark.skipif(not is_enabled(), reason="Deputy permission not enabled")
+@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 @pytest.mark.parametrize("perm1, perm2, send_as", list(make_params()))
 # FIXME: AttributeError: 'NoneType' object has no attribute 'userId'
 def test_create_deputy_permission(

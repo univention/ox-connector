@@ -281,7 +281,10 @@ class UDMTest(object):
     def create(self, module, position, attrs):
         print("Adding {} object in {}".format(module, position))
         mod = self.client.get(module)
-        obj = mod.new(position="{},{}".format(position, self.ldap_base))
+        if position:
+            obj = mod.new(position="{},{}".format(position, self.ldap_base))
+        else:
+            obj = mod.new(position=self.ldap_base)
         obj.properties.update(attrs)
         obj.save()
         dn = obj.dn
@@ -306,6 +309,22 @@ class UDMTest(object):
                 pass
             dns.append(new_dn)
             self.new_objs[module] = dns
+        return new_dn
+
+    def move(self, module, dn, position):
+        print("Moving {} object {} into {}".format(module, dn, position))
+        obj = self.client.get(module).get(dn)
+        obj.position = position
+        obj.save()
+        new_dn = obj.dn
+        print("Successfully moved {} to {}".format(dn, new_dn))
+        dns = self.new_objs.get(module, [])
+        try:
+            dns.remove(dn)
+        except ValueError:
+            pass
+        dns.append(new_dn)
+        self.new_objs[module] = dns
         return new_dn
 
     def remove(self, module, dn, remove_from_new_objs=True):
