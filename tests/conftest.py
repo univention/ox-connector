@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from udm_rest import UDM
+from udm_rest import UDM, UnprocessableEntity
 
 from univention.ox.soap.config import _CREDENTIALS
 from univention.ox.provisioning.key_value_store import KeyValueStore
@@ -266,12 +266,19 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
             "oxmail/accessprofile",
         ]:
             if module_name in modules:
-                modules.remove(module_name)
+                try:
+                    modules.remove(module_name)
+                except UnprocessableEntity:
+                    pass
+
                 modules.append(module_name)
         for module in modules:
             dns = _udm.new_objs[module]
             for dn in dns:
-                _udm.remove(module, dn, remove_from_new_objs=False)
+                try:
+                    _udm.remove(module, dn, remove_from_new_objs=False)
+                except UnprocessableEntity:
+                    pass
 
 
 @pytest.fixture
