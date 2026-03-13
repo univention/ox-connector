@@ -236,6 +236,7 @@ ENV UV_LINK_MODE=copy \
     PATH=/test-env/.venv/bin:$PATH \
     PYTHONPATH="/:$PYTHONPATH"
 
+COPY ./share/change_attribute_mapping.py /usr/local/share/ox-connector/resources/change_attribute_mapping.py
 COPY ./univention-ox-provisioning /test-env/univention-ox-provisioning
 COPY ./univention-ox-soap-api /test-env/univention-ox-soap-api
 COPY ./tests /test-env/tests
