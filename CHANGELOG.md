@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.36.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.1...v0.36.2) (2026-03-13)
+
+
+### Bug Fixes
+
+* **connector:** Do not allow groups in uniqueMember attribute in fupos ([1d44356](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/1d44356d529f371d5936978eba4d35b9c235f71d)), closes [univention/dev/projects/provisioning#124](https://git.knut.univention.de/univention/dev/projects/provisioning/issues/124)
+* **oxdeputy-hook:** Fix references on user moves ([1051573](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/105157335e7770def7a81b91f3a67e71cc2d3849)), closes [univention/dev/projects/open-xchange/connector#161](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/161)
+
 ## [0.36.1](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.0...v0.36.1) (2026-03-12)
 
 
