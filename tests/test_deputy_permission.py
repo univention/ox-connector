@@ -4,10 +4,7 @@
 import itertools
 
 import pytest
-from univention.ox.provisioning.deputy_permissions import (
-    is_enabled,
-    DeputyPermission,
-)
+from univention.ox.provisioning.deputy_permissions import DeputyPermission
 from univention.ox.provisioning.users import User
 
 from univention.ox.soap.backend_base import ActiveDeputyPermission
@@ -15,8 +12,23 @@ from univention.ox.soap.types import Types
 from udm_rest import UnprocessableEntity
 
 
-# this should set is_enabled() correctly for the test suite
-Types()
+@pytest.fixture(scope="session")
+def check_deputy_permissions_support(k8s_enabled):
+    enabled = False
+    # On k8s deployment we can not ask the local deployment, because tests are
+    # run locally against a remote ox connector
+    if k8s_enabled:
+        # TODO: Look at the corresponding configmap, or env var in the pod
+        enabled = False
+    else:
+        from univention.ox.provisioning.deputy_permissions import is_enabled
+
+        # this should set is_enabled() correctly for the test suite
+        Types()
+        enabled = is_enabled()
+
+    if not enabled:
+        pytest.skip("deputy permission not enabled")
 
 
 def get_user_id_from_udm_obj(obj) -> User:
@@ -52,8 +64,11 @@ def list_objs(
     return ret
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
-def test_disallow_deputy_myself(create_ox_user, udm):
+def test_disallow_deputy_myself(
+    check_deputy_permissions_support,
+    create_ox_user,
+    udm,
+):
     manager = create_ox_user()
     with pytest.raises(UnprocessableEntity):
         udm.modify(
@@ -67,8 +82,11 @@ def test_disallow_deputy_myself(create_ox_user, udm):
         )
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
-def test_disallow_two_permissions_between_same_users(create_ox_user, udm):
+def test_disallow_two_permissions_between_same_users(
+    check_deputy_permissions_support,
+    create_ox_user,
+    udm,
+):
     manager = create_ox_user()
     deputy = create_ox_user()
     with pytest.raises(UnprocessableEntity):
@@ -84,8 +102,8 @@ def test_disallow_two_permissions_between_same_users(create_ox_user, udm):
         )
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_disallow_permissions_with_different_contexts(
+    check_deputy_permissions_support,
     create_ox_user,
     create_ox_context,
     udm,
@@ -105,8 +123,8 @@ def test_disallow_permissions_with_different_contexts(
         )
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_update_reference(
+    check_deputy_permissions_support,
     new_user_name_generator,
     create_ox_user,
     udm,
@@ -174,8 +192,11 @@ def test_update_reference(
     ]
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
-def test_create_deputy_with_user_create(create_ox_user, get_udm_user):
+def test_create_deputy_with_user_create(
+    check_deputy_permissions_support,
+    create_ox_user,
+    get_udm_user,
+):
     deputy = create_ox_user()
     permission = [deputy.dn, "00000", "08444", True]
     manager = create_ox_user(
@@ -188,8 +209,8 @@ def test_create_deputy_with_user_create(create_ox_user, get_udm_user):
 # FIXME -> [] == [[XY]] assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_context_change_of_deputy(
+    check_deputy_permissions_support,
     create_ox_user,
     create_ox_context,
     get_udm_user,
@@ -217,8 +238,8 @@ def test_remove_permission_after_context_change_of_deputy(
 # FIXME -> udm_rest.UnprocessableEntity
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_context_change_of_manager(
+    check_deputy_permissions_support,
     create_ox_user,
     create_ox_context,
     get_udm_user,
@@ -245,8 +266,8 @@ def test_remove_permission_after_context_change_of_manager(
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == []
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_disable_manager_for_ox(
+    check_deputy_permissions_support,
     create_ox_user,
     get_udm_user,
     udm,
@@ -265,8 +286,8 @@ def test_remove_permission_after_disable_manager_for_ox(
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == []
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_permission_after_disable_deputy_for_ox(
+    check_deputy_permissions_support,
     create_ox_user,
     get_udm_user,
     udm,
@@ -286,8 +307,8 @@ def test_remove_permission_after_disable_deputy_for_ox(
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == []
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_remove_deputy_permission_after_delete(
+    check_deputy_permissions_support,
     create_ox_user,
     udm,
     get_udm_user,
@@ -307,8 +328,8 @@ def test_remove_deputy_permission_after_delete(
 
 
 # FIXME: [] == [[XY]]
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_modify_deputy_permission_after_rename(
+    check_deputy_permissions_support,
     create_ox_user,
     udm,
     get_udm_user,
@@ -349,10 +370,10 @@ def make_params():
         yield pytest.param(perm1, perm2, send_as, marks=marks)
 
 
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 @pytest.mark.parametrize("perm1, perm2, send_as", list(make_params()))
 # FIXME: AttributeError: 'NoneType' object has no attribute 'userId'
 def test_create_deputy_permission(
+    check_deputy_permissions_support,
     create_ox_user,
     udm,
     wait_for_listener,
@@ -400,8 +421,8 @@ def test_create_deputy_permission(
 
 
 # FIXME: Assert None is not None
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_removed_deputy_permission_on_manager_deletion(
+    check_deputy_permissions_support,
     create_ox_user,
     udm,
     wait_for_listener,
@@ -427,8 +448,8 @@ def test_removed_deputy_permission_on_manager_deletion(
 
 
 # FIXME: None is not None
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_removed_deputy_permission_on_deputy_deletion(
+    check_deputy_permissions_support,
     create_ox_user,
     udm,
     wait_for_listener,
@@ -457,6 +478,7 @@ def test_removed_deputy_permission_on_deputy_deletion(
     reason="user_service.get_user_capabilities always gives 'There are no capabilities set'",
 )
 def test_block_and_unblock(
+    check_deputy_permissions_support,
     create_ox_user,
     udm,
     wait_for_listener,
@@ -484,8 +506,8 @@ def test_block_and_unblock(
 
 
 # FIXME: AssertionError: assert 2 == 1
-@pytest.mark.skipif(not is_enabled(), reason="deputy permission not enabled")
 def test_create_deputy_permission_when_it_already_exists(
+    check_deputy_permissions_support,
     create_ox_user,
     default_ox_context,
     udm,
