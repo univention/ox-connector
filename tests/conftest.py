@@ -8,8 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from univention.ox.soap.config import _CREDENTIALS
-
 from udm_rest import UDM, UnprocessableEntity
 from utils import FileUtility, FileLogs, SubprocessRunner
 
@@ -381,7 +379,12 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
 
 
 @pytest.fixture
-def create_ox_context(udm, new_context_id_generator, wait_for_listener):
+def create_ox_context(
+    udm,
+    new_context_id_generator,
+    wait_for_listener,
+    k8s_enabled,
+):
     def _func(context_id=None):
         context_id = context_id or new_context_id_generator()
         dn = udm.create(
@@ -394,7 +397,11 @@ def create_ox_context(udm, new_context_id_generator, wait_for_listener):
             },
         )
         print("Created context", dn, "in UDM")
-        _CREDENTIALS.clear()
+
+        if not k8s_enabled:
+            from univention.ox.soap.config import _CREDENTIALS
+
+            _CREDENTIALS.clear()
         # Always wait for context to be created otherwise trying to access to context for
         # example by creating a object in the new context may crash the consumer.py with an auth error
         wait_for_listener(dn)

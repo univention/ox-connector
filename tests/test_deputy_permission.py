@@ -362,12 +362,7 @@ def make_params():
         ["00000", "02400", "02440", "08444"],
         [True, False],
     ):
-        marks = []
-        if perm1 == "00000" and perm2 == "00000":
-            marks.append(
-                pytest.mark.k8s_skip(reason="TODO: Fix test for Kubernetes."),
-            )
-        yield pytest.param(perm1, perm2, send_as, marks=marks)
+        yield pytest.param(perm1, perm2, send_as)
 
 
 @pytest.mark.parametrize("perm1, perm2, send_as", list(make_params()))

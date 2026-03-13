@@ -166,8 +166,18 @@ def test_modify_user(
     assert obj.sur_name == "Newman"
 
 
-@pytest.mark.k8s_skip(reason="TODO: This test has to be adapted for k8s.")
-@pytest.mark.parametrize("with_cache_rebuild", [False, True])
+@pytest.mark.parametrize(
+    "with_cache_rebuild",
+    [
+        False,
+        pytest.param(
+            True,
+            marks=pytest.mark.k8s_skip(
+                reason="k8s deployment does not allow manipulating the cache",
+            ),
+        ),
+    ],
+)
 def test_modify_context_admin(
     with_cache_rebuild,
     create_ox_context,

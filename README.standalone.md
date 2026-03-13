@@ -51,52 +51,128 @@ This process is expected to be run before releasing a new version. See the
 current tests status at the bottom of this file to compare your test run. It is
 recommended to keep an eye on it during development.
 
-1. Configure `zendis` cluster in your `~/.kube/config`. You may ask a Nubus developer to provide you access.
-1. Create your own branch `<username>/tests` in the [openDesk](https://gitlab.opencode.de/bmi/opendesk/deployment/opendesk/) repository.
-1. [Run a pipeline](https://gitlab.opencode.de/bmi/opendesk/deployment/opendesk/-/pipelines/new) on your branch with the following variable values:
-    * `NAMESPACE`: `uv-<your-username>`
-    * `CLUSTER`: `dev` (this cluster is meant for Zendis developers)
-    * `ENV_STOP_BEFORE`: `yes` (only if you want to fresh start and already have things on your namespace)
-    * `DEBUG_ENABLE`: `yes`
-    * `DEPLOY_SERVICES`: `yes` this will deploy the basic services such as databases
-    * `DEPLOY_UMS`: `yes`
-    * `DEPLOY_ELEMENT`: `yes` (for testing integrations with ox)
-    * `DEPLOY_OX`: `yes` (this will deploy the `ox-connector`)
-    * `DEPLOY_NEXTCLOUD`: `yes` (for testing integrations with ox)
-1. Install the dependencies and prepare the environment:
-    ```bash
-    kubectl --namespace=uv-<your-username> \
-    exec -it ox-connector-0 -- \
-    /bin/bash -c \
-    'python3 -m pip install pytest uritemplate --break-system-packages; mkdir -p /usr/local/share/ox-connector/resources/'
+1. Checkout opendesk `git@gitlab.opencode.de:bmi/opendesk/deployment/opendesk.git`
+1. Create custom config for ox-connector `ox-connector-customization.yaml.gotmpl` in opendesk root folder
     ```
-1. The standalone `ox-connector` image used in the deployment does not include
-tests, so you need to copy them:
-    ```bash
-    kubectl cp tests ox-connector-0:/ -n uv-<your-username>
-    kubectl cp share/ ox-connector-0:/usr/local/share/ox-connector/resources/ -n uv-<your-username>
+    openXchange:
+      # Debug logging is required for tests to get the correct event from the logs
+      logLevel: "DEBUG"
+      oxDeputyPermissions: true
     ```
-    > Make sure you are in the root of the `ox-connector` repository.
+1. Create config in opendesk repo `helmfiles/environments/dev/gaia-values.yaml.gotmpl`.
+    ```
+    ---
+    ingress:
+      ingressClassName: nginx
+    functional:
+      authentication:
+        twoFactor:
+          groups:
+            - foo
+      externalServices:
+        nubus:
+          udmRestApi:
+            enabled: true
+    certificate:
+      issuerRef:
+        name: letsencrypt-prod-dns
+      wildcard: false
 
-1. As an alternative to step 4 and 5, you could modify your statefulset to use the `ox-connector-standalone-test` image, that already includes test and test dependencies.
-Remember to increase the resources of the pod to at least `4Gi` memory. Also, it's mandatory to mount an `emptyDir` in `/tmp`.
-It is also recommended to set the pyest dir to a writeabke location, for example subdir of `/tmp`, otherwise the consumer might crash with authentication errors.
+    global:
+      imagePullPolicy: "Always"
+      domain: <namespace>.univention.dev
 
-1. Grab the credentials for the `Administrator` user by running:
-    ```bash
-    kubectl get secret -n "uv-<your-username>" ums-nubus-credentials -o jsonpath='{.data.administrator_password}' | base64 -d
+    # use your test image here when working on a feature branch
+    images:
+      oxConnector:
+        registry: "artifacts.software-univention.de"
+        repository: "nubus-dev/images/ox-connector-standalone"
+        tag: "0.36.0"
+
+    # enable debug logging and deputy permissions
+    customization:
+      release:
+        oxConnector:
+          writableTmpDir: "../../../ox-connector-customization.yaml.gotmpl"
+
+    # running the tests needs some memory
+    resources:
+      oxConnector:
+        limits:
+          memory: "3Gi"
+
+    apps:
+      cassandra:
+        enabled: false
+      certificates:
+        enabled: true
+      clamavDistributed:
+        enabled: false
+      clamavSimple:
+        enabled: false
+      collabora:
+        enabled: false
+      collaboraController:
+        enabled: false
+      cryptpad:
+        enabled: false
+      dkimpy:
+        enabled: false
+      dovecot:
+        enabled: true
+      element:
+        enabled: false
+      elementAdmin:
+        enabled: false
+      elementGroupsync:
+        enabled: false
+      home:
+        enabled: true
+      jitsi:
+        enabled: false
+      mariadb:
+        enabled: true
+      memcached:
+        enabled: true
+      migrations:
+        enabled: true
+      minio:
+        enabled: true
+      nextcloud:
+        enabled: false
+      notes:
+        enabled: false
+      nubus:
+        enabled: true
+      openproject:
+        enabled: false
+      oxAppSuite:
+        enabled: true
+      postfix:
+        enabled: true
+      postgresql:
+        enabled: true
+      redis:
+        enabled: true
+      staticFiles:
+        enabled: true
+      xwiki:
+        enabled: false
     ```
-    > Remember to drop the `%` at the end if you are using zsh - it is not part of the password.
-1. Get a shell in the `ox-connector` pod:
+1. Deploy opendesk to gaia `MASTER_PASSWORD="univention" helmfile apply -e dev -n jburgmeier-ox`
+1. Run your local tests against the remote k8s deploymend (this is the same mechanism used by the CI tests)
     ```bash
-    kubectl --namespace=uv-<your-username> \
-    exec --stdin --tty ox-connector-0 -- \
-    /bin/bash -c \
-    'TESTS_UDM_ADMIN_USERNAME="Administrator" TESTS_UDM_ADMIN_PASSWORD="somepassword" STANDALONE_KUBERNETES_TESTS=1 LDAP_MASTER="portal.uv-<username>.opendesk.site" LDAP_BASE="dc=swp-ldap,dc=internal" python3 -m pytest -o cache_dir=/tmp/.pytest_cache -l -vvv /tests'
-    ```
-1. Check the logs of the `ox-connector` pod for any errors:
-    ```bash
-    kubectl --namespace=uv-<your-username> logs ox-connector-0
+    docker compose run --remove-orphans --rm -ti \
+      -e K8S_NAMESPACE="jburgmeier-ox" \
+      -e LDAP_BASE="dc=swp-ldap,dc=internal" \
+      -e OX_SOAP_SERVER="https://webmail.<namespace>univention.dev" \
+      -e DEFAULT_CONTEXT=1 \
+      -e TESTS_UDM_ADMIN_USERNAME="Administrator" \
+      -e TESTS_UDM_ADMIN_PASSWORD="<some_password>" \
+      -e DOMAINNAME="<namespace>.univention.dev" \
+      -e PORTAL_HOST="portal.<namespace>.univention.dev" \
+      -e LDAP_MASTER="portal.<namespace>.univention.dev" \
+    k8s-tests -m "not k8s_skip"
     ```
 
 ## Tests status
@@ -109,32 +185,69 @@ The current status can be inspected in the output of the job
 `collect-k8s-skip-tests` and locally with the following command:
 
 ```
-pytest --k8s --collect-only -m k8s_skip tests
+docker compose run --rm -ti k8s-tests --k8s --collect-only -m k8s_skip tests
 ```
 
-This does require a deployment currently because the `test_deputy_permission.py`
-module does initialize the OX SOAP client during collection already.
+All deputy permissions test are currently disabled because checking if
+deputy permissions are enabled in the deployment is not yet implemented for
+k8s backends.
 
-### Status as of 2025-10-30
+All attribute mapping tests are currently disabled because uploading the
+generated `AttributeMapping.json` file is not implemented yet for k8s. It
+would require to enhance the `FileUtility` implementation to upload files.
+
+### Status as of 2026-03-13
 
 The following test cases are currently known to fail and marked with `k8s_skip`:
 
 ```
-<Dir connector>
+<Dir test-env>
   <Dir tests>
-    <Module test_cache.py>
-      <Function test_missing_user_cache_entry_gets_reloaded_during_group_creation>
-    <Module test_deputy_permission.py>
-      <Function test_create_deputy_permission[00000-00000-True]>
-      <Function test_create_deputy_permission[00000-00000-False]>
     <Module test_functional_account_setting.py>
       <Function test_functional_account_default_container>
     <Module test_group.py>
       <Function test_change_context_for_group_multi_user>
+        If a user changes the oxContext, the group needs to update its members
+        in the old and in the new context
       <Function test_change_context_for_group_user>
-    <Module test_resource.py>
-      <Function test_unset_all_attributes_resource>
+        If a user changes the oxContext, the group should be removed from the old
+        context and created in the new context
     <Module test_user.py>
-      <Function test_modify_context_admin[False]>
       <Function test_modify_context_admin[True]>
+        Adding/Modifying a user with the same name as an OX context admin
+        is to be ignored as e.g. writing the password hash of the LDAP
+        user into OX will break the authentication from the ox-connector side
+      <Function test_existing_user_in_different_context>
+        User already exists in OX DB (legacy data?) and a new
+        user with the same name is created in UDM. First a another
+        context; then the user is moved to the original context
 ```
+
+ - `test_modify_context_admin[True]>`: Manipulating the OX cache does not work in k8s
+ - `test_existing_user_in_different_context`: When log streaming fails log gathering fallsback to polling,
+   and in the test we wait for the same dn in to subsequent occosions it might be that
+   the first log line is also hit by the second wait. Adding a sleep made the test work, but to fix it
+   properly the polling fallback should ignore lines which already provided a hit for a wait.
+ - `test_change_context_for_group_multi_user` and `test_change_context_for_group_user`:
+   During a context move the old group is deleted because it is empty now but the new gr oup is not created.
+   Might be an actual bug in the k8s implementation.
+
+   From the logs:
+    ```
+    2026-03-13 13:37:01,458 INFO  [backend.remove:271] Deleted user 'user105' in context 104 (id=3).
+    2026-03-13 13:37:01,459 INFO  [users.delete_user:557] User was deleted, searching for now empty groups
+    2026-03-13 13:37:01,459 INFO  [users.delete_user:559] Found group users with 2 members
+    2026-03-13 13:37:01,459 INFO  [users.delete_user:559] Found group group103 with 1 members
+    2026-03-13 13:37:01,459 INFO  [users.delete_user:564] Thus, deleting group 4 in 104...
+    2026-03-13 13:37:01,512 DEBUG [connectionpool._make_request:452] http://open-xchange-core-mw-admin.jburgmeier-ox.svc.cluster.local:80 "POST /webservices/OXGroupService HTTP/1.1" 200 109
+    2026-03-13 13:37:01,513 DEBUG [__init__.run:158] Processed: uid=user105,cn=users,dc=swp-ldap,dc=internal
+    2026-03-13 13:37:01,513 INFO  [consumer.modify:386] Updating object OX ID in known objects from 104 to 106
+    2026-03-13 13:37:01,514 INFO  [consumer.modify:397] Updating object OX DB ID in known objects from None to 3
+    2026-03-13 13:37:01,514 DEBUG [consumer.modify:418] Finished MODIFY of 'users/user' 'uid=user105,cn=users,dc=swp-ldap,dc=internal' ('uid=user105,cn=users,dc=swp-ldap,dc=internal') in 2395.9 ms.
+    ```
+  - `test_functional_account_default_container`: Maybe some configuration problem
+    ```
+    E           udm_rest.UnprocessableEntity: PUT https://portal.jburgmeier-ox.univention.dev/univention/udm/settings/directory/cn%3Ddefault%20containers%2Ccn%3Dunivention%2Cdc%3Dswp-ldap%2Cdc%3Dinternal: 422
+    E           1 error(s) occurred:
+    E           Request argument "ox_functional_accounts" The Preferences: Default Container module has no property ox_functional_accounts.
+    ```
