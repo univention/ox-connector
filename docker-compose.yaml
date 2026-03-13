@@ -145,6 +145,19 @@ services:
       retries: 10
       start_period: "5s"
 
+  k8s-tests:
+    container_name: "ox-connector-k8s-tests"
+    image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest
+    volumes:
+      - "./tests/:/test-env/tests:ro"
+      - "~/.kube/config:/root/.kube/config:ro"
+    environment:
+      # This specific value is tested in tests/test_user.py::test_modify_mailserver
+      OX_IMAP_SERVER: imap://127.0.0.1:143
+    working_dir: /test-env
+    entrypoint: ["pytest", "-vll", "--k8s", "-k", "not test_user_attribute_mapping"]
+    command: ["tests"]
+
 volumes:
   # Notifier + OpenLDAP
   ldap-shared-data:
