@@ -744,6 +744,9 @@ def test_change_context(
     find_obj(new_context_id2, new_user_name)
 
 
+@pytest.mark.k8s_skip(
+    reason="Waiting for the same DN fails when k8s log backend falls back to polling because of 'fsnotify too many open files'.",
+)
 def test_existing_user_in_different_context(
     create_ox_context,
     new_user_name,
@@ -757,7 +760,7 @@ def test_existing_user_in_different_context(
     context; then the user is moved to the original context
     """
     User = get_ox_integration_class("SOAP", "User")
-    new_context_id = create_ox_context(wait=True)
+    new_context_id = create_ox_context()
     mail_address = "{}@{}".format(new_user_name, domainname)
     legacy_user = User(
         context_id=new_context_id,

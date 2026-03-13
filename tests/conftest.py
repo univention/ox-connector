@@ -18,6 +18,13 @@ TEST_LOG_FILE = Path("/tmp/test.log")
 log = logging.getLogger(__name__)
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "skip_platform(platform): skip test for the given platform (ucs or k8s)",
+    )
+
+
 def pytest_addoption(parser):
     k8s_group = parser.getgroup("k8s", "Kubernetes related options")
     k8s_group.addoption(
@@ -375,7 +382,7 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
 
 @pytest.fixture
 def create_ox_context(udm, new_context_id_generator, wait_for_listener):
-    def _func(context_id=None, wait=False):
+    def _func(context_id=None):
         context_id = context_id or new_context_id_generator()
         dn = udm.create(
             "oxmail/oxcontext",
@@ -388,8 +395,9 @@ def create_ox_context(udm, new_context_id_generator, wait_for_listener):
         )
         print("Created context", dn, "in UDM")
         _CREDENTIALS.clear()
-        if wait:
-            wait_for_listener(dn)
+        # Always wait for context to be created otherwise trying to access to context for
+        # example by creating a object in the new context may crash the consumer.py with an auth error
+        wait_for_listener(dn)
         return context_id
 
     return _func
@@ -506,6 +514,33 @@ def k8s_ox_connector(k8s_enabled, request):
 
 
 @pytest.fixture(scope="session", autouse=True)
+def k8s_check_environment(k8s_enabled):
+    if not k8s_enabled:
+        return
+
+    # TODO:
+    # Check if debug logging is enabled on the ox-connector pod, if not the tests will fail
+    # the log line the k8s log utility is checking is only printed with debug logging
+
+    mandatory_env_vars = [
+        "OX_SOAP_SERVER",
+        "OX_IMAP_SERVER",
+        "DEFAULT_CONTEXT",
+        "TESTS_UDM_ADMIN_USERNAME",
+        "TESTS_UDM_ADMIN_PASSWORD",
+        "LDAP_BASE",
+        "DOMAINNAME",
+        "PORTAL_HOST",
+    ]
+
+    for var in mandatory_env_vars:
+        if var not in os.environ:
+            raise ValueError(
+                f"Env va '{var}' is required to run tests agains a k8s deployment",
+            )
+
+
+@pytest.fixture(scope="session", autouse=True)
 def k8s_patch_ox_credentials_reader(session_mocker, request, k8s_enabled):
     if not k8s_enabled:
         return
@@ -518,3 +553,21 @@ def k8s_patch_ox_credentials_reader(session_mocker, request, k8s_enabled):
         "Patching univention.ox.soap.config._get_credentials to read from the Kubernetes Pod.",
     )
     session_mocker.patch("univention.ox.soap.config._get_credentials", reader)
+
+
+@pytest.fixture
+def platform(k8s_enabled):
+    if k8s_enabled:
+        return "k8s"
+    else:
+        return "ucs"
+
+
+@pytest.fixture(autouse=True)
+def skip_by_platform(request, platform):
+    if request.node.get_closest_marker('skip_platform'):
+        if (
+            request.node.get_closest_marker('skip_platform').args[0]
+            == platform
+        ):
+            pytest.skip('skipped on this platform: {}'.format(platform))

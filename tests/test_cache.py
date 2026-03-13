@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
-import json
 import time
 import os
 import pytest
@@ -9,14 +8,20 @@ import logging
 from contextlib import contextmanager
 from pathlib import Path
 
-if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
-    from migrate import db_version_key, migrate_db
+from tempfile import NamedTemporaryFile
+from utils import FileUtility
 
 from univention.ox.provisioning.helpers import normalized_dn
 from univention.ox.provisioning.users import User
 from univention.ox.provisioning.groups import Group
 
 log = logging.getLogger(__name__)
+
+
+pytestmark = pytest.mark.skip_platform(
+    'ucs',
+    reason="The ucs deployment moved to sqlite DB and test needs to be adopted, currently only supports dbm",
+)
 
 
 class KeyValueStore(object):
@@ -56,13 +61,13 @@ def ox_mapping(file_utility):
 
 
 @pytest.fixture
-def test_db(file_utility):
-    db = KeyValueStore("migrate.db", file_utility)
+def test_db():
+    # Tests can run localy no need to access file on k8s pod
+    db = KeyValueStore("migrate.db", FileUtility())
 
-    yield db
-
-    with file_utility.open(db.db_fname, "w") as f:
-        f.truncate(0)
+    with NamedTemporaryFile() as ephermal_db:
+        db.db_fname = ephermal_db.name
+        yield db
 
 
 def find_obj(
@@ -119,20 +124,10 @@ def get_db_id(dn: str, max_retry: int = 5, db: KeyValueStore = None) -> int:
     if db_entry is None:
         return None
 
-    if os.environ.get("STANDALONE_KUBERNETES_TESTS"):
-        ox_id = int(db_entry.decode('utf-8'))
-    else:
-        with open(db_entry) as fd:
-            obj = json.load(fd)
-        ox_id = int(obj["object"].get("oxDbId"))
-
+    ox_id = int(db_entry.decode('utf-8'))
     return ox_id
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_ignore_user(create_ox_user, ox_mapping):
     """
     Test a non ox-user. Should not find a DB ID in cache
@@ -142,10 +137,6 @@ def test_ignore_user(create_ox_user, ox_mapping):
     assert db_id is None
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_add_user(
     create_ox_context,
     create_ox_user,
@@ -162,10 +153,6 @@ def test_add_user(
     assert obj.id == db_id
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_rename_user(
     create_ox_user,
     udm,
@@ -188,10 +175,6 @@ def test_rename_user(
     assert db_id == new_db_id
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
     create_ox_user,
     create_ox_group,
@@ -218,10 +201,8 @@ def test_missing_user_cache_entry_gets_reloaded_during_group_creation(
     assert reloaded_db_id == db_id
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
+# The non_ox_mapping DB only exists in standalone mode
+@pytest.mark.skip_platform('ucs')
 def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
     create_ox_user,
     udm,
@@ -249,10 +230,8 @@ def test_converting_non_ox_user_to_ox_user_updates_cache_correctly(
     assert db_id is None
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
+# The non_ox_mapping DB only exists in standalone mode
+@pytest.mark.skip_platform('ucs')
 def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     create_ox_user,
     udm,
@@ -281,10 +260,6 @@ def test_converting_ox_user_to_non_ox_user_updates_cache_correctly(
     assert db_id is None
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_change_context(
     create_ox_user,
     create_ox_context,
@@ -311,10 +286,6 @@ def test_change_context(
     assert db_id != new_db_id
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_remove_user(
     create_ox_user,
     create_ox_context,
@@ -337,10 +308,6 @@ def test_remove_user(
     assert db_id is None
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
 def test_non_normalized_dn(
     create_ox_user,
     create_ox_group,
@@ -364,11 +331,11 @@ def test_non_normalized_dn(
     assert obj.id == db_id
 
 
-@pytest.mark.skipif(
-    os.environ.get("STANDALONE_KUBERNETES_TESTS") is None,
-    reason="UCS does not use KeyValueStore",
-)
+# DB Migration only used in standalone mode
+@pytest.mark.skip_platform('ucs')
 def test_migrate_db_v1(test_db, new_user_name_generator):
+    migrate_lib = pytest.importorskip("migrate")
+
     with test_db.open("cs") as data:
         for i in range(100):
             if (i % 6) == 0:
@@ -382,24 +349,28 @@ def test_migrate_db_v1(test_db, new_user_name_generator):
                 dn = f"uid={name},cn=users,dc=swp-ldap,dc=internal"
             data[dn] = str(i)
 
-    assert migrate_db(test_db)
+    assert migrate_lib.migrate_db(test_db)
 
     with test_db.open() as data:
         for k in data.keys():
-            if k.decode("UTF-8").lower() == db_version_key.lower():
+            if k.decode("UTF-8").lower() == migrate_lib.db_version_key.lower():
                 continue
 
             assert k.decode("UTF-8") == normalized_dn(k)
 
     # DB is migrated so don't do it again
-    assert not migrate_db(test_db)
+    assert not migrate_lib.migrate_db(test_db)
 
 
+# DB Migration only used in standalone mode
+@pytest.mark.skip_platform('ucs')
 @pytest.mark.skipif(
     os.environ.get("PERFORMANCE_TESTS") is None,
     reason="Performance tests are disabled by default, if you want to run them add the env var PERFORMANCE_TESTS",
 )
 def test_migrate_performance(test_db, new_user_name_generator):
+    migrate_lib = pytest.importorskip("migrate")
+
     num_useres = 100000
     start = time.perf_counter()
     with test_db.open("cs") as data:
@@ -411,7 +382,7 @@ def test_migrate_performance(test_db, new_user_name_generator):
     print(f"Time: Adding {num_useres} users to DB - {end - start:.2f}s")
 
     migrate_start = time.perf_counter()
-    assert migrate_db(test_db)
+    assert migrate_lib.migrate_db(test_db)
     end = time.perf_counter()
     print(
         f"Time: Migrating DB with {num_useres} entries - {end - migrate_start:.2f}s",
@@ -420,7 +391,7 @@ def test_migrate_performance(test_db, new_user_name_generator):
     check_results_start = time.perf_counter()
     with test_db.open() as data:
         for k in data.keys():
-            if k.decode("UTF-8").lower() == db_version_key.lower():
+            if k.decode("UTF-8").lower() == migrate_lib.db_version_key.lower():
                 continue
 
             assert k.decode("UTF-8") == normalized_dn(k)
@@ -431,6 +402,6 @@ def test_migrate_performance(test_db, new_user_name_generator):
     )
 
     # DB is migrated so don't do it again
-    assert not migrate_db(test_db)
+    assert not migrate_lib.migrate_db(test_db)
     end = time.perf_counter()
     print(f"Time: Overall - {end - start:.2f}s")
