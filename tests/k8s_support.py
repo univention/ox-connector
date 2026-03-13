@@ -433,6 +433,9 @@ class K8sOXCredentialsReader:
 
 def discover_namespace() -> str:
     _, active_context = config.list_kube_config_contexts()
+    if "K8S_NAMESPACE" in os.environ:
+        return os.environ["K8S_NAMESPACE"]
+
     namespace = active_context["context"].get("namespace", "default")
     log.info("Discovered target namespace: %s", namespace)
     return namespace
