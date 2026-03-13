@@ -230,7 +230,7 @@ class oxDeputyPermissionHook(simpleHook):
                 continue
             oxDeputyPermissionGivenTo = []
             for entry in user.info.get("oxDeputyPermissionGivenTo", []):
-                if obj.compare_dn(entry[0].lower(), obj.old_dn.lower()):
+                if obj.lo.compare_dn(entry[0].lower(), obj.old_dn.lower()):
                     pass
                 else:
                     oxDeputyPermissionGivenTo.append(entry)
