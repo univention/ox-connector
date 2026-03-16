@@ -33,9 +33,30 @@ data:
   LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash
-    until curl -s ${PROVISIONING_API_BASE_URL} > /dev/null; do
-      echo "Waiting for API"
-      sleep 2
+    set -uo pipefail
+
+    retry_interval=2
+    response_code=404
+    timeout_duration=120
+    end_time=$((SECONDS + timeout_duration))
+
+    while [ "$response_code" -ne 200 ]; do
+      if [ $SECONDS -ge $end_time ]; then
+        echo "Timeout reached. Exiting."
+        exit 1
+      fi
+
+      echo "Waiting for the Provisioning API to be available ..."
+      response_code=$(set +x; curl -s -o response.txt -w "%{http_code}" "${PROVISIONING_API_BASE_URL}/v1/subscriptions/${PROVISIONING_API_USERNAME}" -u "${PROVISIONING_API_USERNAME}":"${PROVISIONING_API_PASSWORD}")
+      if [ "${response_code}" -ne 200 ]; then
+        echo "Provisioning API is not reachable, status code: $response_code"
+        cat response.txt
+        sleep ${retry_interval}
+      else
+        echo "The Provisioning API is reachable"
+        exit 0
+      fi
     done
 
-    echo "Success, the Provisioning API is available"
+    echo "Permanent error ocurred. Exiting."
+    exit 1

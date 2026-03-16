@@ -45,17 +45,22 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        - name: wait-for-api
+        - name: wait-for-provisioning-api
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          command: [ "/bin/bash", "/scripts/wait-for-api.sh" ]
+          command: ["/bin/bash", "/scripts/wait-for-api.sh", "${PROVISIONING_API_BASE_URL}"]
           image: "{{ coalesce .Values.waitForDependency.image.registry .Values.global.imageRegistry }}/{{ .Values.waitForDependency.image.repository }}:{{ .Values.waitForDependency.image.tag }}"
           imagePullPolicy: {{ coalesce .Values.waitForDependency.image.pullPolicy .Values.global.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
-          {{- with .Values.oxConnector.extraEnvVars }}
           env:
+            - name: PROVISIONING_API_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.provisioningApi.auth.existingSecret "key" "password") | quote }}
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.provisioningApi.auth.existingSecret "defaultNameSuffix" "provisioning-api" "context" .) | quote }}
+          {{- with .Values.oxConnector.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}
           volumeMounts:
