@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.2...v0.36.3) (2026-03-16)
+
+
+### Bug Fixes
+
+* Improve waiting for provisioning API ([179c620](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/179c620cb6feb2d6e4ab6931c5aeff6def176620)), closes [univention/dev/internal/team-nubus#1580](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1580)
+
 ## [0.36.2](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.1...v0.36.2) (2026-03-13)
 
 
