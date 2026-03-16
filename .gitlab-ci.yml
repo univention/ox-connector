@@ -61,12 +61,6 @@ variables:
     options:
       - "yes"
       - "no"
-  DEPLOY_NAMESPACE:
-    description: "The namespace to deploy into."
-    value: "ci-ox-con-${CI_COMMIT_REF_SLUG}"
-  DEPLOY_SUBDOMAIN:
-    description: "The subdomain to prepend during the deployment."
-    value: "ci-ox-con-${CI_COMMIT_REF_SLUG}"
 
 .build-matrix: &build-matrix
   - IMAGE_NAME: "ox-connector-appcenter"

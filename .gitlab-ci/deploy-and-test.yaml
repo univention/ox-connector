@@ -12,6 +12,7 @@ include:
       namespace: "${DEPLOY_NAMESPACE}"
       domain: "${DEPLOY_SUBDOMAIN}-ox.review.univention.dev"
       needs:
+        - pipeline-configuration
         - deploy-namespace
 
 stages:
@@ -22,6 +23,8 @@ stages:
 
 
 variables:
+  DEPLOY_NAMESPACE: "ci-ox-con-${CI_COMMIT_REF_SLUG}"
+  DEPLOY_SUBDOMAIN: "ci-ox-con-${CI_COMMIT_REF_SLUG}"
   ENVIRONMENT_NAME: "${CI_COMMIT_REF_SLUG}/e2e-testrun-${DEPLOY_NAMESPACE}"
   NUBUS_HELM_BRANCH: "develop"
   NUBUS_CHART_VERSION: "*"
@@ -91,6 +94,7 @@ deploy-namespace:
 deploy-nubus-with-ox-connector:
   needs:
     - deploy-namespace
+    - pipeline-configuration
   stage: deploy
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
@@ -135,6 +139,7 @@ deploy-nubus-with-ox-connector:
 
 wait-until-ready:
   needs:
+    - pipeline-configuration
     - deploy-nubus-with-ox-connector
     - ox-lab-deploy
   stage: deploy
@@ -149,6 +154,7 @@ wait-until-ready:
 
 collect-k8s-skip-tests:
   needs:
+    - pipeline-configuration
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
     - deploy-nubus-with-ox-connector
@@ -178,6 +184,7 @@ collect-k8s-skip-tests:
 run-tests-k8s:
   # Run the tests against the deployment through the Kubernetes API.
   needs:
+    - pipeline-configuration
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
     - deploy-nubus-with-ox-connector
@@ -209,6 +216,7 @@ run-tests-k8s:
 
 run-tests-testimage:
   needs:
+    - pipeline-configuration
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
     - deploy-nubus-with-ox-connector
@@ -284,6 +292,7 @@ stop-deployment:
   stage: cleanup
   allow_failure: true
   needs:
+    - pipeline-configuration
     - deploy-nubus-with-ox-connector
     - ox-lab-deploy
     - run-tests-testimage
