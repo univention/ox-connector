@@ -13,7 +13,6 @@ def create_obj(
     domainname,
     personal,
     users,
-    groups,
     position="cn=functional_accounts,cn=open-xchange",
 ):
     dn = udm.create(
@@ -24,7 +23,6 @@ def create_obj(
             "mailPrimaryAddress": "{}@{}".format(name, domainname),
             "personal": personal,
             "users": users,
-            "groups": groups,
         },
     )
     print("Created account", dn, "in UDM")
@@ -66,7 +64,6 @@ def test_add_functional_account_with_user_different_case_in_dn(
         domainname,
         "Personal",
         [user.dn.upper()],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -101,7 +98,6 @@ def test_add_functional_account_with_user(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -137,7 +133,6 @@ def test_add_functional_account_with_2_of_5_users(
         domainname,
         "Personal",
         [user1.dn, user2.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -171,7 +166,6 @@ def test_multiple_functional_accounts_same_user(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn1)
@@ -181,7 +175,6 @@ def test_multiple_functional_accounts_same_user(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn2)
@@ -214,7 +207,6 @@ def test_multiple_functional_accounts_different_user(
         domainname,
         "Personal",
         [user1.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn1)
@@ -224,7 +216,6 @@ def test_multiple_functional_accounts_different_user(
         domainname,
         "Personal",
         [user2.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn2)
@@ -263,7 +254,6 @@ def test_modify_functional_account(
         domainname,
         "Personal",
         [user1.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -308,7 +298,6 @@ def test_empty_functional_account(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -349,7 +338,6 @@ def test_remove_functional_account(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -384,7 +372,6 @@ def test_remove_user(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position=position,
     )
     wait_for_listener(dn)
@@ -419,7 +406,6 @@ def test_modify_user(
         domainname,
         "Personal",
         [user.dn],
-        [],
         position,
     )
     wait_for_listener(dn)
