@@ -19,7 +19,7 @@ and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 v0.36.2
 =======
 
-Released: 2026-03-12
+Released: 2026-03-17
 
 Removed
 -------
