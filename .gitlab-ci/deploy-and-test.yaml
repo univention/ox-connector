@@ -91,7 +91,7 @@ deploy-namespace:
     GIT_STRATEGY: none
 
 
-deploy-nubus-with-ox-connector:
+deploy-nubus:
   needs:
     - deploy-namespace
     - pipeline-configuration
@@ -116,11 +116,6 @@ deploy-nubus-with-ox-connector:
     - helmfile -n "${DEPLOY_NAMESPACE}" --state-values-file=../../ci/nubus-ci-overrides.yaml.gotmpl sync
     - popd
 
-    - echo "Deploy ox-connector via ci/helmfile"
-    - pushd ci
-    - helmfile -n "${DEPLOY_NAMESPACE}" sync
-    - popd
-
     - >
       echo TESTS_UDM_ADMIN_PASSWORD=$(
       kubectl get secret nubus-ldap-server-admin -n ${DEPLOY_NAMESPACE}
@@ -136,12 +131,44 @@ deploy-nubus-with-ox-connector:
     deployment_tier: development
   resource_group: gaia-${DEPLOY_NAMESPACE}
 
+deploy-ox-connector:
+  needs:
+    - deploy-namespace
+    - pipeline-configuration
+    - ox-lab-deploy
+  stage: deploy
+  image: "ghcr.io/helmfile/helmfile:v1.1.4\
+          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  script:
+    - export OX_CHART_VERSION=${RELEASE_VERSION}
+    - export REVIEW_PREFIX=${DEPLOY_SUBDOMAIN}
+
+    - echo "Grab the nubus-helm sources to get the gaia ci config"
+    - "[ ! -e nubus-helm ]"
+    - >
+      git clone
+      --depth 1
+      --branch "${NUBUS_HELM_BRANCH}"
+      https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/univention/dev/nubus-for-k8s/nubus-helm.git
+
+    - echo "Deploy ox-connector via ci/helmfile"
+    - pushd ci
+    - helmfile -n "${DEPLOY_NAMESPACE}" sync
+    - popd
+  environment:
+    name: ${ENVIRONMENT_NAME}
+    url: https://${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+    on_stop: stop-deployment
+    deployment_tier: development
+  resource_group: gaia-${DEPLOY_NAMESPACE}
+
 
 wait-until-ready:
   needs:
     - pipeline-configuration
-    - deploy-nubus-with-ox-connector
+    - deploy-nubus
     - ox-lab-deploy
+    - deploy-ox-connector
   stage: deploy
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
@@ -157,7 +184,7 @@ collect-k8s-skip-tests:
     - pipeline-configuration
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
-    - deploy-nubus-with-ox-connector
+    - deploy-nubus
   stage: "deploy"
   image: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
   script:
@@ -187,7 +214,7 @@ run-tests-k8s:
     - pipeline-configuration
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
-    - deploy-nubus-with-ox-connector
+    - deploy-nubus
   stage: "deploy"
   image: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
   script:
@@ -219,7 +246,7 @@ run-tests-testimage:
     - pipeline-configuration
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
-    - deploy-nubus-with-ox-connector
+    - deploy-nubus
   stage: "deploy"
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
@@ -293,8 +320,9 @@ stop-deployment:
   allow_failure: true
   needs:
     - pipeline-configuration
-    - deploy-nubus-with-ox-connector
+    - deploy-nubus
     - ox-lab-deploy
+    - deploy-ox-connector
     - run-tests-testimage
   image: "ghcr.io/helmfile/helmfile:v1.1.4\
           @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"

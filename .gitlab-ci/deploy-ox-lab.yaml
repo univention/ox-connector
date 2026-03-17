@@ -104,6 +104,9 @@ spec:
       # No contexts to be provisioned
       do_provisioning: false
 
+      # Reduce complexity and footprint
+      redis_deployment_mode: lab
+
       core_mw_extra_properties:
 
         # Additional configuration related to the deputy feature
