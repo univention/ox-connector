@@ -1,7 +1,7 @@
 [Application]
 ID = ox-connector
 Code = 31
-Version = 3.0.2
+Version = 3.1.0
 Name = OX Connector
 Vendor = Univention
 Contact = feedback@univention.de
