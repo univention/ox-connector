@@ -26,6 +26,8 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets-ox: {{ include (print $.Template.BasePath "/secret-ox-master-password.yaml") . | sha256sum }}
+        checksum/secrets-provisioning-api: {{ include (print $.Template.BasePath "/secret-provisioning-api.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}

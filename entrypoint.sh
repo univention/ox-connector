@@ -47,15 +47,21 @@ check_required_variables
 mkdir -p "/var/lib/univention-appcenter/apps/ox-connector/data/listener"
 
 # Write credentials file for univention/ox/soap/config.py
-JSON_STRING=$(
-  jq \
-    --null-input \
-    --arg user "${OX_MASTER_ADMIN}" \
-    --arg pass "${OX_MASTER_PASSWORD}" \
-    '{"master": {adminuser: $user, adminpass: $pass}}'
-  )
-
 if [[ ! -f "${OX_CREDENTIALS_FILE}" ]]; then
+  JSON_STRING=$(
+    jq \
+      --null-input \
+      --arg user "${OX_MASTER_ADMIN}" \
+      --arg pass "${OX_MASTER_PASSWORD}" \
+      '{"master": {adminuser: $user, adminpass: $pass}}'
+    )
+
   mkdir --parents "/etc/ox-secrets"
   echo "${JSON_STRING}" > "${OX_CREDENTIALS_FILE}"
+else
+  jq \
+    --arg user "${OX_MASTER_ADMIN}" \
+    --arg pass "${OX_MASTER_PASSWORD}" \
+    '.master.adminuser = $user | .master.adminpass = $pass' "${OX_CREDENTIALS_FILE}" > "${OX_CREDENTIALS_FILE}".tmp
+  mv "${OX_CREDENTIALS_FILE}".tmp "${OX_CREDENTIALS_FILE}"
 fi
