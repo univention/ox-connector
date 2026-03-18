@@ -222,7 +222,6 @@ run-tests-k8s:
       pytest --k8s --k8s-namespace="${DEPLOY_NAMESPACE}"
       -vl --log-level=info
       -m "not k8s_skip"
-      -k "not test_user_attribute_mapping"
       tests
   variables:
     DOMAINNAME: review.univention.dev
@@ -293,7 +292,6 @@ run-tests-testimage:
         -o cache_dir=/tmp/.pytest_cache \
         -vl \
         -m "not k8s_skip" \
-        -k "not test_user_attribute_mapping" \
         tests
       EOT
   variables:

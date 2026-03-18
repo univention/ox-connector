@@ -15,6 +15,12 @@ from univention.ox.provisioning.default_user_mapping import (
 from univention.ox.soap.backend_base import User, get_ox_integration_class
 
 
+pytestmark = pytest.mark.skip_platform(
+    'k8s',
+    reason="The tests require to write AttributeMapping.json currently there is no possibility to upload a file into the k8s pod",
+)
+
+
 T = typing.TypeVar("T")
 
 

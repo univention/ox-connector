@@ -19,7 +19,11 @@ def check_deputy_permissions_support(k8s_enabled):
     # run locally against a remote ox connector
     if k8s_enabled:
         # TODO: Look at the corresponding configmap, or env var in the pod
-        enabled = False
+        from univention.ox.provisioning.deputy_permissions import is_enabled
+
+        # this should set is_enabled() correctly for the test suite
+        Types()
+        enabled = is_enabled()
     else:
         from univention.ox.provisioning.deputy_permissions import is_enabled
 
@@ -28,7 +32,9 @@ def check_deputy_permissions_support(k8s_enabled):
         enabled = is_enabled()
 
     if not enabled:
-        pytest.skip("deputy permission not enabled")
+        pytest.skip(
+            "deputy permission not enabled, set OX_ENABLE_DEPUTY_PERMISSIONS to enable deputy permissions. In k8s make sure the variable is set in the container running the tests and in the ox-connector pod itself.",
+        )
 
 
 def get_user_id_from_udm_obj(obj) -> User:

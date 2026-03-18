@@ -155,7 +155,7 @@ services:
       # This specific value is tested in tests/test_user.py::test_modify_mailserver
       OX_IMAP_SERVER: imap://127.0.0.1:143
     working_dir: /test-env
-    entrypoint: ["pytest", "-vll", "--k8s", "-k", "not test_user_attribute_mapping"]
+    entrypoint: ["pytest", "-vll", "--k8s"]
     command: ["tests"]
 
 volumes:
