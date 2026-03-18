@@ -203,8 +203,6 @@ The following test cases are currently known to fail and marked with `k8s_skip`:
 ```
 <Dir test-env>
   <Dir tests>
-    <Module test_functional_account_setting.py>
-      <Function test_functional_account_default_container>
     <Module test_group.py>
       <Function test_change_context_for_group_multi_user>
         If a user changes the oxContext, the group needs to update its members
@@ -244,10 +242,4 @@ The following test cases are currently known to fail and marked with `k8s_skip`:
     2026-03-13 13:37:01,513 INFO  [consumer.modify:386] Updating object OX ID in known objects from 104 to 106
     2026-03-13 13:37:01,514 INFO  [consumer.modify:397] Updating object OX DB ID in known objects from None to 3
     2026-03-13 13:37:01,514 DEBUG [consumer.modify:418] Finished MODIFY of 'users/user' 'uid=user105,cn=users,dc=swp-ldap,dc=internal' ('uid=user105,cn=users,dc=swp-ldap,dc=internal') in 2395.9 ms.
-    ```
-  - `test_functional_account_default_container`: Maybe some configuration problem
-    ```
-    E           udm_rest.UnprocessableEntity: PUT https://portal.jburgmeier-ox.univention.dev/univention/udm/settings/directory/cn%3Ddefault%20containers%2Ccn%3Dunivention%2Cdc%3Dswp-ldap%2Cdc%3Dinternal: 422
-    E           1 error(s) occurred:
-    E           Request argument "ox_functional_accounts" The Preferences: Default Container module has no property ox_functional_accounts.
     ```

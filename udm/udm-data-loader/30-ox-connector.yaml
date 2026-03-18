@@ -2838,6 +2838,40 @@ properties:
   disableUDMWeb: false
   notEditable: false
 
+---
+action: create
+module: settings/extended_attribute
+position: cn=open-xchange,cn=custom attributes,cn=univention,{{ ldapBaseDn }}
+properties:
+  name: ox_functional_accounts
+  default: ""
+  module: [settings/directory]
+  ldapMapping: oxFunctionalAccountDefaultContainer
+  objectClass: oxDefaultContainers
+  shortDescription: Default container for OX functional accounts
+  longDescription: Default container for OX functional accounts
+  translationShortDescription:
+    de_DE: Standard-Container für Funktionspostfächer in OX"
+  translationLongDescription:
+    de_DE: Standard-Container für Funktionspostfächer in OX
+  tabName: OX App Suite
+  translationTabName:
+    de_DE: OX App Suite
+  overwriteTab:
+  valueRequired: false
+  CLIName: ox_functional_accounts
+  syntax: ldapDn
+  tabAdvanced:
+  mayChange: true
+  multivalue: true
+  deleteObjectClass: true
+  tabPosition: 1
+  overwritePosition:
+  doNotSearch: false
+  hook:
+  disableUDMWeb: false
+  notEditable: false
+
 # Create container
 ---
 action: create
