@@ -14,6 +14,21 @@ This changelog documents all notable changes to *OX Consumer*.
 This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+
+.. _consumer-changelog-v0.36.3:
+
+v0.36.3
+=======
+
+Released: 2026-XX-XX
+
+Fixed
+-----
+
+The ox-connector pod is now correctly updated and restarted when the `openXchange.auth.password`
+value is changed.
+
+
 .. _consumer-changelog-v0.36.2:
 
 v0.36.2
