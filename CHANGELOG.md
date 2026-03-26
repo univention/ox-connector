@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.36.4](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.3...v0.36.4) (2026-03-26)
+
+
+### Bug Fixes
+
+* Alwaus update /etc/ox-secrets/ox-contexts.json at startup in case secret has changed ([441de78](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/441de78513c3e14c9205167b81f3c978210fc80e)), closes [univention/dev/projects/open-xchange/connector#150](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/150)
+* Deploy ox-connector after OX ([fbf825b](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/fbf825b5658cb61a1f4b542d1a880c7eb9718fd1))
+* **deps:** Update Base Image ([b70bf9b](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/b70bf9b50890f550b7a24ae563f42d92905f394b)), closes [#0](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/issues/0)
+* Fix test_functional_account_default_container in k8s by mapping oxDefaultContainers into udm data loader ([a58a2cc](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/a58a2cc7fc1391327da6acea8a306d51d03c4018)), closes [univention/dev/internal/team-nubus#1580](https://git.knut.univention.de/univention/dev/internal/team-nubus/issues/1580)
+* Shorten DEPLOY_NAMESPACE if it is longer than 63 chars ([ff67610](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/commit/ff67610053d6cd4febd7a3843fdf7d045b6f7bb9))
+
 ## [0.36.3](https://git.knut.univention.de/univention/dev/projects/open-xchange/connector/compare/v0.36.2...v0.36.3) (2026-03-16)
 
 
