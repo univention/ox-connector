@@ -45,106 +45,6 @@ services:
       # Log level: DEBUG, INFO, WARNING, ERROR
       LOG_LEVEL: "DEBUG"
 
-  ldap-notifier:
-    container_name: "ox-connector-ldap-notifier"
-    platform: "linux/amd64"
-    image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-ldap/ldap-notifier:latest"
-    ports:
-      - "6669:6669"
-    volumes:
-      - "ldap-shared-data:/var/lib/univention-ldap/:rw"
-      - "ldap-shared-run:/var/run/slapd/:ro"
-    depends_on:
-      ldap-server:
-        condition: "service_healthy"
-    healthcheck:
-      test: "bash -c 'echo > /dev/tcp/localhost/6669'"
-      interval: "2s"
-      timeout: "1s"
-      retries: 10
-      start_period: "5s"
-
-  ldap-server:
-    container_name: "ox-connector-ldap-server"
-    platform: "linux/amd64"
-    image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-ldap/ldap-server:latest"
-    environment:
-      DOMAIN_NAME: "ldap.example.org"
-      LDAP_BASE_DN: "dc=example,dc=org"
-      # For binding with user "cn=admin,${LDAP_BASE_DN}"
-      LDAP_CN_ADMIN_PW: "ldap-password"
-      TLS_MODE: "off"
-    ports:
-      - "389:389"
-      - "636:636"
-    volumes:
-      - "./saml/idp/:/usr/share/saml/idp/:ro"
-      - "ldap-shared-data:/var/lib/univention-ldap/:rw"
-      - "ldap-shared-run:/var/run/slapd/:rw"
-    healthcheck:
-      test: "bash -c 'echo > /dev/tcp/localhost/389'"
-      interval: "2s"
-      timeout: "1s"
-      retries: 10
-      start_period: "5s"
-
-  ldap-admin:
-    container_name: "ox-connector-ldap-admin"
-    image: "osixia/phpldapadmin:0.9.0"
-    platform: "linux/amd64"
-    environment:
-      PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ox-connector-ldap-server':{'login':{'bind_id':'cn=admin,dc=example,dc=org'}}}]"
-      PHPLDAPADMIN_HTTPS: "false"
-      PHPLDAPADMIN_LDAP_CLIENT_TLS: "true"
-      PHPLDAPADMIN_LDAP_CLIENT_TLS_REQCERT: "never"
-    ports:
-      - "8080:80"
-    depends_on:
-      ldap-server:
-        condition: "service_healthy"
-    healthcheck:
-      test: "bash -c 'echo > /dev/tcp/localhost/80'"
-      interval: "2s"
-      timeout: "1s"
-      retries: 10
-      start_period: "5s"
-
-  udm-rest-api:
-    container_name: "ox-connector-udm-rest-api"
-    image: "gitregistry.knut.univention.de/univention/customers/dataport/upx/container-udm-rest/udm-rest-api:latest"
-    environment:
-      # ucr domainname
-      DOMAINNAME: "udm.example.org"
-      # ucr hostname
-      HOSTNAME: "udm.example.org:9979"
-      # ldap.conf and ucr ldap/master and ldap/server/name
-      LDAP_HOST: "ox-connector-ldap-server"
-      # ldap.conf and ucr ldap/master/port and ldap/server/port
-      LDAP_PORT: 389
-      # ldap.conf and ucr ldap/base
-      LDAP_BASE_DN: "dc=example,dc=org"
-      # ucr ldap/hostdn
-      LDAP_HOST_DN: "cn=admin,dc=example,dc=org"
-      # ldap.conf and ucr directory/manager/rest/ldap-connection/user-read/start-tls
-      TLS_REQCERT: "never"
-      # ucr directory/manager/rest/debug_level
-      DEBUG_LEVEL: "5"
-      # ucr directory/manager/rest/authorized-groups/domain-admins
-      AUTHORIZED_DOMAIN_ADMINS: "cn=Domain Admins,cn=groups,dc=example,dc=org"
-      # /etc/machine.secret
-      MACHINE_SECRET: "machine-password"
-    ports:
-      - "9979:9979"
-    depends_on:
-      ldap-server:
-        condition: "service_healthy"
-    healthcheck:
-      test: "bash -c 'echo > /dev/tcp/localhost/9979'"
-      interval: "2s"
-      timeout: "1s"
-      retries: 10
-      start_period: "5s"
-
   k8s-tests:
     container_name: "ox-connector-k8s-tests"
     image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest
@@ -158,9 +58,25 @@ services:
     entrypoint: ["pytest", "-vll", "--k8s"]
     command: ["tests"]
 
-volumes:
-  # Notifier + OpenLDAP
-  ldap-shared-data:
-  ldap-shared-run:
+  dev:
+    container_name: "ox-connector-dev"
+    image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest
+    volumes:
+        # needs to be mounted rw, because legacy setuptools is used which writes egg files
+      - "./univention-ox-provisioning/:/test-env/univention-ox-provisioning:rw"
+      - "./univention-ox-soap-api/:/test-env/univention-ox-soap-api:rw"
+      - "./tests:/test-env/tests:ro"
+      - "./uv.lock:/test-env/uv.lock:rw"
+      - "./pyproject.toml:/test-env/pyproject.toml:ro"
+      - "./standalone-files:/test-env/standalone-files:ro"
+      - "./scripts:/test-env/scripts:ro"
+      - "uv-cache:/root/.cache/uv"
+      - "shared-test-data:/tmp/"
+      - "shared-test-data2:/var/lib/univention-appcenter/apps/ox-connector/data/"
+    working_dir: /test-env
+    entrypoint: ["scripts/remote_consumer.py"]
 
-...
+volumes:
+  uv-cache:
+  shared-test-data:
+  shared-test-data2:
