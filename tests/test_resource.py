@@ -2,7 +2,6 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 import pytest
-from univention.ox.soap.backend_base import get_ox_integration_class
 
 
 def create_obj(udm, name, domainname, context_id, user, attrs=None):
@@ -26,19 +25,8 @@ def create_obj(udm, name, domainname, context_id, user, attrs=None):
     return dn
 
 
-def find_obj(context_id, name, assert_empty=False):
-    Resource = get_ox_integration_class("SOAP", "Resource")
-    objs = Resource.list(context_id, pattern=name)
-    if assert_empty:
-        assert len(objs) == 0
-    else:
-        assert len(objs) == 1
-        obj = objs[0]
-        print("Found", obj)
-        return obj
-
-
 def test_add_resource_in_default_context(
+    find_ox_object,
     default_ox_context,
     new_resource_name,
     create_ox_user,
@@ -53,13 +41,14 @@ def test_add_resource_in_default_context(
     user = create_ox_user(new_user_name)
     dn = create_obj(udm, new_resource_name, domainname, None, user)
     wait_for_listener(dn)
-    obj = find_obj(default_ox_context, new_resource_name)
+    obj = find_ox_object(default_ox_context, "Resource", new_resource_name)
     assert obj.display_name == new_resource_name
     assert obj.description == "A description for {}".format(new_resource_name)
     assert obj.email == "{}@{}".format(new_resource_name, domainname)
 
 
 def test_add_resource(
+    find_ox_object,
     new_context_id,
     new_resource_name,
     udm,
@@ -76,13 +65,14 @@ def test_add_resource(
     user = create_ox_user(new_user_name, new_context_id)
     dn = create_obj(udm, new_resource_name, domainname, new_context_id, user)
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_resource_name)
+    obj = find_ox_object(new_context_id, "Resource", new_resource_name)
     assert obj.display_name == new_resource_name
     assert obj.description == "A description for {}".format(new_resource_name)
     assert obj.email == "{}@{}".format(new_resource_name, domainname)
 
 
 def test_modify_resource(
+    find_ox_object,
     new_context_id,
     new_resource_name,
     udm,
@@ -107,13 +97,14 @@ def test_modify_resource(
     }
     udm.modify("oxresources/oxresources", dn, new_attrs)
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_resource_name)
+    obj = find_ox_object(new_context_id, "Resource", new_resource_name)
     assert obj.display_name == new_attrs["displayname"]
     assert obj.email == new_attrs["resourceMailAddress"]
     assert obj.description == new_attrs["description"]
 
 
 def test_remove_resource(
+    find_ox_object,
     new_context_id,
     new_resource_name,
     udm,
@@ -132,10 +123,16 @@ def test_remove_resource(
     wait_for_listener(dn)
     udm.remove("oxresources/oxresources", dn)
     wait_for_listener(dn)
-    find_obj(new_context_id, new_resource_name, assert_empty=True)
+    find_ox_object(
+        new_context_id,
+        "Resource",
+        new_resource_name,
+        assert_empty=True,
+    )
 
 
 def test_change_context_resource(
+    find_ox_object,
     new_context_id_generator,
     new_resource_name,
     udm,
@@ -172,8 +169,13 @@ def test_change_context_resource(
         },
     )
     wait_for_listener(dn)
-    find_obj(new_context_id, new_resource_name, assert_empty=True)
-    obj = find_obj(new_context_id2, new_resource_name)
+    find_ox_object(
+        new_context_id,
+        "Resource",
+        new_resource_name,
+        assert_empty=True,
+    )
+    obj = find_ox_object(new_context_id2, "Resource", new_resource_name)
     assert obj.display_name == "New Object in new Context"
     assert obj.description == "Soon in a new context"
 
@@ -227,6 +229,7 @@ def test_all_empty_attributes_resource(
 
 
 def test_unset_all_attributes_resource(
+    find_ox_object,
     default_ox_context,
     new_resource_name,
     udm,
@@ -255,7 +258,7 @@ def test_unset_all_attributes_resource(
         attrs=initial_attrs,
     )
     wait_for_listener(dn)
-    obj = find_obj(default_ox_context, resource_name)
+    obj = find_ox_object(default_ox_context, "Resource", resource_name)
 
     assert obj is not None
 
@@ -267,7 +270,11 @@ def test_unset_all_attributes_resource(
 
     udm.modify("oxresources/oxresources", dn, unset_attrs)
     wait_for_listener(dn)
-    obj_after_unset = find_obj(default_ox_context, resource_name)
+    obj_after_unset = find_ox_object(
+        default_ox_context,
+        "Resource",
+        resource_name,
+    )
 
     assert obj_after_unset.description is None
     assert obj_after_unset.name == resource_name

@@ -46,7 +46,8 @@ RUN \
   # dependency pytz of ${PYPKG}/zeep/xsd/types/builtins.py
   python3-tz=2022.7.* \
   # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
-  python3-zeep=4.2.*
+  python3-zeep=4.2.* \
+  python3-tenacity
   # python3-minimal \
   # python3.9-minimal
 
@@ -102,6 +103,8 @@ COPY --from=ox-connector /usr/lib/python3.9/site-packages/univention/ox/provisio
 
 # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
 COPY --from=debian-python-deps ${PDPKG}/zeep/ ${PYPKG}/zeep/
+
+COPY --from=debian-python-deps ${PDPKG}/tenacity/ ${PYPKG}/tenacity/
 
 # dependency zeep of ${PYPKG}/zeep/settings.py
 COPY --from=ox-connector /usr/lib/python3.9/site-packages/attr/ ${PYPKG}/attr/

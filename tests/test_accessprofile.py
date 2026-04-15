@@ -3,7 +3,6 @@
 
 import pytest
 
-from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.accessprofiles import (
     get_access_profile,
     get_access_profiles,
@@ -41,17 +40,9 @@ def create_obj(udm, name, right):
     return dn
 
 
-def find_access(context_id, name, assert_empty=False, print_obj=True):
-    User = get_ox_integration_class("SOAP", "User")
-    objs = User.list(context_id, pattern=name)
-    if assert_empty:
-        assert len(objs) == 0
-    else:
-        assert len(objs) == 1
-        obj = objs[0]
-        if print_obj:
-            print("Found", obj)
-        return obj.service(obj.context_id).get_module_access({"id": obj.id})
+def find_access(find_ox_object, context_id, name, assert_empty=False):
+    obj = find_ox_object(context_id, "User", name, assert_empty)
+    return obj.service(obj.context_id).get_module_access({"id": obj.id})
 
 
 @pytest.mark.parametrize(
@@ -91,6 +82,7 @@ def test_every_one_right_access_profile(
     right,
     right_soap,
     file_utility,
+    find_ox_object,
 ):
     """
     Create a right object for every right and test existance.
@@ -114,7 +106,7 @@ def test_every_one_right_access_profile(
         ox_access,
     )
     wait_for_listener(user_dn)
-    access = find_access(default_ox_context, new_user_name)
+    access = find_access(find_ox_object, default_ox_context, new_user_name)
     assert access[right_soap] is True
     for _right in access:
         if _right == "OLOX20" or _right == "publication":  # deprecated rights
@@ -170,6 +162,7 @@ def test_accessprofile_with_special_characters(
     domainname,
     special_character,
     file_utility,
+    find_ox_object,
 ):
     """
     Create an access profile with special characters and test existance.
@@ -193,7 +186,7 @@ def test_accessprofile_with_special_characters(
         ox_access,
     )
     wait_for_listener(user_dn)
-    access = find_access(default_ox_context, new_user_name)
+    access = find_access(find_ox_object, default_ox_context, new_user_name)
     assert access["USM"] is True
     for _right in access:
         if _right == "OLOX20" or _right == "publication":  # deprecated rights

@@ -12,7 +12,6 @@ import pytest
 from univention.ox.provisioning.default_user_mapping import (
     DEFAULT_USER_MAPPING,
 )
-from univention.ox.soap.backend_base import User, get_ox_integration_class
 
 
 pytestmark = pytest.mark.skip_platform(
@@ -50,26 +49,6 @@ def create_obj(
         _attrs,
     )
     return dn
-
-
-def find_obj(context_id, name, assert_empty=False, print_obj=True) -> User:
-    User = get_ox_integration_class("SOAP", "User")
-    objs = User.list(context_id, pattern=name)
-    if assert_empty:
-        assert len(objs) == 0
-    else:
-        assert len(objs) == 1
-        obj = objs[0]
-        if print_obj:
-            print("Found", obj)
-        return obj
-
-
-def delete_obj(context_id, name) -> None:
-    obj = find_obj(context_id, name)
-    print("Removing", obj.id, "directly in OX")
-    obj.remove()
-    find_obj(context_id, name, assert_empty=True)
 
 
 def no_none():
@@ -541,6 +520,7 @@ def attr_id(value: UserAttributeTest, index=[]) -> str:
 
 @pytest.mark.parametrize("user_test", user_attributes, ids=attr_id)
 def test_unset_set_mapping(
+    find_ox_object,
     create_ox_context,
     new_user_name,
     new_user_name_generator,
@@ -567,7 +547,7 @@ def test_unset_set_mapping(
     )
 
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name, print_obj=False)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     soap_value = getattr(obj, user_test.soap_name)
     assert soap_value is not None
 
@@ -588,7 +568,7 @@ def test_unset_set_mapping(
         {user_test.udm_name: value, "description": random_string()},
     )
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name, print_obj=False)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     soap_value = getattr(obj, user_test.soap_name)
     assert soap_value is None
 
@@ -610,7 +590,7 @@ def test_unset_set_mapping(
         {user_test.udm_name: value, "description": random_string()},
     )
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name, print_obj=False)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     soap_value = getattr(obj, user_test.soap_name)
     value = user_test.soap_value_from_udm_value(value)
     assert soap_value == value
@@ -619,6 +599,7 @@ def test_unset_set_mapping(
 
 
 def test_change_mapping(
+    find_ox_object,
     create_ox_context,
     new_user_name,
     udm,
@@ -651,7 +632,7 @@ def test_change_mapping(
         },
     )
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     assert obj.userfield01 == description
 
     run_command.run(
@@ -675,7 +656,7 @@ def test_change_mapping(
     )
 
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     assert obj.userfield01 == description2
 
     run_command.run(
@@ -693,6 +674,7 @@ def test_change_mapping(
 
 
 def test_use_alternative(
+    find_ox_object,
     create_ox_context,
     new_user_name,
     udm,
@@ -726,7 +708,7 @@ def test_use_alternative(
         },
     )
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     assert obj.email1 == new_mail_address
 
     # Check that after setting the main attribute that value is used
@@ -740,7 +722,7 @@ def test_use_alternative(
     )
 
     wait_for_listener(dn)
-    obj = find_obj(new_context_id, new_user_name)
+    obj = find_ox_object(new_context_id, "User", new_user_name)
     assert obj.email1 == new_mail_address2
 
     run_command.run(

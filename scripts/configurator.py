@@ -211,19 +211,3 @@ print(json.dumps(configs))
         remote_config["ox_secret_file"] = "/tmp/contexts.json"
 
         return remote_config
-
-
-class KubernetesConfigurator(RemoteConfigurator):
-    def __init__(
-        self,
-        namespace: str = "ox-connector",
-        operation: str = "kubernetes",
-    ):
-        self.namespace, self.operation, self.client = (
-            namespace,
-            operation,
-            None(),
-        )
-
-    def get_configurations(self) -> dict:
-        raise NotImplementedError()

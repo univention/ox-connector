@@ -55,7 +55,12 @@ def get_default_containers(uri, username, password):
         },
         'flavor': 'oxmail/functional_account',
     }
-    res = session.post(f"{uri}/command/udm/containers", data=data)
+    res = session.post(
+        f"{uri}/command/udm/containers",
+        data=data,
+        verify=False,
+    )
+    print(f"{uri}/command/udm/containers")
     return [i.get('id') for i in res.json().get('result')]
 
 

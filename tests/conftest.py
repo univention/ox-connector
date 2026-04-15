@@ -11,6 +11,14 @@ import pytest
 
 from udm_rest import UDM, UnprocessableEntity
 from utils import FileUtility, FileLogs, SubprocessRunner
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_fixed,
+    retry_if_exception_type,
+)
+
+from univention.ox.soap.backend_base import get_ox_integration_class
 
 TEST_LOG_FILE = Path("/tmp/test.log")
 
@@ -587,3 +595,36 @@ def skip_by_platform(request, platform):
             == platform
         ):
             pytest.skip('skipped on this platform: {}'.format(platform))
+
+
+@pytest.fixture
+def get_ox_object():
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_fixed(2),
+        retry=retry_if_exception_type(ConnectionError),
+        reraise=True,
+    )
+    def _get_ox_object(context_id, ox_object_type, pattern=None):
+        ox_obj = get_ox_integration_class("SOAP", ox_object_type)
+        return ox_obj.list(context_id, pattern=pattern)
+
+    return _get_ox_object
+
+
+@pytest.fixture
+def find_ox_object(get_ox_object):
+    def _find_ox_object(
+        context_id,
+        ox_object_type,
+        pattern,
+        assert_empty=False,
+    ):
+        ox_objs = get_ox_object(context_id, ox_object_type, pattern)
+        if assert_empty:
+            assert len(ox_objs) == 0
+        else:
+            assert len(ox_objs) == 1
+            return ox_objs[0]
+
+    return _find_ox_object

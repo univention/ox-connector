@@ -194,7 +194,6 @@ class RemoteConsumer:
                     env=consumer_env,
                     stdout=sys.stdout,
                     stderr=sys.stderr,
-                    stdin=sys.stdin,
                 )
                 logger.info(f"Consumer exit code: {result.returncode}")
 
@@ -209,7 +208,12 @@ class RemoteConsumer:
                 else:
                     return result.returncode
 
-    def run_tests(self, command: Optional[list[str]] = None) -> bool:
+    def run_tests(
+        self,
+        udm_username: str,
+        udm_password: str,
+        command: Optional[list[str]] = None,
+    ) -> bool:
         configs = self.get_configurations()
 
         if not configs:
@@ -220,13 +224,15 @@ class RemoteConsumer:
         test_env = os.environ.copy()
         test_env["LOG_LEVEL"] = "DEBUG"
         test_env["DOMAINNAME"] = configs["domain_name"]
-        test_env["TESTS_UDM_ADMIN_USERNAME"] = configs["ldap_admin_user"]
-        test_env["TESTS_UDM_ADMIN_PASSWORD"] = configs["ldap_admin_password"]
+        test_env["TESTS_UDM_ADMIN_USERNAME"] = udm_username
+        test_env["TESTS_UDM_ADMIN_PASSWORD"] = udm_password
         test_env["LDAP_BASE"] = configs["ldap_base"]
         test_env["DEFAULT_CONTEXT"] = configs["ox_default_context"]
         test_env["LDAP_MASTER"] = configs["ldap_server"]
-        test_env["OX_SOAP_SERVER"] = configs["ox_soap_server"]
         test_env["OX_CREDENTIALS_FILE"] = configs["ox_secret_file"]
+        test_env["OX_SMTP_SERVER"] = configs["ox_smtp_server"]
+        test_env["OX_IMAP_SERVER"] = configs["ox_imap_server"]
+        test_env["OX_SOAP_SERVER"] = configs["ox_soap_server"]
 
         logger.info(f"Applied configurations: {configs}")
 
@@ -241,7 +247,6 @@ class RemoteConsumer:
             env=test_env,
             stdout=sys.stdout,
             stderr=sys.stderr,
-            stdin=sys.stdin,
         ) as proc:
             exit_code = proc.wait()
             logger.info(f"Test exit code: {exit_code}")
@@ -312,9 +317,19 @@ def add_command_parser(parser):
     )
 
     # Test command
-    command_subparsers.add_parser(
+    test_parser = command_subparsers.add_parser(
         "test",
         help="Run tests locally using fetched configurations",
+    )
+    test_parser.add_argument(
+        "--udm_username",
+        help="Username to connect to UDM/UCM",
+        default="Administrator",
+    )
+    test_parser.add_argument(
+        "--udm_password",
+        help="Password to connect to UDM/UCM",
+        default="univention",
     )
 
     # Udm command
@@ -398,7 +413,7 @@ Examples:
             elif args.command == "run":
                 asyncio.run(remote.run_consumer(args.debug, args.restart))
             elif args.command == "test":
-                remote.run_tests(rest)
+                remote.run_tests(args.udm_username, args.udm_password, rest)
             elif args.command == "udm":
                 remote.run_udm(rest)
         except KeyboardInterrupt:

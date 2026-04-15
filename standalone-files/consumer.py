@@ -9,6 +9,13 @@ import os
 from importlib.metadata import version
 from typing import Any, Dict
 from pathlib import Path
+from requests.exceptions import ConnectionError
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_fixed,
+    retry_if_exception_type,
+)
 
 # 3rd party
 from univention.provisioning.consumer.api import (
@@ -67,6 +74,12 @@ def safe_decode(value):
     return value
 
 
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_fixed(2),
+    retry=retry_if_exception_type(ConnectionError),
+    reraise=True,
+)
 def _search_ox_context_for_user(distinguished_name: str):
     # The first part of the DN is the user name, extract it and use it to find the user in OX
     username = None
@@ -153,9 +166,16 @@ def _get_existing_object_ox_id(distinguished_name: str):
             logger.info(
                 f"Object {normalized_dn} not found in cache, searching it now in OX unnormalized {distinguished_name}",
             )
-            object_ox_id, object_ox_db_id, object_ox_db_uid = (
-                _search_ox_context_for_user(distinguished_name)
-            )
+            try:
+                object_ox_id, object_ox_db_id, object_ox_db_uid = (
+                    _search_ox_context_for_user(distinguished_name)
+                )
+            except ConnectionError:
+                logger.error(
+                    "Failed to query user from OX after 5 retries: {e}",
+                )
+            except Exception as e:
+                logger.error(f"Unexpected error: {e}")
 
             if (
                 object_ox_id is not None
@@ -464,12 +484,20 @@ def main() -> None:
         version("nubus-provisioning-consumer"),
     )
     consumer = OXConsumer(settings)
-    asyncio.run(
-        consumer.start_listening_for_changes(
-            ProvisioningConsumerClient,
-            MessageHandler,
-        ),
-    )
+
+    async def mainloop():
+        try:
+            await consumer.start_listening_for_changes(
+                ProvisioningConsumerClient,
+                MessageHandler,
+            )
+        except asyncio.exceptions.CancelledError:
+            logger.info("Mainloop cancelled -> shutting down")
+
+    try:
+        asyncio.run(mainloop())
+    except KeyboardInterrupt:
+        logger.info("Program interrupted by user (Ctrl+C). Shutting down...")
 
 
 if __name__ == "__main__":

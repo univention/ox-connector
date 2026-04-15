@@ -66,6 +66,12 @@ from zeep import Client as ZeepClient
 from zeep.cache import InMemoryCache
 from zeep.transports import Transport
 
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_fixed,
+    retry_if_exception_type,
+)
 from .config import OX_SOAP_SERVER
 
 if TYPE_CHECKING:
@@ -173,6 +179,12 @@ class OxSoapService(ZeepClient):
             **kwargs,
         )
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_fixed(2),
+        retry=retry_if_exception_type(ConnectionError),
+        reraise=True,
+    )
     def _call_ox(self, func: str, **kwargs: Any) -> Any:
         assert self.credentials.context_obj is not None
         try:
