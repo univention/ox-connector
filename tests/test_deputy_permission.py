@@ -50,6 +50,8 @@ def find_obj(context_id, manager, deputy) -> ActiveDeputyPermission:
     if objs:
         return objs[0]
 
+    return None
+
 
 def list_objs(
     context_id,

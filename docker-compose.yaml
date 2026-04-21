@@ -70,6 +70,7 @@ services:
       - "./pyproject.toml:/test-env/pyproject.toml:ro"
       - "./standalone-files:/test-env/standalone-files:ro"
       - "./scripts:/test-env/scripts:ro"
+      - "~/.kube/config:/root/.kube/config:ro"
       - "uv-cache:/root/.cache/uv"
       - "shared-test-data:/tmp/"
       - "shared-test-data2:/var/lib/univention-appcenter/apps/ox-connector/data/"

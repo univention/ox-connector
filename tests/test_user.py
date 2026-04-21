@@ -9,6 +9,7 @@ import subprocess
 
 import pytest
 
+from urllib.parse import urlparse
 from univention.ox.soap.backend_base import get_ox_integration_class
 
 T = typing.TypeVar("T")
@@ -673,8 +674,11 @@ def test_modify_mailserver(
     )
     wait_for_listener(dn)
     obj = find_ox_object(new_context_id, "User", new_user_name)
-    # would fail if default_imap_server has a different port...
-    assert obj.imap_server_string == "imap://" + mail_home_server + ":143"
+    url = urlparse(default_imap_server)
+    assert (
+        obj.imap_server_string
+        == f"{url.scheme}://{mail_home_server}:{url.port}"
+    )
 
 
 def test_remove_user(

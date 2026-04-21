@@ -7,7 +7,9 @@
 #     "univention-ox-soap-api",
 #     "nubus-provisioning-common>=v0.64.0",
 #     "nubus-provisioning-consumer>=v0.64.0",
-#     "udm-rest-api-client[cli]"
+#     "udm-rest-api-client[cli]",
+#     "kubernetes",
+#     "pyyaml"
 # ]
 #
 # [[tool.uv.index]]
@@ -15,8 +17,8 @@
 # url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple"
 #
 # [tool.uv.sources]
-# univention-ox-provisioning = { path = "../univention-ox-provisioning/", editable = false }
-# univention-ox-soap-api = { path = "../univention-ox-soap-api/", editable = false }
+# univention-ox-provisioning = { path = "../univention-ox-provisioning/", editable = true }
+# univention-ox-soap-api = { path = "../univention-ox-soap-api/", editable = true }
 # nubus-provisioning-consumer = { index = "univention" }
 # ///
 
@@ -29,24 +31,28 @@ Standalone Consumer Remote Control.
 Runs consumer locally using configurations fetched from remote hosts.
 """
 
-import anyio
 import asyncio
 import argparse
+import contextlib
 import sys
 import os
 import json
+import traceback
 
 import logging
 from typing import Optional
 from pathlib import Path
 from univention.provisioning.consumer.api import (
+    MessageHandler,
     ProvisioningConsumerClient,
     ProvisioningConsumerClientSettings,
 )
 from univention.provisioning.models.subscription import RealmTopic
 from subprocess import Popen
 
-from configurator import RemoteConfigurator, SSHConfigurator
+from configurator import RemoteConfigurator
+from ssh_configurator import SSHConfigurator
+from kubernetes_configurator import KubernetesConfigurator
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,6 +65,7 @@ logger = logging.getLogger(__name__)
 class ProvisioningSubsription:
     def __init__(
         self,
+        configurator,
         base_api_url: str,
         admin_user: str,
         admin_password: str,
@@ -74,6 +81,8 @@ class ProvisioningSubsription:
         )
 
         self.client = ProvisioningConsumerClient(client_settings)
+        configurator.patch_aiohttp_session(self.client.session)
+
         self.subscriber_name = subscriber_name
         self.subscriber_password = subscriber_password
         self.realms_topics = realms_topics
@@ -114,7 +123,7 @@ class RemoteConsumer:
             logger.error(f"Failed to fetch configurations: {e}")
             return {}
 
-    async def run_consumer(self, debug: bool, restart: bool) -> bool:
+    async def run_consumer(self, restart: bool) -> bool:
         """
         Fetch configurations and run consumer locally.
 
@@ -128,46 +137,55 @@ class RemoteConsumer:
 
         if not configs:
             logger.warning("No configurations available")
-            return False
+            return -1
 
-        subscriber_name = "ox-connector-dev"
-        subscriber_password = "ox-connector-dev"
+        if configs['create_own_subscription']:
+            subscriber_name = "ox-connector-dev"
+            subscriber_password = "ox-connector-dev"
 
-        provisioning_api_base_url = f"http://{configs['provisioning_api_host']}:{configs['provisioning_api_port']}"
-
-        async with ProvisioningSubsription(
-            provisioning_api_base_url,
-            configs["provisioning_admin_user"],
-            configs["provisioning_admin_password"],
-            subscriber_name,
-            subscriber_password,
-            [
-                RealmTopic(realm="udm", topic="users/user"),
-                RealmTopic(realm="udm", topic="groups/group"),
-                RealmTopic(realm="udm", topic="oxmail/oxcontext"),
-                RealmTopic(realm="udm", topic="oxmail/accessprofile"),
-                RealmTopic(realm="udm", topic="oxresources/oxresources"),
-                RealmTopic(realm="udm", topic="oxmail/functional_account"),
-            ],
-        ):
-            # Set environment variables from fetched configurations
-            consumer_env = os.environ.copy()
-            consumer_env["LOG_LEVEL"] = "DEBUG"
-            consumer_env["PROVISIONING_API_BASE_URL"] = (
-                provisioning_api_base_url
+            cm = ProvisioningSubsription(
+                self.configurator,
+                configs["provisioning_api_base_url"],
+                configs["provisioning_admin_user"],
+                configs["provisioning_admin_password"],
+                subscriber_name,
+                subscriber_password,
+                [
+                    RealmTopic(realm="udm", topic="users/user"),
+                    RealmTopic(realm="udm", topic="groups/group"),
+                    RealmTopic(realm="udm", topic="oxmail/oxcontext"),
+                    RealmTopic(realm="udm", topic="oxmail/accessprofile"),
+                    RealmTopic(realm="udm", topic="oxresources/oxresources"),
+                    RealmTopic(realm="udm", topic="oxmail/functional_account"),
+                ],
             )
-            consumer_env["PROVISIONING_API_USERNAME"] = subscriber_name
-            consumer_env["PROVISIONING_API_PASSWORD"] = subscriber_password
-            consumer_env["MAX_ACKNOWLEDGEMENT_RETRIES"] = "3"
+        else:
+            subscriber_name = configs["provisioning_api_username"]
+            subscriber_password = configs["provisioning_api_password"]
 
-            consumer_env["DOMAINNAME"] = configs["domain_name"]
-            consumer_env["OX_MASTER_ADMIN"] = configs["ox_master_admin"]
-            consumer_env["OX_MASTER_PASSWORD"] = configs["ox_master_password"]
-            consumer_env["OX_SMTP_SERVER"] = configs["ox_smtp_server"]
-            consumer_env["OX_IMAP_SERVER"] = configs["ox_imap_server"]
-            consumer_env["OX_SOAP_SERVER"] = configs["ox_soap_server"]
-            consumer_env["DEFAULT_CONTEXT"] = configs["ox_default_context"]
-            consumer_env["OX_CREDENTIALS_FILE"] = configs["ox_secret_file"]
+            cm = contextlib.nullcontext()
+
+        async with cm:
+            # Set environment variables from fetched configurations
+            os.environ["LOG_LEVEL"] = "DEBUG"
+            os.environ["PROVISIONING_API_BASE_URL"] = configs[
+                "provisioning_api_base_url"
+            ]
+            os.environ["PROVISIONING_API_USERNAME"] = subscriber_name
+            os.environ["PROVISIONING_API_PASSWORD"] = subscriber_password
+            os.environ["MAX_ACKNOWLEDGEMENT_RETRIES"] = "3"
+
+            os.environ["DOMAINNAME"] = configs["domain_name"]
+            os.environ["OX_MASTER_ADMIN"] = configs["ox_master_admin"]
+            os.environ["OX_MASTER_PASSWORD"] = configs["ox_master_password"]
+            os.environ["OX_SMTP_SERVER"] = configs["ox_smtp_server"]
+            os.environ["OX_IMAP_SERVER"] = configs["ox_imap_server"]
+            os.environ["OX_SOAP_SERVER"] = configs["ox_soap_server"]
+            os.environ["DEFAULT_CONTEXT"] = configs["ox_default_context"]
+            os.environ["OX_CREDENTIALS_FILE"] = configs["ox_secret_file"]
+            os.environ["OX_ENABLE_DEPUTY_PERMISSIONS"] = configs[
+                "ox_deputy_permissions"
+            ]
 
             # dir is hardcoded in consumer.py
             Path(
@@ -178,40 +196,50 @@ class RemoteConsumer:
 
             logger.info(f"Applied configurations: {configs}")
 
-            # Run consumer locally using subprocess with environment
-            # run in debugger so container is not deleted if consumer crashes, so possible running tests have a change to cleanup
-            cmd = ["uv", "run", "--active"]
-            if debug:
-                cmd += ["pdb3"]
+            sys.path.insert(0, "standalone-files/")
+            from consumer import OXConsumer
 
-            cmd += ["standalone-files/consumer.py"]
+            def create_provisioning_client():
+                provisioning_consumer = ProvisioningConsumerClient()
+                self.configurator.patch_aiohttp_session(
+                    provisioning_consumer.session,
+                )
+
+                return provisioning_consumer
 
             restarts_done = 0
             while True:
-                logger.info(f"Running consumer with command: {' '.join(cmd)}")
-                result = await anyio.run_process(
-                    cmd,
-                    env=consumer_env,
-                    stdout=sys.stdout,
-                    stderr=sys.stderr,
+                try:
+                    consumer = OXConsumer()
+                    await consumer.start_listening_for_changes(
+                        create_provisioning_client,
+                        MessageHandler,
+                    )
+                except asyncio.exceptions.CancelledError:
+                    logger.info("Mainloop cancelled -> shutting down")
+                    break
+                except Exception as e:
+                    if restart:
+                        from importlib import reload
+
+                        OXConsumer = reload(sys.modules["consumer"]).OXConsumer
+
+                        restarts_done += 1
+                        print(traceback.format_exc())
+                    else:
+                        raise e
+
+            if restart:
+                logger.info(
+                    f"Consumer was restarted {restarts_done} times",
                 )
-                logger.info(f"Consumer exit code: {result.returncode}")
 
-                if restart:
-                    if result.returncode == 0:
-                        logger.info(
-                            f"Consumer was restarted {restarts_done} times",
-                        )
-                        return result.returncode
-
-                    restarts_done += 1
-                else:
-                    return result.returncode
+            return 0
 
     def run_tests(
         self,
-        udm_username: str,
-        udm_password: str,
+        udm_username: str | None,
+        udm_password: str | None,
         command: Optional[list[str]] = None,
     ) -> bool:
         configs = self.get_configurations()
@@ -224,8 +252,16 @@ class RemoteConsumer:
         test_env = os.environ.copy()
         test_env["LOG_LEVEL"] = "DEBUG"
         test_env["DOMAINNAME"] = configs["domain_name"]
-        test_env["TESTS_UDM_ADMIN_USERNAME"] = udm_username
-        test_env["TESTS_UDM_ADMIN_PASSWORD"] = udm_password
+        if udm_username is not None:
+            test_env["TESTS_UDM_ADMIN_USERNAME"] = udm_username
+        else:
+            test_env["TESTS_UDM_ADMIN_USERNAME"] = configs["udm_user"]
+
+        if udm_password is not None:
+            test_env["TESTS_UDM_ADMIN_PASSWORD"] = udm_password
+        else:
+            test_env["TESTS_UDM_ADMIN_PASSWORD"] = configs["udm_password"]
+
         test_env["LDAP_BASE"] = configs["ldap_base"]
         test_env["DEFAULT_CONTEXT"] = configs["ox_default_context"]
         test_env["LDAP_MASTER"] = configs["ldap_server"]
@@ -233,6 +269,9 @@ class RemoteConsumer:
         test_env["OX_SMTP_SERVER"] = configs["ox_smtp_server"]
         test_env["OX_IMAP_SERVER"] = configs["ox_imap_server"]
         test_env["OX_SOAP_SERVER"] = configs["ox_soap_server"]
+        test_env["OX_ENABLE_DEPUTY_PERMISSIONS"] = configs[
+            "ox_deputy_permissions"
+        ]
 
         logger.info(f"Applied configurations: {configs}")
 
@@ -258,7 +297,7 @@ class RemoteConsumer:
 
         connection_args = [
             "--uri",
-            f"http://{configs['ldap_server']}/univention/udm",
+            f"https://{configs['ldap_server']}/univention/udm/",
             "--binddn",
             configs["ldap_admin_user"],
             "--bindpwd",
@@ -281,12 +320,15 @@ def create_configurator(args) -> RemoteConfigurator:
             sync_files=args.command == "run",
         )
     elif args.mode == "kubernetes":
-        raise NotImplementedError("Kubernetes backend not yet implemented")
+        return KubernetesConfigurator(
+            namespace=args.namespace,
+            sync_files=args.command == "run",
+        )
     else:
         raise ValueError(f"Unknown mode: {args.mode}")
 
 
-def add_command_parser(parser):
+def add_command_parser(parser, parser_type):
     command_subparsers = parser.add_subparsers(
         dest="command",
         help="Available commands",
@@ -304,12 +346,6 @@ def add_command_parser(parser):
         help="Run consumer locally using fetched configurations",
     )
     run_parser.add_argument(
-        "-d",
-        "--debug",
-        help="Run with python debugger",
-        action="store_true",
-    )
-    run_parser.add_argument(
         "-r",
         "--restart",
         help="Restart consumer ith exit code is != 0",
@@ -324,12 +360,12 @@ def add_command_parser(parser):
     test_parser.add_argument(
         "--udm_username",
         help="Username to connect to UDM/UCM",
-        default="Administrator",
+        default="Administrator" if parser_type == "ssh" else None,
     )
     test_parser.add_argument(
         "--udm_password",
         help="Password to connect to UDM/UCM",
-        default="univention",
+        default="univention" if parser_type == "ssh" else None,
     )
 
     # Udm command
@@ -394,8 +430,8 @@ Examples:
         help="Kubernetes namespace of the remote OX deployment",
     )
 
-    add_command_parser(ssh_parser)
-    add_command_parser(kubernetes_parser)
+    add_command_parser(ssh_parser, "ssh")
+    add_command_parser(kubernetes_parser, "kubernetes")
 
     args, rest = parser.parse_known_args()
 
@@ -411,7 +447,7 @@ Examples:
                 configs = remote.get_configurations()
                 print(json.dumps(configs, indent=2))
             elif args.command == "run":
-                asyncio.run(remote.run_consumer(args.debug, args.restart))
+                asyncio.run(remote.run_consumer(args.restart))
             elif args.command == "test":
                 remote.run_tests(args.udm_username, args.udm_password, rest)
             elif args.command == "udm":

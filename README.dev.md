@@ -92,4 +92,15 @@ docker compose run --remove-orphans dev ssh 10.207.248.11 test -s -v
 
 ### Kubernetes
 
-Not yet implemented
+#### Prerequistes
+
+See README.standalone.md how to setup the environment
+
+#### Run
+
+Run consumer and tests, the tests must run in the same container because they share some state like the ox credentials file.
+
+```bash
+docker compose run --remove-orphans dev kubernetes jburgmeier-ox run
+docker compose run --remove-orphans dev kubernetes jburgmeier-ox test -s -v
+```
