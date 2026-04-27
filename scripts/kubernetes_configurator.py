@@ -16,6 +16,7 @@ import time
 import socket
 import tarfile
 import io
+import os
 
 logging.basicConfig(
     level=logging.INFO,
@@ -203,12 +204,18 @@ class KubernetesConfigurator(RemoteConfigurator):
 
             return pod.metadata.name
 
-        return None
+        raise ValueError(
+            f"Failed to get pod: label_selector={label_selector}, namespace={self.namespace}",
+        )
 
     def _get_api(self):
         config.load_kube_config()
         self.client_v1 = client.CoreV1Api()
         self.apps_v1 = client.AppsV1Api()
+
+        assert (
+            self.client_v1 is not None and self.apps_v1 is not None
+        ), f"Failed to create kubernetes client from config {os.environ['KUBE_CONFIG']}"
 
     def _get_ready_replicas(self, resources):
         ready_replicas = 0

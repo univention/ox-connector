@@ -24,6 +24,15 @@ To get a full list of all options look at the help
 docker compose run --remove-orphans dev ssh --help
 docker compose run --remove-orphans dev kubernetes --help
 ```
+
+**Kubernetes Mode:**
+The used kube config will be `~/.kube/config`, this can be changed by setting the environment variable `KUBE_CONFIG`.
+
+```bash
+KUBE_CONFIG="~/.kube/config_uv" docker compose run --remove-orphans dev kubernetes ...
+```
+
+
 ## Commands
 
 ### `configurations` - Fetch and print configurations

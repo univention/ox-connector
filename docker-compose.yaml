@@ -50,7 +50,7 @@ services:
     image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest
     volumes:
       - "./tests/:/test-env/tests:ro"
-      - "~/.kube/config:/root/.kube/config:ro"
+      - "${KUBE_CONFIG:-~/.kube/config}:/root/.kube/config:ro"
     environment:
       # This specific value is tested in tests/test_user.py::test_modify_mailserver
       OX_IMAP_SERVER: imap://127.0.0.1:143
@@ -70,7 +70,7 @@ services:
       - "./pyproject.toml:/test-env/pyproject.toml:ro"
       - "./standalone-files:/test-env/standalone-files:ro"
       - "./scripts:/test-env/scripts:ro"
-      - "~/.kube/config:/root/.kube/config:ro"
+      - "${KUBE_CONFIG:-~/.kube/config}:/root/.kube/config:ro"
       - "uv-cache:/root/.cache/uv"
       - "shared-test-data:/tmp/"
       - "shared-test-data2:/var/lib/univention-appcenter/apps/ox-connector/data/"
