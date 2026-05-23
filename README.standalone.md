@@ -64,6 +64,7 @@ recommended to keep an eye on it during development.
     ---
     ingress:
       ingressClassName: nginx
+      controller: nginx
     functional:
       authentication:
         twoFactor:

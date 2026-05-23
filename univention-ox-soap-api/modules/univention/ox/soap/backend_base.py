@@ -274,6 +274,23 @@ class SecondaryAccount(OxObject):
     groups = []  # type: List[int]
 
 
+class SharedAccount(OxObject):
+    """
+    Representation of a OX Shared Account.
+
+    When implementing a class derived from this, use BackendMetaClass as its
+    metaclass.
+    """
+
+    _object_type = 'SharedAccount'
+
+    name = None  # type: str
+    display_name = None  # type: str
+    primaryEmail = None  # type: str
+    email1 = None  # type: str
+    password = None  # type: str
+
+
 class UserCopy(OxObject):
     """
     Representation of a OX UserCopy module.

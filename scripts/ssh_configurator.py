@@ -125,6 +125,9 @@ class SSHConfigurator(RemoteConfigurator):
     def get_configurations(self) -> dict:
         logger.info(f"Fetching configurations from {self.host}")
         python_code = """from univention.config_registry import ConfigRegistry
+from dotenv import dotenv_values
+from urllib.parse import urlparse, urlunparse
+
 import sys
 import json
 import ipaddress
@@ -186,11 +189,29 @@ configs["provisioning_admin_user"] = "admin"
 with open("/etc/provisioning-secrets.json", "r") as file:
     configs["provisioning_admin_password"] = json.load(file)["PROVISIONING_API_ADMIN_PASSWORD"]
 
-configs["ox_master_admin"] = "oxadminmaster"
-configs["ox_master_password"] = Path("/etc/ox-secrets/master.secret").read_text().strip()
-
 configs["ldap_admin_user"] = "cn=admin"
 configs["ldap_admin_password"] = Path("/etc/ldap.secret").read_text().strip()
+
+ox_connector_env = dotenv_values("/var/lib/univention-appcenter/apps/ox-connector/ox-connector.env")
+
+configs["ox_master_admin"] = ox_connector_env["OX_MASTER_ADMIN"]
+configs["ox_master_password"] = ox_connector_env["OX_MASTER_PASSWORD"]
+configs["ox_deputy_permissions"] = ox_connector_env["OX_ENABLE_DEPUTY_PERMISSIONS"]
+configs["ox_shared_accounts"] = ox_connector_env["OX_ENABLE_SHARED_ACCOUNT"]
+configs["ox_soap_server"] = ox_connector_env["OX_SOAP_SERVER"]
+configs["ox_imap_server"] = ox_connector_env["OX_IMAP_SERVER"]
+configs["ox_smtp_server"] = ox_connector_env["OX_SMTP_SERVER"]
+
+parsed_url = urlparse(configs["ox_soap_server"])
+host_ip = to_ip(parsed_url.hostname)
+
+configs["hosts"] = [{
+    "ip": host_ip,
+    "hosts": [
+        parsed_url.hostname,
+    ]
+  }
+]
 
 print(json.dumps(configs))
 """
@@ -202,16 +223,7 @@ print(json.dumps(configs))
         remote_config["provisioning_api_base_url"] = (
             f"http://{remote_config['provisioning_api_host']}:{remote_config['provisioning_api_port']}"
         )
-        remote_config["ox_deputy_permissions"] = "false"
-        remote_config["ox_soap_server"] = (
-            f"http://{remote_config['ldap_server']}"
-        )
-        remote_config["ox_imap_server"] = (
-            f"imap://{remote_config['ldap_server']}:143"
-        )
-        remote_config["ox_smtp_server"] = (
-            f"smtp://{remote_config['ldap_server']}:587"
-        )
+
         remote_config["ox_secret_file"] = "/tmp/contexts.json"
         remote_config["create_own_subscription"] = True
 

@@ -38,6 +38,7 @@ from univention.ox.soap.backend_base import (
     Group,
     Resource,
     SecondaryAccount,
+    SharedAccount,
     User,
     UserCopy,
     DeputyPermission,
@@ -620,6 +621,86 @@ class SoapUser(with_metaclass(BackendMetaClass, SoapBackend, User)):
             SoapGroup._soap_obj2base_obj(self.context_id, soap_obj)
             for soap_obj in soap_objs
         ]
+
+
+class SoapSharedAccount(
+    with_metaclass(BackendMetaClass, SoapBackend, SharedAccount),
+):
+    _base2soap = {
+        'name': SoapAttribute('name'),
+        'display_name': SoapAttribute('display_name'),
+        'primaryEmail': SoapAttribute('primaryEmail'),
+        'email1': SoapAttribute('email1'),
+        'password': SoapAttribute('password'),
+    }
+    _mandatory_creation_attr = ('name', 'primaryEmail')
+
+    def list_permissions(self):
+        return self.service(self.context_id).list_permissions({"id": self.id})
+
+    def set_permissions(self, permissions):
+        permissions = [
+            dict(
+                permission,
+                auth=self.get_client_credentials(permission["context"]),
+            )
+            for permission in permissions
+        ]
+        return self.service(self.context_id).set_permissions(
+            {"id": self.id},
+            permissions,
+        )
+
+    def delete_shared_account_permissions(self, context_id, users, groups):
+        assert self.id is not None
+
+        self.service(context_id).delete_shared_account_permissions(
+            [{"id": user} for user in users],
+            [{"id": group} for group in groups],
+            {"id": self.id},
+            {"id": self.context_id},
+        )
+        self.logger.info(
+            'Revoked Shared Account Permission from {} in context {}, removing users {!r} and groups {!r}.'.format(
+                self.name,
+                context_id,
+                users,
+                groups,
+            ),
+        )
+
+    def create_shared_account_permissions(
+        self,
+        context_id,
+        users,
+        groups,
+        calendar_config,
+        mail_config,
+        capabilities,
+    ):
+        assert self.id is not None
+
+        self.service(context_id).create_shared_account_permissions(
+            [{"id": user} for user in users],
+            [{"id": group} for group in groups],
+            calendar_config,
+            mail_config,
+            {"grantedCapability": list(capabilities)},
+            {"id": self.id},
+            {"id": self.context_id},
+        )
+
+        self.logger.info(
+            'Added Shared Account Permission for {} in context {}, granting users {!r} and groups {!r} mail={}, calendar={}, cap={!r}.'.format(
+                self.name,
+                context_id,
+                users,
+                groups,
+                mail_config,
+                calendar_config,
+                capabilities,
+            ),
+        )
 
 
 class SoapSecondaryAccount(

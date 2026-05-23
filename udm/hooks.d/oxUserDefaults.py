@@ -144,3 +144,37 @@ class oxUserDefaults(simpleHook):
             for key, value in module.oxUserDefaults.items():
                 if key in module.oldinfo and value is None:
                     del module.oldinfo[key]
+
+    def hook_ldap_post_remove(self, obj):
+        self.clear_referencing_deputies(obj)
+
+    def clear_referencing_deputies(self, obj):
+        """Search all shared accounts with permissions regarding obj and remove this entry"""
+        if not isinstance(obj, univention.admin.handlers.users.user.object):
+            return
+
+        access_filter = univention.admin.filter.expression(
+            'oxLinkUsers',
+            '%s with *' % obj["univentionObjectIdentifier"],
+        )
+        searchResultUsers = (
+            univention.admin.handlers.oxmail.shared_account.lookup(
+                None,
+                obj.lo,
+                access_filter,
+                scope="sub",
+            )
+        )
+
+        for entry in searchResultUsers:
+            entry.open()
+            linkedUsers = entry.get("users")
+
+            new_linkedUsers = [
+                linkedUser
+                for linkedUser in linkedUsers
+                if linkedUser[0] != obj["univentionObjectIdentifier"]
+            ]
+            if new_linkedUsers != linkedUsers:
+                entry["users"] = new_linkedUsers
+                entry.modify(ignore_license=True)

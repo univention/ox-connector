@@ -91,6 +91,9 @@ WS_URLS = {
     'SecondaryAccount': '{}/OXSecondaryAccountService?wsdl'.format(
         WS_BASE_URL,
     ),
+    'SharedAccount': '{}/OXSharedAccountService?wsdl'.format(
+        WS_BASE_URL,
+    ),
     'User': '{}/OXUserService?wsdl'.format(WS_BASE_URL),
     'UserCopy': '{}/OXUserCopyService?wsdl'.format(WS_BASE_URL),
     'UtilService': '{}/OXUtilService?wsdl'.format(WS_BASE_URL),
@@ -187,14 +190,15 @@ class OxSoapService(ZeepClient):
     )
     def _call_ox(self, func: str, **kwargs: Any) -> Any:
         assert self.credentials.context_obj is not None
+        ctx_arg_name = kwargs.pop('_ctx_arg_name', self._ctx_arg_name)
         try:
-            kwargs[self._ctx_arg_name] = kwargs.pop('ctx')
+            kwargs[ctx_arg_name] = kwargs.pop('ctx')
         except KeyError:
-            kwargs[self._ctx_arg_name] = self.credentials.context_obj
-        if kwargs[self._ctx_arg_name] is None:
-            del kwargs[self._ctx_arg_name]
+            kwargs[ctx_arg_name] = self.credentials.context_obj
+        if kwargs[ctx_arg_name] is None:
+            del kwargs[ctx_arg_name]
         elif kwargs[
-            self._ctx_arg_name
+            ctx_arg_name
         ].id != self.credentials.context_obj.id and not kwargs.get('auth'):
             raise OxSoapServiceError(
                 'Credentials must be supplied, when using a context different '
@@ -203,6 +207,7 @@ class OxSoapService(ZeepClient):
         kwargs['auth'] = (
             kwargs.pop('auth', None) or self.credentials.credentials
         )
+
         # Bug: OX references itself in its WSDL definition always with
         # port 80. even with https:// !
         service = self.service
@@ -767,6 +772,129 @@ class OXResourceService(with_metaclass(OxServiceMetaClass, OxSoapService)):
     def list_all(self) -> List[univention.ox.soap.types.Types.Resource]:
 
         return self._call_ox('listAll')
+
+
+class OXSharedAccountService(
+    with_metaclass(OxServiceMetaClass, OxSoapService),
+):
+
+    _type_name = 'SharedAccount'
+
+    def list_all(self):
+        return self._call_ox('list')
+
+    def list(self, pattern):
+        return self._call_ox('list', search_pattern=pattern)
+
+    def get_data(self, account):
+        return self._call_ox(
+            'getData',
+            sharedAccount=account,
+        )
+
+    def get_multiple_data(
+        self,
+        accounts,
+    ):
+        objects = []
+        for account in accounts:
+            objects.append(self.get_data(account))
+
+        return objects
+
+    def create(self, account):
+        return self._call_ox(
+            'create',
+            sharedAccountData=account,
+        )
+
+    def change(self, account):
+        return self._call_ox(
+            'change',
+            sharedAccountData=account,
+        )
+
+    def convert_user_to_shared_account(self, user):
+        return self._call_ox(
+            'convertUserToSharedAccount',
+            user=user,
+        )
+
+    def list_permissions(self, account):
+        return self._call_ox(
+            'listSharedAccountPermissionsForSharedAccount',
+            sharedAccount=account,
+            auth=self.credentials.master_credentials,
+        )
+
+    def set_permissions(self, account, permissions):
+        _permissions = []
+        for permission in permissions:
+            _permissions.append(
+                {
+                    "auth": permission["auth"].credentials,
+                    "ctx": {"id": permission["context"]},
+                    "users": [{"id": user} for user in permission["users"]],
+                    "groups": [
+                        {"id": group} for group in permission["groups"]
+                    ],
+                    "mailConfig": permission["mail"],
+                    "calendarConfig": permission["calendar"],
+                    "capabilities": {
+                        "grantedCapability": list(permission["capabilities"]),
+                    },
+                },
+            )
+        return self._call_ox(
+            'setSharedAccountPermissions',
+            _ctx_arg_name='sharedAccountCtx',
+            sharedAccount=account,
+            sharedAccountPermissions=_permissions,
+        )
+
+    def delete_shared_account_permissions(
+        self,
+        users,
+        groups,
+        shared_account,
+        shared_account_context_id,
+    ):
+        return self._call_ox(
+            'deleteSharedAccountPermissions',
+            users=users,
+            groups=groups,
+            sharedAccount=shared_account,
+            sharedAccountCtx=shared_account_context_id,
+            auth=self.credentials.master_credentials,
+        )
+
+    def create_shared_account_permissions(
+        self,
+        users,
+        groups,
+        calendar_config,
+        mail_config,
+        capabilities,
+        shared_account,
+        shared_account_context_id,
+    ):
+        return self._call_ox(
+            'createSharedAccountPermissions',
+            users=users,
+            groups=groups,
+            calendarConfig=calendar_config,
+            mailConfig=mail_config,
+            capabilities=capabilities,
+            sharedAccountCtx=shared_account_context_id,
+            sharedAccount=shared_account,
+            auth=self.credentials.master_credentials,
+        )
+
+    def delete(self, account):
+        return self._call_ox(
+            'delete',
+            sharedAccount=account,
+        )
 
 
 class OXSecondaryAccountService(

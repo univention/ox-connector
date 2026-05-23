@@ -31,6 +31,10 @@ OX_ENABLE_DEPUTY_PERMISSIONS = os.environ.get(
     "OX_ENABLE_DEPUTY_PERMISSIONS",
     "False",
 )
+OX_ENABLE_SHARED_ACCOUNT = os.environ.get(
+    "OX_ENABLE_SHARED_ACCOUNT",
+    "True",
+)
 if not FUNCTIONAL_ACCOUNT_LOGIN:
     FUNCTIONAL_ACCOUNT_LOGIN = "{{fa_entry_uuid}}{{username}}"
 
@@ -88,8 +92,6 @@ def _save_credentials(credentials):
     with open(CREDENTIALS_FILE, "w") as fd:
         os.chmod(fd.name, 0o600)
         json.dump(credentials, fd, sort_keys=True, indent=2)
-        _CREDENTIALS.clear()
-        _CREDENTIALS.update(credentials)
 
 
 def get_context_admin_user(context_id):  # type: (Union[int, str]) -> str

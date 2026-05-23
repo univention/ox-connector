@@ -6,6 +6,7 @@ import asyncio
 import logging
 import time
 import os
+import json
 from importlib.metadata import version
 from typing import Any, Dict
 from pathlib import Path
@@ -50,6 +51,12 @@ ox_contexts = KeyValueStore(str(NEW_FILES_DIR / "contexts.db"))
 ox_db_id = KeyValueStore(str(NEW_FILES_DIR / "ox_db_id.db"))
 non_ox_objs = KeyValueStore(str(NEW_FILES_DIR / "non_ox_objs.db"))
 usernames = KeyValueStore(str(NEW_FILES_DIR / "usernames.db"))
+shared_permissions = KeyValueStore(
+    str(NEW_FILES_DIR / "shared_permissions.db"),
+)
+univention_object_identifier = KeyValueStore(
+    str(NEW_FILES_DIR / "univention_object_identifier.db"),
+)
 
 
 class FakeObject:
@@ -110,7 +117,10 @@ def _search_ox_context_for_user(distinguished_name: str):
     return None, None, None
 
 
-def _get_existing_object_ox_id(distinguished_name: str):
+def _get_existing_object_ox_id(
+    distinguished_name: str | None,
+    obj_id: str | None = None,
+):
     """
     Get the object OX ID from the known objects, avoiding the old.db and
     storing JSON files. Used to overwrite `get_old_obj` in
@@ -123,16 +133,23 @@ def _get_existing_object_ox_id(distinguished_name: str):
         FakeObject: Object with the `oxContext` in attributes, to avoid
                     loading an object from a JSON file and storing it.
     """
-    global ox_contexts, ox_db_id, usernames, non_ox_objs
+    global ox_contexts, ox_db_id, usernames, non_ox_objs, shared_permissions, univention_object_identifier
 
     # Allow manipulating the cache from outside for debugging and testing
     if os.environ.get("DEBUG_RELOAD_OX_DB_ID"):
         ox_db_id = KeyValueStore(str(NEW_FILES_DIR / "ox_db_id.db"))
 
+    if obj_id is not None:
+        logger.info(
+            f"getting dn for {obj_id}",
+        )
+        distinguished_name = univention_object_identifier.get(obj_id)
+
     if distinguished_name is None:
         logger.error(
             "Distinguished name is None -> return None object",
         )
+
         fake_obj = FakeObject(
             {
                 "oxContext": None,
@@ -155,12 +172,11 @@ def _get_existing_object_ox_id(distinguished_name: str):
     object_ox_id = ox_contexts.get(normalized_dn)
     object_ox_db_id = ox_db_id.get(normalized_dn)
     object_ox_db_uid = usernames.get(normalized_dn)
+    shared_permission = shared_permissions.get(normalized_dn)
     is_ox_object = non_ox_objs.get(normalized_dn) is None
 
-    if (
-        object_ox_db_id is None
-        or object_ox_id is None
-        or object_ox_db_uid is None
+    if shared_permission is None and (
+        object_ox_db_id is None or object_ox_id is None
     ):
         if is_ox_object:
             logger.info(
@@ -177,11 +193,7 @@ def _get_existing_object_ox_id(distinguished_name: str):
             except Exception as e:
                 logger.error(f"Unexpected error: {e}")
 
-            if (
-                object_ox_id is not None
-                and object_ox_db_id is not None
-                and object_ox_db_uid is not None
-            ):
+            if object_ox_id is not None and object_ox_db_id is not None:
                 ox_contexts.set(normalized_dn, object_ox_id)
                 ox_db_id.set(normalized_dn, object_ox_db_id)
                 usernames.set(normalized_dn, object_ox_db_uid)
@@ -210,6 +222,12 @@ def _get_existing_object_ox_id(distinguished_name: str):
             "username": safe_decode(object_ox_db_uid),
         },
     )
+
+    if shared_permission is not None:
+        logger.info("Read shared permission from cache")
+        obj = json.loads(shared_permission)
+        fake_obj.attributes = fake_obj.attributes | obj
+
     logger.debug("old object retrieved: %s", fake_obj.attributes)
     return fake_obj
 
@@ -226,6 +244,8 @@ class OXConsumer:
         "oxresources/oxresources",
         "groups/group",
         "oxmail/functional_account",
+        "oxmail/shared_account",
+        "oxmail/shared_account_permission",
     }
 
     def __init__(self, settings: OXConsumerSettings | None = None):
@@ -337,8 +357,12 @@ class OXConsumer:
         try:
             run(obj)
 
-            if obj.attributes.get("isOxUser") or obj.attributes.get(
-                "isOxGroup",
+            if (
+                new['objectType'].startswith("ox")
+                or obj.attributes.get("isOxUser")
+                or obj.attributes.get(
+                    "isOxGroup",
+                )
             ):
                 # Store the needed values to keep track of the objects locally.
                 # For more details, see KeyValueStore objects FIXME above.
@@ -351,6 +375,22 @@ class OXConsumer:
                 if obj.attributes.get("username") is not None:
                     logger.info("Storing object username in known objects")
                     usernames.set(dn, obj.attributes['username'])
+                if new['objectType'] == "oxmail/shared_account_permission":
+                    logger.info(
+                        "Storing object shared_permissions in known objects",
+                    )
+                    shared_permissions.set(dn, json.dumps(obj.attributes))
+                if (
+                    obj.attributes.get("univentionObjectIdentifier")
+                    is not None
+                ):
+                    logger.info(
+                        "Storing univentionObjectIdentifier in known objects",
+                    )
+                    univention_object_identifier.set(
+                        obj.attributes.get("univentionObjectIdentifier"),
+                        dn,
+                    )
 
                 non_ox_objs.unset(dn)
             else:
@@ -391,6 +431,10 @@ class OXConsumer:
         )
         obj.old_distinguished_name = old["dn"]
         obj.old_attributes = old.get("properties")
+        if db_id := ox_db_id.get(old["dn"]):
+            obj.old_attributes["oxDbId"] = int(db_id)
+        if username := usernames.get(old["dn"]):
+            obj.old_attributes["oxDbUsername"] = username
         obj.old_options = ['default']
         obj._old_loaded = True
         try:
@@ -455,6 +499,10 @@ class OXConsumer:
         )
         obj.old_distinguished_name = old["dn"]
         obj.old_attributes = old.get("properties")
+        if db_id := ox_db_id.get(old["dn"]):
+            obj.old_attributes["oxDbId"] = int(db_id)
+        if username := usernames.get(old["dn"]):
+            obj.old_attributes["oxDbUsername"] = username
         obj.old_options = ['default']
         obj._old_loaded = True
         run(obj)
@@ -465,8 +513,14 @@ class OXConsumer:
         ox_db_id.unset(dn)
         logger.info("Removing object username from known objects")
         usernames.unset(dn)
+        logger.info("Removing object shared permission from known objects")
+        shared_permissions.unset(dn)
         logger.info("Removing object from non ox objects")
         non_ox_objs.unset(dn)
+        if obj.old_attributes.get("univentionObjectIdentifier") is not None:
+            univention_object_identifier.unset(
+                obj.old_attributes.get("univentionObjectIdentifier"),
+            )
 
         logger.debug(
             "Finished DELETE of %r %r in %.1f ms.",

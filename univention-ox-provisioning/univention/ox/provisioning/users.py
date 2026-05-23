@@ -414,6 +414,12 @@ def create_user(obj, user_copy_service=None, user_id=None):
         univention.ox.provisioning.helpers.update_group_queue(
             group_obj.entry_uuid,
         )
+    for src_uuid in univention.ox.provisioning.helpers.search_src_of_relation(
+        obj.entry_uuid,
+        "permitted",
+    ):
+        # TODO: rename this function... it can re-evaluate all kinds of old objects
+        univention.ox.provisioning.helpers.update_group_queue(src_uuid)
 
 
 def modify_user(obj):
@@ -551,7 +557,11 @@ def delete_user(obj):
     )
     delete_deputy_permissions(obj, user.context_id)
     group_service = Group.service(user.context_id)
-    soap_groups = group_service.list_groups_for_user({"id": user.id})
+    try:
+        soap_groups = group_service.list_groups_for_user({"id": user.id})
+    except Exception:
+        soap_groups = []
+
     user.remove()
     obj.attributes = None  # make obj.was_deleted() return True
     logger.info("User was deleted, searching for now empty groups")
@@ -559,6 +569,7 @@ def delete_user(obj):
         logger.info(
             f"Found group {soap_group.name} with {len(soap_group.members)} members",
         )
+
         soap_group.members.remove(user.id)
         if not soap_group.members:
             logger.info(

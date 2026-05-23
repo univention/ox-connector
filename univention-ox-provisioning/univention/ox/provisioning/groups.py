@@ -31,6 +31,7 @@ import logging
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
+import univention.ox.provisioning.helpers
 from univention.ox.provisioning.helpers import (
     get_db_id,
     get_obj_by_name_from_ox,
@@ -122,6 +123,12 @@ def create_group(obj):
         return
     group.create()
     obj.set_attr("oxDbGroupname", group.name)
+    for src_uuid in univention.ox.provisioning.helpers.search_src_of_relation(
+        obj.entry_uuid,
+        "permitted",
+    ):
+        # TODO: rename this function... it can re-evaluate all kinds of old objects
+        univention.ox.provisioning.helpers.update_group_queue(src_uuid)
 
 
 def modify_group(obj):

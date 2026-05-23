@@ -157,6 +157,11 @@ class RemoteConsumer:
                     RealmTopic(realm="udm", topic="oxmail/accessprofile"),
                     RealmTopic(realm="udm", topic="oxresources/oxresources"),
                     RealmTopic(realm="udm", topic="oxmail/functional_account"),
+                    RealmTopic(realm="udm", topic="oxmail/shared_account"),
+                    RealmTopic(
+                        realm="udm",
+                        topic="oxmail/shared_account_permission",
+                    ),
                 ],
             )
         else:
@@ -186,6 +191,14 @@ class RemoteConsumer:
             os.environ["OX_ENABLE_DEPUTY_PERMISSIONS"] = configs[
                 "ox_deputy_permissions"
             ]
+            os.environ["OX_ENABLE_SHARED_ACCOUNT"] = configs[
+                "ox_shared_accounts"
+            ]
+
+            if "hosts" in configs:
+                with open("/etc/hosts", 'a') as file:
+                    for host in configs["hosts"]:
+                        file.write(f"{host['ip']} {' '.join(host['hosts'])}\n")
 
             # dir is hardcoded in consumer.py
             Path(
@@ -272,6 +285,12 @@ class RemoteConsumer:
         test_env["OX_ENABLE_DEPUTY_PERMISSIONS"] = configs[
             "ox_deputy_permissions"
         ]
+        test_env["OX_ENABLE_SHARED_ACCOUNT"] = configs["ox_shared_accounts"]
+
+        if "hosts" in configs:
+            with open("/etc/hosts", 'a') as file:
+                for host in configs["hosts"]:
+                    file.write(f"{host['ip']} {' '.join(host['hosts'])}\n")
 
         logger.info(f"Applied configurations: {configs}")
 

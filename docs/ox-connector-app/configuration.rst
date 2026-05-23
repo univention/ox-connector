@@ -18,11 +18,11 @@ App Settings
 
 .. envvar:: OX_SOAP_SERVER
 
-   Defines the server that has OX App Suite installed. Provide the protocol and
+   Defines the server that has *OX App Suite* installed. Provide the protocol and
    the FQDN, for example :samp:`https://ox-app-suite.example.com`.
 
    :envvar:`OX_SOAP_SERVER` instructs the OX Connector app in the Docker
-   container, where it must look for the OX App Suite system. The Docker
+   container, where it must look for the *OX App Suite* system. The Docker
    container must resolve the FQDN.
 
    .. list-table::
@@ -47,7 +47,7 @@ App Settings
          single: certificate; custom
          see: installation; certificate
 
-      If the OX App Suite instance uses a self-signed certificate or a
+      If the *OX App Suite* instance uses a self-signed certificate or a
       certificate it can't validate, the OX Connector container needs the
       root certificate for validation.
       You need to store the self-signed certificate files in the
@@ -146,7 +146,7 @@ App Settings
 
 .. envvar:: OX_MASTER_ADMIN
 
-   Defines the user for the OX App Suite administrator user, also called *OX
+   Defines the user for the *OX App Suite* administrator user, also called *OX
    Admin user*. This user can create, modify, and delete contexts. The user must
    already exist. The administrator defines the username for the *OX Admin user*
    during the installation of OX App Suite.
@@ -233,7 +233,7 @@ App Settings
 
    .. note::
 
-        If the UCS OX App Suite is used, this app setting can be left empty, which is equivalent to using the
+        If the UCS *OX App Suite* is used, this app setting can be left empty, which is equivalent to using the
         value ``{{fa_entry_uuid}}{{username}}``.
 
         OX Connector installations that previously only used the functional account entry UUID should configure
@@ -367,9 +367,9 @@ App Settings
 
    .. important::
 
-      The *Deputy Permissions* feature requires OX App Suite version >= 8.
+      The *Deputy Permissions* feature requires *OX App Suite* version >= 8.
 
-      Users can modify the deputy permissions on their own in :program:`OX App Suite`.
+      Users can modify the deputy permissions on their own in *OX App Suite*.
       The provisioning in the :program:`OX Connector` app through UCS overwrites these settings.
 
    .. seealso::
@@ -540,7 +540,7 @@ With the *modify* operation, you can use the following additional operations:
          modify \
          --unset_alternatives email1
 
-If you previously used the attribute mapping feature of the OX App Suite app from the App Center,
+If you previously used the attribute mapping feature of the *OX App Suite* app from the App Center,
 you can migrate it by running the following command
 on the UCS system where you installed the OX App Suite.
 You then use the output of the script as command and run it
@@ -608,7 +608,7 @@ The :program:`OX Connector` app in UCS runs as a container with its own CA certi
 By default, the app imports the UCS root CA certificate into the CA store
 to enable a secure connection to the UCS LDAP directory.
 You may need additional CA certificates for the :program:`OX Connector` app,
-for example, when provisioning to a remote :program:`OX App Suite` installation.
+for example, when provisioning to a remote *OX App Suite* installation.
 
 To add certificates to the certificate store in the :program:`OX Connector`,
 use the following steps on the system where the app is installed:

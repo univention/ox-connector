@@ -184,6 +184,11 @@ same functional account share the read status. Emails to addresses of functional
 accounts show up in the OX Mail view for every user where administrators granted
 the permission.
 
+.. warning::
+
+   Open-Xchange marked this feature as deprecated in favor of :ref:`usage-shared-accounts`.
+
+
 Default LDAP position for functional accounts
 ---------------------------------------------
 
@@ -217,3 +222,63 @@ To view, add, update, or delete a resource, you navigate to
 :menuselection:`Domain --> OX Resources` in UMC.
 
 .. TODO : Add section about resources.
+
+.. _usage-shared-accounts:
+
+Shared accounts
+===============
+
+.. versionadded:: 3.2.0
+
+OX App Suite lets users and groups access shared accounts.
+Users with a shared account can read its email and calendar entries.
+As an administrator, you can configure fine-grained permissions for users and groups.
+The OX Connector app provides UDM modules
+to manage shared accounts and the permissions of users and groups.
+
+.. important::
+
+   The *Shared accounts* feature requires *OX App Suite* version 8.49 or later.
+   A runtime check deactivates the feature
+   when *OX App Suite* doesn't support shared accounts.
+
+.. seealso::
+
+   `Shared accounts <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/shared_accounts.html>`_
+
+.. _usage-shared-accounts-udm-module:
+
+UDM module for shared accounts
+------------------------------
+
+As an administrator, you can use the |UDM| module ``oxmail/shared_account``
+to add, update, or delete objects for shared accounts
+and manage their permissions.
+You can find the UDM module in the *Management UI* under *LDAP directory*
+at the directory location ``open-xchange/shared_account``.
+
+Every ``oxmail/shared_account`` object contains a list of users and groups with their respective permissions.
+Each user and group entry in the list links to an ``oxmail/shared_account_permissions`` object.
+
+.. seealso::
+
+   :external+uv-nubus-manual:ref:`nubus-domain-ldap`
+      for information about the *LDAP directory* management module.
+
+.. _usage-shared-accounts-udm-permissions:
+
+UDM module for permissions
+--------------------------
+
+OX App Suite uses permission objects to control user and group access to shared accounts.
+OX Connector provides ready-to-use *permissions* for OX App Suite shared accounts,
+including *Full Calendar Access*, *Full Mail Access*, *Full Mail and Calendar Access*, and *Read-Only Mail Access*.
+You can also create permissions to meet your requirements.
+
+As an administrator, you can use the |UDM| module ``oxmail/shared_account_permissions``
+to create, update, or delete permissions for shared accounts.
+You can find the UDM module in the *Management UI* under *LDAP directory*
+at the directory location ``open-xchange/shared_account_permissions``.
+
+When you create an ``oxmail/shared_account`` object,
+you can grant permissions to users and groups in |UMC|.

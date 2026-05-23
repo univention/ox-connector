@@ -212,6 +212,7 @@ class KubernetesConfigurator(RemoteConfigurator):
         config.load_kube_config()
         self.client_v1 = client.CoreV1Api()
         self.apps_v1 = client.AppsV1Api()
+        self.batch_v1 = client.BatchV1Api()
 
         assert (
             self.client_v1 is not None and self.apps_v1 is not None
@@ -359,9 +360,15 @@ class KubernetesConfigurator(RemoteConfigurator):
             namespace=self.namespace,
             label_selector=label_selector,
         )
+        jobs = self.batch_v1.list_namespaced_job(
+            namespace=self.namespace,
+            label_selector=label_selector,
+        )
         for resource in deployment_sets.items:
             specs.append(resource.spec.template.spec)
         for resource in stateful_sets.items:
+            specs.append(resource.spec.template.spec)
+        for resource in jobs.items:
             specs.append(resource.spec.template.spec)
 
         spec_env = {}
@@ -465,6 +472,17 @@ class KubernetesConfigurator(RemoteConfigurator):
         ldap_server_config = self._get_configuration(
             "app.kubernetes.io/name=ldap-server",
         )
+        umc_gateway = self._get_configuration(
+            "app.kubernetes.io/name=umc-gateway",
+        )
+
+        ucr_base_config = {}
+        for line in umc_gateway['base.conf'].splitlines():
+            if len(line) == 0 or line.startswith("#"):
+                continue
+
+            key, value = line.strip().split(':', 1)
+            ucr_base_config[key.strip()] = value.strip()
 
         ox_core_mw_properties = yaml.safe_load(
             ox_core_mw_config['996_properties.yaml'],
@@ -481,7 +499,7 @@ class KubernetesConfigurator(RemoteConfigurator):
             "OX_MASTER_PASSWORD"
         ]
         remote_config["ldap_server"] = (
-            f"portal.{ox_connector_config['DOMAINNAME']}"
+            f"{ucr_base_config['hostname']}.{ucr_base_config['domainname']}"
         )
         remote_config["ldap_base"] = ldap_server_config["LDAP_BASEDN"]
         remote_config["ldap_admin_user"] = udm_rest_api_config["UDM_API_USER"]
@@ -490,22 +508,42 @@ class KubernetesConfigurator(RemoteConfigurator):
             udm_rest_api_config["UDM_API_PASSWORD_FILE"],
         ).decode("utf-8")
 
-        remote_config["domain_name"] = ox_connector_config["DOMAINNAME"]
+        remote_config["domain_name"] = ucr_base_config['domainname']
         remote_config["ox_default_context"] = ox_connector_config[
             "DEFAULT_CONTEXT"
         ]
         remote_config["ox_deputy_permissions"] = ox_connector_config[
             "OX_ENABLE_DEPUTY_PERMISSIONS"
         ]
+        remote_config["ox_shared_accounts"] = ox_connector_config[
+            "OX_ENABLE_SHARED_ACCOUNT"
+        ]
         remote_config["ox_soap_server"] = (
             f"https://{ox_core_mw_properties['anywhere']['com.openexchange.hostname']}"
         )
-        remote_config["ox_imap_server"] = (
-            f"imaps://{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.imap.host']}:{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.imap.port']}"
-        )
-        remote_config["ox_smtp_server"] = (
-            f"smtp://{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.smtp.host']}:{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.smtp.port']}"
-        )
+
+        if (
+            'com.openexchange.client.onboarding.mail.imap.host'
+            in ox_core_mw_properties['anywhere']
+            and 'com.openexchange.client.onboarding.mail.imap.port'
+            in ox_core_mw_properties['anywhere']
+        ):
+            imap_server = f"imaps://{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.imap.host']}:{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.imap.port']}"
+        else:
+            imap_server = "imap://dovecot-ce:143"
+
+        if (
+            'com.openexchange.client.onboarding.mail.smtp.host'
+            in ox_core_mw_properties['anywhere']
+            and 'com.openexchange.client.onboarding.mail.smtp.port'
+            in ox_core_mw_properties['anywhere']
+        ):
+            smtp_server = f"smtp://{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.smtp.host']}:{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.smtp.port']}"
+        else:
+            smtp_server = "stub-value"
+
+        remote_config["ox_imap_server"] = imap_server
+        remote_config["ox_smtp_server"] = smtp_server
         remote_config["ox_secret_file"] = "/tmp/contexts.json"
 
         remote_config["udm_user"] = udm_rest_api_config["UDM_API_USER"]
@@ -526,11 +564,21 @@ class KubernetesConfigurator(RemoteConfigurator):
         resolve_orig = resolver.resolve
 
         def is_kubernetes_service(dns_name):
-            return (
+            if (
                 len(dns_name) >= 3
                 and dns_name[1] == self.namespace
                 and dns_name[2] in ("svc", "service")
-            )
+            ):
+                return True
+
+            if len(dns_name) == 1:
+                service = self.client_v1.read_namespaced_service(
+                    dns_name[0],
+                    self.namespace,
+                )
+                return service is not None
+
+            return False
 
         async def patched_resolve(
             host: str,
@@ -576,10 +624,10 @@ class KubernetesConfigurator(RemoteConfigurator):
                 if not is_kubernetes_service(dns_name):
                     return wrap_create_connection_orig(
                         *args,
-                        addr_infos,
-                        req,
-                        timeout,
-                        client_error,
+                        addr_infos=addr_infos,
+                        req=req,
+                        timeout=timeout,
+                        client_error=client_error,
                         **kwargs,
                     )
 

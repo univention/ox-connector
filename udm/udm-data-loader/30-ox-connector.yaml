@@ -2897,6 +2897,18 @@ module: container/cn
 position: cn=open-xchange,{{ ldapBaseDn }}
 properties:
   name: accessprofiles
+---
+action: create
+module: container/cn
+position: cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: shared_accounts
+---
+action: create
+module: container/cn
+position: cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: shared_account_permissions
 
 # Create access profiles
 # NOTE: they are checking the filter running at this point is changed and then

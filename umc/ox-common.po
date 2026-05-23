@@ -28,3 +28,6 @@ msgstr "Einstellungen für das persönliche Konto"
 
 msgid "Change Password"
 msgstr "Passwort ändern"
+
+msgid "Managing OX shared accounts"
+msgstr "OX Shared Accounts verwalten"

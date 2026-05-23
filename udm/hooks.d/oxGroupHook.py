@@ -80,3 +80,37 @@ class oxGroupHook(simpleHook):
     def hook_ldap_pre_modify(self, module):
         self.log_info('_ldap_pre_modify called')
         self.check_mailaddr(module)
+
+    def hook_ldap_post_remove(self, obj):
+        self.clear_referencing_deputies(obj)
+
+    def clear_referencing_deputies(self, obj):
+        """Search all shared accounts with permissions regarding obj and remove this entry"""
+        if not isinstance(obj, univention.admin.handlers.groups.group.object):
+            return
+
+        access_filter = univention.admin.filter.expression(
+            'oxLinkGroups',
+            '%s with *' % obj["univentionObjectIdentifier"],
+        )
+        searchResultGroups = (
+            univention.admin.handlers.oxmail.shared_account.lookup(
+                None,
+                obj.lo,
+                access_filter,
+                scope="sub",
+            )
+        )
+
+        for entry in searchResultGroups:
+            entry.open()
+            linkedGroups = entry.get("groups")
+
+            new_linkedGroups = [
+                linkedGroup
+                for linkedGroup in linkedGroups
+                if linkedGroup[0] != obj["univentionObjectIdentifier"]
+            ]
+            if new_linkedGroups != linkedGroups:
+                entry["groups"] = new_linkedGroups
+                entry.modify(ignore_license=True)

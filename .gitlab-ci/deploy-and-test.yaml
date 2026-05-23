@@ -41,10 +41,12 @@ pipeline-configuration:
       DEPLOY_SUBDOMAIN: ${DEPLOY_SUBDOMAIN}
       NUBUS_HELM_BRANCH: ${NUBUS_HELM_BRANCH}
       EOF
+    # "-ox" is appended to the subdomain for the ox deployment, so shorten it to 63 -3
+    # namespace is used as hostname for some nubus charts so also shorten it
     - |
       cat > deploy.env <<EOF
-      DEPLOY_NAMESPACE=$( echo ${DEPLOY_NAMESPACE:0:63} | sed 's/-$//' )
-      DEPLOY_SUBDOMAIN=$( echo ${DEPLOY_SUBDOMAIN:0:63} | sed 's/-$//' )
+      DEPLOY_NAMESPACE=$( echo ${DEPLOY_NAMESPACE:0:60} | sed 's/-$//' )
+      DEPLOY_SUBDOMAIN=$( echo ${DEPLOY_SUBDOMAIN:0:60} | sed 's/-$//' )
       RELEASE_VERSION=${RELEASE_VERSION}
       SEMANTIC_VERSION=${SEMANTIC_VERSION}
       EOF

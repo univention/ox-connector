@@ -34,6 +34,12 @@ spec:
         Must be a valid value for the parameter "--branch" in the call to "git
         clone".
       type: string
+    ox-app-suite-chart-version:
+      default: "8.48.481"
+      description: |
+        The version of the appsuite chart to use for the deployment. For example
+        for shared account support we need >= 8.48
+      type: string
     job-prefix:
       default: "ox-lab"
       description: |
@@ -163,12 +169,16 @@ spec:
       yq -y -i
       ".core_mw_extra_properties.\"com.openexchange.dovecot.doveadm.apiSecret\" = \"${PASSWORD_DOVEADM}\""
       ../lab.nubus-ci.yml
-
+    - >-
+      yq -y -i
+      ".dependencies |= map(select(.name == \"appsuite\").version = \"${OX_APP_SUITE_CHART_VERSION}\")"
+      dependencies.yml
     - python3 render.py -f ../lab.nubus-ci.yml
     - rm -fr .git __pycache__
     - popd
   variables:
     GIT_STRATEGY: none
+    OX_APP_SUITE_CHART_VERSION: $[[ inputs.ox-app-suite-chart-version ]]
   artifacts:
     paths:
       - ox-operations-guide-mirror

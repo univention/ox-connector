@@ -386,6 +386,18 @@ class oxDeputyPermission(select):
     ]
 
 
+class oxDeputyPermissionTalking(select):
+    name = 'oxDeputyPermissionTalking'
+    size = 'One'
+
+    choices = [
+        ('none', _('No permission')),
+        ('viewer', _('Viewer')),
+        ('editor', _('Editor')),
+        ('author', _('Author')),
+    ]
+
+
 class fullWidthUserName(UDM_Objects):
     udm_modules = ('users/user',)
     key = 'dn'
@@ -410,3 +422,41 @@ class oxDeputyPermissionUserMapping(complex):
         descr = complex.get_widget_options(self, udm_property)
         descr['rowLabelsVisibility'] = 'allRows'
         return descr
+
+
+class OxUser(UDM_Objects):
+    udm_modules = ('users/user',)
+    key = '%(univentionObjectIdentifier)s'
+    label = '%(username)s'
+    udm_filter = '(isOxUser=OK)'
+
+
+class OxGroup(UDM_Objects):
+    udm_modules = ('groups/group',)
+    key = '%(univentionObjectIdentifier)s'
+    label = '%(name)s'
+    udm_filter = '(isOxGroup=OK)'
+
+
+class SharedAccountPermission(UDM_Objects):
+    udm_modules = ('oxmail/shared_account_permission',)
+    key = '%(univentionObjectIdentifier)s'
+    label = '%(displayName)s'
+
+
+class oxSharedAccountLinkUser(complex):
+    delimiter = ' with '
+
+    subsyntaxes = [
+        (_('User'), OxUser),
+        (_('Permission'), SharedAccountPermission),
+    ]
+
+
+class oxSharedAccountLinkGroup(complex):
+    delimiter = ' with '
+
+    subsyntaxes = [
+        (_('Group'), OxGroup),
+        (_('Permission'), SharedAccountPermission),
+    ]

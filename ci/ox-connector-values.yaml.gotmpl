@@ -16,6 +16,10 @@ openXchange:
   oxSoapServer: "http://ox-core-mw-admin"
   logLevel: "DEBUG"
   oxDeputyPermissions: true
+  # Not all features work yet for provisioning backend, but the
+  # failing ones are excluded for k8s test. So enable the feature
+  # to get at least some test coverage.
+  oxSharedAccount: true
 
 provisioningApi:
   connection:

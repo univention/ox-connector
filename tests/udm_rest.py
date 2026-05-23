@@ -290,8 +290,16 @@ class Session(object):
             if link.get("deprecation"):
                 pass  # TODO: log warning
             if link.get("templated"):
-                link["href"] = uritemplate.expand(link["href"], template)
-            yield link
+                # Make sure the original link template stays intact otherwise
+                # subsequent calls will always return the first object
+                link_copy = copy.deepcopy(link)
+                link_copy["href"] = uritemplate.expand(
+                    link_copy["href"],
+                    template,
+                )
+                yield link_copy
+            else:
+                yield link
 
     def get_relation(self, entry, relation, name=None, template=None):
         try:

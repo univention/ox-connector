@@ -64,7 +64,7 @@ pipeline: dict[str, object] = {
             "true",
         ],
         "environment": {
-            "name": "review/docs/$CI_COMMIT_REF_NAME",
+            "name": "review/docs/$CI_COMMIT_REF_SLUG",
             "url": "$DOC_REVIEW_URL",
         },
         "rules": [

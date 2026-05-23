@@ -11,12 +11,6 @@ import pytest
 
 from udm_rest import UDM, UnprocessableEntity
 from utils import FileUtility, FileLogs, SubprocessRunner
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_fixed,
-    retry_if_exception_type,
-)
 
 from univention.ox.soap.backend_base import get_ox_integration_class
 
@@ -216,6 +210,12 @@ def new_user_name(cache):
 
 
 @pytest.fixture
+def new_account_name(cache):
+    value = _new_id(cache)
+    return "shared_account{}".format(value)
+
+
+@pytest.fixture
 def new_user_name_generator(cache):
     def f():
         value = _new_id(cache)
@@ -356,6 +356,9 @@ class UDMTest(object):
     def search(self, module, search_filter):
         return self.client.get(module).search(search_filter)
 
+    def obj_by_dn(self, dn):
+        return self.client.obj_by_dn(dn)
+
 
 @pytest.fixture
 def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
@@ -370,6 +373,7 @@ def udm(udm_uri, ldap_base, udm_admin_username, udm_admin_password):
             "users/user",
             "oxmail/oxcontext",
             "oxmail/accessprofile",
+            "oxmail/shared_account_permission",
         ]:
             if module_name in modules:
                 try:
@@ -408,11 +412,17 @@ def create_ox_context(
         print("Created context", dn, "in UDM")
 
         if not k8s_enabled:
+            # The soap backend creates new credentials for a new context,
+            # make sure to reread credential cache from dist. It is shared
+            # between tests and listener/consumer
             from univention.ox.soap.config import _CREDENTIALS
 
             _CREDENTIALS.clear()
+
         # Always wait for context to be created otherwise trying to access to context for
-        # example by creating a object in the new context may crash the consumer.py with an auth error
+        # example by creating a object in the new context may fail with an auth error
+        # because new credentials are not yet written to the disk cache
+        # because new crdentails are not yet written to the disk cache
         wait_for_listener(dn)
         return context_id
 
@@ -599,13 +609,8 @@ def skip_by_platform(request, platform):
 
 @pytest.fixture
 def get_ox_object():
-    @retry(
-        stop=stop_after_attempt(5),
-        wait=wait_fixed(2),
-        retry=retry_if_exception_type(ConnectionError),
-        reraise=True,
-    )
     def _get_ox_object(context_id, ox_object_type, pattern=None):
+
         ox_obj = get_ox_integration_class("SOAP", ox_object_type)
         return ox_obj.list(context_id, pattern=pattern)
 

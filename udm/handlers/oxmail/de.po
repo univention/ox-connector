@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ox-mail 6.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-11 18:09+0200\n"
+"POT-Creation-Date: 2026-04-28 23:22+0200\n"
 "PO-Revision-Date: 2012-05-11 18:11+0200\n"
 "Last-Translator: Univention GmbH <package@univention.de>\n"
 "Language-Team: German <de@li.org>\n"
@@ -11,234 +11,414 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: oxcontext.py:45
-msgid "Search"
-msgstr "Suchen"
+#: functional_account.py:47
+msgid "OX Mail: Functional Mailbox"
+msgstr "OX-Mail: Funktionspostfach"
 
-#: oxcontext.py:45
-msgid "Search for OX contexts"
-msgstr "Nach OX-Context-Objekten suchen"
-
-#: oxcontext.py:51
-msgid "OX Mail: OX context"
-msgstr "OX-Mail: OX context"
-
-#: oxcontext.py:60 oxdomain.py:66 oxfetchmailmulti.py:60
-#: oxfetchmailsingle.py:60 oxfolder.py:66 oxlists.py:56 oxmail.py:85
+#: functional_account.py:60 shared_account.py:60 accessprofile.py:61
+#: shared_account_permission.py:61 oxcontext.py:61
 msgid "Name"
 msgstr "Name"
 
-#: oxcontext.py:69
-msgid "Hostname"
-msgstr "Rechnername"
+#: functional_account.py:70 shared_account.py:86
+msgid "Primary e-mail address"
+msgstr "Primäre E-Mail-Adresse"
 
-#: oxcontext.py:78
-msgid "OX integration version"
-msgstr "Version der OX-Integration"
-
-#: oxcontext.py:87
-msgid "OX GUI version"
-msgstr "Version der OX-GUI"
-
-#: oxcontext.py:96
-msgid "OX admindaemon version"
-msgstr "Version des OX-Admindaemons"
-
-#: oxcontext.py:105
-msgid "OX groupware version"
-msgstr "Version der OX-Groupware"
-
-#: oxcontext.py:114
-msgid "Context ID"
-msgstr "Context-ID"
-
-#: oxcontext.py:123
-msgid "OX Database Server"
-msgstr "OX-Datenbank-Server"
-
-#: oxcontext.py:132
+#: functional_account.py:78 oxcontext.py:77
 msgid "Quota [MBytes]"
 msgstr "Quota [MBytes]"
 
-#: oxcontext.py:143 oxcontext.py:144 oxdomain.py:97 oxdomain.py:98
-#: oxfetchmailmulti.py:154 oxfetchmailmulti.py:155 oxfetchmailsingle.py:136
-#: oxfetchmailsingle.py:137 oxfolder.py:135 oxfolder.py:136 oxlists.py:96
-#: oxlists.py:97 oxmail.py:96
+#: functional_account.py:87
+msgid "Personal"
+msgstr "Persönlich"
+
+#: functional_account.py:93 shared_account.py:94
+msgid "Users"
+msgstr "Benutzer"
+
+#: functional_account.py:103 functional_account.py:107 shared_account.py:111
+#: shared_account.py:115 accessprofile.py:299 accessprofile.py:302
+#: shared_account_permission.py:155 shared_account_permission.py:158
+#: oxcontext.py:85 oxcontext.py:89
 msgid "General"
 msgstr "Allgemein"
 
-#: oxcontext.py:143 oxdomain.py:97 oxlists.py:96
-msgid "Basic Values"
-msgstr "Grundeinstellungen"
+#: functional_account.py:104
+msgid "Functional Account settings"
+msgstr "Funktionspostfach-Einstellungen"
 
-#: oxcontext.py:197
-msgid "The deletion of the OX context object is not allowed!"
-msgstr "Das Löschen von OX-Context-Objekten ist nicht erlaubt!"
-
-#: oxcontext.py:197
-msgid "The deletion of the OX context object is not allowed as long as users are in it"
-msgstr "Das Löschen des OX-Context-Objekts ist nicht erlaubt, solange sich Benutzer darin befinden!"
-
-#: oxcontext.py:197
-msgid "The deletion of the OX context object is not allowed as long as resources are in it"
-msgstr "Das Löschen des OX-Context-Objekts ist nicht erlaubt, solange sich Resourcen darin befinden!"
-
-#: oxdomain.py:53
-msgid "OX Mail: Mail Domain"
-msgstr "OX-Mail: Maildomäne"
-
-#: oxdomain.py:75
-msgid "Imap server"
-msgstr "IMAP-Server"
-
-#: oxdomain.py:85
-msgid "OX context name"
-msgstr "OX-Context-Name"
-
-#: oxfetchmailmulti.py:51
-msgid "OX Mail: Fetchmail Multi Drop"
-msgstr "OX Mail: Fetchmail Multi Drop"
-
-#: oxfetchmailmulti.py:69
-msgid ""
-"Space-separated list of local domain names - leave empty for all local "
-"domains"
-msgstr ""
-"Lokale Domains (durch Leerzeichen getrennt) - für alle lokalen Domains Feld "
-"leer lassen"
-
-#: oxfetchmailmulti.py:80
-msgid "Server"
-msgstr "Server"
-
-#: oxfetchmailmulti.py:89 oxfetchmailsingle.py:89
-msgid "Protocol"
-msgstr "Protokoll"
-
-#: oxfetchmailmulti.py:98 oxfetchmailsingle.py:98
-msgid "SSL"
-msgstr "SSL"
-
-#: oxfetchmailmulti.py:107 oxfetchmailsingle.py:107
-msgid "Remote user"
-msgstr "Entfernter Benutzer"
-
-#: oxfetchmailmulti.py:116 oxfetchmailsingle.py:116
-msgid "Remote password"
-msgstr "Entferntes Passwort"
-
-#: oxfetchmailmulti.py:125 oxfetchmailsingle.py:125
-msgid "Leave messages on server"
-msgstr "Auf dem Server behalten"
-
-#: oxfetchmailmulti.py:134
-msgid "Envelope header"
-msgstr "Envelope Mail Header"
-
-#: oxfetchmailmulti.py:143
-msgid "Virtual qmail prefix"
-msgstr "Virtuelles Qmail-Präfix"
-
-#: oxfetchmailmulti.py:154 oxfetchmailsingle.py:136 oxmail.py:96
-msgid "Basic settings"
-msgstr "Grundeinstellungen"
-
-#: oxfetchmailsingle.py:51
-msgid "OX Mail: Fetchmail Single Drop"
-msgstr "OX-Mail: Fetchmail Single Drop"
-
-#: oxfetchmailsingle.py:69
-msgid "Local recipient"
-msgstr "Lokaler Benutzer"
-
-#: oxfetchmailsingle.py:80
-msgid "Remote server"
-msgstr "Entfernter Server"
-
-#: oxfolder.py:52
-msgid "OX Mail: IMAP Folder"
-msgstr "OX-Mail: IMAP-Ordner"
-
-#: oxfolder.py:75
-msgid "Mail Domain"
-msgstr "Mail-Domäne"
-
-#: oxfolder.py:84
-msgid "User ACL"
-msgstr "Benutzer ACL"
-
-#: oxfolder.py:93
-msgid "Group ACL"
-msgstr "Gruppen ACL"
-
-#: oxfolder.py:102
-msgid "Maximum Quota in MB"
-msgstr "Quota in MB"
-
-#: oxfolder.py:111
-msgid "Should Be Visible For Outlook"
-msgstr "Sichtbar für Outlook"
-
-#: oxfolder.py:112
-msgid "Outlook does not display folders outside of the 'user' namespace."
-msgstr "Outlook zeigt keine Ordner außerhalb des Ordners 'user/' an."
-
-#: oxfolder.py:122 oxlists.py:84
-msgid "Mail Address"
-msgstr "E-Mail Adresse"
-
-#: oxfolder.py:135
-msgid "General settings"
-msgstr "Allgemein"
-
-#: oxfolder.py:142 oxfolder.py:143
+#: functional_account.py:116 shared_account.py:124
 msgid "Access Rights"
 msgstr "Zugriffsrechte"
 
-#: oxfolder.py:142
-msgid "Access rights for shared folder"
-msgstr "Zugriffsrechte für IMAP-Ordner"
+#: shared_account.py:47
+msgid "OX Mail: Shared Account"
+msgstr "OX-Mail: Shared Account"
 
-#: oxfolder.py:206 oxlists.py:143
-msgid "The mail address' domain does not match any mail domain object."
-msgstr "Der Domänenteil der Mailadresse ist nicht in der Liste der eingerichteten Maildomänen enthalten."
+#: shared_account.py:70 accessprofile.py:71 shared_account_permission.py:71
+msgid "Display name"
+msgstr "Anzeigename"
 
-#: oxlists.py:49
-msgid "OX Mail: Mailing Lists"
-msgstr "OX Mail: Mailinglisten"
+#: shared_account.py:79 oxcontext.py:70
+msgid "Context ID"
+msgstr "Context-ID"
 
-#: oxlists.py:65
-msgid "Description"
-msgstr "Beschreibung"
+#: shared_account.py:101
+msgid "Groups"
+msgstr "Gruppen"
 
-#: oxlists.py:74
-msgid "Members"
-msgstr "Mitglieder"
+#: shared_account.py:112
+msgid "Shared Account settings"
+msgstr "Shared Account-Einstellungen"
 
-#: oxmail.py:53 oxmail.py:57
-msgid "OX Mail"
-msgstr "OX-Mail"
+#: shared_account.py:191 shared_account.py:209
+msgid "A user must not be repeated in the Shared Account"
+msgstr "Ein Benutzer darf nicht mehrfach in einem Shared Account vorkommen"
 
-#: oxmail.py:58
-msgid "Add, edit and delete OX Mail Objects"
-msgstr "Hinzufügen, Bearbeiten und Löschen von OX-Mail-Objekten"
+#: shared_account.py:198 shared_account.py:216
+msgid "A group must not be repeated in the Shared Account"
+msgstr "Eine Gruppe darf nicht mehrfach in einem Shared Account vorkommen"
 
-#: oxmail.py:67
-msgid "Add"
-msgstr "Hinzufügen"
+#: accessprofile.py:48
+msgid "OX Mail: OX access profile"
+msgstr "OX-Mail: OX Zugangsprofil"
 
-#: oxmail.py:67
-msgid "Add OX Mail Object"
-msgstr "OX-Mail-Objekt hinzufügen"
+#: accessprofile.py:80
+msgid "USM"
+msgstr ""
 
-#: oxmail.py:68
-msgid "Find"
-msgstr "Suchen"
+#: accessprofile.py:89
+msgid "activeSync"
+msgstr ""
 
-#: oxmail.py:68
-msgid "Find OX Mail Object(s)"
-msgstr "OX-Mail-Objekt suchen"
+#: accessprofile.py:98
+msgid "calendar"
+msgstr ""
 
-#: oxmail.py:108
-msgid "The Context ID has already been taken!"
-msgstr "Die Context-ID ist bereits vergeben!"
+#: accessprofile.py:107
+msgid "collectEmailAddresses"
+msgstr ""
+
+#: accessprofile.py:116
+msgid "contacts"
+msgstr ""
+
+#: accessprofile.py:125
+msgid "delegateTask"
+msgstr ""
+
+#: accessprofile.py:134
+msgid "deniedPortal"
+msgstr ""
+
+#: accessprofile.py:143
+msgid "editGroup"
+msgstr ""
+
+#: accessprofile.py:152
+msgid "editPassword"
+msgstr ""
+
+#: accessprofile.py:161
+msgid "editPublicFolders"
+msgstr ""
+
+#: accessprofile.py:170
+msgid "editResource"
+msgstr ""
+
+#: accessprofile.py:179
+msgid "globalAddressBookDisabled"
+msgstr ""
+
+#: accessprofile.py:188
+msgid "ical"
+msgstr ""
+
+#: accessprofile.py:197
+msgid "infostore"
+msgstr ""
+
+#: accessprofile.py:206
+msgid "multipleMailAccounts"
+msgstr ""
+
+#: accessprofile.py:215
+msgid "publicFolderEditable"
+msgstr ""
+
+#: accessprofile.py:224
+msgid "readCreateSharedFolders"
+msgstr ""
+
+#: accessprofile.py:233
+msgid "subscription"
+msgstr ""
+
+#: accessprofile.py:242
+msgid "syncml"
+msgstr ""
+
+#: accessprofile.py:251
+msgid "tasks"
+msgstr ""
+
+#: accessprofile.py:260
+msgid "vcard"
+msgstr ""
+
+#: accessprofile.py:269
+msgid "webdav"
+msgstr ""
+
+#: accessprofile.py:278
+msgid "webdavXml"
+msgstr ""
+
+#: accessprofile.py:287
+msgid "webmail"
+msgstr ""
+
+#: accessprofile.py:300 shared_account_permission.py:156 oxcontext.py:86
+msgid "Basic Values"
+msgstr "Grundeinstellungen"
+
+#: accessprofile.py:304
+msgid "Rights"
+msgstr "Rechte"
+
+#: accessprofile.py:497
+msgid ""
+"The deletion of the OX access profile object is not allowed as long as users "
+"reference it"
+msgstr ""
+"Das Löschen des OX-Zugangsprofils ist nicht erlaubt, solange es von "
+"Benutzern referenziert wird"
+
+#: shared_account_permission.py:48
+msgid "OX Mail: Shared Account Permission"
+msgstr "OX Mail: Shared Account-Berechtigung"
+
+#: shared_account_permission.py:80
+msgid "Mail"
+msgstr "Mail"
+
+#: shared_account_permission.py:89
+msgid "Calendar"
+msgstr "Kalender"
+
+#: shared_account_permission.py:99
+msgid ""
+"Send emails directly as the shared account entity / Impersonate as shared "
+"account entity during scheduling operations in the account"
+msgstr ""
+"E-Mails direkt als der Shared Account senden / Als Shared Account ausgeben während Terminplanungen im Account"
+
+#: shared_account_permission.py:108
+msgid ""
+"Send emails on behalf of the shared account entity / Act on behalf of the "
+"shared account entity during scheduling operations in the account"
+msgstr ""
+"E-Mails im Auftrag des Shared Account senden / Im Namen des Shared Account Terminplanungen im Account vornehmen"
+
+#: shared_account_permission.py:117
+msgid "Read-only access to shared account snippets from module io.ox/mail"
+msgstr ""
+"Schreibgeschützter Zugang zu Snippets des Moduls io.ox/mail im Shared Account"
+
+#: shared_account_permission.py:126
+msgid ""
+"Read/write access to shared account snippets from module io.ox/mail (e.g. "
+"signatures)"
+msgstr ""
+"Lese- und Schreibzugriff auf Snippets des Moduls io.ox/mail im Shared Account (z.B. Signaturen)"
+
+#: shared_account_permission.py:135
+msgid "Manage mail filter rules for the shared account, i.e. its Sieve scripts"
+msgstr ""
+"Regeln zum Filtern von Mails des Shared Accounts verwalten, z.B. dessen Sieve-Skripte"
+
+#: shared_account_permission.py:144
+msgid ""
+"Write access to specific JSlob data from the shared account (e.g. for "
+"changing shared configuration)"
+msgstr ""
+"Schreibzugriff zu bestimmten JSlob-Daten des Shared Account (z.B. die Konfigurationen ändern)"
+
+#: shared_account_permission.py:160
+msgid "Permissions"
+msgstr "Berechtigungen"
+
+#: shared_account_permission.py:167
+msgid "Capabilities"
+msgstr "Befähigungen"
+
+#: shared_account_permission.py:270
+msgid ""
+"The deletion of the Shared Account Permission object is not allowed as long "
+"as any Shared Account references it"
+msgstr ""
+"Das Löschen des Shared Account Permission-Objekts ist nicht erlaubt, solange ein Shared Account es noch referenziert"
+
+#: oxcontext.py:48
+msgid "OX Mail: OX context"
+msgstr "OX-Mail: OX context"
+
+#: oxcontext.py:133
+msgid "\"dn\" Object exists: The Context ID has already been taken!"
+msgstr "\"dn\" Objekt existiert: Die Context-ID ist bereits vergeben!"
+
+#: oxcontext.py:144
+msgid "The deletion of the OX context object is not allowed!"
+msgstr "Das Löschen von OX-Context-Objekten ist nicht erlaubt!"
+
+#: oxcontext.py:162
+msgid ""
+"The deletion of the OX context object is not allowed as long as users are in "
+"it"
+msgstr ""
+"Das Löschen des OX-Context-Objekts ist nicht erlaubt, solange sich Benutzer "
+"darin befinden!"
+
+#: oxcontext.py:181
+msgid ""
+"The deletion of the OX context object is not allowed as long as resources "
+"are in it"
+msgstr ""
+"Das Löschen des OX-Context-Objekts ist nicht erlaubt, solange sich Resourcen "
+"darin befinden!"
+
+#~ msgid ""
+#~ "The deletion of the OX access profile object is not allowed as long as a "
+#~ "shared account reference it"
+#~ msgstr ""
+#~ "Das Löschen des OX-Zugangsprofils ist nicht erlaubt, solange es von "
+#~ "geteilten Konten referenziert wrd"
+
+#~ msgid "The users cannot be repeated in the shared account"
+#~ msgstr ""
+#~ "Die Benutzer können nicht mehrfach einem geteilten Konto zugewiesen werden"
+
+#~ msgid "The groups cannot be repeated in the shared account"
+#~ msgstr ""
+#~ "Die Gruppen können nicht mehrfach einem geteilten Konto zugewiesen werden"
+
+#~ msgid "Search"
+#~ msgstr "Suchen"
+
+#~ msgid "Search for OX contexts"
+#~ msgstr "Nach OX-Context-Objekten suchen"
+
+#~ msgid "Hostname"
+#~ msgstr "Rechnername"
+
+#~ msgid "OX integration version"
+#~ msgstr "Version der OX-Integration"
+
+#~ msgid "OX GUI version"
+#~ msgstr "Version der OX-GUI"
+
+#~ msgid "OX admindaemon version"
+#~ msgstr "Version des OX-Admindaemons"
+
+#~ msgid "OX groupware version"
+#~ msgstr "Version der OX-Groupware"
+
+#~ msgid "OX Database Server"
+#~ msgstr "OX-Datenbank-Server"
+
+#~ msgid "OX Mail: Mail Domain"
+#~ msgstr "OX-Mail: Maildomäne"
+
+#~ msgid "Imap server"
+#~ msgstr "IMAP-Server"
+
+#~ msgid "OX context name"
+#~ msgstr "OX-Context-Name"
+
+#~ msgid ""
+#~ "Space-separated list of local domain names - leave empty for all local "
+#~ "domains"
+#~ msgstr ""
+#~ "Lokale Domains (durch Leerzeichen getrennt) - für alle lokalen Domains "
+#~ "Feld leer lassen"
+
+#~ msgid "Server"
+#~ msgstr "Server"
+
+#~ msgid "Protocol"
+#~ msgstr "Protokoll"
+
+#~ msgid "SSL"
+#~ msgstr "SSL"
+
+#~ msgid "Remote user"
+#~ msgstr "Entfernter Benutzer"
+
+#~ msgid "Leave messages on server"
+#~ msgstr "Auf dem Server behalten"
+
+#~ msgid "Envelope header"
+#~ msgstr "Envelope Mail Header"
+
+#~ msgid "Virtual qmail prefix"
+#~ msgstr "Virtuelles Qmail-Präfix"
+
+#~ msgid "Basic settings"
+#~ msgstr "Grundeinstellungen"
+
+#~ msgid "OX Mail: Fetchmail Single Drop"
+#~ msgstr "OX-Mail: Fetchmail Single Drop"
+
+#~ msgid "Local recipient"
+#~ msgstr "Lokaler Benutzer"
+
+#~ msgid "Remote server"
+#~ msgstr "Entfernter Server"
+
+#~ msgid "OX Mail: IMAP Folder"
+#~ msgstr "OX-Mail: IMAP-Ordner"
+
+#~ msgid "Mail Domain"
+#~ msgstr "Mail-Domäne"
+
+#~ msgid "Maximum Quota in MB"
+#~ msgstr "Quota in MB"
+
+#~ msgid "Should Be Visible For Outlook"
+#~ msgstr "Sichtbar für Outlook"
+
+#~ msgid "Outlook does not display folders outside of the 'user' namespace."
+#~ msgstr "Outlook zeigt keine Ordner außerhalb des Ordners 'user/' an."
+
+#~ msgid "General settings"
+#~ msgstr "Allgemein"
+
+#~ msgid "Access rights for shared folder"
+#~ msgstr "Zugriffsrechte für IMAP-Ordner"
+
+#~ msgid "The mail address' domain does not match any mail domain object."
+#~ msgstr ""
+#~ "Der Domänenteil der Mailadresse ist nicht in der Liste der eingerichteten "
+#~ "Maildomänen enthalten."
+
+#~ msgid "OX Mail: Mailing Lists"
+#~ msgstr "OX Mail: Mailinglisten"
+
+#~ msgid "Members"
+#~ msgstr "Mitglieder"
+
+#~ msgid "Add, edit and delete OX Mail Objects"
+#~ msgstr "Hinzufügen, Bearbeiten und Löschen von OX-Mail-Objekten"
+
+#~ msgid "Add"
+#~ msgstr "Hinzufügen"
+
+#~ msgid "Add OX Mail Object"
+#~ msgstr "OX-Mail-Objekt hinzufügen"
+
+#~ msgid "Find"
+#~ msgstr "Suchen"
+
+#~ msgid "Find OX Mail Object(s)"
+#~ msgstr "OX-Mail-Objekt suchen"

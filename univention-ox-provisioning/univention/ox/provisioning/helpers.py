@@ -109,6 +109,27 @@ def normalized_dn(dn: str) -> str:
         return ldap.dn.dn2str(ldap.dn.str2dn(dn.lower()))
 
 
+def add_relation(
+    src_obj_id,
+    src_udm_module,
+    dst_obj_id,
+    dst_udm_module,
+    relation_name,
+):
+    """Needs to be overwritten by another function"""
+    pass
+
+
+def remove_complete_relation(src_obj_id, relation_name):
+    """Needs to be overwritten by another function"""
+    pass
+
+
+def search_src_of_relation(dst_obj_id, relation_name):
+    """Needs to be overwritten by another function"""
+    return iter(())
+
+
 # def get_ox_version() -> [int]:
 #     """Returns the version of the OX server. Note that
 #     this on itself requires OX 8. Therefore, this function

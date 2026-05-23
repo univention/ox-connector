@@ -12,6 +12,7 @@ releases:
                 registry: "artifacts.software-univention.de"
                 repository: "nubus-dev/images/ox-extension"
                 tag: {{ env "OX_CHART_VERSION" | default "latest" | quote }}
+                pullPolicy: "Always"
 
         nubusStackDataUms:
           templateContext:

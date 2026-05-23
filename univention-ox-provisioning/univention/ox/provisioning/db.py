@@ -42,13 +42,14 @@ import ldap.dn
 from sqlalchemy import (
     create_engine,
     Column,
+    ForeignKey,
     Integer,
     String,
     DateTime,
     Index,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.soap.config import NoContextAdminPassword
@@ -68,6 +69,32 @@ engine = create_engine("sqlite:///%s/ox-connector.db" % LISTENER_DIR)
 User = get_ox_integration_class("SOAP", "User")
 CACHE = {}
 logger = logging.getLogger("listener")
+
+
+class Relation(Base):
+    __tablename__ = "relations"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    src_obj_id = Column(
+        String,
+        ForeignKey("old.obj_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    src_udm_module = Column(String, nullable=False)
+    dst_obj_id = Column(
+        String,
+        ForeignKey("old.obj_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    dst_udm_module = Column(String, nullable=False)
+    relation_name = Column(String, nullable=False)
+
+    __table_args__ = (
+        Index("relations_lookup", "src_obj_id", "relation_name"),
+        Index("relations_reverse_lookup", "dst_obj_id", "relation_name"),
+    )
+
+    def __str__(self):
+        return f"Rel({self.src_udm_module}/{self.src_obj_id} -> {self.dst_udm_module}/{self.dst_obj_id}: {self.relation_name})"
 
 
 class Dead(Base):
@@ -93,6 +120,16 @@ class Old(Base):
     udm_module = Column(String, nullable=False)
     dn = Column(String, nullable=False)
     attrs = Column(String, nullable=False)
+    forward_relations = relationship(
+        "Relation",
+        foreign_keys=[Relation.src_obj_id],
+        cascade="delete",
+    )  # only defined for cascade
+    backward_relations = relationship(
+        "Relation",
+        foreign_keys=[Relation.dst_obj_id],
+        cascade="delete",
+    )  # only defined for cascade
 
     __table_args__ = (
         Index("old_obj_id", "obj_id"),
@@ -127,6 +164,68 @@ os.chown(f"{LISTENER_DIR}/ox-connector.db", 0, 0)
 os.chmod(f"{LISTENER_DIR}/ox-connector.db", 0o640)
 
 
+def add_relation(
+    src_obj_id,
+    src_udm_module,
+    dst_obj_id,
+    dst_udm_module,
+    relation_name,
+):
+    """
+    Add a Relation object
+    """
+    relation = Relation(
+        src_obj_id=src_obj_id,
+        src_udm_module=src_udm_module,
+        dst_obj_id=dst_obj_id,
+        dst_udm_module=dst_udm_module,
+        relation_name=relation_name,
+    )
+    logger.info("Adding relation %s", relation)
+    with _get_session() as db_session:
+        db_session.add(relation)
+
+
+def remove_complete_relation(src_obj_id, relation_name):
+    """
+    Remove all occurences of a relation name for an object
+    """
+    with _get_session() as db_session:
+        for relation in (
+            db_session.query(Relation)
+            .filter_by(src_obj_id=src_obj_id, relation_name=relation_name)
+            .all()
+        ):
+            logger.info("Deleting relation %s", relation)
+            db_session.delete(relation)
+
+
+def search_src_of_relation(dst_obj_id, relation_name):
+    """
+    Yield the src_obj_id of every relation pointing to dst_obj_id with the given relation_name.
+    """
+    with _get_session() as db_session:
+        relations = (
+            db_session.query(Relation)
+            .filter_by(dst_obj_id=dst_obj_id, relation_name=relation_name)
+            .all()
+        )
+        result = [r.src_obj_id for r in relations]
+        for relation in relations:
+            logger.info("Found relation %s", relation)
+    yield from result
+
+
+def get_task(obj_id: str = None):
+    """
+    Returns the first pending task with a given obj_id
+    """
+    if obj_id is None:
+        return None
+    with _get_session() as db_session:
+        return db_session.query(Task).filter_by(obj_id=obj_id).first()
+
+
 def get_tasks(udm_module: str = None, filter_empty_attributes: bool = None):
     """
     Return all tasks sorted by creation time.
@@ -159,7 +258,7 @@ def get_old(dn: str, obj_id: str = None):
             logger.info("Found old object %s", old)
             return deepcopy(old)
         else:
-            logger.info("No old data found for %s", dn)
+            logger.info("No old data found for %s", obj_id or dn)
 
 
 def find_db_id(ox_context, username, build_cache_size):
@@ -743,7 +842,14 @@ def search_old(obj_id: str, output_format: str = "simple"):
         olds = db_session.query(Old).filter(Old.obj_id.like(obj_id)).all()
         for old in olds:
             if output_format == "json":
-                json_output.append(json.loads(old))
+                json_output.append(
+                    {
+                        "id": old.obj_id,
+                        "udm_object_type": old.udm_module,
+                        "dn": old.dn,
+                        "object": json.loads(old.attrs),
+                    },
+                )
             else:
                 print("DN:", old.dn)
                 print("Object Identifier:", old.obj_id)

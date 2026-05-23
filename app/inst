@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=20
+VERSION=21
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -65,6 +65,8 @@ main () {
 
   create_accessprofiles "${@}"
   migrate_user_access_profiles "${@}"
+
+  create_shared_account_permissions "${@}"
 
   setup_umc "${@}"
 
@@ -164,12 +166,14 @@ register_ldap () {
 
   # 2014-06-05 PMH: dirty game for .mo files, since syntax and umc.xml can't get their own (Bug #35061)
   register_ldap_extension "${@}" -- "${PREFIX}"ldap/oxforucs.schema || die
-  register_ldap_extension "${@}" -- "${PREFIX}"udm/hooks.d/*.py                          "${PREFIX}"udm/hooks.d/*.mo || die
-  register_ldap_extension "${@}" -- "${PREFIX}"udm/syntax.d/*.py                         "${PREFIX}"udm/syntax.d/*.mo || die
-  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/oxcontext.py          "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxcontext.* || die
-  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/functional_account.py "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxfolder.* || die
-  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/accessprofile.py      "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"/umc/icons/*/udm-oxmail-accessprofile.* || die
-  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxresources/oxresources.py   "${PREFIX}"udm/handlers/oxresources/*.mo "${PREFIX}"umc/icons/*/udm-oxresources-oxresources.* "${PREFIX}"/umc/ox-common.xml || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/hooks.d/*.py                                     "${PREFIX}"udm/hooks.d/*.mo || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/syntax.d/*.py                                    "${PREFIX}"udm/syntax.d/*.mo || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/oxcontext.py                     "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxcontext.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/functional_account.py            "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxfolder.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/shared_account.py                "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxfolder.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/shared_account_permission.py     "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"umc/icons/*/udm-oxmail-oxfolder.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxmail/accessprofile.py                 "${PREFIX}"udm/handlers/oxmail/*.mo      "${PREFIX}"/umc/icons/*/udm-oxmail-accessprofile.* || die
+  register_ldap_extension "${@}" -- "${PREFIX}"udm/handlers/oxresources/oxresources.py              "${PREFIX}"udm/handlers/oxresources/*.mo "${PREFIX}"umc/icons/*/udm-oxresources-oxresources.* "${PREFIX}"/umc/ox-common.xml || die
 
   univention-directory-manager policies/registry remove \
     --ignore_not_exists \
@@ -327,6 +331,12 @@ create_container () {
     --set name=functional_accounts
   univention-directory-manager container/cn create "${@}" \
     --ignore_exists --position "cn=open-xchange,${ldap_base}" \
+    --set name=shared_accounts
+  univention-directory-manager container/cn create "${@}" \
+    --ignore_exists --position "cn=open-xchange,${ldap_base}" \
+    --set name=shared_account_permissions
+  univention-directory-manager container/cn create "${@}" \
+    --ignore_exists --position "cn=open-xchange,${ldap_base}" \
     --set name=oxresources
   univention-directory-manager container/cn create "${@}" \
     --ignore_exists --position "cn=open-xchange,${ldap_base}" \
@@ -336,9 +346,10 @@ create_container () {
 create_accessprofiles () {
   if [[ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]]; then
     # new listener filter
-    service univention-directory-listener restart
+    systemctl restart univention-directory-listener
   fi
   echo "Creating OX access profiles..."
+
   univention-directory-manager oxmail/accessprofile create "${@}" \
     --ignore_exists --position "cn=accessprofiles,cn=open-xchange,${ldap_base}" \
     --set name=none \
@@ -442,6 +453,45 @@ migrate_user_access_profiles() {
   fi
 }
 
+create_shared_account_permissions () {
+  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt "21" ]]; then
+    # new listener filter
+    systemctl restart univention-directory-listener
+  fi
+  echo "Creating Shared Account Permissions..."
+
+  univention-directory-manager oxmail/shared_account_permission create "${@}" \
+    --ignore_exists --position "cn=shared_account_permissions,cn=open-xchange,${ldap_base}" \
+    --set name=full_mail_access \
+    --set displayName="Full Mail Access" \
+    --set mail=author \
+    --set calendar=none \
+    --set sendAs=TRUE || die
+
+  univention-directory-manager oxmail/shared_account_permission create "${@}" \
+    --ignore_exists --position "cn=shared_account_permissions,cn=open-xchange,${ldap_base}" \
+    --set name=read_only_mail \
+    --set displayName="Read-only Mail Access" \
+    --set mail=viewer \
+    --set calendar=none || die
+
+  univention-directory-manager oxmail/shared_account_permission create "${@}" \
+    --ignore_exists --position "cn=shared_account_permissions,cn=open-xchange,${ldap_base}" \
+    --set name=full_calendar_access \
+    --set displayName="Full Calendar Access" \
+    --set mail=none \
+    --set calendar=author \
+    --set sendAs=TRUE || die
+
+  univention-directory-manager oxmail/shared_account_permission create "${@}" \
+    --ignore_exists --position "cn=shared_account_permissions,cn=open-xchange,${ldap_base}" \
+    --set name=full_mail_and_calendar_access \
+    --set displayName="Full Mail and Calendar Access" \
+    --set mail=author \
+    --set calendar=author \
+    --set sendAs=TRUE || die
+}
+
 setup_umc () {
   umc_init
   umc_operation_create "udm-oxcontext" "UDM - OXCONTEXT" "oxmail/oxcontext" \
@@ -457,7 +507,7 @@ setup_umc () {
 }
 
 create_cli() {
-  echo -e '#!/bin/bash\nunivention-app shell ox-connector python3 -m univention.ox.provisioning.db $@' > /usr/sbin/univention-ox-connector-task-management
+  echo -e '#!/bin/bash\nunivention-app shell ox-connector python3 -m univention.ox.provisioning.db "$@"' > /usr/sbin/univention-ox-connector-task-management
   chmod 770 /usr/sbin/univention-ox-connector-task-management
 
 }

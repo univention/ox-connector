@@ -66,6 +66,7 @@ class Types(object):
     wsdl_group = None
     wsdl_resource = None
     wsdl_secondary_account = None
+    wsdl_shared_account = None
     wsdl_user = None
     wsdl_deputy_permission = None
 
@@ -76,6 +77,14 @@ class Types(object):
             self.__class__.wsdl_group = get_wsdl(server, 'Group')
         if not self.wsdl_resource:
             self.__class__.wsdl_resource = get_wsdl(server, 'Resource')
+        if not self.wsdl_shared_account:
+            try:
+                self.__class__.wsdl_shared_account = get_wsdl(
+                    server,
+                    'SharedAccount',
+                )
+            except requests.exceptions.HTTPError:
+                univention.ox.soap.config.OX_ENABLE_SHARED_ACCOUNT = "False"
         if not self.wsdl_secondary_account:
             self.__class__.wsdl_secondary_account = get_wsdl(
                 server,
@@ -117,6 +126,10 @@ class Types(object):
         self.Resource = self.wsdl_resource.types.get_type(
             '{http://dataobjects.soap.admin.openexchange.com/xsd}Resource',
         )
+        if self.wsdl_shared_account:
+            self.SharedAccount = self.wsdl_shared_account.types.get_type(
+                '{http://dataobjects.soap.admin.openexchange.com/xsd}SharedAccount',
+            )
         self.SecondaryAccount = self.wsdl_secondary_account.types.get_type(
             '{http://dataobjects.soap.admin.openexchange.com/xsd}AccountDataOnCreate',
         )

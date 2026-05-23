@@ -17,6 +17,10 @@
       <name>OX Functional Accounts</name>
       <description>Managing OX functional accounts</description>
     </flavor>
+    <flavor icon="udm-oxmail-shared_account" id="oxmail/shared_account">
+      <name>OX Shared Accounts</name>
+      <description>Managing OX shared accounts</description>
+    </flavor>
     <flavor icon="udm-oxresources-oxresources" id="oxresources/oxresources">
       <name>OX Resources</name>
       <description>Managing OX resources</description>

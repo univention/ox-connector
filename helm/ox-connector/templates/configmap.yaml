@@ -30,6 +30,7 @@ data:
   OX_IMAP_SERVER: "{{ .Values.openXchange.oxImapServer }}"
   OX_SOAP_SERVER: "{{ .Values.openXchange.oxSoapServer }}"
   OX_ENABLE_DEPUTY_PERMISSIONS: "{{ .Values.openXchange.oxDeputyPermissions }}"
+  OX_ENABLE_SHARED_ACCOUNT: "{{ .Values.openXchange.oxSharedAccount }}"
   LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash

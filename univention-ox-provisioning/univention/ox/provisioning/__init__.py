@@ -68,6 +68,12 @@ from univention.ox.provisioning.users import (
     delete_user,
     modify_user,
 )
+from univention.ox.provisioning.shared_account import (
+    create_shared_account,
+    delete_shared_account,
+    modify_shared_account,
+    modify_shared_account_permission,
+)
 from univention.ox.soap.config import NoContextAdminPassword
 
 
@@ -154,6 +160,22 @@ def run(obj):  # noqa: C901
                 logger.warning(
                     f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
                 )
+    if obj.object_type == "oxmail/shared_account":
+        if obj.was_added():
+            create_shared_account(obj)
+        elif obj.was_modified():
+            modify_shared_account(obj)
+        elif obj.was_deleted():
+            delete_shared_account(obj)
+    if obj.object_type == "oxmail/shared_account_permission":
+        # operations on shared_account_permission dont need explicit
+        # handling, we only need them to be saved in the "old" table
+        # for lookups when handling shared_account
+        # modify is different though, we need to update all references here
+        # (creation is uninteresting, no relations yet. and deletion is guarded
+        # by udm, no deletion allowed as long as relations exist)
+        if obj.was_modified():
+            modify_shared_account_permission(obj)
 
     logger.debug("Processed: %s", obj.distinguished_name)
     if TEST_LOG_FILE.exists():

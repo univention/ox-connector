@@ -45,7 +45,6 @@ from .types import Types
 
 
 class ClientCredentials(object):
-    _context_admin_credentials = dict()
     _context_objs = dict()
     _types = None
 
@@ -70,13 +69,9 @@ class ClientCredentials(object):
 
     @property
     def context_admin_credentials(self):
-        if self.context_id not in self._context_admin_credentials:
-            self._context_admin_credentials[self.context_id] = (
-                self.types.Credentials(
-                    *get_credentials_for_context(self.context_id),
-                )
-            )
-        return self._context_admin_credentials[self.context_id]
+        return self.types.Credentials(
+            *get_credentials_for_context(self.context_id),
+        )
 
     @property
     def credentials(self):

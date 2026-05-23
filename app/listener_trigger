@@ -47,11 +47,15 @@ from univention.ox.provisioning.db import (
     move_task_to_old,
     move_task_to_morgue,
     get_tasks,
+    get_task,
     add_task,
     get_old,
     create_task_from_old,
     remove_old,
     remove_task,
+    add_relation,
+    remove_complete_relation,
+    search_src_of_relation,
 )
 from univention.ox.provisioning.models import TriggerObject
 
@@ -103,17 +107,25 @@ helpers.get_old_obj = _get_old_object
 
 
 def _update_group_queue(entry_uuid):
-    if entry_uuid not in GROUP_EUUID:
-        create_task_from_old(entry_uuid)
+    if get_task(entry_uuid):
         logger.info(
-            "Added %s to the listener queue",
+            "Asked to add %s to the task queue. But it already exists. Doing nothing.",
             entry_uuid,
         )
-        # Register it so it is not processed twice
-        GROUP_EUUID.add(entry_uuid)
+    else:
+        create_task_from_old(entry_uuid)
+        logger.info(
+            "Added %s to the task queue",
+            entry_uuid,
+        )
 
 
 helpers.update_group_queue = _update_group_queue
+
+
+helpers.add_relation = add_relation
+helpers.remove_complete_relation = remove_complete_relation
+helpers.search_src_of_relation = search_src_of_relation
 
 
 class TriggerObjectFileBased(TriggerObject):
@@ -126,9 +138,6 @@ class TriggerObjectFileBased(TriggerObject):
             self.old_attributes = old.attributes
             self.old_options = []
         self._old_loaded = True
-
-
-GROUP_EUUID = set()
 
 
 def main():
@@ -149,6 +158,8 @@ def main():
         ("users/user", None),
         ("groups/group", None),
         ("oxmail/functional_account", None),
+        ("oxmail/shared_account_permission", None),
+        ("oxmail/shared_account", None),
         ("oxresources/oxresources", None),
         ("oxmail/oxcontext", True),
     ]:
@@ -171,16 +182,11 @@ def main():
                 logger.exception(exc)
                 if stop_on_error or task.udm_module == "oxmail/oxcontext":
                     # oxcontext is so important, we can never continue here
-                    error_count = increment_error_count(task.id)
                     ret_value = 1
                     break
                 move_task_to_morgue(task.id, traceback.format_exc())
                 ret_value = 1
             else:
-                try:
-                    GROUP_EUUID.remove(obj.entry_uuid)
-                except KeyError:
-                    pass
                 if obj.was_deleted():
                     remove_old(obj.old_distinguished_name)
                     remove_task(task.id)
