@@ -12,6 +12,20 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v3.2.1:
+
+v3.2.1
+======
+
+Released: TBD
+
+Added
+-----
+
+Migration script for functional accounts into *OX Shared Accounts*.
+You can now migrate your old functional account to the new shared account using the provided script.
+For more information, see :ref:`usage-shared-accounts-migration`.
+
 .. _app-changelog-v3.2.0:
 
 v3.2.0

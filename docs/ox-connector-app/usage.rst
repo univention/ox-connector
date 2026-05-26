@@ -52,32 +52,34 @@ To enable a user account for OX App Suite, run the following steps:
 
 #. Navigate to :menuselection:`Users --> Users` in UMC and click to open.
 
-.. tab:: Add user account
+.. tab-set::
 
-   To create a user account:
+   .. tab-item:: Add user account
 
-   2. Click :guilabel:`Add` to create a user account and select the *User
-      template* ``open-xchange groupware account``.
+      To create a user account:
 
-   #. Click :guilabel:`Next`.
+      2. Click :guilabel:`Add` to create a user account and select the *User
+         template* ``open-xchange groupware account``.
 
-   #. Fill out the required fields. To fill out more attributes, click :guilabel:`Advanced`.
+      #. Click :guilabel:`Next`.
 
-   #. When finished, click :guilabel:`Create user`.
+      #. Fill out the required fields. To fill out more attributes, click :guilabel:`Advanced`.
 
-.. tab:: Update user account
+      #. When finished, click :guilabel:`Create user`.
 
-   To update a user account:
+   .. tab-item:: Update user account
 
-   2. Click the username for the user you want to update.
+      To update a user account:
 
-   #. Go to the *Apps* tab and activate the *Open-Xchange* checkbox. The tab
-      *Open-Xchange* appears.
+      2. Click the username for the user you want to update.
 
-   #. Define an email address for the user at :menuselection:`General --> Primary
-      e-mail address (mailbox)`.
+      #. Go to the *Apps* tab and activate the *Open-Xchange* checkbox. The tab
+         *Open-Xchange* appears.
 
-   #. Click :guilabel:`Save`.
+      #. Define an email address for the user at :menuselection:`General --> Primary
+         e-mail address (mailbox)`.
+
+      #. Click :guilabel:`Save`.
 
 .. seealso::
 
@@ -96,63 +98,65 @@ To enable a group for OX App suite, run the following steps:
 
 #. Navigate to :menuselection:`Users --> Groups` in UMC and click to open.
 
-.. tab:: Add group
+..tab-set::
 
-   To create a group:
+   .. tab-item:: Add group
 
-   2. Click :guilabel:`Add` to create a group.
+      To create a group:
 
-   #. On the *General* tab, fill out the required fields and add users as group
-      members.
+      2. Click :guilabel:`Add` to create a group.
 
-   #. Go to the *OX App Suite* tab and activate the *Activate Group in OX*.
+      #. On the *General* tab, fill out the required fields and add users as group
+         members.
 
-   #. Click :guilabel:`Create group`.
+      #. Go to the *OX App Suite* tab and activate the *Activate Group in OX*.
+
+      #. Click :guilabel:`Create group`.
 
 
-.. tab:: Update group
+   .. tab-item:: Update group
 
-   To update a group:
+      To update a group:
 
-   2. Click a group to edit.
+      2. Click a group to edit.
 
-   #. The UDM module *Groups* automatically enables *Activate Group in OX*, when
-      you edit a group. UMC displays a notification.
+      #. The UDM module *Groups* automatically enables *Activate Group in OX*, when
+         you edit a group. UMC displays a notification.
 
-      If you don't want to enable the group, clear the checkbox *Activate Group
-      in OX* on the *OX App Suite* tab.
+         If you don't want to enable the group, clear the checkbox *Activate Group
+         in OX* on the *OX App Suite* tab.
 
-   #. Click :guilabel:`Save`.
+      #. Click :guilabel:`Save`.
 
-   .. warning::
+      .. warning::
 
-      When you as administrator update a group, that already is a group in OX App
-      Suite, and you clear the checkbox *Activate Group in OX* on the *OX App
-      Suite* tab, the connector removes this group from OX App Suite.
+         When you as administrator update a group, that already is a group in OX App
+         Suite, and you clear the checkbox *Activate Group in OX* on the *OX App
+         Suite* tab, the connector removes this group from OX App Suite.
 
-   To update a group from the command-line, run the following command:
+      To update a group from the command-line, run the following command:
 
-   .. code-block:: console
+      .. code-block:: console
 
-      $ udm groups/group modify --dn $dn_of_group --set isOxGroup=OK
+         $ udm groups/group modify --dn $dn_of_group --set isOxGroup=OK
 
-.. tab:: Remove group
+   .. tab-item:: Remove group
 
-   To remove a group from OX App Suite:
+      To remove a group from OX App Suite:
 
-   2. Click a group to edit.
+      2. Click a group to edit.
 
-   #. Go to the *OX App Suite* tab and clear the checkbox *Activate Group
-      in OX*.
+      #. Go to the *OX App Suite* tab and clear the checkbox *Activate Group
+         in OX*.
 
-   #. Click :guilabel:`Save`.
+      #. Click :guilabel:`Save`.
 
-   To remove the group from OX App Suite through command-line, run the following
-   command:
+      To remove the group from OX App Suite through command-line, run the following
+      command:
 
-   .. code-block:: console
+      .. code-block:: console
 
-      $ udm groups/group modify --dn $dn_of_group --set isOxGroup=Not
+         $ udm groups/group modify --dn $dn_of_group --set isOxGroup=Not
 
 .. seealso:: :ref:`uv-manual:groups` in :cite:t:`ucs-manual`.
 
@@ -282,3 +286,200 @@ at the directory location ``open-xchange/shared_account_permissions``.
 
 When you create an ``oxmail/shared_account`` object,
 you can grant permissions to users and groups in |UMC|.
+
+.. _usage-shared-accounts-migration:
+
+Migration from functional accounts to shared accounts
+-----------------------------------------------------
+
+.. versionadded:: 3.2.1
+
+The shared accounts feature in OX App Suite
+deprecates the old functional accounts.
+OX Connector provides a script
+that lets you migrate from functional accounts
+to shared accounts.
+
+Before you run the script,
+:program:`Dovecot` must use the email address
+as the unique identifier for the mail accounts.
+
+.. danger::
+
+   If your :program:`Dovecot` installation uses a unique identifier
+   other than the email address,
+   **don't run** the migration script.
+   In that case, the script deletes your functional accounts
+   and creates shared accounts without their content.
+
+Test the migration script
+and carefully review the results
+before you use it in production.
+The ``dry-run`` option runs the migration script without actually writing changes to OX App Suite,
+and prints statements from the steps during the migration.
+
+For information about the migration script parameters,
+use the ``--help`` option.
+It provides options about addressing multiple functional accounts with one run,
+or providing credentials through environment variables.
+
+For troubleshooting, see :ref:`app-troubleshooting-migration`.
+
+Depending on your deployment of the OX Connector,
+choose one of the following options to run the migration.
+
+.. tab-set::
+
+   .. tab-item:: App in Univention App Center
+
+      Run the migration script on Nubus for UCS on the system
+      that has the OX Connector installed.
+      Use the commands in
+      :numref:`usage-shared-accounts-migration-prepare-ucs-listing`
+      and :numref:`usage-shared-accounts-migration-ucs-listing`.
+      In the listing you need to provide the values for the following inputs:
+
+      ``UDM_USERNAME``
+         The username for the UDM user.
+         The user account must be a member of the :external+uv-nubus-customization:ref:`customization-api-udm-rest-auth-group`
+         in the *UDM HTTP REST API*.
+
+      ``UDM_PASSWORD``
+         The password for the ``UDM_USERNAME``.
+
+      ``REST_API_HOSTNAME``
+         The FQDN of the UDM HTTP REST API in your domain.
+
+      ``OPTIONAL_DESTINATION``
+         The container for the shared account that the migration script creates.
+
+      ``DESTINATION_OX_CONTEXT``
+         The OX Context where the shared account will be created.
+
+      .. code-block:: console
+         :caption: Prepare migration to shared accounts
+         :name: usage-shared-accounts-migration-prepare-ucs-listing
+
+         $ export UDM_USERNAME="<your-udm-user>"
+         $ export UDM_PASSWORD="<your-udm-password>"
+         $ export REST_API_HOSTNAME="<your-udm-rest>"
+         $ export OPTIONAL_DESTINATION="<optional-custom-destination-for-single-migration>"
+         $ export DESTINATION_OX_CONTEXT=<your-ox-context-id>
+
+      .. code-block:: console
+         :caption: Run the migration from functional accounts to shared accounts
+         :name: usage-shared-accounts-migration-ucs-listing
+
+         $ univention-app shell \
+            ox-connector \
+            /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py \
+            "cn=example_fupo,cn=functional_accounts,cn=open-xchange,$(ucr get ldap/base)" \
+            "Full Mail Access" \
+            "$OPTIONAL_DESTINATION" \
+            "$UDM_USERNAME" \
+            "$UDM_PASSWORD" \
+            "https://$REST_API_HOSTNAME/univention/udm" \
+            --ox-context $DESTINATION_OX_CONTEXT
+
+   .. tab-item:: Consumer in Nubus for Kubernetes
+
+      To run the migration script in your Nubus for Kubernetes environment,
+      use the following steps.
+
+      #. To configure the namespaces for your Nubus for Kubernetes environment
+         and the OX Consumer deployment,
+         set the environment variables as shown in :numref:`usage-shared-accounts-migration-env-listing`.
+
+         ``NAMESPACE_N4K``
+            The Kubernetes namespace for your Nubus for Kubernetes deployment.
+
+         ``RELEASE_N4K``
+            The release name for your Nubus for Kubernetes deployment.
+            To list the release names in your namespace,
+            run the command in :numref:`usage-shared-accounts-migration-release-name-listing`.
+
+         ``NAMESPACE_CONNECTOR``
+            The Kubernetes namespace of your OX Connector deployment.
+            Typically, it's the same namespace as for Nubus for Kubernetes.
+
+         .. code-block:: console
+            :caption: Set environment variables for Nubus for Kubernetes and the OX Connector.
+            :name: usage-shared-accounts-migration-env-listing
+
+            $ export NAMESPACE_CONNECTOR="<your-namespace-for-the-connector>"
+            $ export NAMESPACE_N4K="<your-namespace-for-nubus-for-kubernetes>"
+            $ export RELEASE_N4K="<Release-name-for-nubus-for-kubernetes>"
+
+         .. code-block:: console
+            :caption: Show the release names in the namespace of Nubus for Kubernetes
+            :name: usage-shared-accounts-migration-release-name-listing
+
+            $ helm --namespace "$NAMESPACE_N4K" list -q
+
+      #. Retrieve the LDAP base DN from your Nubus for Kubernetes environment.
+
+         You need the LDAP base DN of your Nubus for Kubernetes deployment.
+         You provided the LDAP base DN during the :external+uv-nubus-kubernetes-operation:ref:`deployment of Nubus for Kubernetes <nubus-deployment-all-deps>`
+         in your :file:`custom_values.yaml`.
+         To retrieve the LDAP base DN,
+         run the command in :numref:`usage-shared-accounts-migration-n4k-retrieve-values-listing`.
+
+         ``LDAP_BASE``
+            The LDAP base DN of your directory service.
+
+         .. code-block:: console
+            :caption: Retrieve parameters from Nubus for Kubernetes environment
+            :name: usage-shared-accounts-migration-n4k-retrieve-values-listing
+
+            $ export LDAP_BASE="$(kubectl \
+               --namespace "$NAMESPACE_N4K" \
+               get configmap \
+               "$RELEASE_N4K-ldap-server" \
+               -o "jsonpath={.data.LDAP_BASE_DN}")"
+
+      #. Configure the remaining parameters for the migration script.
+
+         ``UDM_USERNAME``
+            The username for the UDM user.
+            The user account must be a member of the :external+uv-nubus-customization:ref:`customization-api-udm-rest-auth-group`
+            in the *UDM HTTP REST API*.
+
+         ``UDM_PASSWORD``
+            The password for the ``UDM_USERNAME``.
+
+         ``FUNCTIONAL_ACCOUNT``
+            The LDAP distinguished name (DN) of the functional account that you want to migrate.
+
+         ``DESTINATION_OX_CONTEXT``
+            The OX Context where the shared account will be created.
+
+         .. code-block:: console
+            :caption: Define the remaining parameters for the migration
+            :name: usage-shared-accounts-migration-prepare-n4k-listing
+
+            $ export UDM_USERNAME="<your-udm-user>"
+            $ export UDM_PASSWORD="<your-udm-password>"
+            $ export FUNCTIONAL_ACCOUNT="cn=example_fupo,cn=functional_accounts,cn=open-xchange,$LDAP_BASE"
+            $ export DESTINATION_OX_CONTEXT=<your-ox-context-id>
+
+      #. Run the migration script.
+         The example command in :numref:`usage-shared-accounts-migration-n4k-listing`
+         uses the variables that you defined in the previous steps.
+
+         Verify the migration result
+         before you continue with production use.
+
+         .. code-block:: console
+            :caption: Run the migration script
+            :name: usage-shared-accounts-migration-n4k-listing
+
+            $ kubectl \
+               --namespace="$NAMESPACE_CONNECTOR" \
+               exec ox-connector-0 -c main -- /bin/bash \
+               -c 'UDM_USERNAME='$UDM_USERNAME' \
+               UDM_URL="http://nubus-udm-rest-api:9979/univention/udm/" \
+               UDM_PASSWORD='$UDM_PASSWORD' python3 \
+               /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py \
+               '$FUNCTIONAL_ACCOUNT' \
+               "Full Mail Access" \
+               --ox-context '$DESTINATION_OX_CONTEXT''
