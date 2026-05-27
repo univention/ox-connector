@@ -90,7 +90,8 @@ RUN \
   pip3 install --break-system-packages --no-cache-dir \
     nubus-provisioning-common=='v0.64.0' nubus-provisioning-consumer=='v0.64.0' --index-url https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple \
     appdirs==1.4.* \
-    platformdirs==2.6.*
+    platformdirs==2.6.* \
+    udm-rest-api-client[sync]==0.0.2
 
 # install appcenter listener script to use as package
 COPY app/listener_trigger ${PYPKG}/listener_trigger.py
@@ -206,6 +207,7 @@ COPY --from=debian-python-deps ${PDPKG}/pyasn1_modules/ ${PYPKG}/pyasn1_modules/
 ENV PYTHON_DIST_PACKAGES="/usr/local/lib/python3.11/dist-packages"
 
 COPY entrypoint.sh /entrypoint.d/75-entrypoint.sh
+COPY share/migrate_fupo_to_shared_account.py /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py
 
 RUN \
   python3 -V && \

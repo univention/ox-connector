@@ -50,7 +50,8 @@ RUN apk add --no-cache \
   pip3 install --no-cache-dir --compile --upgrade \
     pip~=23.3 && \
   pip3 install --no-cache-dir --compile --upgrade \
-    --requirement /build/requirements_all.txt && \
+    --requirement /build/requirements_all.txt \
+    udm-rest-api-client[sync]==0.0.2 && \
   apk del --no-cache \
     gcc \
     musl-dev \

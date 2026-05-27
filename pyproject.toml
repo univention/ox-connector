@@ -26,7 +26,8 @@ dev = [
   "kubernetes",
   "pdbpp>=0.11.7",
   "python-dateutil>=2.9.0.post0",
-  "tenacity"
+  "tenacity",
+  "udm-rest-api-client[sync]==0.0.2"
 ]
 
 [tool.uv]
