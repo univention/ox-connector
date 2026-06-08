@@ -194,6 +194,7 @@ class RemoteConsumer:
             os.environ["OX_ENABLE_SHARED_ACCOUNT"] = configs[
                 "ox_shared_accounts"
             ]
+            os.environ["OX_CONNECTOR_DB"] = configs["ox_db_connection_string"]
 
             if "hosts" in configs:
                 with open("/etc/hosts", 'a') as file:

@@ -70,10 +70,10 @@ spec:
               mountPath: /scripts
           resources:
             {{- toYaml .Values.resourcesWaitForDependency | nindent 12 }}
-        - name: migrate-database
+        - name: init-db
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          command: [ "/usr/bin/python3", "/migrate.py" ]
+          command: [ "/usr/bin/python3", "/init-db.py" ]
           image: "{{ coalesce .Values.oxConnector.image.registry .Values.global.imageRegistry }}/{{ .Values.oxConnector.image.repository }}:{{ .Values.oxConnector.image.tag }}"
           imagePullPolicy: {{ coalesce .Values.oxConnector.image.pullPolicy .Values.global.imagePullPolicy | quote }}
           {{- with .Values.oxConnector.extraEnvVars }}
@@ -102,6 +102,8 @@ spec:
                 secretKeyRef:
                   key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.auth.existingSecret "key" "password") | quote }}
                   name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.auth.existingSecret "defaultNameSuffix" "ox-master-password" "context" .) | quote }}
+            - name: OX_CONNECTOR_DB
+              value: "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db"
           {{- with .Values.oxConnector.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}

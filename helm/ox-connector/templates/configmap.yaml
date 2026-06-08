@@ -32,6 +32,7 @@ data:
   OX_ENABLE_DEPUTY_PERMISSIONS: "{{ .Values.openXchange.oxDeputyPermissions }}"
   OX_ENABLE_SHARED_ACCOUNT: "{{ .Values.openXchange.oxSharedAccount }}"
   LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
+  OX_CONNECTOR_DB: "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db"
   wait-for-api.sh: |
     #!/bin/bash
     set -uo pipefail

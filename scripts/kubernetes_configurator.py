@@ -35,15 +35,7 @@ class KubernetesConfigurator(RemoteConfigurator):
         self.files = {}
 
     def _get_files(self) -> dict[str, str]:
-        return {
-            "/etc/ox-secrets/ox-contexts.json": "/tmp/contexts.json",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/contexts.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/contexts.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox_db_id.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox_db_id.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/non_ox_objs.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/non_ox_objs.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/usernames.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/usernames.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/shared_permissions.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/shared_permissions.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/univention_object_identifier.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/univention_object_identifier.db",
-        }
+        return {"/etc/ox-secrets/ox-contexts.json": "/tmp/contexts.json"}
 
     def _read_file(self, pod_name, remote_path):
         remote_path = Path(remote_path)
@@ -556,6 +548,7 @@ class KubernetesConfigurator(RemoteConfigurator):
         remote_config["provisioning_api_password"] = ox_connector_config[
             "PROVISIONING_API_PASSWORD"
         ]
+        remote_config["ox_db_connection_string"] = "./ox.db"
 
         return remote_config
 

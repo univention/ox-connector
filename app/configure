@@ -20,3 +20,5 @@ if [[ -d "/var/lib/univention-appcenter/apps/${APP_ID}/data/conf/ca-certificates
   cp /var/lib/univention-appcenter/apps/"${APP_ID}"/data/conf/ca-certificates/* "/usr/local/share/ca-certificates/"
   update-ca-certificates
 fi
+
+python3 -c "from univention.ox.provisioning.db import initialize_db; initialize_db(set_permissions=True)"

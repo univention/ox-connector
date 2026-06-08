@@ -36,6 +36,7 @@ from itertools import chain
 import datetime
 from contextlib import contextmanager
 from copy import deepcopy
+from urllib.parse import urlsplit
 
 import ldap.dn
 
@@ -48,6 +49,7 @@ from sqlalchemy import (
     DateTime,
     Index,
 )
+from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
@@ -65,7 +67,24 @@ LISTENER_DIR = Path(
     "/var/lib/univention-appcenter/apps/ox-connector/data/listener/",
 )
 
-engine = create_engine("sqlite:///%s/ox-connector.db" % LISTENER_DIR)
+
+def get_db_url():
+    db_connection_string = os.environ.get(
+        "OX_CONNECTOR_DB",
+        str(LISTENER_DIR / "ox-connector.db"),
+    )
+
+    url = urlsplit(db_connection_string)
+    if not url.scheme:
+        print(url.geturl())
+        return make_url(f"sqlite:///{url.geturl()}")
+
+    return make_url(url.geturl())
+
+
+DB_URL = get_db_url()
+engine = create_engine(DB_URL)
+
 User = get_ox_integration_class("SOAP", "User")
 CACHE = {}
 logger = logging.getLogger("listener")
@@ -158,10 +177,6 @@ class Task(Base):
 
 
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.create_all(engine)
-os.chown(f"{LISTENER_DIR}/ox-connector.db", 0, 0)
-os.chmod(f"{LISTENER_DIR}/ox-connector.db", 0o640)
 
 
 def add_relation(
@@ -418,6 +433,24 @@ def add_task(path: Path):
             path,
         )
         return
+    enqueue_task(obj_id, udm_module, dn, attrs)
+    open(LISTENER_DIR / "restart.json", "w")
+
+
+def enqueue_task(
+    obj_id: str,
+    udm_module: str,
+    dn: str,
+    attrs: dict,
+):
+    """
+    Enqueue a provisioning task into the SQL tasks table directly.
+    Used by the standalone K8s consumer to queue tasks from messages.
+    """
+    dn = _normalized_dn(dn)
+    if not obj_id:
+        logger.info("No obj_id provided, skipping task creation")
+        return
     with _get_session() as db_session:
         task = Task(
             obj_id=obj_id,
@@ -428,7 +461,6 @@ def add_task(path: Path):
         db_session.add(task)
         db_session.commit()
         logger.info("Task %s created", task)
-    open(LISTENER_DIR / "restart.json", "w")
 
 
 def add_old(path: Path):
@@ -452,25 +484,7 @@ def add_old(path: Path):
             path,
         )
         return
-    with _get_session() as db_session:
-        old = db_session.query(Old).filter_by(obj_id=obj_id).first()
-        if old:
-            logger.info("Found old data %s", old)
-            old.obj_id = obj_id
-            old.udm_module = udm_module
-            old.dn = dn
-            old.attrs = json.dumps(attrs)
-            logger.info("Updating...")
-        else:
-            old = Old(
-                obj_id=obj_id,
-                udm_module=udm_module,
-                dn=dn,
-                attrs=json.dumps(attrs),
-            )
-            db_session.add(old)
-            db_session.commit()
-            logger.info("Created entry in old db %s", old)
+    store_old(obj_id, udm_module, dn, attrs)
 
 
 def remove_old(dn: str):
@@ -568,7 +582,7 @@ def move_task_to_old(task_id: int, attributes: dict = None):
         logger.info("Deleted task %s", task)
 
 
-def get_errors(obj_id='*'):
+def get_errors(obj_id="*"):
     obj_id = obj_id.replace("*", "%")  # SQL LIKE
     with _get_session() as db_session:
         errors = (
@@ -596,8 +610,8 @@ def resync_item(obj_id):
             "object_type": item.udm_module,
             "command": "m",
         }
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
-        filename = '%s/%s.json' % (
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+        filename = "%s/%s.json" % (
             "/var/lib/univention-appcenter/listener/ox-connector",
             timestamp,
         )
@@ -986,6 +1000,144 @@ def _add_action(subparsers, func):
     subparser.set_defaults(func=partial(_call, func))
 
 
+def store_old(
+    obj_id: str,
+    udm_module: str,
+    dn: str,
+    attrs: dict,
+):
+    """
+    Store an object in the old table. If that item already
+    exists (by univentionObjectIdentifier), it is updated, otherwise a new item
+    is created. Used by the standalone consumer.
+    """
+    dn = _normalized_dn(dn)
+    attrs_json = json.dumps(attrs)
+    with _get_session() as db_session:
+        old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        if old:
+            logger.info("Updating old entry %s", old)
+            old.obj_id = obj_id
+            old.udm_module = udm_module
+            old.dn = dn
+            old.attrs = attrs_json
+        else:
+            old = Old(
+                obj_id=obj_id,
+                udm_module=udm_module,
+                dn=dn,
+                attrs=attrs_json,
+            )
+            db_session.add(old)
+            db_session.commit()
+            logger.info("Created entry in old db %s", old)
+
+
+def delete_old(dn: str = None, obj_id: str = None):
+    """
+    Remove an item from the old table.
+    Used by the standalone consumer.
+    """
+    if not dn and not obj_id:
+        return
+    dn = _normalized_dn(dn) if dn else None
+    with _get_session() as db_session:
+        if obj_id:
+            old = db_session.query(Old).filter_by(obj_id=obj_id).first()
+        else:
+            old = db_session.query(Old).filter_by(dn=dn).first()
+        if old:
+            logger.info("Removing old entry %s", old)
+            db_session.delete(old)
+            db_session.commit()
+        else:
+            logger.info(
+                "Old entry not found for %s, nothing to remove",
+                obj_id or dn,
+            )
+
+
+def store_relation(
+    src_obj_id: str,
+    src_udm_module: str,
+    dst_obj_id: str,
+    dst_udm_module: str,
+    relation_name: str,
+):
+    """Add a relation between two old objects. Used by the standalone consumer."""
+    relation = Relation(
+        src_obj_id=src_obj_id,
+        src_udm_module=src_udm_module,
+        dst_obj_id=dst_obj_id,
+        dst_udm_module=dst_udm_module,
+        relation_name=relation_name,
+    )
+    logger.info("Adding relation %s", relation)
+    with _get_session() as db_session:
+        db_session.add(relation)
+
+
+def remove_relation(src_obj_id: str, relation_name: str):
+    """Remove all relations with a given src_obj_id and relation_name."""
+    with _get_session() as db_session:
+        for relation in (
+            db_session.query(Relation)
+            .filter_by(src_obj_id=src_obj_id, relation_name=relation_name)
+            .all()
+        ):
+            logger.info("Deleting relation %s", relation)
+            db_session.delete(relation)
+        db_session.commit()
+
+
+def get_relation_src(dst_obj_id: str, relation_name: str):
+    """Yield the src_obj_id of every relation pointing to dst_obj_id."""
+    with _get_session() as db_session:
+        relations = (
+            db_session.query(Relation)
+            .filter_by(dst_obj_id=dst_obj_id, relation_name=relation_name)
+            .all()
+        )
+        for relation in relations:
+            logger.info("Found relation %s", relation)
+            yield relation.src_obj_id
+
+
+def initialize_db(set_permissions: bool = False):
+    """
+    Initialize the database: create all tables and validate schema.
+    Returns True if initialization/success, raises on schema mismatch.
+    """
+    try:
+        Base.metadata.create_all(engine)
+        if set_permissions and DB_URL.drivername == "sqlite":
+            os.chown(DB_URL.database, 0, 0)
+            os.chmod(DB_URL.database, 0o640)
+
+        logger.info("Database schema verified/created successfully")
+
+        # Validate all expected tables exist
+        from sqlalchemy import inspect as sa_inspect
+
+        inspector = sa_inspect(engine)
+        expected_tables = {"tasks", "old", "morgue", "relations"}
+        existing_tables = set(inspector.get_table_names())
+        missing = expected_tables - existing_tables
+        if missing:
+            raise RuntimeError(
+                f"Database schema invalid: missing tables: {missing}",
+            )
+
+        logger.info(
+            "All expected tables present: %s",
+            existing_tables & expected_tables,
+        )
+        return True
+    except Exception:
+        logger.exception("Database initialization failed")
+        raise
+
+
 @contextmanager
 def _get_session():
     db_session = Session()
@@ -1027,8 +1179,8 @@ if __name__ == "__main__":
         formatter_class=RawTextHelpFormatter,
     )
     subparsers = parser.add_subparsers(
-        description='type %(prog)s <action> --help for further help and possible arguments',
-        metavar='action',
+        description="type %(prog)s <action> --help for further help and possible arguments",
+        metavar="action",
     )
     _add_action(subparsers, show_item)
     _add_action(subparsers, resync_item)

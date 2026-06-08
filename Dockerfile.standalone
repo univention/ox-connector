@@ -233,7 +233,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
     make \
     python3-dev
 
-# Set PYTHONPATH to allow importing from migrate.py for tests
+# Set PYTHONPATH to allow importing from standalone-files for tests
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_DOWNLOADS=never \

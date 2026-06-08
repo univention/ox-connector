@@ -76,9 +76,8 @@ from univention.ox.provisioning.shared_account import (
 )
 from univention.ox.soap.config import NoContextAdminPassword
 
-
 logger = logging.getLogger("listener")
-logging.getLogger('zeep.transports').setLevel(
+logging.getLogger("zeep.transports").setLevel(
     os.getenv("OX_CONNECTOR_LOG_LEVEL", "INFO"),
 )
 TEST_LOG_FILE = Path("/tmp/test.log")
@@ -200,14 +199,14 @@ def get_group_objs(obj):  # noqa: C901
         return
     contexts = {}
     for user in set(users):
-        user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
-        if user_obj is None:
+        old_obj = univention.ox.provisioning.helpers.get_old_obj(user)
+        if old_obj is None:
             logger.info(
                 f"Group wants {user} as member. But the user is unknown. Ignoring...",
             )
             continue
         try:
-            context = get_context_id(user_obj.attributes)
+            context = get_context_id(old_obj.attributes)
         except Skip:
             continue
         users_in_context = contexts.get(context, [])
@@ -237,14 +236,14 @@ def get_account_objs(obj):  # noqa: C901
         users.extend(obj.attributes.get("users"))
     contexts = {}
     for user in set(users):
-        user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
-        if user_obj is None:
+        old_obj = univention.ox.provisioning.helpers.get_old_obj(user)
+        if old_obj is None:
             logger.info(
                 f"Account wants {user} as user. But the user is unknown. Ignoring...",
             )
             continue
         try:
-            context = get_context_id(user_obj.attributes)
+            context = get_context_id(old_obj.attributes)
         except Skip:
             continue
         users_in_context = contexts.get(context, [])

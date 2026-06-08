@@ -60,7 +60,7 @@ def get_default_containers(uri, username, password):
         data=data,
         verify=False,
     )
-    print(f"{uri}/command/udm/containers")
+    assert res.status_code == 200
     return [i.get('id') for i in res.json().get('result')]
 
 
