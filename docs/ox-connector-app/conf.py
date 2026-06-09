@@ -78,7 +78,7 @@ extensions = [
     "sphinxcontrib.inkscapeconverter",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.bibtex",
-    "sphinx_inline_tabs",
+    "sphinx_design",
 ]
 
 bibtex_bibfiles = ["../bibliography.bib"]

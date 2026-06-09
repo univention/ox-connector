@@ -88,30 +88,32 @@ overlay enabled. The overlay ensures that UDM objects provided by the OX
 Connector keep their integrity and always reference user objects correctly in
 the LDAP directory.
 
-.. tab:: OX Connector on |UCSPRIMARYDN|
+.. tab-set::
 
-   .. index::
-      single: ox connector; primary directory node
-      single: installation; primary directory node
+   .. tab-item:: OX Connector on |UCSPRIMARYDN|
 
-   If you install :program:`OX Connector` on |UCSPRIMARYDN|, the app already
-   takes care of the necessary step. No further action required.
+      .. index::
+         single: ox connector; primary directory node
+         single: installation; primary directory node
 
-.. tab:: OX Connector on other system roles
+      If you install :program:`OX Connector` on |UCSPRIMARYDN|, the app already
+      takes care of the necessary step. No further action required.
 
-   .. index::
-      single: ox connector; other system roles
-      single: installation; other system roles
+   .. tab-item:: OX Connector on other system roles
 
-   If you install :program:`OX Connector` on other :ref:`uv-manual:system-roles`
-   than the |UCSPRIMARYDN|, you need to run the following commands:
+      .. index::
+         single: ox connector; other system roles
+         single: installation; other system roles
 
-   .. code-block:: console
-      :caption: Activate OpenLDAP *referential integrity* overlay on |UCSPRIMARYDN|.
-      :name: prerequisite-activate-referential-integrity-overlay
+      If you install :program:`OX Connector` on other :ref:`uv-manual:system-roles`
+      than the |UCSPRIMARYDN|, you need to run the following commands:
 
-      $ ucr set ldap/refint=true
-      $ service slapd restart
+      .. code-block:: console
+         :caption: Activate OpenLDAP *referential integrity* overlay on |UCSPRIMARYDN|.
+         :name: prerequisite-activate-referential-integrity-overlay
+
+         $ ucr set ldap/refint=true
+         $ service slapd restart
 
 For more information about the *referential integrity* overlay, see
 :cite:t:`openldap-referential-integrity-overlay`.
