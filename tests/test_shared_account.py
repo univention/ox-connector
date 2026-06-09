@@ -492,9 +492,6 @@ def test_shared_account_add_user_in_another_context(
         )
 
 
-@pytest.mark.k8s_skip(
-    reason="Shared account groups are currently not supported in provisioning backend",
-)
 def test_shared_account_add_group(
     check_shared_account_support,
     udm,
@@ -710,9 +707,6 @@ def test_shared_account_remove_user(
     )
 
 
-@pytest.mark.k8s_skip(
-    reason="Shared account groups are currently not supported in provisioning backend",
-)
 def test_shared_account_remove_group(
     check_shared_account_support,
     udm,
@@ -941,9 +935,6 @@ def test_shared_account_replace_user(
     )
 
 
-@pytest.mark.k8s_skip(
-    reason="Shared account groups are currently not supported in provisioning backend",
-)
 def test_shared_account_change_group(
     check_shared_account_support,
     udm,

@@ -17,6 +17,7 @@ openXchange:
   oxSmtpServer: "smtp://example.org:587"
   oxImapServer: "imap://example.org:143"
   oxSoapServer: "https://ox.example.org"
+  oxDbConnectionString: "dummy"
 
 # Provisioning API.
 provisioningApi:

@@ -32,6 +32,7 @@ A Helm chart for the ox-connector
 | openXchange.auth.username | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
 | openXchange.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
 | openXchange.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
+| openXchange.oxDbConnectionString | string | `nil` | SQLAlchemy DB connection URL for the OX connector. |
 | openXchange.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
 | openXchange.oxDeputyPermissions | bool | `false` | Ox Connector deputy permissions flag. |
 | openXchange.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |

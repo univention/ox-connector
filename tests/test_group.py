@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
-import pytest
-
 
 def test_ignore_group(
     find_ox_object,
@@ -106,7 +104,6 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     assert len(obj.members) == 1
 
 
-@pytest.mark.k8s_skip(reason="Needs further investigation")
 def test_change_context_for_group_multi_user(
     find_ox_object,
     create_ox_context,
@@ -142,7 +139,6 @@ def test_change_context_for_group_multi_user(
     )
 
 
-@pytest.mark.k8s_skip(reason="Needs further investigation")
 def test_change_context_for_group_user(
     find_ox_object,
     create_ox_context,

@@ -548,7 +548,9 @@ class KubernetesConfigurator(RemoteConfigurator):
         remote_config["provisioning_api_password"] = ox_connector_config[
             "PROVISIONING_API_PASSWORD"
         ]
-        remote_config["ox_db_connection_string"] = "./ox.db"
+        remote_config["ox_db_connection_string"] = ox_connector_config[
+            "OX_CONNECTOR_DB"
+        ]
 
         return remote_config
 

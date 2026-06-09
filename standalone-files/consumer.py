@@ -24,9 +24,10 @@ from config import (
 from univention.ox.provisioning.models import TriggerObject
 from univention.ox.provisioning import helpers, run
 from univention.ox.provisioning.db import (
+    DB_URL,
     get_old,
-    get_task,
     create_task_from_old,
+    get_task,
     get_tasks,
     increment_error_count,
     move_task_to_old,
@@ -239,7 +240,7 @@ def main() -> None:
     # Initialize the SQL database
     logger.info(
         "Initializing SQL database at %r",
-        settings.db_path,
+        DB_URL,
     )
     try:
         initialize_db()

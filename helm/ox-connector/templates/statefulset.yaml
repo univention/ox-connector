@@ -102,8 +102,6 @@ spec:
                 secretKeyRef:
                   key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.auth.existingSecret "key" "password") | quote }}
                   name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.auth.existingSecret "defaultNameSuffix" "ox-master-password" "context" .) | quote }}
-            - name: OX_CONNECTOR_DB
-              value: "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db"
           {{- with .Values.oxConnector.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}

@@ -47,7 +47,10 @@ RUN \
   python3-tz=2022.7.* \
   # dependency zeep.exceptions of ${PYPKG}/univention/ox/provisioning/helpers.py
   python3-zeep=4.2.* \
-  python3-tenacity
+  python3-tenacity \
+  # dependency sqlalchemy of ${PYPKG}/univention/ox/provisioning/db.py
+  python3-sqlalchemy \
+  python3-psycopg2
   # python3-minimal \
   # python3.9-minimal
 
@@ -129,6 +132,8 @@ COPY --from=debian-python-deps \
   /usr/lib/x86_64-linux-gnu/libicui18n.so.72.1 \
   /usr/lib/x86_64-linux-gnu/libicuuc.so.72.1 \
   /usr/lib/x86_64-linux-gnu/libicudata.so.72.1 \
+  # dependency psycopg2 of ${PYPKG}/univention/ox/provisioning/db.py
+  /usr/lib/x86_64-linux-gnu/libpq.so.5.15 \
   /usr/lib/x86_64-linux-gnu/
 
 RUN \
@@ -138,7 +143,8 @@ RUN \
   ln --symbolic --force libxml2.so.2.9.14 /usr/lib/x86_64-linux-gnu/libxml2.so.2 && \
   ln --symbolic --force libicui18n.so.72.1 /usr/lib/x86_64-linux-gnu/libicui18n.so.72 && \
   ln --symbolic --force libicuuc.so.72.1 /usr/lib/x86_64-linux-gnu/libicuuc.so.72 && \
-  ln --symbolic --force libicudata.so.72.1 /usr/lib/x86_64-linux-gnu/libicudata.so.72
+  ln --symbolic --force libicudata.so.72.1 /usr/lib/x86_64-linux-gnu/libicudata.so.72 && \
+  ln --symbolic --force libpq.so.5.15 /usr/lib/x86_64-linux-gnu/libpq.so.5
 
 COPY --from=ox-connector \
   # dependency univention.ox.soap.backend_base of ${PYPKG}/univention/ox/provisioning/contexts.py
@@ -203,6 +209,10 @@ COPY --from=debian-python-deps ${PDPKG}/requests_toolbelt/ ${PYPKG}/requests_too
 # dependency pyasn1.error.PyAsn1Error of ${PYPKG}/ldap/controls/__init__.py
 COPY --from=debian-python-deps ${PDPKG}/pyasn1/ ${PYPKG}/pyasn1/
 COPY --from=debian-python-deps ${PDPKG}/pyasn1_modules/ ${PYPKG}/pyasn1_modules/
+
+# dependency sqlalchemy ${PYPKG}/univention/ox/provisioning/db.py
+COPY --from=debian-python-deps ${PDPKG}/sqlalchemy/ ${PYPKG}/sqlalchemy/
+COPY --from=debian-python-deps ${PDPKG}/psycopg2/ ${PYPKG}/psycopg2/
 
 ENV PYTHON_DIST_PACKAGES="/usr/local/lib/python3.11/dist-packages"
 
