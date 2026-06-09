@@ -160,6 +160,14 @@ intersphinx_mapping = {
         "https://docs.software-univention.de/nubus-manual/1.x/en/",
         None,
     ),
+    "uv-nubus-customization": (
+        "https://docs.software-univention.de/nubus-customization/latest/en/",
+        None,
+    ),
+    "uv-nubus-kubernetes-operation": (
+        "https://docs.software-univention.de/nubus-kubernetes-operation/latest/en/",
+        None,
+    ),
 }
 
 latex_engine = "lualatex"
