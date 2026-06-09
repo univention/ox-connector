@@ -60,7 +60,7 @@ def get_default_containers(uri, username, password):
         data=data,
         verify=False,
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, res.text
     return [i.get('id') for i in res.json().get('result')]
 
 

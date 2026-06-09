@@ -16,5 +16,5 @@ try:
     logger.info('Database initialization completed successfully')
     sys.exit(0)
 except Exception as e:
-    logger.error('Database initialization failed: %s', e)
+    logger.exception('Database initialization failed: %s', e)
     sys.exit(1)

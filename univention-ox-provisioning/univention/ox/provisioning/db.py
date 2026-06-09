@@ -52,6 +52,7 @@ from sqlalchemy import (
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import inspect as sa_inspect
 
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.soap.config import NoContextAdminPassword
@@ -76,8 +77,7 @@ def get_db_url():
 
     url = urlsplit(db_connection_string)
     if not url.scheme:
-        print(url.geturl())
-        return make_url(f"sqlite:///{url.geturl()}")
+        return make_url(f"sqlite:///{db_connection_string}")
 
     return make_url(url.geturl())
 
@@ -434,7 +434,7 @@ def add_task(path: Path):
         )
         return
     enqueue_task(obj_id, udm_module, dn, attrs)
-    open(LISTENER_DIR / "restart.json", "w")
+    (LISTENER_DIR / "restart.json").touch()
 
 
 def enqueue_task(
@@ -557,6 +557,7 @@ def move_task_to_old(task_id: int, attributes: dict = None):
                 old.udm_module = task.udm_module
                 old.dn = task.dn
                 old.attrs = attributes
+                db_session.commit()
             else:
                 logger.info("Removing entry in old db %s", old)
                 db_session.delete(old)
@@ -1029,8 +1030,9 @@ def store_old(
                 attrs=attrs_json,
             )
             db_session.add(old)
-            db_session.commit()
             logger.info("Created entry in old db %s", old)
+
+        db_session.commit()
 
 
 def delete_old(dn: str = None, obj_id: str = None):
@@ -1075,6 +1077,8 @@ def store_relation(
     logger.info("Adding relation %s", relation)
     with _get_session() as db_session:
         db_session.add(relation)
+        db_session.add(relation)
+        db_session.commit()
 
 
 def remove_relation(src_obj_id: str, relation_name: str):
@@ -1117,8 +1121,6 @@ def initialize_db(set_permissions: bool = False):
         logger.info("Database schema verified/created successfully")
 
         # Validate all expected tables exist
-        from sqlalchemy import inspect as sa_inspect
-
         inspector = sa_inspect(engine)
         expected_tables = {"tasks", "old", "morgue", "relations"}
         existing_tables = set(inspector.get_table_names())

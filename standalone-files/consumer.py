@@ -59,7 +59,7 @@ def obj_from_row(row):
         old = get_old(None, row.obj_id)
         if old:
             obj.old_distinguished_name = old.dn
-            obj.old_attributes = json.loads(old.attrs)
+            obj.old_attributes = json.loads(old.attrs) if old.attrs else None
             obj.old_options = []
         obj._old_loaded = True
 
@@ -167,6 +167,9 @@ class OXConsumer:
             obj_id = body.old["properties"]["univentionObjectIdentifier"]
             obj_dn = helpers.normalized_dn(body.old.get("dn"))
             udm_module = body.old["objectType"]
+        else:
+            logger.warning("Message has neither new nor old body, skipping")
+            return
 
         logger.info("Enqueuing task for %s (%s)", obj_id, udm_module)
         enqueue_task(
@@ -183,8 +186,8 @@ class OXConsumer:
         """
         Process all pending tasks from the queue in priority order.
 
-        Stops on error unless the task is an oxcontext (which always stops processing)
-        or stop_on_error is False (in which case errors go to morgue and processing continues).
+        Stops on error when stop_on_error is True or when the failing task is an oxcontext task;
+        otherwise the task is moved to the morgue and processing continues.
         """
         for udm_module, empty_attributes in TASK_PROCESSING_ORDER:
             for task in get_tasks(udm_module, empty_attributes):

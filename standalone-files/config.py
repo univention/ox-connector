@@ -13,7 +13,7 @@ class OXConsumerSettings(BaseSettings):
     default_context: str = "10"
     # SQL database path or connection string.
     # Defaults to sqlite path inside the appcenter data directory.
-    ox_connector_db: str = ""
+    ox_connector_db: str | None = None
     ox_connector_stop_on_error: bool = False
 
     @property
