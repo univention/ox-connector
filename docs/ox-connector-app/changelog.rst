@@ -17,12 +17,12 @@ project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 v3.2.1
 ======
 
-Released: TBD
+Released: 2026-06-10
 
 Added
 -----
 
-Migration script for functional accounts into *OX Shared Accounts*.
+Migration script for *OX Functional Accounts* into *OX Shared Accounts*.
 You can now migrate your old functional account to the new shared account using the provided script.
 For more information, see :ref:`usage-shared-accounts-migration`.
 
