@@ -12,11 +12,6 @@ from ldap.dn import explode_rdn, explode_dn, str2dn
 from ldap import DECODING_ERROR
 
 
-def default_if_empty(value: str) -> str:
-    """Return the default if value is empty."""
-    return value if value else 'Full Mail Access'
-
-
 def migrate_fupo_to_shared(
     fupo: Object,
     new_dn: str,
@@ -26,16 +21,16 @@ def migrate_fupo_to_shared(
     dry_run: bool,
 ) -> None:
     print('')
-    print('Migrating the following functional account: ' + fupo.dn)
+    print('Migrating the following Functional Account: ' + fupo.dn)
     print('UDM object:')
     print(fupo)
-    print('Functional account properties:')
+    print('Functional Account properties:')
     pprint(fupo.properties)
 
     if dry_run:
-        print('Step 1/4: Creating new shared account: ' + new_dn)
+        print('Step 1/4: Creating new Shared Account: ' + new_dn)
         print('')
-        print('Step 2/4: Update the new shared account with linked users.')
+        print('Step 2/4: Update the new Shared Account with linked users.')
         for user in fupo.objects['users']:
             user_object = user.open()
             if user_object.properties['isOxUser']:
@@ -51,10 +46,10 @@ def migrate_fupo_to_shared(
                     % user_object.dn,
                 )
         print('')
-        print('Step 3/4: Removing old functional account: ' + fupo.dn)
+        print('Step 3/4: Removing old Functional Account: ' + fupo.dn)
         print('')
         print(
-            'Step 4/4: Update the shared account email:'
+            'Step 4/4: Update the Shared Account email:'
             + fupo.properties['mailPrimaryAddress'],
         )
         print('')
@@ -72,7 +67,7 @@ def migrate_fupo_to_shared(
             sys.exit("ERROR: Aborting. Permission not found: " + permission)
 
         try:
-            print('Step 1/4: Create a new shared account: ' + new_dn)
+            print('Step 1/4: Create a new Shared Account: ' + new_dn)
             print('')
             new_shared_account = shared_account_module.get(new_dn)
         except UnprocessableEntity:
@@ -81,20 +76,21 @@ def migrate_fupo_to_shared(
             )
 
         new_shared_account.properties['name'] = str2dn(new_dn)[0][0][1]
-        new_shared_account.properties['displayName'] = fupo.properties['name']
-        new_shared_account.properties['mailPrimaryAddress'] = 'tmp_' + email
-        new_shared_account.properties['oxContext'] = int(
-            os.environ.get("DEFAULT_CONTEXT", oxContext),
+        new_shared_account.properties['displayName'] = (
+            new_shared_account.properties['name']
         )
+        new_shared_account.properties['mailPrimaryAddress'] = 'tmp_' + email
+        new_shared_account.properties['oxContext'] = oxContext
         try:
             new_shared_account.save()
         except UnprocessableEntity:
             sys.exit(
-                'ERROR: Something wnent wrong while saving the dn: %s, aborting.'
+                'ERROR: Something went wrong while saving the DN: %s, aborting.'
                 % new_shared_account.properties['name'],
             )
 
-        print('Step 2/4: Update the new shared account with linked users.')
+        print('Step 2/4: Update the new Shared Account with linked users.')
+        new_shared_account.properties['users'] = []
         for user in fupo.objects['users']:
             user_object = user.open()
             if user_object.properties['isOxUser']:
@@ -122,24 +118,24 @@ def migrate_fupo_to_shared(
             new_shared_account.save()
         except UnprocessableEntity:
             sys.exit(
-                'ERROR: Error while trying to link users to shared accounts.',
+                'ERROR: Error while trying to link users to Shared Accounts.',
             )
 
         # delete old fupo
-        print('Step 3/4: Deleting old functional account: ' + fupo.dn)
+        print('Step 3/4: Deleting old Functional Account: ' + fupo.dn)
         print('')
         try:
             fupo.delete()
         except UnprocessableEntity:
             sys.exit(
-                'ERROR: Error while trying to delete the functional account.',
+                'ERROR: Error while trying to delete the Functional Account.',
             )
 
         # update email of the shared account to the fupo address
         print(
-            'Step 4/4: Update the new shared account: '
+            'Step 4/4: Update the new Shared Account: '
             + new_shared_account.dn
-            + 'email to: '
+            + ' email to: '
             + email,
         )
         print('')
@@ -148,10 +144,10 @@ def migrate_fupo_to_shared(
             new_shared_account.save()
         except UnprocessableEntity:
             sys.exit(
-                'ERROR: Error while trying to update the email of the shared account. Manual intervention needed.',
+                'ERROR: Error while trying to update the email of the Shared Account. Manual intervention needed.',
             )
 
-        print('Resulting shared account: ' + new_shared_account.dn)
+        print('Resulting Shared Account: ' + new_shared_account.dn)
         print(new_shared_account)
         pprint(new_shared_account.properties)
         print('')
@@ -161,18 +157,18 @@ def generate_new_dn(dn: str, ldap_base: str) -> str:
     try:
         rdn = explode_rdn(dn)
     except DECODING_ERROR:
-        sys.exit("ERROR: Cannot parse the specify dn: %s" % dn)
+        sys.exit("ERROR: Cannot parse the specified DN: %s" % dn)
     new_base = f"cn=shared_accounts,cn=open-xchange,{ldap_base}"
     new_dn = f"{rdn[0]},{new_base}"
     return new_dn
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("dn", help='dn of the object to migrate, or \'*\' for all')
+parser.add_argument("dn", help='DN of the object to migrate, or \'*\' for all')
 parser.add_argument(
     'permission',
-    type=default_if_empty,
-    help='Name of the permission given to the new shared account',
+    default='Full Mail Access',
+    help='Name of the permission given to the new Shared Account. Default: %(default)s',
     nargs='?',
 )
 
@@ -183,22 +179,27 @@ parser.add_argument(
 )
 parser.add_argument(
     "udm_user",
-    help="Username to connect to the UDM REST API, can be specify as an environment variable UDM_USERNAME",
+    default=os.environ.get("UDM_USERNAME"),
+    help="Username to connect to the UDM REST API, can be specified as an environment variable UDM_USERNAME",
     nargs='?',
 )
 parser.add_argument(
     "udm_password",
-    help="Password to connect to the UDM REST API, can be specify as an environment variable UDM_PASSWORD",
+    default=os.environ.get("UDM_PASSWORD"),
+    help="Password to connect to the UDM REST API, can be specified as an environment variable UDM_PASSWORD",
     nargs='?',
 )
 parser.add_argument(
     "udm_url",
-    help="URL of the UDM REST API endpoint,  can be specify as an environment variable UDM_URL",
+    default=os.environ.get("UDM_URL"),
+    help="URL of the UDM REST API endpoint, can be specified as an environment variable UDM_URL",
     nargs='?',
 )
 parser.add_argument(
     '--ox-context',
-    help="Ox context where the shared account will be created.",
+    default=int(os.environ.get("DEFAULT_CONTEXT", 10)),
+    type=int,
+    help="OX context where the Shared Account will be created. Default: %(default)s",
 )
 parser.add_argument("--dry-run", help="Enable a dry run", action='store_true')
 args = parser.parse_args()
@@ -206,9 +207,9 @@ dn = args.dn
 permission = args.permission
 dry_run = args.dry_run
 
-udm_url = os.environ.get("UDM_URL", args.udm_url)
-udm_username = os.environ.get("UDM_USERNAME", args.udm_user)
-udm_password = os.environ.get("UDM_PASSWORD", args.udm_password)
+udm_url = args.udm_url
+udm_username = args.udm_user
+udm_password = args.udm_password
 
 if not udm_url:
     sys.exit("ERROR: No UDM URL configured")
@@ -236,7 +237,7 @@ if dn == '*':
         list_fupo = [fupo.open() for fupo in fupo_module.search('cn=*')]
     except Exception as exc:
         sys.exit(
-            "ERROR: Something went wrong while fetching functional accounts, aborting: %s"
+            "ERROR: Something went wrong while fetching Functional Accounts, aborting: %s"
             % exc,
         )
 
