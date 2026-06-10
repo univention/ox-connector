@@ -12,7 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger('init-db')
 
 try:
-    initialize_db()
+    initialize_db(create_parent_directory=True)
     logger.info('Database initialization completed successfully')
     sys.exit(0)
 except Exception as e:

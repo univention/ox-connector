@@ -1107,12 +1107,18 @@ def get_relation_src(dst_obj_id: str, relation_name: str):
             yield relation.src_obj_id
 
 
-def initialize_db(set_permissions: bool = False):
+def initialize_db(
+    set_permissions: bool = False,
+    create_parent_directory: bool = False,
+):
     """
     Initialize the database: create all tables and validate schema.
     Returns True if initialization/success, raises on schema mismatch.
     """
     try:
+        if create_parent_directory and DB_URL.drivername == "sqlite":
+            Path(DB_URL.database).parent.mkdir(parents=True, exist_ok=True)
+
         Base.metadata.create_all(engine)
         if set_permissions and DB_URL.drivername == "sqlite":
             os.chown(DB_URL.database, 0, 0)
