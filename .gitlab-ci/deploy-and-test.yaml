@@ -29,7 +29,7 @@ variables:
   NUBUS_HELM_BRANCH: "develop"
   NUBUS_CHART_VERSION: "*"
   OX_CONNECTOR_READY_TIMEOUT: "5m"
-
+  HELMFILE_IMAGE: "ghcr.io/helmfile/helmfile:v1.5.2@sha256:0d51e5a30aaf87e03451cbe462e9be3a614dc5aba9eae4e1f158858315755d3d"
 
 pipeline-configuration:
   stage: prepare
@@ -63,8 +63,7 @@ deploy-namespace:
   stage: "prepare"
   needs:
     - pipeline-configuration
-  image: "ghcr.io/helmfile/helmfile:v1.1.4\
-          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  image: "$HELMFILE_IMAGE"
   script:
     - echo "Cluster information:"
     - kubectl cluster-info
@@ -98,8 +97,7 @@ deploy-nubus:
     - deploy-namespace
     - pipeline-configuration
   stage: deploy
-  image: "ghcr.io/helmfile/helmfile:v1.1.4\
-          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  image: "$HELMFILE_IMAGE"
   script:
     - export CHART_VERSION=${NUBUS_CHART_VERSION}
     - export OX_CHART_VERSION=${RELEASE_VERSION}
@@ -115,7 +113,10 @@ deploy-nubus:
 
     - echo "Deploy nubus via nubus-helm/ci/helmfile"
     - pushd nubus-helm/ci
-    - helmfile -n "${DEPLOY_NAMESPACE}" --state-values-file=../../ci/nubus-ci-overrides.yaml.gotmpl sync
+    # Workaround for ingress-nginx webhook rejecting older charts'
+    # `pathType: Exact` + `path: /$` ingresses.
+    - helm plugin install ../.gitlab-ci/helm-plugins/fix-ingress-pathtype
+    - helmfile -n "${DEPLOY_NAMESPACE}" --state-values-file=../../ci/nubus-ci-overrides.yaml.gotmpl --post-renderer=fix-ingress-pathtype sync
     - popd
 
     - >
@@ -139,8 +140,7 @@ deploy-ox-connector:
     - pipeline-configuration
     - ox-lab-deploy
   stage: deploy
-  image: "ghcr.io/helmfile/helmfile:v1.1.4\
-          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  image: "$HELMFILE_IMAGE"
   script:
     - export OX_CHART_VERSION=${RELEASE_VERSION}
     - export REVIEW_PREFIX=${DEPLOY_SUBDOMAIN}
@@ -172,8 +172,7 @@ wait-until-ready:
     - ox-lab-deploy
     - deploy-ox-connector
   stage: deploy
-  image: "ghcr.io/helmfile/helmfile:v1.1.4\
-          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  image: "$HELMFILE_IMAGE"
   script:
     - echo "Waiting for the ox-connector Pod to become ready"
     - >
@@ -249,8 +248,7 @@ run-tests-testimage:
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
     - deploy-nubus
   stage: "deploy"
-  image: "ghcr.io/helmfile/helmfile:v1.1.4\
-          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  image: "$HELMFILE_IMAGE"
   script:
     - echo "Patching ox-connector StatefulSet to use test image"
     - >
@@ -324,8 +322,7 @@ stop-deployment:
     - ox-lab-deploy
     - deploy-ox-connector
     - run-tests-testimage
-  image: "ghcr.io/helmfile/helmfile:v1.1.4\
-          @sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+  image: "$HELMFILE_IMAGE"
   script:
     - >
       kubectl delete namespace "${DEPLOY_NAMESPACE}"
