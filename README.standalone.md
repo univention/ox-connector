@@ -58,6 +58,7 @@ recommended to keep an eye on it during development.
       # Debug logging is required for tests to get the correct event from the logs
       logLevel: "DEBUG"
       oxDeputyPermissions: true
+      oxDbConnectionString: "postgresql+psycopg2://{{ .Values.databases.oxConnector.username }}:{{ .Values.secrets.postgresql.oxConnectorUser }}@{{ .Values.databases.oxConnector.host }}:{{ .Values.databases.oxConnector.port }}/{{ .Values.databases.oxConnector.name  }}"
     ```
 1. Create config in opendesk repo `helmfiles/environments/dev/gaia-values.yaml.gotmpl`.
     ```
@@ -88,7 +89,11 @@ recommended to keep an eye on it during development.
       oxConnector:
         registry: "artifacts.software-univention.de"
         repository: "nubus-dev/images/ox-connector-standalone"
-        tag: "0.36.0"
+        tag: "0.38.0"
+    nubusOxExtension:
+        registry: "artifacts.software-univention.de"
+        repository: "nubus-dev/images/ox-extension"
+        tag: "0.38.0"
 
     # enable debug logging and deputy permissions
     customization:
@@ -159,14 +164,56 @@ recommended to keep an eye on it during development.
         enabled: true
       xwiki:
         enabled: false
+
+    databases:
+      oxConnector:
+        type: "postgresql"
+        name: "oxconnector"
+        host: "postgresql"
+        port: 5432
+        username: "ox_connector"
+        password: ""
+        connectionLimit: ~
+
+    {{- $masterPassword := required "A non-empty MASTER_PASSWORD is required!" (env "MASTER_PASSWORD") }}
+    secrets:
+      postgresql:
+        oxConnectorUser: {{ derivePassword 1 "long" $masterPassword "postgres" "ox-connector_user" | sha1sum | quote }}
     ```
-1. Deploy opendesk to gaia `MASTER_PASSWORD="univention" helmfile apply -e dev -n jburgmeier-ox`
+1. The latest version of the ox-connector requires a SQL DB until opendesk uses this version we need to patch the postgres deployment to create the required DB and user:
+    ```bash
+    diff --git a/helmfile/apps/services-external/values-postgresql.yaml.gotmpl b/helmfile/apps/services-external/values-postgresql.yaml.gotmpl
+    index cc11c8a9..6afdda20 100644
+    --- a/helmfile/apps/services-external/values-postgresql.yaml.gotmpl
+    +++ b/helmfile/apps/services-external/values-postgresql.yaml.gotmpl
+    @@ -83,6 +83,9 @@ job:
+           password: {{ .Values.secrets.postgresql.xwikiUser | quote }}
+           connectionLimit: {{ .Values.databases.xwiki.connectionLimit | default .Values.databases.defaults.userConnectionLimit }}
+     {{ end }}
+    +    - username: {{ .Values.databases.oxConnector.username | quote }}
+    +      password: {{ .Values.secrets.postgresql.oxConnectorUser | quote }}
+    +      connectionLimit: {{ .Values.databases.oxConnector.connectionLimit | default .Values.databases.defaults.userConnectionLimit }}
+       databases:
+         - name: {{ .Values.databases.keycloak.name | quote }}
+           user: {{ .Values.databases.keycloak.username | quote }}
+    @@ -112,6 +115,8 @@ job:
+           user: {{ .Values.databases.xwiki.username | quote }}
+           additionalParams: "ENCODING 'UNICODE' template=template0"
+     {{ end }}
+    +    - name: {{ .Values.databases.oxConnector.name | quote }}
+    +      user: {{ .Values.databases.oxConnector.username | quote }}
+
+     persistence:
+       size: {{ .Values.persistence.storages.postgresql.size | quote }}
+    ```
+1. The latest upgrade to the gaia cluster prevents deployment of nubus so we need to fix that. Make sure to have the `nubus-helm` repository available and the `develop` branch checked out. For newer versions of helm directly calling the executable as post-render might not work and you need to install the helm plugin and than use the plugin as post-render.
+1. Deploy opendesk to gaia `MASTER_PASSWORD="univention" helmfile apply -e dev -n jburgmeier-ox --post-renderer=/home/jbu/workspace/univention/nubus-helm/.gitlab-ci/helm-plugins/fix-ingress-pathtype/run.sh`
 1. Run your local tests against the remote k8s deploymend (this is the same mechanism used by the CI tests)
     ```bash
     docker compose run --remove-orphans --rm -ti \
       -e K8S_NAMESPACE="jburgmeier-ox" \
       -e LDAP_BASE="dc=swp-ldap,dc=internal" \
-      -e OX_SOAP_SERVER="https://webmail.<namespace>univention.dev" \
+      -e OX_SOAP_SERVER="https://webmail.<namespace>.univention.dev" \
       -e DEFAULT_CONTEXT=1 \
       -e TESTS_UDM_ADMIN_USERNAME="Administrator" \
       -e TESTS_UDM_ADMIN_PASSWORD="<some_password>" \
