@@ -151,7 +151,7 @@ class Old(Base):
     )  # only defined for cascade
 
     __table_args__ = (
-        Index("old_obj_id", "obj_id"),
+        Index("old_obj_id", "obj_id", unique=True),
         Index("old_dn", "dn"),
     )
 
