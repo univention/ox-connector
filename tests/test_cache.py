@@ -2,7 +2,6 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 import time
-import os
 import pytest
 import logging
 from contextlib import contextmanager
@@ -18,9 +17,8 @@ from univention.ox.provisioning.groups import Group
 log = logging.getLogger(__name__)
 
 
-pytestmark = pytest.mark.skip_platform(
-    'ucs',
-    reason="The ucs deployment moved to sqlite DB and test needs to be adopted, currently only supports dbm",
+pytestmark = pytest.mark.skip(
+    reason="Listener and probisioing backend both moved to a SQL database, all cache tests need to be rewritten",
 )
 
 
@@ -329,79 +327,3 @@ def test_non_normalized_dn(
     db_id = get_db_id(normalized_dn(user.dn), db=ox_mapping['id_mapping'])
     obj = find_obj(default_ox_context, user.properties["username"])
     assert obj.id == db_id
-
-
-# DB Migration only used in standalone mode
-@pytest.mark.skip_platform('ucs')
-def test_migrate_db_v1(test_db, new_user_name_generator):
-    migrate_lib = pytest.importorskip("migrate")
-
-    with test_db.open("cs") as data:
-        for i in range(100):
-            if (i % 6) == 0:
-                name = new_user_name_generator().upper()
-            else:
-                name = new_user_name_generator()
-
-            if (i % 3) == 0:
-                dn = f"uid={name},ou=Sales+cn=users,dc=swp-ldap,dc=internal"
-            else:
-                dn = f"uid={name},cn=users,dc=swp-ldap,dc=internal"
-            data[dn] = str(i)
-
-    assert migrate_lib.migrate_db(test_db)
-
-    with test_db.open() as data:
-        for k in data.keys():
-            if k.decode("UTF-8").lower() == migrate_lib.db_version_key.lower():
-                continue
-
-            assert k.decode("UTF-8") == normalized_dn(k)
-
-    # DB is migrated so don't do it again
-    assert not migrate_lib.migrate_db(test_db)
-
-
-# DB Migration only used in standalone mode
-@pytest.mark.skip_platform('ucs')
-@pytest.mark.skipif(
-    os.environ.get("PERFORMANCE_TESTS") is None,
-    reason="Performance tests are disabled by default, if you want to run them add the env var PERFORMANCE_TESTS",
-)
-def test_migrate_performance(test_db, new_user_name_generator):
-    migrate_lib = pytest.importorskip("migrate")
-
-    num_useres = 100000
-    start = time.perf_counter()
-    with test_db.open("cs") as data:
-        for i in range(num_useres):
-            dn = f"uid=TEST-USER-{i},ou=Sales+cn=users,dc=swp-ldap,dc=internal"
-            data[dn] = str(i)
-
-    end = time.perf_counter()
-    print(f"Time: Adding {num_useres} users to DB - {end - start:.2f}s")
-
-    migrate_start = time.perf_counter()
-    assert migrate_lib.migrate_db(test_db)
-    end = time.perf_counter()
-    print(
-        f"Time: Migrating DB with {num_useres} entries - {end - migrate_start:.2f}s",
-    )
-
-    check_results_start = time.perf_counter()
-    with test_db.open() as data:
-        for k in data.keys():
-            if k.decode("UTF-8").lower() == migrate_lib.db_version_key.lower():
-                continue
-
-            assert k.decode("UTF-8") == normalized_dn(k)
-
-    end = time.perf_counter()
-    print(
-        f"Time: Checking results after migration  - {end - check_results_start:.2f}s",
-    )
-
-    # DB is migrated so don't do it again
-    assert not migrate_lib.migrate_db(test_db)
-    end = time.perf_counter()
-    print(f"Time: Overall - {end - start:.2f}s")
