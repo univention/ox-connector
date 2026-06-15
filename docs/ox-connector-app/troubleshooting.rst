@@ -174,10 +174,12 @@ object. For each item you have the option to
 #. Fresh synchronization of the object: The object is again put into the list
    of tasks but not with the attributes it had when the synchronization
    happened (and failed). Instead, it is freshly fetched from the LDAP
-   database.
+   database. This only works for the first object found, so asterisks may not
+   do what you expect.
+
 
    .. code-block:: console
-      :caption: Retry an item from the morgue.
+      :caption: Re-sync an existing item via UDM.
 
       $ /usr/sbin/univention-ox-connector-task-management resync-item --obj-id=...
 
