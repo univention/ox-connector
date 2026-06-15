@@ -301,7 +301,7 @@ def find_db_id(ox_context, username, build_cache_size):
 def get_all_old_objects(obj_id):
     oldies = []
     with _get_session() as db_session:
-        oldies = db_session.query(Old).filter(Old.obj_id.like(obj_id)).first()
+        oldies = db_session.query(Old).filter(Old.obj_id.like(obj_id)).all()
         for old in oldies:
             yield old
 
