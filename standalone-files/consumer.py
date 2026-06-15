@@ -232,6 +232,13 @@ class OXConsumer:
                         db.move_task_to_old(task.id, obj.attributes)
 
     async def run(self) -> None:
+        # Drain all pending tasks for example from initializing
+        with DBSession() as db:
+            self._process_all_tasks_with_db(
+                db,
+                self.settings.ox_connector_stop_on_error,
+            )
+
         """Run the message listener. Tasks are drained synchronously after each message."""
         await self.start_listening_for_changes(
             ProvisioningConsumerClient,

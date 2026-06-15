@@ -23,3 +23,16 @@ openXchange:
 provisioningApi:
   connection:
     baseUrl: ""
+  auth:
+    username: "ox-consumer"
+    password: "s3cr3t"
+
+# Prefill admin credentials (must have permission to register/cancel subscribers).
+prefill:
+  auth:
+    username: "Administrator"
+    password: "univention"
+    existingSecret:
+      name: null
+      keyMapping:
+        password: null

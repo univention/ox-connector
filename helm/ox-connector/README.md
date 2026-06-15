@@ -54,6 +54,10 @@ A Helm chart for the ox-connector
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `1000` |  |
 | podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
+| prefill.auth.existingSecret.keyMapping.password | string | `nil` | The key to retrieve the password from. Setting this value allows to use a key with a different name. |
+| prefill.auth.existingSecret.name | string | `nil` | The name of an existing Secret to use for retrieving the password to authenticate with the Provisioning API.  "prefill.auth.password" will be ignored if this value is set. |
+| prefill.auth.password | string | `nil` | The admin password to authenticate with the Provisioning API. |
+| prefill.auth.username | string | `nil` | The admin username to authenticate with the Provisioning API for creating the temporary prefill subscriber. The account needs permission to register and cancel provisioning API subscribers. |
 | probes.liveness.exec.command[0] | string | `"/bin/sh"` |  |
 | probes.liveness.exec.command[1] | string | `"-c"` |  |
 | probes.liveness.exec.command[2] | string | `"exit 0\n"` |  |

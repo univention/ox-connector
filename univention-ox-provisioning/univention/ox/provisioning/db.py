@@ -168,9 +168,6 @@ class Task(Base):
         return f"{self.dn} ({self.obj_id}; {self.udm_module}; {self.__tablename__}:{self.id})"
 
 
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
 class DBSession:
     """Context-aware database session with explicit commit control.
 
@@ -197,7 +194,11 @@ class DBSession:
     """
 
     def __init__(self):
-        self.session = Session()
+        self.session = sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=engine,
+        )()
 
     def __enter__(self):
         return self
@@ -383,6 +384,9 @@ class DBSession:
         logger.info("Deleted task %s", task)
 
     # ---- Old object operations ----
+
+    def contain_old(self):
+        return self.session.query(Old).count() > 0
 
     def get_old(self, dn, obj_id=None):
         """Return old data of given dn or object id. Object id takes precedence."""

@@ -82,8 +82,25 @@ spec:
                  name: {{ include "common.names.fullname" . }}
              - secretRef:
                  name: {{ include "common.names.fullname" . }}-db-connection-string
-          {{- with .Values.oxConnector.extraEnvVars }}
           env:
+            - name: PROVISIONING_API_ADMIN_USERNAME
+              value: {{ .Values.prefill.auth.username | quote }}
+            {{- if and .Values.prefill.auth.existingSecret .Values.prefill.auth.existingSecret.name }}
+            - name: PROVISIONING_API_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.prefill.auth.existingSecret "key" "password") | quote }}
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.prefill.auth.existingSecret "defaultNameSuffix" "prefill" "context" .) | quote }}
+            {{- else }}
+            - name: PROVISIONING_API_ADMIN_PASSWORD
+              value: {{ .Values.prefill.auth.password | quote }}
+            {{- end }}
+            - name: PROVISIONING_API_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.provisioningApi.auth.existingSecret "key" "password") | quote }}
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.provisioningApi.auth.existingSecret "defaultNameSuffix" "provisioning-api" "context" .) | quote }}
+          {{- with .Values.oxConnector.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}
           resources:

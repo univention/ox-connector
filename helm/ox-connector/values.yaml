@@ -112,6 +112,28 @@ openXchange:
   oxDbConnectionString: null
 
 
+# Configuration for the database prefill subscriber.
+# The prefill subscriber is used by the init-db container to populate
+# the database with historical events when the old table is empty.
+prefill:
+  auth:
+    # -- The admin username to authenticate with the Provisioning API
+    # for creating the temporary prefill subscriber.
+    # The account needs permission to register and cancel provisioning API subscribers.
+    username: null
+    # -- The admin password to authenticate with the Provisioning API.
+    password: null
+    existingSecret:
+      # -- The name of an existing Secret to use for retrieving the password
+      # to authenticate with the Provisioning API.
+      #
+      # "prefill.auth.password" will be ignored if this value is set.
+      name: null
+      keyMapping:
+        # -- The key to retrieve the password from. Setting this value allows to use
+        # a key with a different name.
+        password: null
+
 waitForDependency:
   image:
     pullPolicy: null
