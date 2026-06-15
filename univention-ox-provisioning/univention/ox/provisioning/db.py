@@ -642,7 +642,7 @@ def remove_from_morgue(obj_id):
     """
     # TODO support obj_id and "db_id"?
     with _get_session() as db_session:
-        errors = get_errors(obj_id=obj_id)
+        errors = list(get_errors(obj_id=obj_id))
         for error in errors:
             db_session.delete(error)
             logger.info("Removed error %s", error)
