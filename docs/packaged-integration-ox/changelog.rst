@@ -19,6 +19,14 @@ Kubernetes* documentation.
      - Section
      - Change
 
+   * - 22. Jun 2026
+     - :ref:`migration-v0.39.0`
+     - Add migration documentation for upgrading to v0.39.0 with PostgreSQL.
+
+   * - 22. Jun 2026
+     - :ref:`configure-database`
+     - Add section to configure a PostgreSQL database for the *OX Connector*.
+
    * - 6. Oct 2026
      - :ref:`install-packaged-integration`
      - Fix type of value into number for `oxDefaultContext`.

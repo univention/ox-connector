@@ -15,12 +15,31 @@ This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ 
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 
-.. _consumer-changelog-v0.36.3:
+.. _consumer-changelog-v0.39.0:
 
-v0.36.3
+v0.39.0
 =======
 
 Released: 2026-XX-XX
+
+Added
+-----
+
+This version adds support for *OX Shared Accounts*.
+You can now add UDM objects for shared account and corresponding shared account permissions.
+For more information, see :ref:`usage-shared-accounts`.
+
+*OX Shared Accounts* require a database to work properly.
+The *OX Connector* now requires a PostgreSQL database to operate.
+The database isn't part of the OX App Suite packaged and the OX Connector integration.
+You need to provide it separately.
+For more information, read :ref:`configure-database`.
+
+.. warning::
+
+    Before you upgrade from a previous version to ``v0.39.0``
+    read :ref:`migration-v0.39.0`.
+    Otherwise, this version of the *OX Connector* fails during start.
 
 Fixed
 -----

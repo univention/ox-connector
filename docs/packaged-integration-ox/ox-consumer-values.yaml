@@ -36,6 +36,8 @@ openXchange:
   # -- OX Connector log level
   # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
   logLevel: "INFO"
+  # -- SQLAlchemy DB connection URL for the OX connector.
+  oxDbConnectionString: null
 
 # Configuration for the communication with the provisioning API.
 provisioningApi:
@@ -59,4 +61,24 @@ provisioningApi:
         # -- The key to retrieve the password from. Setting this value allows to use
         # a key with a different name.
         password: null
+  # -- Database resync on first startup only if database is empty.
+  resync:
+    # -- Enable the database resync on first startup only if database is empty.
+    enabled: true
+    auth:
+      # -- The admin username to authenticate with the Provisioning API
+      # for re-creating the ox-connector subscriber.
+      username: "admin"
+      # -- The admin password to authenticate with the Provisioning API.
+      password: null
+      existingSecret:
+        # -- The name of an existing Secret to use for retrieving the password
+        # to authenticate with the Provisioning API.
+        #
+        # "provisioningApi.resync.auth.password" will be ignored if this value is set.
+        name: null
+        keyMapping:
+          # -- The key to retrieve the password from. Setting this value allows to use
+          # a key with a different name.
+          password: null
 ...

@@ -124,6 +124,11 @@ use the following steps:
       :``oxSmtpServer``: :external+uv-ox-connector-app:envvar:`OX_SMTP_SERVER`
       :``oxImapServer``: :external+uv-ox-connector-app:envvar:`OX_IMAP_SERVER`
       :``oxSoapServer``: :external+uv-ox-connector-app:envvar:`OX_SOAP_SERVER`
+      :``oxDbConnectionString``: The SQLAlchemy connection string to the database.
+
+      | The connection string uses the pattern:
+      | :samp:`postgresql+psycopg2://{<database_username>}:{<password>}@{<hostname>}/{<database_name>}`.
+      | Replace the fields with the respective values for your database connection.
 
    Section ``provisioningApi``
       :``auth.username``: The value from the ``name`` attribute in :numref:`user-provisioning-subscription-listing`.
@@ -165,6 +170,9 @@ use the following steps:
       in :cite:t:`uv-nubus-kubernetes-customization`
       for information about how to access the *Provisioning API*
       where it locates.
+
+   `Engine Configuration - SQLAlchemy 2.0 Documentation <https://docs.sqlalchemy.org/en/20/core/engines.html#postgresql>`_
+      for information about the configuration of database connections.
 
 .. _user-provisioning-installation:
 
