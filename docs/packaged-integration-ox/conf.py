@@ -63,7 +63,7 @@ intersphinx_mapping = {
         "https://docs.software-univention.de/nubus-kubernetes-operation/latest/en/",
         None,
     ),
-    "uv-nubus-kubernetes-customization": (
+    "uv-nubus-customization": (
         "https://docs.software-univention.de/nubus-kubernetes-customization/latest/en/",
         None,
     ),

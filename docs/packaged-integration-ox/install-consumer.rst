@@ -59,8 +59,8 @@ the directory objects of interest are user accounts, user groups, and resources 
 To create a subscription for the *OX Consumer*,
 use the following steps:
 
-#. Read the example in :external+uv-nubus-kubernetes-customization:ref:`customization-api-provisioning-subscription`
-   in :cite:t:`uv-nubus-kubernetes-customization`.
+#. Read the example in :external+uv-nubus-customization:ref:`customization-api-provisioning-subscription`
+   in :cite:t:`uv-nubus-customization`.
    The section describes the steps for the subscription configuration.
    It also contains information about the parameter constraints, such as naming conventions.
 
@@ -80,12 +80,12 @@ use the following steps:
       :emphasize-lines: 2,30
 
 #. Create the subscription by following the steps outlined in
-   :external+uv-nubus-kubernetes-customization:ref:`customization-api-provisioning-subscription`.
+   :external+uv-nubus-customization:ref:`customization-api-provisioning-subscription`.
 
 .. seealso::
 
-   :external+uv-nubus-kubernetes-customization:ref:`customization-api-provisioning-subscription`
-      in :cite:t:`uv-nubus-kubernetes-customization`
+   :external+uv-nubus-customization:ref:`customization-api-provisioning-subscription`
+      in :cite:t:`uv-nubus-customization`
       for information about how to create a subscription in the *Provisioning Service*
       using the *Provisioning API*.
 
@@ -166,8 +166,8 @@ use the following steps:
    `README file of the OX Consumer <https://github.com/univention/ox-connector/blob/ucs5.2/helm/ox-connector/README.md>`_
       for information about the available Helm Chart values and their default settings.
 
-   :external+uv-nubus-kubernetes-customization:ref:`customization-api-provisioning-endpoint-access`
-      in :cite:t:`uv-nubus-kubernetes-customization`
+   :external+uv-nubus-customization:ref:`customization-api-provisioning-endpoint-access`
+      in :cite:t:`uv-nubus-customization`
       for information about how to access the *Provisioning API*
       where it locates.
 

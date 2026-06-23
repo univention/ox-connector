@@ -23,8 +23,8 @@ The packaged integration for *OX App Suite* installs the following customization
   * Organize users in groups
 
 For more information about loading packaged integrations,
-see :external+uv-nubus-kubernetes-customization:ref:`nubus-packaged-integrations-load`
-in :cite:t:`uv-nubus-kubernetes-customization`.
+see :external+uv-nubus-customization:ref:`nubus-packaged-integrations-load`
+in :cite:t:`uv-nubus-customization`.
 
 Before you begin,
 you need to the location and name of the container image from the software developer,

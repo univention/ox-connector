@@ -19,8 +19,8 @@ A packaged integration bundles the combination of different plugins.
 Together with the packaged integration,
 Nubus lets you manage users, groups, and resources for *OX App Suite* through the *Management UI*.
 For more information,
-see :external+uv-nubus-kubernetes-customization:ref:`nubus-packaged-integrations`
-in :cite:t:`uv-nubus-kubernetes-customization`.
+see :external+uv-nubus-customization:ref:`nubus-packaged-integrations`
+in :cite:t:`uv-nubus-customization`.
 
 Furthermore, the document describes how you install the *OX Consumer*
 for *OX App Suite* to Nubus for Kubernetes.
