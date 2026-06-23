@@ -17,8 +17,8 @@ openXchange:
   logLevel: "DEBUG"
   oxDeputyPermissions: true
   oxSharedAccount: true
-  # For unit tests a sqlite DB is good enough
-  oxDbConnectionString: "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db"
+  # PostgreSQL connection string (set by CI pipeline)
+  oxDbConnectionString: {{ env "OX_DB_CONNECTION_STRING" | quote }}
 
 provisioningApi:
   connection:

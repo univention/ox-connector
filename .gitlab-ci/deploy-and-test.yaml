@@ -134,11 +134,26 @@ deploy-nubus:
     deployment_tier: development
   resource_group: gaia-${DEPLOY_NAMESPACE}
 
+setup-postgres-database:
+  stage: deploy
+  image: "$HELMFILE_IMAGE"
+  needs:
+    - deploy-namespace
+    - pipeline-configuration
+    - deploy-nubus
+  script:
+    - ci/setup-postgres-database.sh "${DEPLOY_NAMESPACE}"
+    - cat ox_db_connection_string.env
+  artifacts:
+    reports:
+      dotenv: ox_db_connection_string.env
+
 deploy-ox-connector:
   needs:
     - deploy-namespace
     - pipeline-configuration
     - ox-lab-deploy
+    - setup-postgres-database
   stage: deploy
   image: "$HELMFILE_IMAGE"
   script:

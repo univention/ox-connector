@@ -86,9 +86,6 @@ spec:
           env:
             {{- . | toYaml | nindent 12 }}
           {{- end }}
-          volumeMounts:
-            - name: {{ include "common.names.fullname" . }}-appcenter
-              mountPath: /var/lib/univention-appcenter/apps/ox-connector
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       containers:
