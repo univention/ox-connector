@@ -36,7 +36,6 @@ from itertools import chain
 import datetime
 from contextlib import contextmanager
 from copy import deepcopy
-from urllib.parse import urlsplit
 
 import ldap.dn
 
@@ -60,26 +59,18 @@ from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 
 Base = declarative_base()
 
-# db_password = os.environ["DB_PASSWORD"]
-# docker_host_name = os.environ["DOCKER_HOST_NAME"]
-# engine = create_engine(f"postgresql+psycopg2://ox-connector:{db_password}@{docker_host_name}:5432/ox-connector")
-
 LISTENER_DIR = Path(
     "/var/lib/univention-appcenter/apps/ox-connector/data/listener/",
 )
 
 
 def get_db_url():
-    db_connection_string = os.environ.get(
-        "OX_CONNECTOR_DB",
-        str(LISTENER_DIR / "ox-connector.db"),
-    )
+    db_connection_string = os.environ.get("OX_CONNECTOR_DB")
 
-    url = urlsplit(db_connection_string)
-    if not url.scheme:
-        return make_url(f"sqlite:///{db_connection_string}")
+    if db_connection_string is None:
+        raise ValueError("OX_CONNECTOR_DB environment variable must be set")
 
-    return make_url(url.geturl())
+    return make_url(db_connection_string)
 
 
 DB_URL = get_db_url()

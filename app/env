@@ -1,2 +1,3 @@
 OX_CREDENTIALS_FILE=/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json
 REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+OX_CONNECTOR_DB=sqllite:////var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db
