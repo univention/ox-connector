@@ -38,7 +38,7 @@ A Helm chart for the ox-connector
 | openXchange.oxImapServer | string | `nil` | Default IMAP server for new users (if not set explicitely there) |
 | openXchange.oxLanguage | string | `"de_DE"` | Default language for new users |
 | openXchange.oxLocalTimezone | string | `"Europe/Berlin"` | Default timezone for new users |
-| openXchange.oxSharedAccount | bool | `false` | Ox Connector shared account flag. Shared accounts are currently not fully supported on Kubernetes, enable at your own risk. |
+| openXchange.oxSharedAccount | bool | `true` | Ox Connector shared account flag. |
 | openXchange.oxSmtpServer | string | `nil` | Default SMTP server for new users (if not set explicitely there) |
 | openXchange.oxSoapServer | string | `nil` | The server where Open-Xchange is installed |
 | oxConnector.extraEnvVars | list | `[]` | Array with extra environment variables to add to containers.  extraEnvVars:   - name: FOO     value: "bar" |

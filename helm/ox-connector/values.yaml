@@ -107,8 +107,7 @@ openXchange:
   # -- Ox Connector deputy permissions flag.
   oxDeputyPermissions: false
   # -- Ox Connector shared account flag.
-  # Shared accounts are currently not fully supported on Kubernetes, enable at your own risk.
-  oxSharedAccount: false
+  oxSharedAccount: true
   # -- SQLAlchemy DB connection URL for the OX connector.
   oxDbConnectionString: null
 
