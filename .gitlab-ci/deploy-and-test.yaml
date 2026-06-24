@@ -226,6 +226,7 @@ collect-k8s-skip-tests:
 
 run-tests-k8s:
   # Run the tests against the deployment through the Kubernetes API.
+  timeout: 2 hours
   needs:
     - pipeline-configuration
     - wait-until-ready
@@ -257,6 +258,7 @@ run-tests-k8s:
     - when: manual
 
 run-tests-testimage:
+  timeout: 2 hours
   needs:
     - pipeline-configuration
     - wait-until-ready
