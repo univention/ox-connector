@@ -60,13 +60,14 @@ recommended to keep an eye on it during development.
       oxDeputyPermissions: true
       oxDbConnectionString: "postgresql+psycopg2://{{ .Values.databases.oxConnector.username }}:{{ .Values.secrets.postgresql.oxConnectorUser }}@{{ .Values.databases.oxConnector.host }}:{{ .Values.databases.oxConnector.port }}/{{ .Values.databases.oxConnector.name  }}"
 
-    prefill:
-      auth:
-        username: admin
-        existingSecret:
-          name: ums-provisioning-api-admin
-          keyMapping:
-            password: password
+    provisioningApi:
+      resync:
+        auth:
+          username: admin
+          existingSecret:
+            name: ums-provisioning-api-admin
+            keyMapping:
+              password: password
     ```
 1. Create config in opendesk repo `helmfiles/environments/dev/gaia-values.yaml.gotmpl`.
     ```

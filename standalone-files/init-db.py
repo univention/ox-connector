@@ -108,6 +108,14 @@ async def main_async():
             logger.info("Tables are not empty. Skipping prefill.")
             return True
 
+    resync_enabled = os.environ.get(
+        "PROVISIONING_API_RESYNC_ENABLED",
+        "true",
+    ).lower() in ("true", "1", "yes")
+    if not resync_enabled:
+        logger.info("Resync is disabled. Skipping prefill.")
+        return True
+
     logger.info("Tables are empty. Running prefill ...")
     try:
         await _recreate_subscription()

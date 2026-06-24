@@ -83,17 +83,21 @@ spec:
              - secretRef:
                  name: {{ include "common.names.fullname" . }}-db-connection-string
           env:
+            - name: PROVISIONING_API_RESYNC_ENABLED
+              value: {{ .Values.provisioningApi.resync.enabled | quote }}
+            {{- if .Values.provisioningApi.resync.enabled }}
             - name: PROVISIONING_API_ADMIN_USERNAME
-              value: {{ .Values.prefill.auth.username | quote }}
-            {{- if and .Values.prefill.auth.existingSecret .Values.prefill.auth.existingSecret.name }}
+              value: {{ .Values.provisioningApi.resync.auth.username | quote }}
+            {{- if and .Values.provisioningApi.resync.auth.existingSecret .Values.provisioningApi.resync.auth.existingSecret.name }}
             - name: PROVISIONING_API_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.prefill.auth.existingSecret "key" "password") | quote }}
-                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.prefill.auth.existingSecret "defaultNameSuffix" "prefill" "context" .) | quote }}
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.provisioningApi.resync.auth.existingSecret "key" "password") | quote }}
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.provisioningApi.resync.auth.existingSecret "defaultNameSuffix" "resync" "context" .) | quote }}
             {{- else }}
             - name: PROVISIONING_API_ADMIN_PASSWORD
-              value: {{ .Values.prefill.auth.password | quote }}
+              value: {{ .Values.provisioningApi.resync.auth.password | quote }}
+            {{- end }}
             {{- end }}
             - name: PROVISIONING_API_PASSWORD
               valueFrom:
