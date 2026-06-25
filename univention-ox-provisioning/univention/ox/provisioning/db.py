@@ -156,7 +156,7 @@ class Task(Base):
     obj_id = Column(String, nullable=False)
     udm_module = Column(String, nullable=False)
     dn = Column(String, nullable=False)
-    attrs = Column(String, nullable=False)
+    attrs = Column(String, nullable=True)
     status = Column(String, nullable=False, default="new")
     num_errors = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -447,7 +447,7 @@ def enqueue_task(
             obj_id=obj_id,
             udm_module=udm_module,
             dn=dn,
-            attrs=json.dumps(attrs),
+            attrs=json.dumps(attrs) if attrs else None,
         )
         db_session.add(task)
         db_session.commit()
