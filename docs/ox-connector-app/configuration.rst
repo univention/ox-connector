@@ -282,7 +282,6 @@ App Settings
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
          to be resolved manually by simply setting a valid value.
 
-
 .. envvar:: OX_GROUP_IDENTIFIER
 
    Defines which UDM group property is used as the unique group identifier for OX. If this app setting is not set the :program:`OX Connector`
@@ -305,6 +304,32 @@ App Settings
          Only a UDM group property that contains a **single value** which is **not None** (mandatory UDM property) is a valid option. In case a UDM group property
          that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
          to be resolved manually by simply setting a valid value.
+
+.. envvar:: OX_SHARED_ACCOUNT_IDENTIFIER
+
+   Defines which UDM shared account property is used as the unique shared account identifier for OX. If this app setting is not set the :program:`OX Connector`
+   will use the ``name`` property by default.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - String
+        - N/A
+
+   .. note::
+
+         Only a UDM shared account property that contains a **single value**
+         which is **not None** (mandatory UDM property) is a valid option. In
+         case a UDM shared account property that contains an empty value or a
+         list of values is specified, the :program:`OX Connector` will enter an
+         error state which needs to be resolved manually by simply setting a
+         valid value.
 
 .. envvar:: OX_CONNECTOR_LOG_LEVEL
 
