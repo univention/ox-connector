@@ -231,3 +231,6 @@ print(json.dumps(configs))
 
     def patch_aiohttp_session(self, session):
         pass
+
+    def patch_sqlalchemy_engine(self, engine):
+        pass

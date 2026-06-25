@@ -7,9 +7,11 @@
 #     "univention-ox-soap-api",
 #     "nubus-provisioning-common>=v0.64.0",
 #     "nubus-provisioning-consumer>=v0.64.0",
-#     "udm-rest-api-client[cli]",
+#     "udm-rest-api-client[cli]>=v0.1.0",
 #     "kubernetes",
-#     "pyyaml"
+#     "pyyaml",
+#     "psycopg2-binary",
+#     "portforward"
 # ]
 #
 # [[tool.uv.index]]
@@ -54,9 +56,10 @@ from configurator import RemoteConfigurator
 from ssh_configurator import SSHConfigurator
 from kubernetes_configurator import KubernetesConfigurator
 
+LOG_FORMAT = "%(asctime)s %(levelname)-5s [%(module)s.%(funcName)s:%(lineno)d] %(message)s"
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    level=logging.DEBUG,
+    format=LOG_FORMAT,
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
@@ -211,6 +214,14 @@ class RemoteConsumer:
             logger.info(f"Applied configurations: {configs}")
 
             sys.path.insert(0, "standalone-files/")
+
+            from consumer import logging as ox_consumer_logging
+
+            ox_consumer_logging.basicConfig(
+                format=LOG_FORMAT,
+                level=logging.DEBUG,
+            )
+
             from consumer import OXConsumer
 
             def create_provisioning_client():
@@ -220,6 +231,11 @@ class RemoteConsumer:
                 )
 
                 return provisioning_consumer
+
+            from univention.ox.provisioning.db import engine, initialize_db
+
+            self.configurator.patch_sqlalchemy_engine(engine)
+            initialize_db()
 
             restarts_done = 0
             while True:
@@ -326,9 +342,11 @@ class RemoteConsumer:
 
         udm_cmd = connection_args + udm_args
         logger.info(f"Running udm with: {' '.join(udm_cmd)}")
-        from univention.admin.rest.client.__main__ import main
+        from univention.admin.rest.client.__main__ import (
+            main as udm_client_main,
+        )
 
-        main(udm_cmd)
+        udm_client_main(arg_list=udm_cmd)
 
 
 def create_configurator(args) -> RemoteConfigurator:

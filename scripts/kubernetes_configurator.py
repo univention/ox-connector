@@ -10,6 +10,10 @@ from configurator import RemoteConfigurator
 from kubernetes import client, config
 from kubernetes.stream import stream, portforward
 from pathlib import Path
+from sqlalchemy import event
+from psycopg2 import extensions as ext
+from portforward import PortForwarder
+import threading
 import base64
 import yaml
 import time
@@ -33,6 +37,7 @@ class KubernetesConfigurator(RemoteConfigurator):
         self.ox_connector_pod_name = None
         self.sync_files = sync_files
         self.files = {}
+        self.db_port_forward = None
 
     def _get_files(self) -> dict[str, str]:
         return {"/etc/ox-secrets/ox-contexts.json": "/tmp/contexts.json"}
@@ -333,6 +338,9 @@ class KubernetesConfigurator(RemoteConfigurator):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.db_port_forward:
+            self.db_port_forward.stop()
+
         if not self.sync_files:
             return
 
@@ -554,26 +562,65 @@ class KubernetesConfigurator(RemoteConfigurator):
 
         return remote_config
 
+    def _is_kubernetes_service(self, dns_name):
+        if (
+            len(dns_name) >= 3
+            and dns_name[1] == self.namespace
+            and dns_name[2] in ("svc", "service")
+        ):
+            return True
+
+        if len(dns_name) == 1:
+            service = self.client_v1.read_namespaced_service(
+                dns_name[0],
+                self.namespace,
+            )
+            return service is not None
+
+        return False
+
+    def _get_pod_name_and_port_from_service(self, service_name, service_port):
+        service = self.client_v1.read_namespaced_service(
+            service_name,
+            self.namespace,
+        )
+        for service_ports in service.spec.ports:
+            if service_ports.port == int(service_port):
+                port = service_ports.target_port
+                break
+        else:
+            raise RuntimeError(f"Unable to find service port: {service_port}")
+
+        label_selector = []
+        for key, value in service.spec.selector.items():
+            label_selector.append(f"{key}={value}")
+        pods = self.client_v1.list_namespaced_pod(
+            self.namespace,
+            label_selector=",".join(label_selector),
+        )
+        if not pods.items:
+            raise RuntimeError("Unable to find service pods.")
+
+        name = pods.items[0].metadata.name
+        if isinstance(port, str):
+            for container in pods.items[0].spec.containers:
+                for container_port in container.ports:
+                    if container_port.name == port:
+                        port = container_port.container_port
+                        break
+                else:
+                    continue
+                break
+            else:
+                raise RuntimeError(
+                    f"Unable to find service port name: {port}",
+                )
+
+        return name, port
+
     def patch_aiohttp_session(self, session):
         resolver = DefaultResolver()
         resolve_orig = resolver.resolve
-
-        def is_kubernetes_service(dns_name):
-            if (
-                len(dns_name) >= 3
-                and dns_name[1] == self.namespace
-                and dns_name[2] in ("svc", "service")
-            ):
-                return True
-
-            if len(dns_name) == 1:
-                service = self.client_v1.read_namespaced_service(
-                    dns_name[0],
-                    self.namespace,
-                )
-                return service is not None
-
-            return False
 
         async def patched_resolve(
             host: str,
@@ -581,7 +628,7 @@ class KubernetesConfigurator(RemoteConfigurator):
             family: socket.AddressFamily = socket.AF_INET,
         ):
             dns_name = host.split(".")
-            if not is_kubernetes_service(dns_name):
+            if not self._is_kubernetes_service(dns_name):
                 return await resolve_orig(host, port, family)
 
             logger.info(f"Intercept DNS for port forward: {dns_name}")
@@ -616,7 +663,7 @@ class KubernetesConfigurator(RemoteConfigurator):
                 ip, port = ip_port
 
                 dns_name = ip.split(".")
-                if not is_kubernetes_service(dns_name):
+                if not self._is_kubernetes_service(dns_name):
                     return wrap_create_connection_orig(
                         *args,
                         addr_infos=addr_infos,
@@ -626,42 +673,11 @@ class KubernetesConfigurator(RemoteConfigurator):
                         **kwargs,
                     )
 
-                name = dns_name[0]
-                service = self.client_v1.read_namespaced_service(
-                    name,
-                    self.namespace,
+                service = dns_name[0]
+                name, port = self._get_pod_name_and_port_from_service(
+                    service,
+                    port,
                 )
-                for service_port in service.spec.ports:
-                    if service_port.port == port:
-                        port = service_port.target_port
-                        break
-                else:
-                    raise RuntimeError(f"Unable to find service port: {port}")
-
-                label_selector = []
-                for key, value in service.spec.selector.items():
-                    label_selector.append(f"{key}={value}")
-                pods = self.client_v1.list_namespaced_pod(
-                    self.namespace,
-                    label_selector=",".join(label_selector),
-                )
-                if not pods.items:
-                    raise RuntimeError("Unable to find service pods.")
-
-                name = pods.items[0].metadata.name
-                if isinstance(port, str):
-                    for container in pods.items[0].spec.containers:
-                        for container_port in container.ports:
-                            if container_port.name == port:
-                                port = container_port.container_port
-                                break
-                        else:
-                            continue
-                        break
-                    else:
-                        raise RuntimeError(
-                            f"Unable to find service port name: {port}",
-                        )
 
                 logger.info(f"Using kubernetes port forward: {name}:{port}")
                 pf = portforward(
@@ -679,3 +695,64 @@ class KubernetesConfigurator(RemoteConfigurator):
         session._connector._wrap_create_connection = (
             patched_wrap_create_connection
         )
+
+    def patch_sqlalchemy_engine(self, engine):
+        configurator = self
+
+        class KubernetesPortForwaringFactory(ext.connection):
+            def __init__(self, dsn, async_=0):
+                parsed_dsn = ext.parse_dsn(dsn)
+                dns_name = parsed_dsn["host"].split(".")
+                if configurator._is_kubernetes_service(dns_name):
+                    logger.info(parsed_dsn)
+                    service = dns_name[0]
+                    name, port = (
+                        configurator._get_pod_name_and_port_from_service(
+                            service,
+                            parsed_dsn["port"],
+                        )
+                    )
+
+                    local_port = 0
+                    with socket.socket(
+                        socket.AF_INET,
+                        socket.SOCK_STREAM,
+                    ) as s:
+                        s.bind(('', local_port))
+                        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                        local_port = s.getsockname()[1]
+
+                    parsed_dsn["host"] = "localhost"
+                    parsed_dsn["port"] = local_port
+                    dsn = ext.make_dsn(**parsed_dsn)
+
+                    port_forward_finished = threading.Condition()
+
+                    def port_forward_func():
+                        logger.info(
+                            f"Using portforwarding: {name}:{port} -> localhost:{local_port}",
+                        )
+                        configurator.db_port_forward = PortForwarder(
+                            configurator.namespace,
+                            name,
+                            local_port,
+                            port,
+                        )
+                        configurator.db_port_forward.forward()
+                        logger.info("Port forwarding setup finished")
+                        with port_forward_finished:
+                            port_forward_finished.notify()
+
+                    t = threading.Thread(target=port_forward_func)
+                    t.start()
+                    with port_forward_finished:
+                        port_forward_finished.wait()
+
+                ext.connection.__init__(self, dsn, async_=async_)
+
+        @event.listens_for(engine, "do_connect")
+        def receive_do_connect(dialect, conn_rec, cargs, cparams):
+            logger.info(
+                f"Intercept do_connect to use kubernes port forwarding connection factory: {conn_rec}",
+            )
+            cparams["connection_factory"] = KubernetesPortForwaringFactory

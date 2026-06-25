@@ -13,3 +13,7 @@ class RemoteConfigurator(ABC):
     @abstractmethod
     def patch_aiohttp_session(self, session):
         pass
+
+    @abstractmethod
+    def patch_sqlalchemy_engine(self, engine):
+        pass
