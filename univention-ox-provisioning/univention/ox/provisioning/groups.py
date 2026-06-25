@@ -52,11 +52,19 @@ def group_from_attributes(attributes, group_name, group_id=None):
     return group
 
 
+def _get_name(attributes):
+    return (
+        attributes.get("oxDbGroupname")
+        or attributes.get(GROUP_IDENTIFIER)
+        or attributes.get("name")
+    )
+
+
 def get_group_name(group):
     if GROUP_IDENTIFIER == "entryUUID":
         return group.entry_uuid
     else:
-        return group.attributes.get(GROUP_IDENTIFIER)
+        return _get_name(group.attributes)
 
 
 def update_group(group, attributes, group_name):
@@ -85,9 +93,7 @@ def get_group_id(obj):
     if obj.old_attributes is not None:
         # before delete
         context_id = obj.old_attributes["oxContext"]
-        groupname = obj.old_attributes.get(
-            "oxDbGroupname",
-        ) or obj.old_attributes.get("name")
+        groupname = _get_name(obj.old_attributes)
     else:
         # before create
         context_id = obj.attributes["oxContext"]
@@ -147,8 +153,7 @@ def modify_group(obj):
             )
         group = group_from_attributes(
             obj.old_attributes,
-            obj.old_attributes.get("oxDbGroupname")
-            or obj.old_attributes.get("name"),
+            _get_name(obj.old_attributes),
             group_id,
         )
         update_group(group, obj.attributes, get_group_name(obj))
@@ -174,8 +179,7 @@ def delete_group(obj):
         return
     group = group_from_attributes(
         obj.old_attributes,
-        obj.old_attributes.get("oxDbGroupname")
-        or obj.old_attributes.get("name"),
+        _get_name(obj.old_attributes),
         group_id,
     )
     group.remove()

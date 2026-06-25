@@ -89,6 +89,13 @@ Show = Install, Settings
 Type = String
 Required = False
 
+[OX_SHARED_ACCOUNT_IDENTIFIER]
+Description = UDM shared account property that is used as the unique account identifier for OX. Default: "name".
+Description[de] = UDM-Shared-Account-Property, die als eindeutiger Shared-Account-Identifier für OX verwendet wird. Default: "name".
+Show = Install, Settings
+Type = String
+Required = False
+
 [OX_ENABLE_DEPUTY_PERMISSIONS]
 Description = Enables the provisioning of user deputy permissions. Additional steps are needed to activate this feature. Please refer to the instructions in the <a target="_blank"
 href="https://docs.software-univention.de/ox-connector-app/latest/configuration.html#envvar-OX_ENABLE_DEPUTY_PERMISSIONS">OX-Connector manual</a>.

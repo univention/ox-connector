@@ -27,6 +27,10 @@ FUNCTIONAL_ACCOUNT_LOGIN = os.environ.get(
 )
 USER_IDENTIFIER = os.environ.get("OX_USER_IDENTIFIER", "username")
 GROUP_IDENTIFIER = os.environ.get("OX_GROUP_IDENTIFIER", "name")
+SHARED_ACCOUNT_IDENTIFIER = os.environ.get(
+    "OX_SHARED_ACCOUNT_IDENTIFIER",
+    "name",
+)
 OX_ENABLE_DEPUTY_PERMISSIONS = os.environ.get(
     "OX_ENABLE_DEPUTY_PERMISSIONS",
     "False",

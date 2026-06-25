@@ -61,9 +61,17 @@ def is_enabled():
     )
 
 
+def _get_name(attributes):
+    return (
+        attributes.get("oxDbName")
+        or attributes.get(univention.ox.soap.config.SHARED_ACCOUNT_IDENTIFIER)
+        or attributes.get("name")
+    )
+
+
 def update_shared_account(shared_account, attributes):
     shared_account.context_id = get_context_id(attributes)
-    shared_account.name = attributes.get("name")
+    shared_account.name = _get_name(attributes)
     shared_account.display_name = attributes.get("displayName")
     shared_account.primaryEmail = attributes.get("mailPrimaryAddress")
     shared_account.email1 = shared_account.primaryEmail
@@ -259,6 +267,7 @@ def create_shared_account(obj):
         return modify_shared_account(obj)
     shared_account.create()
     obj.set_attr("oxDbId", shared_account.id)
+    obj.set_attr("oxDbName", shared_account.name)
     create_permissions(shared_account, obj)
 
 
@@ -307,6 +316,7 @@ def modify_shared_account(obj):
             return create_shared_account(obj)
     shared_account.modify()
     obj.set_attr("oxDbId", shared_account.id)
+    obj.set_attr("oxDbName", shared_account.name)
     create_permissions(shared_account, obj)
 
 

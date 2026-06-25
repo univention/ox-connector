@@ -12,6 +12,26 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v3.2.2:
+
+v3.2.2
+======
+
+Released: 2026-06-25
+
+Added
+-----
+
+The new setting `OX_SHARED_ACCOUNT_IDENTIFIER` can be used to adjust the name
+of an *OX Shared Account*.
+
+Fixed
+-----
+
+A safeguard when finding existing OX users before their actual creation was
+broken in some cases. It always used the username of the UDM object for the
+search and did not take the configured `OX_USER_IDENTIFIER` into account.
+
 .. _app-changelog-v3.2.1:
 
 v3.2.1

@@ -96,6 +96,14 @@ def str2isodate(text):  # type: (str) -> str
     )
 
 
+def _get_name(attributes):
+    return (
+        attributes.get("oxDbUsername")
+        or attributes.get(USER_IDENTIFIER)
+        or attributes.get("username")
+    )
+
+
 def user_from_attributes(
     attributes,
     old_attributes,
@@ -115,7 +123,7 @@ def get_user_username(user):
     if USER_IDENTIFIER == "entryUUID":
         return user.entry_uuid
     else:
-        return user.attributes.get(USER_IDENTIFIER)
+        return _get_name(user.attributes)
 
 
 def get_user_mapping():
@@ -303,7 +311,7 @@ def set_user_rights(user, obj):
 
 def get_user_id(attributes, lookup_ox=True):
     context_id = get_context_id(attributes)
-    username = attributes.get("username")
+    username = _get_name(attributes)
     if username == get_context_admin_user(context_id):
         raise SkipContextAdmin(
             f"Not touching {username} in context {context_id}: Is context admin!",
@@ -372,8 +380,7 @@ def create_user(obj, user_copy_service=None, user_id=None):
                 user = get_obj_by_name_from_ox(
                     User,
                     user.context_id,
-                    obj.old_attributes.get("oxDbUsername")
-                    or obj.old_attributes.get("username"),
+                    _get_name(obj.old_attributes),
                     raise_exception_on_zeep_exceptions_Fault=bool(
                         user_copy_service,
                     ),
@@ -503,8 +510,7 @@ def modify_user(obj):
         user = user_from_attributes(
             obj.old_attributes,
             obj.old_attributes,
-            obj.old_attributes.get("oxDbUsername")
-            or obj.old_attributes.get("username"),
+            _get_name(obj.old_attributes),
             user_id,
         )
         user.context_id = new_context
@@ -551,8 +557,7 @@ def delete_user(obj):
     user = user_from_attributes(
         obj.old_attributes,
         None,
-        obj.old_attributes.get("oxDbUsername")
-        or obj.old_attributes.get("username"),
+        _get_name(obj.old_attributes),
         user_id,
     )
     delete_deputy_permissions(obj, user.context_id)

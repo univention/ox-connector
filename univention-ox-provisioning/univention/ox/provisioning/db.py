@@ -607,6 +607,7 @@ def resync_item(obj_id):
         return  # only needs to be done once
     logger.warn(
         "No Error for object ID %s found in database, resync not possible",
+        obj_id,
     )
 
 
