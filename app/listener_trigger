@@ -42,21 +42,7 @@ from pathlib import Path
 
 
 from univention.ox.provisioning import helpers, run
-from univention.ox.provisioning.db import (
-    increment_error_count,
-    move_task_to_old,
-    move_task_to_morgue,
-    get_tasks,
-    get_task,
-    add_task,
-    get_old,
-    create_task_from_old,
-    remove_old,
-    remove_task,
-    add_relation,
-    remove_complete_relation,
-    search_src_of_relation,
-)
+from univention.ox.provisioning.db import DBSession
 from univention.ox.provisioning.models import TriggerObject
 
 APP = "ox-connector"
@@ -98,34 +84,59 @@ def obj_from_row(row):
 
 def _get_old_object(distinguished_name, obj_id=None):
     logger.info("Loading old object for %s", obj_id or distinguished_name)
-    old = get_old(distinguished_name, obj_id)
+    with DBSession() as db:
+        old = db.get_old(distinguished_name, obj_id)
     if old:
         return obj_from_row(old)
 
 
-helpers.get_old_obj = _get_old_object
-
-
 def _update_group_queue(entry_uuid):
-    if get_task(entry_uuid):
-        logger.info(
-            "Asked to add %s to the task queue. But it already exists. Doing nothing.",
-            entry_uuid,
-        )
-    else:
-        create_task_from_old(entry_uuid)
-        logger.info(
-            "Added %s to the task queue",
-            entry_uuid,
+    with DBSession() as db:
+        if db.get_task(entry_uuid):
+            logger.info(
+                "Asked to add %s to the task queue. But it already exists. Doing nothing.",
+                entry_uuid,
+            )
+        else:
+            db.create_task_from_old(entry_uuid)
+            logger.info(
+                "Added %s to the task queue",
+                entry_uuid,
+            )
+
+
+def _add_relation(
+    src_obj_id,
+    src_udm_module,
+    dst_obj_id,
+    dst_udm_module,
+    relation_name,
+):
+    with DBSession() as db:
+        db.add_relation(
+            src_obj_id,
+            src_udm_module,
+            dst_obj_id,
+            dst_udm_module,
+            relation_name,
         )
 
 
+def _remove_complete_relation(src_obj_id, relation_name):
+    with DBSession() as db:
+        db.remove_relation(src_obj_id, relation_name)
+
+
+def _search_src_of_relation(dst_obj_id, relation_name):
+    with DBSession() as db:
+        return list(db.get_relation_src(dst_obj_id, relation_name))
+
+
+helpers.get_old_obj = _get_old_object
 helpers.update_group_queue = _update_group_queue
-
-
-helpers.add_relation = add_relation
-helpers.remove_complete_relation = remove_complete_relation
-helpers.search_src_of_relation = search_src_of_relation
+helpers.add_relation = _add_relation
+helpers.remove_complete_relation = _remove_complete_relation
+helpers.search_src_of_relation = _search_src_of_relation
 
 
 class TriggerObjectFileBased(TriggerObject):
@@ -140,62 +151,87 @@ class TriggerObjectFileBased(TriggerObject):
         self._old_loaded = True
 
 
+def _enqueue_task_from_file(db, json_file):
+    with json_file.open() as fh:
+        content = json.load(fh)
+    udm_module = content["udm_object_type"]
+    from univention.ox.provisioning.db import _normalized_dn
+
+    dn = _normalized_dn(content["dn"])
+    attrs = content["object"]
+    obj_id = (
+        attrs.get("univentionObjectIdentifier") if attrs else content["id"]
+    )
+    if not obj_id:
+        logger.info(
+            "Did not find univentionObjectIdentifier in %s. Skipping",
+            json_file,
+        )
+        return
+    db.enqueue_task(obj_id, udm_module, dn, attrs)
+
+
 def main():
     """Handles listener-JSON-files"""
-    # run forever and only exit on error
-    for json_file in sorted(NEW_FILES_DIR.glob("*.json")):
-        if os.path.basename(json_file) == "restart.json":
-            continue
-        logger.info("Adding a new task from %s", json_file)
-        add_task(json_file)
-        os.unlink(json_file)
-    ret_value = 0
-    error_count = 0
-    stop_on_error = os.getenv("OX_CONNECTOR_STOP_ON_ERROR", "True") != "False"
-    for udm_module, empty_attributes in [
-        ("oxmail/oxcontext", False),
-        ("oxmail/accessprofile", None),
-        ("users/user", None),
-        ("groups/group", None),
-        ("oxmail/functional_account", None),
-        ("oxmail/shared_account_permission", None),
-        ("oxmail/shared_account", None),
-        ("oxresources/oxresources", None),
-        ("oxmail/oxcontext", True),
-    ]:
-        for task in get_tasks(udm_module, empty_attributes):
-            try:
-                logger.info("Processing Task %s", task)
-                obj = obj_from_row(task)
-                obj.load_old()
-                logger.info("... %r", obj)
-                run(obj)
-            except (HTTPError, ConnectionError, Timeout) as exc:
-                logger.error("Error while handling %s", task)
-                error_count = increment_error_count(task.id)
-                logger.exception(exc)
-                ret_value = 1
-                break
-            except Exception as exc:
-                error_count = increment_error_count(task.id)
-                logger.error("Error while handling %s", task)
-                logger.exception(exc)
-                if stop_on_error or task.udm_module == "oxmail/oxcontext":
-                    # oxcontext is so important, we can never continue here
+    with DBSession() as db:
+        for json_file in sorted(NEW_FILES_DIR.glob("*.json")):
+            if os.path.basename(json_file) == "restart.json":
+                continue
+            logger.info("Adding a new task from %s", json_file)
+            _enqueue_task_from_file(db, json_file)
+            os.unlink(json_file)
+
+        # commit tasks so we can process it with the same session
+        db.commit()
+        ret_value = 0
+        error_count = 0
+        stop_on_error = (
+            os.getenv("OX_CONNECTOR_STOP_ON_ERROR", "True") != "False"
+        )
+        for udm_module, empty_attributes in [
+            ("oxmail/oxcontext", False),
+            ("oxmail/accessprofile", None),
+            ("users/user", None),
+            ("groups/group", None),
+            ("oxmail/functional_account", None),
+            ("oxmail/shared_account_permission", None),
+            ("oxmail/shared_account", None),
+            ("oxresources/oxresources", None),
+            ("oxmail/oxcontext", True),
+        ]:
+            for task in db.get_tasks(udm_module, empty_attributes):
+                try:
+                    logger.info("Processing Task %s", task)
+                    obj = obj_from_row(task)
+                    obj.load_old()
+                    logger.info("... %r", obj)
+                    run(obj)
+                except (HTTPError, ConnectionError, Timeout) as exc:
+                    logger.error("Error while handling %s", task)
+                    error_count = db.increment_error_count(task.id)
+                    logger.exception(exc)
                     ret_value = 1
                     break
-                move_task_to_morgue(task.id, traceback.format_exc())
-                ret_value = 1
-            else:
-                if obj.was_deleted():
-                    remove_old(obj.old_distinguished_name)
-                    remove_task(task.id)
+                except Exception as exc:
+                    error_count = db.increment_error_count(task.id)
+                    logger.error("Error while handling %s", task)
+                    logger.exception(exc)
+                    if stop_on_error or task.udm_module == "oxmail/oxcontext":
+                        # oxcontext is so important, we can never continue here
+                        ret_value = 1
+                        break
+                    db.move_task_to_morgue(task.id, traceback.format_exc())
+                    ret_value = 1
                 else:
-                    move_task_to_old(task.id, obj.attributes)
-        else:
-            # no break from stop_on_error: continue
-            continue
-        break
+                    if obj.was_deleted():
+                        db.remove_old(obj.old_distinguished_name)
+                        db.remove_task(task.id)
+                    else:
+                        db.move_task_to_old(task.id, obj.attributes)
+            else:
+                # no break from stop_on_error: continue
+                continue
+            break
     if ret_value == 0:
         try:
             os.unlink(NEW_FILES_DIR / "restart.json")

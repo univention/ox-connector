@@ -71,6 +71,7 @@ RUN export OX_PROVISIONING_VERSION="$version" &&\
 
 COPY univention-ox-provisioning /tmp/univention-ox-provisioning
 COPY app/listener_trigger /tmp/app/
+COPY app/univention-ox-connector-task-management /tmp/app/
 COPY tests /tmp/tests
 COPY LICENSE /usr/local/share/ox-connector/LICENSE
 
@@ -100,6 +101,7 @@ RUN apk add --no-cache \
   rm -rf /tmp/*
 
 COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
+COPY app/univention-ox-connector-task-management /usr/local/share/ox-connector/univention-ox-connector-task-management
 COPY share/ /usr/local/share/ox-connector/resources
 COPY udm/ /usr/local/share/ox-connector/resources/udm
 COPY umc/ /usr/local/share/ox-connector/resources/umc

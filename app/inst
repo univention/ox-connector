@@ -507,7 +507,7 @@ setup_umc () {
 }
 
 create_cli() {
-  echo -e '#!/bin/bash\nunivention-app shell ox-connector python3 -m univention.ox.provisioning.db "$@"' > /usr/sbin/univention-ox-connector-task-management
+  echo -e '#!/bin/bash\nunivention-app shell ox-connector /usr/local/share/ox-connector/univention-ox-connector-task-management "$@"' > /usr/sbin/univention-ox-connector-task-management
   chmod 770 /usr/sbin/univention-ox-connector-task-management
 
 }

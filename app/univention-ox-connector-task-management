@@ -1,0 +1,364 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright 2025 Univention GmbH
+#
+# http://www.univention.de/
+#
+# All rights reserved.
+#
+# The source code of this program is made available
+# under the terms of the GNU Affero General Public License version 3
+# (GNU AGPL V3) as published by the Free Software Foundation.
+#
+# Binary versions of this program provided by Univention to you as
+# well as other copyrighted, protected or trademarked materials like
+# Logos, graphics, fonts, specific documentations and configurations,
+# cryptographic keys etc. are subject to a license agreement between
+# you and Univention and not subject to the GNU AGPL V3.
+#
+# In the case you use this program under the terms of the GNU AGPL V3,
+# the program is provided in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License with the Debian GNU/Linux or Univention distribution in file
+# /usr/share/common-licenses/AGPL-3; if not, see
+# <http://www.gnu.org/licenses/>.
+
+"""
+univention-ox-connector-task-management: CLI for managing the OX Connector database.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import sys
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from copy import deepcopy
+from functools import partial
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+from typing import Any, Callable
+
+from univention.ox.provisioning.db import (
+    DBSession,
+    LISTENER_DIR,
+    Old,
+)
+
+logger = logging.getLogger("univention.ox")
+
+
+def _call(func: Callable[..., None], args: Namespace) -> None:
+    params: dict[str, Any] = deepcopy(args.__dict__)
+    db_func: Callable[..., None] = params.pop("func")
+    with DBSession() as db:
+        db_func(db, **params)
+
+
+def _add_action(subparsers: Any, func: Callable[..., None]) -> None:
+    import inspect
+
+    name = func.__name__.replace("_", "-")
+    description = func.__doc__
+    subparser = subparsers.add_parser(
+        name,
+        description=description,
+        help=description,
+    )
+    signature = inspect.signature(func)
+    for name, param in signature.parameters.items():
+        name = f"--{name.replace('_', '-')}"
+        arg_params: dict[str, Any] = {
+            "required": param.default == inspect._empty,
+        }
+        if not arg_params["required"]:
+            arg_params["default"] = param.default
+        if param.annotation in [Path, int]:
+            arg_params["type"] = param.annotation
+        if param.annotation is bool:
+            store_action = (
+                not param.default if param.default != inspect._empty else False
+            )
+            arg_params["action"] = f"store_{str(store_action).lower()}"
+        subparser.add_argument(name, **arg_params)
+    subparser.set_defaults(func=partial(_call, func))
+
+
+def show_item(
+    db: DBSession,
+    obj_id: str,
+    output_format: str = "simple",
+) -> None:
+    """
+    Shows all rows in our tables that we got for an item. Other commands can
+    give a more verbose output:
+    * Last time it was synced successfully (see search-old)
+    * Pending tasks that shall be processed (see search-tasks)
+    * Current failures that may need interaction (see search-morgue)
+    """
+    db.show_item(obj_id, output_format)
+
+
+def resync_item(db: DBSession, obj_id: str) -> None:
+    """
+    An item is resynced using the latest data that is currently saved in UDM
+    """
+    db.resync_item(obj_id)
+
+
+def summarize_tasks(db: DBSession, output_format: str = "simple") -> None:
+    """
+    Shows a brief summary of the tasks table (queue of current tasks).
+    Output can be either "simple" or "json"
+    """
+    db.summarize_tasks(output_format)
+
+
+def summarize_morgue(db: DBSession, output_format: str = "simple") -> None:
+    """
+    Shows a brief summary of the morgue table.
+    Output can be either "simple", "fuller" or "json"
+    """
+    db.summarize_morgue(output_format)
+
+
+def add_task(db: DBSession, path: Path) -> None:
+    """
+    Adds the content of a JSON file as a new item to the tasks table.
+    Note: PATH needs to be accessible from inside the OX Connector container,
+    e.g., in /var/lib/univention-appcenter/apps/ox-connector/data/
+    """
+    logger.info("Parsing %s", path)
+    with path.open() as fh:
+        content: dict[str, Any] = json.load(fh)
+    udm_module: str = content["udm_object_type"]
+    dn: str = content["dn"]
+    attrs: dict[str, Any] = content["object"]
+    obj_id: str | None = (
+        attrs.get("univentionObjectIdentifier") if attrs else content["id"]
+    )
+    if not obj_id:
+        logger.info(
+            "Did not find univentionObjectIdentifier in %s. Skipping",
+            path,
+        )
+        return
+    db.enqueue_task(obj_id, udm_module, dn, attrs)
+    (LISTENER_DIR / "restart.json").touch()
+
+
+def search_tasks(
+    db: DBSession,
+    output_format: str = "simple",
+    first: bool = False,
+) -> None:
+    """
+    Search items from the tasks database (queue of current tasks). Items found
+    can be printed in different formats ("simple" or "fuller" or "json")
+    """
+    for task in db.get_tasks():
+        print("DN:", task.dn)
+        print("Object Identifier:", task.obj_id)
+        print("UDM module:", task.udm_module)
+        print("ID (database):", task.id)
+        print("Created at:", task.created_at)
+        print("Status:", task.status)
+        print("Error count:", task.num_errors)
+        print("-")
+        if first:
+            break
+
+
+def move_task_to_morgue(db: DBSession, task_id: int, error_msg: str) -> None:
+    """
+    Move the task to the morgue table, meaning that it needs further, manual
+    investigation. This can be used to unblock the connector. Removed from the
+    tasks table.
+    """
+    db.move_task_to_morgue(task_id, error_msg)
+
+
+def move_task_to_old(
+    db: DBSession,
+    task_id: int,
+    attributes: dict[str, Any] | None = None,
+) -> None:
+    """
+    Move the task to the old table, meaning that this data is now
+    considered the last snapshot for further updates of this object. Removed
+    from the list of the tasks table.
+    """
+    db.move_task_to_old(task_id, attributes)
+
+
+def add_old(db: DBSession, path: Path) -> None:
+    """
+    Adds the content of a JSON file to the old table. If that item already
+    exists (by univentionObjectIdentifier), it is updated, otherwise a new item
+    is created.
+    Note: PATH needs to be accessible from inside the OX Connector container,
+    e.g., in /var/lib/univention-appcenter/apps/ox-connector/data/
+    """
+    logger.info("Parsing %s", path)
+    with path.open() as fh:
+        content: dict[str, Any] = json.load(fh)
+    udm_module: str = content["udm_object_type"]
+    dn: str = content["dn"]
+    attrs: dict[str, Any] = content["object"]
+    obj_id: str = attrs.get("univentionObjectIdentifier", "")
+    if not obj_id:
+        logger.info(
+            "Did not find univentionObjectIdentifier in %s. Skipping",
+            path,
+        )
+        return
+    db.store_old(obj_id, udm_module, dn, attrs)
+
+
+def export_old(db: DBSession, obj_id: str) -> None:
+    """
+    Exports an item from the old table. It prints the item as JSON for you to
+    save and examine. This file can be edited and re-added with the add-old
+    command.
+    """
+    old: Old | None = db.session.query(Old).filter_by(obj_id=obj_id).first()
+    if not old:
+        return
+    json_output: dict[str, Any] = {
+        "id": old.obj_id,
+        "udm_object_type": old.udm_module,
+        "dn": old.dn,
+        "object": json.loads(old.attrs),
+    }
+    print(json.dumps(json_output, sort_keys=True, indent=2))
+
+
+def search_old(
+    db: DBSession,
+    obj_id: str,
+    output_format: str = "simple",
+) -> None:
+    """
+    Search an item from the old table. It contains data the Connector has
+    stored for item the last time it was processed successfully from the tasks
+    table. Note: If the task was to delete, so was the item in the old table.
+    Output can be either "simple" or "json".
+    """
+    obj_id = obj_id.replace("*", "%")
+    olds = db.session.query(Old).filter(Old.obj_id.like(obj_id)).all()
+    for old in olds:
+        print("DN:", old.dn)
+        print("Object Identifier:", old.obj_id)
+        print("UDM module:", old.udm_module)
+        print("ID (database):", old.id)
+        print("Attributes:")
+        for name, value in sorted(json.loads(old.attrs).items()):
+            print(" ", name, ":", value)
+        print("-")
+
+
+def search_morgue(
+    db: DBSession,
+    obj_id: str = "*",
+    output_format: str = "simple",
+) -> None:
+    """
+    Search items in the morgue db. Items found can be printed in different
+    formats ("simple" or "fuller" or "json")
+    """
+    for error in db.get_errors(obj_id=obj_id):
+        print("DN:", error.dn)
+        print("Object Identifier:", error.obj_id)
+        print("UDM module:", error.udm_module)
+        print("ID (database):", error.id)
+        print("Error occurred:", error.timestamp)
+        print("Error:", error.error_msg.splitlines()[-1])
+        print("-")
+
+
+def retry_from_morgue(db: DBSession, obj_id: str) -> None:
+    """
+    An item is retried to be synchronized by using the exact same data that
+    was saved during the error occurance. Make sure that this item has not
+    been / will not be synchronized with a more recent set of attributes as
+    these would be overwritten by this retry (e.g., do not "retry" while a
+    "resync" is still in the tasks db). If more than one item matches, all
+    """
+    db.retry_from_morgue(obj_id)
+
+
+def remove_from_morgue(db: DBSession, obj_id: str) -> None:
+    """
+    Remove an item from the morgue table. If more than one item matches, all
+    items are removed.
+    """
+    db.remove_from_morgue(obj_id)
+
+
+def rewrite_ox_db_id(
+    db: DBSession,
+    build_cache_size: int = 0,
+    dry_run: bool = False,
+) -> None:
+    """
+    Rewrite the oxDbId attribute for all users known to the Connector.
+    """
+    db.rewrite_ox_db_id(build_cache_size, dry_run)
+
+
+if __name__ == "__main__":
+    logger.setLevel("INFO")
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    handler = RotatingFileHandler(
+        "%s/univention-ox-connector-task-management.log" % LISTENER_DIR,
+        maxBytes=1024 * 1024 * 500,
+    )
+    handler.setLevel("DEBUG")
+    formatter = logging.Formatter("%(asctime)s %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    help_text = """This program lets you manage the database of the OX Connector.
+    There are three tables:
+    tasks: Each row represents one current task of the Connector, it has not yet been successfully processed. Tasks are ordered by their creation time.
+    old: Each row represents an object in the state it was synchronized successfully. Used when processing a task that references this object.
+    morgue: Each row represents a task that failed to be synchronized with a certain error. These failed tasks will not be processed, they need to be individually examined by an administrator.
+    """
+    parser = ArgumentParser(
+        description=help_text,
+        formatter_class=RawTextHelpFormatter,
+    )
+    subparsers = parser.add_subparsers(
+        description="type %(prog)s <action> --help for further help and possible arguments",
+        metavar="action",
+    )
+    _add_action(subparsers, show_item)
+    _add_action(subparsers, resync_item)
+    _add_action(subparsers, summarize_tasks)
+    _add_action(subparsers, summarize_morgue)
+    _add_action(subparsers, add_task)
+    _add_action(subparsers, search_tasks)
+    _add_action(subparsers, move_task_to_morgue)
+    _add_action(subparsers, move_task_to_old)
+    _add_action(subparsers, add_old)
+    _add_action(subparsers, export_old)
+    _add_action(subparsers, search_old)
+    _add_action(subparsers, search_morgue)
+    _add_action(subparsers, retry_from_morgue)
+    _add_action(subparsers, remove_from_morgue)
+    _add_action(subparsers, rewrite_ox_db_id)
+
+    args = parser.parse_args()
+    if not getattr(args, "func", None):
+        parser.print_help()
+    else:
+        logger.debug("Running CLI with args %r", sys.argv)
+        args.func(args)
