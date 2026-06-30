@@ -27,13 +27,11 @@
 # <http://www.gnu.org/licenses/>.
 
 
-import logging
+from lancelog import logger
 import re
 from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
-
-logger = logging.getLogger("listener")
 
 
 base_dir = Path("/var/lib/univention-appcenter/apps/")
@@ -51,7 +49,7 @@ def create_accessprofile(obj):
 
 
 def modify_accessprofile(obj):
-    logger.info(f"Changing accessprofile {obj.distinguished_name}")
+    logger.info("Changing accessprofile", dn=obj.distinguished_name)
     profiles = get_access_profiles(force_reload=False)
     rights = []
     for key, value in capability_map.items():
@@ -63,7 +61,7 @@ def modify_accessprofile(obj):
 
 
 def delete_accessprofile(obj):
-    logger.info(f"Removing accessprofile {obj.distinguished_name}")
+    logger.info("Removing accessprofile", dn=obj.distinguished_name)
     profiles = get_access_profiles(force_reload=False)
     profiles.pop(obj.old_attributes["name"], None)
     save_accessprofiles(profiles)
@@ -139,8 +137,8 @@ def get_access_profiles(force_reload):
                         ]
         except EnvironmentError:
             logger.warning(
-                "Could not read %s. Working with empty set...",
-                access_definitions_file,
+                "Could not read file. Working with empty set...",
+                file=access_definitions_file,
             )
     return deepcopy(_profiles)
 

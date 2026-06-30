@@ -26,7 +26,7 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import logging
+from lancelog import logger
 from copy import deepcopy
 import re
 
@@ -40,7 +40,6 @@ from univention.ox.provisioning.helpers import (
 )
 
 FunctionalAccount = get_ox_integration_class("SOAP", "SecondaryAccount")
-logger = logging.getLogger("listener")
 
 
 class InvalidSetting(Exception):
@@ -87,7 +86,7 @@ def get_functional_account_login(dn, fa):
                 value[span[0] : span[1]],
                 obj.attributes[attr_name],
             )
-    logger.info(f"format functional account login value ({value})")
+    logger.info("format functional account login value", value=value)
     return value
 
 
@@ -118,7 +117,7 @@ def get_functional_account_id(attributes):
 
 
 def create_functional_account(obj):
-    logger.info(f"Creating {obj}")
+    logger.info("Creating", object=obj)
     logger.info("Start off by removing the old one (maybe remnants?)")
     if obj.old_attributes is None:
         obj.old_attributes = deepcopy(obj.attributes)
@@ -139,13 +138,13 @@ def create_functional_account(obj):
 
 
 def modify_functional_account(obj):
-    logger.info(f"Modifying {obj}")
+    logger.info("Modifying object", object=obj)
     logger.info("Modify is like creating a new one...")
     create_functional_account(obj)
 
 
 def delete_functional_account(obj):
-    logger.info(f"Deleting {obj}")
+    logger.info("Deleting object", object=obj)
     functional_account = functional_account_from_attributes(obj.old_attributes)
     functional_account.remove()
     obj.attributes = None  # make obj.was_deleted() return True

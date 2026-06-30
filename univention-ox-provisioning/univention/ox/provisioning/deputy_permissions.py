@@ -26,7 +26,7 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import logging
+from lancelog import logger
 
 from univention.ox.provisioning.helpers import (
     get_db_id,
@@ -36,8 +36,6 @@ from univention.ox.soap.backend_base import get_ox_integration_class
 import univention.ox.soap.config
 
 DeputyPermission = get_ox_integration_class("SOAP", "DeputyPermission")
-
-logger = logging.getLogger("listener")
 
 
 # Util = get_ox_integration_class("SOAP", "Util")
@@ -106,7 +104,8 @@ def set_deputy_permissions(obj, context_id):
     user_id = obj.attributes.get("oxDbId") or get_db_id(obj.distinguished_name)
     if not user_id:
         logger.info(
-            f"No user_id found for {obj.distinguished_name}. Unable to create deputy permissions.",
+            "No user_id found for dn. Unable to create deputy permissions.",
+            dn=obj.distinguished_name,
         )
         return
 
@@ -133,7 +132,9 @@ def set_deputy_permissions(obj, context_id):
             deputy_user_id = get_db_id(deputy_dn)
             if not deputy_user_id:
                 logger.info(
-                    f"No user_id found for {deputy_dn}. Unable to create permission granted by {obj.distinguished_name}.",
+                    "No user_id found for deputy. Unable to create permission granted by user.",
+                    deputy=deputy_dn,
+                    user=obj.distinguished_name,
                 )
                 continue
             try:
@@ -146,21 +147,30 @@ def set_deputy_permissions(obj, context_id):
                     deputy_permission=deputy_permission,
                 )
                 logger.info(
-                    f"Created deputy permission given to {deputy_dn} from {obj.distinguished_name} ({db_id})",
+                    "Created deputy permission given to deputy from user",
+                    deputy=deputy_dn,
+                    user=obj.distinguished_name,
+                    id=db_id,
                 )
             except Exception as e:
                 logger.warning(
-                    f"Error creating deputy permission given to {deputy_dn} from {obj.distinguished_name}: {e}",
+                    "Error creating deputy permission given to deputy from user",
+                    deputy=deputy_dn,
+                    user=obj.distinguished_name,
+                    error=e,
                 )
         try:
             deputy_service.block_manual(user_id)
         except Exception as e:
             logger.warning(
-                f"Error blocking {obj.distinguished_name} from granting deputy permissions: {e}",
+                "Error blocking user from granting deputy permissions",
+                user=obj.distinguished_name,
+                error=e,
             )
         else:
             logger.info(
-                f"{obj.distinguished_name} is now blocked from granting deputy permissions autonomously.",
+                "User is now blocked from granting deputy permissions autonomously.",
+                user=obj.distinguished_name,
             )
 
 
@@ -177,7 +187,8 @@ def delete_deputy_permissions(obj, context_id):
         user_id = get_db_id(obj.distinguished_name)
     if not user_id:
         logger.info(
-            f"No user_id found for {obj.distinguished_name}. Unable to delete deputy permissions.",
+            "No user_id found for user. Unable to delete deputy permissions.",
+            user=obj.distinguished_name,
         )
         return
 
@@ -187,19 +198,25 @@ def delete_deputy_permissions(obj, context_id):
         deputy_service.revoke_all(user_id)
     except Exception as e:
         logger.warning(
-            f"Error deleting all deputy permissions granted by {obj.distinguished_name}: {e}",
+            "Error deleting all deputy permissions granted by user",
+            user=obj.distinguished_name,
+            error=e,
         )
     else:
         logger.info(
-            f"Revoked all deputy permissions granted by {obj.distinguished_name}.",
+            "Revoked all deputy permissions granted by user.",
+            user=obj.distinguished_name,
         )
         try:
             deputy_service.unblock_manual(user_id)
         except Exception as e:
             logger.warning(
-                f"Error unblocking {obj.distinguished_name} from granting deputy permissions: {e}",
+                "Error unblocking user from granting deputy permissions",
+                user=obj.distinguished_name,
+                error=e,
             )
         else:
             logger.info(
-                f"{obj.distinguished_name} may now grant deputy permissions autonomously.",
+                "User may now grant deputy permissions autonomously.",
+                user=obj.distinguished_name,
             )

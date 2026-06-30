@@ -27,7 +27,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
-import logging
+from lancelog import logger
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
@@ -40,7 +40,6 @@ from univention.ox.provisioning.helpers import (
 from univention.ox.soap.config import GROUP_IDENTIFIER
 
 Group = get_ox_integration_class("SOAP", "Group")
-logger = logging.getLogger("listener")
 
 
 def group_from_attributes(attributes, group_name, group_id=None):
@@ -80,11 +79,12 @@ def update_group(group, attributes, group_name):
         try:
             user_id = get_db_id(user)
             if user_id:
-                logger.info(f"... found {user_id}")
+                logger.info("found user", id=user_id)
                 members.append(user_id)
         except Exception:
             logger.warning(
-                f"skipping user {user}. Object not found in listener/old directory.",
+                "skipping user. Object not found in listener/old directory.",
+                user=user,
             )
     group.members = members
 
@@ -100,7 +100,7 @@ def get_group_id(obj):
         groupname = get_group_name(obj)
     # ignore groups with name "users" (Bug #35821)
     if groupname.lower() == "users":
-        logger.info(f'Ignoring group "{groupname}"')
+        logger.info('Ignoring group', group=groupname)
         return None
     group = get_obj_by_name_from_ox(Group, context_id, groupname)
     if group:
@@ -108,9 +108,9 @@ def get_group_id(obj):
 
 
 def create_group(obj):
-    logger.info(f"Creating {obj}")
+    logger.info("Creating object", object=obj)
     if not is_ox_group(obj.attributes):
-        logger.info(f"{obj} is no OX group. Deleting instead...")
+        logger.info("Object is no OX group. Deleting instead...", object=obj)
         return delete_group(obj)
     if get_group_id(obj):
         if obj.old_attributes is None:
@@ -118,11 +118,11 @@ def create_group(obj):
             logger.warning(
                 "Found in DB but had no old attributes. Using new ones as old...",
             )
-        logger.info(f"{obj} exists. Modifying instead...")
+        logger.info("Object exists. Modifying instead...", object=obj)
         return modify_group(obj)
     group = group_from_attributes(obj.attributes, get_group_name(obj))
     if not group.members:
-        logger.info(f"{obj} is empty. Deleting instead...")
+        logger.info("Object is empty. Deleting instead...", object=obj)
         return delete_group(obj)
     # ignore groups with name "users" (Bug #35821)
     if group.name == "users":
@@ -138,18 +138,22 @@ def create_group(obj):
 
 
 def modify_group(obj):
-    logger.info(f"Modifying {obj}")
+    logger.info("Modifying object", object=obj)
     if not is_ox_group(obj.attributes):
-        logger.info(f"{obj} is no OX group. Deleting instead...")
+        logger.info("Object is no OX group. Deleting instead...", object=obj)
         return delete_group(obj)
     group_id = get_group_id(obj)
     if not group_id:
-        logger.info(f"{obj} does not yet exist. Creating instead...")
+        logger.info(
+            "Object does not yet exist. Creating instead...",
+            object=obj,
+        )
         return create_group(obj)
     if obj.old_attributes:
         if not is_ox_group(obj.old_attributes):
             logger.info(
-                f"{obj} was no OX group before... that should not be the case. Modifying anyway...",
+                "Object was no OX group before... that should not be the case. Modifying anyway...",
+                object=obj,
             )
         group = group_from_attributes(
             obj.old_attributes,
@@ -158,24 +162,24 @@ def modify_group(obj):
         )
         update_group(group, obj.attributes, get_group_name(obj))
     else:
-        logger.info(f"{obj} has no old data. Resync?")
+        logger.info("Object has no old data. Resync?", object=obj)
         group = group_from_attributes(
             obj.attributes,
             get_group_name(obj),
             group_id,
         )
     if not group.members:
-        logger.info(f"{obj} is empty. Deleting instead...")
+        logger.info("Object is empty. Deleting instead...", object=obj)
         return delete_group(obj)
     group.modify()
     obj.set_attr("oxDbGroupname", group.name)
 
 
 def delete_group(obj):
-    logger.info(f"Deleting {obj}")
+    logger.info("Deleting object", object=obj)
     group_id = get_group_id(obj)
     if not group_id:
-        logger.info(f"{obj} does not exist. Doing nothing...")
+        logger.info("Object does not exist. Doing nothing...", object=obj)
         return
     group = group_from_attributes(
         obj.old_attributes,

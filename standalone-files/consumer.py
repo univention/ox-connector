@@ -4,12 +4,12 @@
 # included
 import asyncio
 import json
-import logging
 import traceback
 from importlib.metadata import version
 from requests.exceptions import ConnectionError, HTTPError, Timeout
 
 # 3rd party
+from lancelog import logger, setup_logging
 from univention.provisioning.consumer.api import (
     MessageHandler,
     ProvisioningConsumerClient,
@@ -21,6 +21,7 @@ from config import (
     OXConsumerSettings,
     get_ox_consumer_settings,
 )
+from logging_context import get_job_id, set_job_id
 from univention.ox.provisioning.models import TriggerObject
 from univention.ox.provisioning import helpers, run
 from univention.ox.provisioning.db import (
@@ -28,9 +29,6 @@ from univention.ox.provisioning.db import (
     DBSession,
     initialize_db,
 )
-
-LOG_FORMAT = "%(asctime)s %(levelname)-5s [%(module)s.%(funcName)s:%(lineno)d] %(message)s"
-logger = logging.getLogger(__name__)
 
 
 # Task processing order (same as listener_trigger)
@@ -61,7 +59,7 @@ class OXConsumer:
         provisioning_client: type[ProvisioningConsumerClient],
         message_handler: type[MessageHandler],
     ) -> None:
-        logger.info("Listening for changes in topics: %r", TOPICS)
+        logger.info("Listening for changes in topics", topics=TOPICS)
         async with provisioning_client() as client:
             await message_handler(client, [self.handle_message]).run()
 
@@ -77,21 +75,22 @@ class OXConsumer:
         It also clearly communicates the failure to the Administrator.
         """
         topic = message.topic
+        set_job_id(message.sequence_number)
         if topic not in TOPICS:
             logger.warning(
-                "Ignoring a message in the queue with the wrong topic: %r",
-                topic,
+                "Ignoring a message in the queue with the wrong topic",
+                topic=topic,
             )
             return
 
         body = message.body
         logger.info(
-            "Received message with topic: %s, sequence_number: %d, num_delivered: %d",
-            topic,
-            message.sequence_number,
-            message.num_delivered,
+            "Received message",
+            topic=topic,
+            sequence_number=message.sequence_number,
+            num_delivered=message.num_delivered,
         )
-        logger.debug("Message body: %r", body)
+        logger.debug("Message body", body=body)
 
         # We ignore body.old because it is read from the DB when processing the task
         # having attributes None in case of delete is required for task to behave correctly
@@ -111,7 +110,7 @@ class OXConsumer:
 
         # Use single session for enqueuing and processing
         with DBSession() as db:
-            logger.info("Enqueuing task for %s (%s)", obj_id, udm_module)
+            logger.info("Enqueuing task", obj=obj_id, module=udm_module)
             db.enqueue_task(
                 obj_id=obj_id,
                 udm_module=udm_module,
@@ -131,6 +130,7 @@ class OXConsumer:
                 )
                 # manual commit here, so new tasks are created
                 db.commit()
+            set_job_id(None)
 
     def _obj_from_row(self, row, db: DBSession):
         """Create a TriggerObject from a DB task row."""
@@ -170,30 +170,31 @@ class OXConsumer:
         for udm_module, empty_attributes in TASK_PROCESSING_ORDER:
             for task in db.get_tasks(udm_module, empty_attributes):
                 try:
-                    logger.info("Processing Task %s", task)
+                    logger.info("Processing Task", task=task)
                     obj = self._obj_from_row(task, db)
                     obj.load_old()
-                    logger.info("... %r", obj)
+                    logger.info("Load old object from db", obj=obj)
 
                     def _update_group_queue(entry_uuid):
                         """Update group queue by creating a task from old data."""
                         if db.get_task(entry_uuid):
                             logger.info(
-                                "Asked to add %s to the task queue. But it already exists. Doing nothing.",
-                                entry_uuid,
+                                "Asked to add entry to the task queue. But it already exists. Doing nothing.",
+                                entry=entry_uuid,
                             )
                             return
 
                         db.create_task_from_old(entry_uuid)
                         logger.info(
-                            "Added %s to the task queue",
-                            entry_uuid,
+                            "Added entry to the task queue",
+                            entry=entry_uuid,
                         )
 
                     def _get_old_object(distinguished_name, obj_id=None):
                         logger.info(
-                            "Loading old object for %s",
-                            obj_id or distinguished_name,
+                            "Loading old object for id/dn",
+                            id=obj_id,
+                            dn=distinguished_name,
                         )
                         old = db.get_old(distinguished_name, obj_id)
                         if old:
@@ -209,14 +210,14 @@ class OXConsumer:
 
                     run(obj)
                 except (HTTPError, ConnectionError, Timeout) as exc:
-                    logger.error("Error while handling %s", task)
+                    logger.error("Error while handling", task=task)
                     db.increment_error_count(task.id)
                     logger.exception(exc)
                     # Connection errors always stop processing
                     return
                 except Exception as exc:
                     db.increment_error_count(task.id)
-                    logger.error("Error while handling %s", task)
+                    logger.error("Error while handling", task=task)
                     logger.exception(exc)
                     if stop_on_error or task.udm_module == "oxmail/oxcontext":
                         # oxcontext failures always stop; others respect stop_on_error
@@ -248,16 +249,16 @@ class OXConsumer:
 
 def main() -> None:
     settings = get_ox_consumer_settings()
-    logging.basicConfig(format=LOG_FORMAT, level=settings.log_level)
+    setup_logging(level=settings.log_level, request_id_func=get_job_id)
     logger.info(
-        "Using 'nubus-provisioning-consumer' library version %r.",
-        version("nubus-provisioning-consumer"),
+        "Using 'nubus-provisioning-consumer' library",
+        version=version("nubus-provisioning-consumer"),
     )
 
     # Initialize the SQL database
     logger.info(
-        "Initializing SQL database at %r",
-        DB_URL,
+        "Initializing SQL database",
+        url=DB_URL,
     )
     try:
         initialize_db()

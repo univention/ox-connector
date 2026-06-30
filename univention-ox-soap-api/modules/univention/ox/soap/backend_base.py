@@ -28,7 +28,7 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import logging
+from lancelog import logger
 
 # Typing imports removed - not used in runtime code
 
@@ -80,7 +80,7 @@ class BackendMetaClass(type):
     use this as a metaclass to automatically register themselves.
     """
 
-    logger = logging.getLogger(__name__)
+    local_logger = logger
 
     def __new__(cls, clsname, bases, attrs):
         kls = super(BackendMetaClass, cls).__new__(
@@ -94,19 +94,18 @@ class BackendMetaClass(type):
             and getattr(kls, '_backend')
             and getattr(kls, '_object_type')
         ):
-            if not kls.logger:
-                kls.logger = cls.logger.getChild(clsname)
+            if not kls.local_logger:
+                kls.local_logger = cls.local_logger
             register_ox_integration_backend_class(
                 kls._backend,
                 kls._object_type,
                 kls,
             )
-            cls.logger.debug(
-                'Registered class {!r} of backend {!r} for object type {!r}.'.format(
-                    cls.__name__,
-                    kls._backend,
-                    kls._object_type,
-                ),
+            cls.local_logger.debug(
+                'Registered class for backend and object type.',
+                registered_class=cls.__name__,
+                backend=kls._backend,
+                object_type=kls._object_type,
             )
         return kls
 
@@ -129,9 +128,7 @@ class OxObject(object):
     context_id = None  # type: int
 
     def __init__(self, *args, **kwargs):  # type: (*str, **str) -> None
-        self.logger = logging.getLogger(
-            '{}.{}'.format(__name__, self.__class__.__name__),
-        )
+        self.logger = logger
         self.kwargs2attr(**kwargs)
         self.backend_init(*args, **kwargs)
 

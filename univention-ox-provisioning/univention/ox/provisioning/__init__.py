@@ -29,6 +29,7 @@
 
 import os
 import logging
+from lancelog import logger
 from copy import deepcopy
 from pathlib import Path
 
@@ -76,7 +77,7 @@ from univention.ox.provisioning.shared_account import (
 )
 from univention.ox.soap.config import NoContextAdminPassword
 
-logger = logging.getLogger("listener")
+
 logging.getLogger("zeep.transports").setLevel(
     os.getenv("OX_CONNECTOR_LOG_LEVEL", "INFO"),
 )
@@ -114,10 +115,11 @@ def run(obj):  # noqa: C901
             elif obj.was_deleted():
                 delete_resource(obj)
     except Skip as exc:
-        logger.warning(f"Skipping: {exc}")
+        logger.warning("Skipping", error=exc)
     except NoContextAdminPassword as exc:
         logger.warning(
-            f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
+            "Could not find admin password for context. Ignoring this task",
+            context=exc.args[0],
         )
     if obj.object_type == "groups/group":
         for new_obj in get_group_objs(obj):
@@ -139,10 +141,11 @@ def run(obj):  # noqa: C901
                         new_obj.attributes.get("oxDbGroupname"),
                     )
             except Skip as exc:
-                logger.warning(f"Skipping: {exc}")
+                logger.warning("Skipping", error=exc)
             except NoContextAdminPassword as exc:
                 logger.warning(
-                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
+                    "Could not find admin password for context. Ignoring this task",
+                    context=exc.args[0],
                 )
     if obj.object_type == "oxmail/functional_account":
         for new_obj in get_account_objs(obj):
@@ -154,10 +157,11 @@ def run(obj):  # noqa: C901
                 elif new_obj.was_deleted():
                     delete_functional_account(new_obj)
             except Skip as exc:
-                logger.warning(f"Skipping: {exc}")
+                logger.warning("Skipping", error=exc)
             except NoContextAdminPassword as exc:
                 logger.warning(
-                    f"Could not find admin password for context {exc.args[0]}. Ignoring this task",
+                    "Could not find admin password for context. Ignoring this task",
+                    context=exc.args[0],
                 )
     if obj.object_type == "oxmail/shared_account":
         if obj.was_added():
@@ -176,7 +180,7 @@ def run(obj):  # noqa: C901
         if obj.was_modified():
             modify_shared_account_permission(obj)
 
-    logger.debug("Processed: %s", obj.distinguished_name)
+    logger.debug("Processed object", object=obj.distinguished_name)
     if TEST_LOG_FILE.exists():
         with TEST_LOG_FILE.open("a") as fp:
             fp.write(f"{obj.distinguished_name}\n")
@@ -188,12 +192,18 @@ def get_group_objs(obj):  # noqa: C901
     if getattr(obj, "old_attributes", None):
         users.extend(obj.old_attributes.get("users"))
         if is_ox_group(obj.old_attributes):
-            logger.info(f"Group {obj.old_attributes['name']} was OX Group")
+            logger.info(
+                "Group was OX Group",
+                group=obj.old_attributes['name'],
+            )
             ignored_group = False
     if getattr(obj, "attributes", None):
         users.extend(obj.attributes.get("users"))
         if is_ox_group(obj.attributes):
-            logger.info(f"Group {obj.attributes['name']} will be OX Group")
+            logger.info(
+                "Group will be OX Group",
+                group=obj.attributes['name'],
+            )
             ignored_group = False
     if ignored_group:
         return
@@ -202,7 +212,8 @@ def get_group_objs(obj):  # noqa: C901
         old_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if old_obj is None:
             logger.info(
-                f"Group wants {user} as member. But the user is unknown. Ignoring...",
+                "Group wants user as member. But the user is unknown. Ignoring...",
+                user=user,
             )
             continue
         try:
@@ -224,7 +235,11 @@ def get_group_objs(obj):  # noqa: C901
             new_obj.attributes["users"] = sorted(
                 set(users) & set(new_obj.attributes.get("users")),
             )
-        logger.info(f"{obj} will be processed with context {context}")
+        logger.info(
+            "Processing object in context",
+            object=obj,
+            context=context,
+        )
         yield new_obj
 
 
@@ -239,7 +254,8 @@ def get_account_objs(obj):  # noqa: C901
         old_obj = univention.ox.provisioning.helpers.get_old_obj(user)
         if old_obj is None:
             logger.info(
-                f"Account wants {user} as user. But the user is unknown. Ignoring...",
+                "Account wants user as user. But the user is unknown. Ignoring...",
+                user=user,
             )
             continue
         try:
@@ -258,5 +274,9 @@ def get_account_objs(obj):  # noqa: C901
             new_obj.attributes["users"] = sorted(
                 set(users) & set(new_obj.attributes.get("users")),
             )
-        logger.info(f"{obj} will be processed with context {context}")
+        logger.info(
+            "Processing object in context",
+            object=obj,
+            context=context,
+        )
         yield new_obj

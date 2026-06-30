@@ -4,7 +4,7 @@
 import asyncio
 import os
 import sys
-import logging
+from lancelog import logger, setup_logging
 from univention.provisioning.consumer.api import (
     ProvisioningConsumerClient,
     ProvisioningConsumerClientSettings,
@@ -13,14 +13,6 @@ from univention.provisioning.models.subscription import (
     RealmTopic,
 )
 from univention.ox.provisioning.db import DBSession, initialize_db
-
-log_level_str = os.environ.get("LOG_LEVEL", "INFO")
-log_level = getattr(logging, log_level_str, logging.INFO)
-logging.basicConfig(
-    format='%(asctime)s %(levelname)s: %(message)s',
-    level=log_level,
-)
-logger = logging.getLogger('init-db')
 
 
 TOPICS = [
@@ -74,14 +66,14 @@ async def _recreate_subscription():
         admin_client_settings,
     ) as admin_client:
         logger.info(
-            "Deleting subscription '%s'",
-            subscriber_name,
+            "Deleting subscription",
+            name=subscriber_name,
         )
         await admin_client.cancel_subscription(subscriber_name)
 
         logger.info(
-            "Recreating subscription '%s' with request_prefill=True",
-            subscriber_name,
+            "Recreating subscription with request_prefill=True",
+            name=subscriber_name,
         )
         await admin_client.create_subscription(
             name=subscriber_name,
@@ -127,6 +119,8 @@ async def main_async():
 
 
 def main():
+    log_level = os.environ.get("LOG_LEVEL", "INFO")
+    setup_logging(level=log_level)
     success = asyncio.run(main_async())
     if success:
         logger.info('Initialization completed successfully')

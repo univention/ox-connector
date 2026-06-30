@@ -26,7 +26,7 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import logging
+from lancelog import logger
 from copy import deepcopy
 from urllib.parse import urlparse
 
@@ -51,8 +51,6 @@ from univention.ox.soap.config import (
 )
 
 SharedAccount = get_ox_integration_class("SOAP", "SharedAccount")
-
-logger = logging.getLogger("listener")
 
 
 class ConvertUserToSharedAccountException(Exception):
@@ -126,7 +124,7 @@ def _get_permission(obj_id):
 def create_permissions(shared_account, obj):
     from univention.ox.provisioning import get_group_objs
 
-    logger.info("Creating permissions for %s", obj)
+    logger.info("Creating permissions for shared account", shared_account=obj)
 
     univention.ox.provisioning.helpers.remove_complete_relation(
         obj.entry_uuid,
@@ -158,9 +156,9 @@ def create_permissions(shared_account, obj):
             permission = permissions[permission_uoid]
         if not permission:
             logger.warning(
-                "Permission reference %s found on %s, but it is unknown. Skipping...",
-                permission_uoid,
-                obj,
+                "Permission reference found on shared account, but it is unknown. Skipping...",
+                permission=permission_uoid,
+                shared_account=obj,
             )
             continue
 
@@ -170,9 +168,9 @@ def create_permissions(shared_account, obj):
         )
         if not user:
             logger.warning(
-                "User reference %s found on %s, but it is unknown. Skipping...",
-                user_uoid,
-                obj,
+                "User reference found on shared account, but it is unknown. Skipping...",
+                user=user_uoid,
+                shared_account=obj,
             )
             continue
         db_id = user.attributes.get("oxDbId")
@@ -180,8 +178,8 @@ def create_permissions(shared_account, obj):
 
         if not db_id:
             logger.warning(
-                "User %s has no oxDbId to use for Shared Account Permissions. Skipping...",
-                user_uoid,
+                "User has no oxDbId to use for Shared Account Permissions. Skipping...",
+                user=user_uoid,
             )
             continue
 
@@ -215,9 +213,9 @@ def create_permissions(shared_account, obj):
             permission = permissions[permission_uoid]
         if not permission:
             logger.warning(
-                "Permission reference %s found on %s, but it is unknown. Skipping...",
-                permission_uoid,
-                obj,
+                "Permission reference found on shared account, but it is unknown. Skipping...",
+                permission=permission_uoid,
+                shared_account=obj,
             )
             continue
 
@@ -227,9 +225,9 @@ def create_permissions(shared_account, obj):
         )
         if not group:
             logger.warning(
-                "Group reference %s found on %s, but it is unknown. Skipping...",
-                group_uoid,
-                obj,
+                "Group reference found on shared account, but it is unknown. Skipping...",
+                group=group_uoid,
+                shared_account=obj,
             )
             continue
 
@@ -237,8 +235,8 @@ def create_permissions(shared_account, obj):
             db_id = get_group_id(group_obj)
             if not db_id:
                 logger.warning(
-                    "Group %s has no oxDbId to use for Shared Account Permissions. Skipping...",
-                    group_uoid,
+                    "Group has no oxDbId to use for Shared Account Permissions. Skipping...",
+                    group=group_uoid,
                 )
                 continue
             context_id = group_obj.attributes["oxContext"]
@@ -276,7 +274,7 @@ def create_permissions(shared_account, obj):
 def create_shared_account(obj):
     if not is_enabled():
         return
-    logger.info(f"Creating {obj}")
+    logger.info("Creating object", object=obj)
     shared_account = SharedAccount()
     update_shared_account(shared_account, obj.attributes)
     if get_obj_by_name_from_ox(
@@ -285,7 +283,7 @@ def create_shared_account(obj):
         shared_account.name,
     ):
         obj.old_attributes = deepcopy(obj.attributes)
-        logger.info(f"{obj} exists. Modifying instead...")
+        logger.info("Object exists. Modifying instead...", object=obj)
         return modify_shared_account(obj)
     shared_account.create()
     obj.set_attr("oxDbId", shared_account.id)
@@ -296,7 +294,7 @@ def create_shared_account(obj):
 def modify_shared_account(obj):
     if not is_enabled():
         return
-    logger.info(f"Modifying {obj}")
+    logger.info("Modifying object", object=obj)
     shared_account = SharedAccount()
     old_shared_account = univention.ox.provisioning.helpers.get_old_obj(
         None,
@@ -334,7 +332,10 @@ def modify_shared_account(obj):
         if existing_obj:
             shared_account.id = existing_obj.id
         else:
-            logger.info(f"{obj} does not yet exist. Creating instead...")
+            logger.info(
+                "Object does not yet exist. Creating instead...",
+                object=obj,
+            )
             return create_shared_account(obj)
     shared_account.modify()
     obj.set_attr("oxDbId", shared_account.id)
@@ -345,13 +346,16 @@ def modify_shared_account(obj):
 def delete_shared_account(obj):
     if not is_enabled():
         return
-    logger.info(f"Deleting {obj}")
+    logger.info("Deleting object", object=obj)
     shared_account = SharedAccount()
     shared_account.id = obj.old_attributes.get("oxDbId")
     update_shared_account(shared_account, obj.old_attributes)
     if shared_account.id:
         shared_account.remove()
-        logger.info("Shared account %s was deleted", shared_account.id)
+        logger.info(
+            "Shared account was deleted",
+            shared_account=shared_account.id,
+        )
 
 
 def modify_shared_account_permission(obj):

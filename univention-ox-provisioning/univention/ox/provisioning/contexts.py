@@ -27,14 +27,13 @@
 # <http://www.gnu.org/licenses/>.
 
 
-import logging
+from lancelog import logger
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.provisioning.helpers import get_obj_by_name_from_ox
 
 Context = get_ox_integration_class("SOAP", "Context")
-logger = logging.getLogger("listener")
 
 
 def context_from_attributes(attributes):
@@ -59,34 +58,34 @@ def context_exists(obj):
 
 
 def create_context(obj):
-    logger.info(f"Creating {obj}")
+    logger.info("Creating object", object=obj)
     if context_exists(obj):
         if obj.old_attributes is None:
             obj.old_attributes = deepcopy(obj.attributes)
             logger.warning(
                 "Found in DB but had no old attributes. Using new ones as old...",
             )
-        logger.info(f"{obj} exists. Modifying instead...")
+        logger.info("Object exists. Modifying instead...", object=obj)
         return modify_context(obj)
     context = context_from_attributes(obj.attributes)
     context.create()
 
 
 def modify_context(obj):
-    logger.info(f"Modifying {obj}")
+    logger.info("Modifying", object=obj)
     if obj.old_attributes:
         context = context_from_attributes(obj.old_attributes)
         update_context(context, obj.attributes)
     else:
-        logger.info(f"{obj} has no old data. Resync?")
+        logger.info("Object has no old data. Resync?", object=obj)
         context = context_from_attributes(obj.attributes)
     context.modify()
 
 
 def delete_context(obj):
-    logger.info(f"Deleting {obj}")
+    logger.info("Deleting", object=obj)
     if not context_exists(obj):
-        logger.info(f"{obj} does not exist. Doing nothing...")
+        logger.info("Object does not exist. Doing nothing...", object=obj)
         return
     context = context_from_attributes(obj.old_attributes)
     context.remove()

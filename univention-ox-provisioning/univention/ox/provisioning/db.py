@@ -29,7 +29,6 @@
 
 
 import os
-import logging
 import json
 from pathlib import Path
 from itertools import chain
@@ -50,6 +49,7 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from sqlalchemy import inspect as sa_inspect
 
+from lancelog import logger
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.soap.config import NoContextAdminPassword
 from univention.ox.provisioning.helpers import (
@@ -78,7 +78,6 @@ engine = create_engine(DB_URL)
 
 User = get_ox_integration_class("SOAP", "User")
 CACHE = {}
-logger = logging.getLogger("listener")
 
 
 class Relation(Base):
@@ -252,7 +251,7 @@ class DBSession:
             dst_udm_module=dst_udm_module,
             relation_name=relation_name,
         )
-        logger.info("Adding relation %s", relation)
+        logger.info("Adding relation", relation=relation)
         self.session.add(relation)
 
     def remove_relation(self, src_obj_id, relation_name):
@@ -262,7 +261,7 @@ class DBSession:
             .filter_by(src_obj_id=src_obj_id, relation_name=relation_name)
             .all()
         ):
-            logger.info("Deleting relation %s", relation)
+            logger.info("Deleting relation", relation=relation)
             self.session.delete(relation)
 
     def get_relation_src(self, dst_obj_id, relation_name):
@@ -272,7 +271,7 @@ class DBSession:
             .filter_by(dst_obj_id=dst_obj_id, relation_name=relation_name)
             .all()
         ):
-            logger.info("Found relation %s", relation)
+            logger.info("Found relation", relation=relation)
             yield relation.src_obj_id
 
     # ---- Task operations ----
@@ -296,7 +295,7 @@ class DBSession:
         elif filter_empty_attributes is False:
             tasks = tasks.filter(Task.attrs.is_not(None))
         for task in tasks.order_by(Task.created_at):
-            logger.debug("Yielding task %s", task)
+            logger.debug("Yielding task", task=task)
             yield task
 
     def enqueue_task(self, obj_id, udm_module, dn, attrs):
@@ -312,16 +311,19 @@ class DBSession:
             attrs=json.dumps(attrs) if attrs else None,
         )
         self.session.add(task)
-        logger.info("Task %s created", task)
+        logger.info("Task created", task=task)
 
     def remove_task(self, task_id):
         """Remove an item from the tasks table."""
         task = self.session.query(Task).get(task_id)
         if task:
-            logger.info("Removing %s", task)
+            logger.info("Removing task", task=task)
             self.session.delete(task)
         else:
-            logger.info("Removing task impossible, %s does not exist", task_id)
+            logger.info(
+                "Removing task impossible, task does not exist",
+                task_id=task_id,
+            )
 
     def move_task_to_morgue(self, task_id, error_msg):
         """Move the task to the morgue table."""
@@ -335,8 +337,8 @@ class DBSession:
         )
         self.session.add(dead)
         self.session.delete(task)
-        logger.info("Created morgue entry %s", dead)
-        logger.info("Deleted task %s", task)
+        logger.info("Created morgue entry", entry=dead)
+        logger.info("Deleted task", task=task)
 
     def move_task_to_old(self, task_id, attributes=None):
         """Move the task to the old table."""
@@ -352,13 +354,13 @@ class DBSession:
 
         if old:
             if attributes:
-                logger.info("Updating entry in old db %s", old)
+                logger.info("Updating entry in old db", entry=old)
                 old.obj_id = task.obj_id
                 old.udm_module = task.udm_module
                 old.dn = task.dn
                 old.attrs = attributes
             else:
-                logger.info("Removing entry in old db %s", old)
+                logger.info("Removing entry in old db", entry=old)
                 self.session.delete(old)
         elif attributes:
             old = Old(
@@ -368,19 +370,19 @@ class DBSession:
                 attrs=attributes,
             )
             self.session.add(old)
-            logger.info("Created entry in old db %s", old)
+            logger.info("Created entry in old db", entry=old)
         else:
             logger.info(
-                "No old entry found while deleting task %s. Doing nothing",
-                task,
+                "No old entry found while deleting task. Doing nothing",
+                task=task,
             )
 
         for error in self.session.query(Dead).filter_by(obj_id=task.obj_id):
-            logger.info("Removing %s", error)
+            logger.info("Removing entry", entry=error)
             self.session.delete(error)
 
         self.session.delete(task)
-        logger.info("Deleted task %s", task)
+        logger.info("Deleted task", task=task)
 
     # ---- Old object operations ----
 
@@ -395,10 +397,10 @@ class DBSession:
         else:
             old = self.session.query(Old).filter_by(dn=dn).first()
         if old:
-            logger.info("Found old object %s", old)
+            logger.info("Found old object", object=old)
             return deepcopy(old)
         else:
-            logger.info("No old data found for %s", obj_id or dn)
+            logger.info("No old data found", id=obj_id or dn)
 
     def get_all_old_objects(self, obj_id):
         """Yield all old objects matching obj_id."""
@@ -424,7 +426,7 @@ class DBSession:
         attrs_json = json.dumps(attrs)
         old = self.session.query(Old).filter_by(obj_id=obj_id).first()
         if old:
-            logger.info("Updating old entry %s", old)
+            logger.info("Updating old entry", entry=old)
             old.obj_id = obj_id
             old.udm_module = udm_module
             old.dn = dn
@@ -437,7 +439,7 @@ class DBSession:
                 attrs=attrs_json,
             )
             self.session.add(old)
-            logger.info("Created entry in old db %s", old)
+            logger.info("Created entry in old db", entry=old)
 
     def delete_old(self, dn=None, obj_id=None):
         """Remove an item from the old table. Used by the standalone consumer."""
@@ -449,12 +451,12 @@ class DBSession:
         else:
             old = self.session.query(Old).filter_by(dn=dn).first()
         if old:
-            logger.info("Removing old entry %s", old)
+            logger.info("Removing old entry", entry=old)
             self.session.delete(old)
         else:
             logger.info(
-                "Old entry not found for %s, nothing to remove",
-                obj_id or dn,
+                "Old entry not found, nothing to remove",
+                id=obj_id or dn,
             )
 
     # ---- Morgue (Dead) operations ----
@@ -482,14 +484,14 @@ class DBSession:
                 status="retry",
             )
             self.session.add(task)
-            logger.info("Retrying %s", task)
+            logger.info("Retrying task", task=task)
         open(LISTENER_DIR / "restart.json", "w")
 
     def remove_from_morgue(self, obj_id):
         """Remove items from the morgue table."""
         for error in self.get_errors(obj_id=obj_id):
             self.session.delete(error)
-            logger.info("Removed error %s", error)
+            logger.info("Removed error", error=error)
 
     # ---- Display helpers (used by CLI) ----
 
@@ -634,14 +636,14 @@ class DBSession:
     def find_db_id(self, ox_context, username, build_cache_size):
         """Find the database ID for a user in a given context."""
         if build_cache_size and ox_context not in CACHE:
-            logger.info(f"Building cache for {ox_context}")
+            logger.info("Building cache for context", context=ox_context)
             users = {}
             try:
                 empty_objs = User.service(ox_context).list_all()
             except NoContextAdminPassword:
                 logger.warning("... no password configured for context!")
             else:
-                logger.info(f"Retrieved {len(empty_objs)} ids")
+                logger.info("Retrieved ids", count=len(empty_objs))
 
                 def chunks(objs):
                     return (
@@ -653,7 +655,10 @@ class DBSession:
                     soap_objs = User.service(ox_context).get_multiple_data(
                         chunk,
                     )
-                    logger.info(f"Loaded {len(soap_objs) + len(users)}")
+                    logger.info(
+                        "Loaded objects",
+                        count=len(soap_objs) + len(users),
+                    )
                     for soap_obj in soap_objs:
                         users[soap_obj.name] = soap_obj.id
             logger.info("... built cache")
@@ -666,7 +671,7 @@ class DBSession:
             logger.warning("... no password configured for context!")
             return None
         if not user:
-            logger.warning(f"{username}... not found!")
+            logger.warning("User not found", username=username)
             return None
         return user.id
 
@@ -690,17 +695,17 @@ class DBSession:
             )
             if not ox_db_id:
                 logger.info(
-                    "Removing oxDbId of %s (%s): Not found in OX DB",
-                    old,
-                    cache_db_id,
+                    "Removing oxDbId: Not found in OX DB",
+                    old=old,
+                    cache_db_id=cache_db_id,
                 )
                 del attrs["oxDbId"]
             elif ox_db_id != cache_db_id:
                 logger.info(
-                    "Updating oxDbId of %s: %s -> %s",
-                    old,
-                    cache_db_id,
-                    ox_db_id,
+                    "Updating oxDbId",
+                    old=old,
+                    cache_db_id=cache_db_id,
+                    ox_db_id=ox_db_id,
                 )
                 attrs["oxDbId"] = ox_db_id
 
@@ -728,18 +733,18 @@ class DBSession:
             )
             with open(filename, "w") as fd:
                 json.dump(attrs, fd, sort_keys=True, indent=4)
-            logger.info("Resynced %s", item)
+            logger.info("Resynced item", item=item)
             return
-        logger.warn(
-            "No Error for object ID %s found in database, resync not possible",
-            obj_id,
+        logger.warning(
+            "No error for object ID found in database, resync not possible",
+            obj_id=obj_id,
         )
 
     def create_task_from_old(self, obj_id):
         """Create a retry task from an old object."""
         old = self.session.query(Old).filter_by(obj_id=obj_id).first()
         if old:
-            logger.info("Found old object %s", old)
+            logger.info("Found old object", old=old)
             task = Task(
                 obj_id=old.obj_id,
                 udm_module=old.udm_module,
@@ -748,12 +753,12 @@ class DBSession:
                 status="retry",
             )
             self.session.add(task)
-            logger.info("Added task %s", task)
+            logger.info("Added task", task=task)
             open(LISTENER_DIR / "restart.json", "w")
         else:
             logger.info(
-                "No old object found for %s; not creating any task",
-                obj_id,
+                "No old object found; not creating any task",
+                obj_id=obj_id,
             )
 
     def increment_error_count(self, task_id):
@@ -761,9 +766,9 @@ class DBSession:
         task = self.session.query(Task).get(task_id)
         task.num_errors += 1
         logger.info(
-            "Task %s now has an error count of %d",
-            task,
-            task.num_errors,
+            "Task error count incremented",
+            task=task,
+            num_errors=task.num_errors,
         )
         return task.num_errors
 
@@ -776,7 +781,7 @@ class DBSession:
         )
         result = [r.src_obj_id for r in relations]
         for relation in relations:
-            logger.info("Found relation %s", relation)
+            logger.info("Found relation", relation=relation)
         yield from result
 
     def remove_old(self, dn: str):
@@ -810,8 +815,8 @@ def initialize_db(
             )
 
         logger.info(
-            "All expected tables present: %s",
-            existing_tables & expected_tables,
+            "All expected tables present",
+            tables=existing_tables & expected_tables,
         )
         return True
     except Exception:

@@ -108,7 +108,7 @@ for more information.\
                 # optional arguments for backend_init()
                 pass
             else:
-                self.logger.warn('Unknown argument {!r}={!r}.'.format(k, v))
+                self.logger.warn('Unknown argument.', key=k, value=v)
 
     def _base_obj2soap_obj(self):  # type: () -> Any
         """
@@ -225,12 +225,11 @@ for more information.\
         new_obj = self.service(self.context_id).create(obj)
         self.id = new_obj.id
         self.logger.info(
-            'Created {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(),
-                new_obj.name,
-                self.context_id,
-                self.id,
-            ),
+            'Created object in context.',
+            object_type=self._object_type.lower(),
+            name=new_obj.name,
+            context=self.context_id,
+            object_id=self.id,
         )
         return new_obj.id
 
@@ -250,12 +249,11 @@ for more information.\
         obj = self.service(self.context_id).Type(**obj_kwargs)
         self.service(self.context_id).change(obj)
         self.logger.info(
-            'Modified {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(),
-                obj.name,
-                self.context_id,
-                self.id,
-            ),
+            'Modified object in context.',
+            object_type=self._object_type.lower(),
+            name=obj.name,
+            context=self.context_id,
+            object_id=self.id,
         )
 
     def remove(self):  # type: () -> None
@@ -270,12 +268,11 @@ for more information.\
         obj = self.service(self.context_id).Type(id=self.id, name=self.name)
         self.service(self.context_id).delete(obj)
         self.logger.info(
-            'Deleted {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(),
-                obj.name,
-                self.context_id,
-                self.id,
-            ),
+            'Deleted object in context.',
+            object_type=self._object_type.lower(),
+            name=obj.name,
+            context=self.context_id,
+            object_id=self.id,
         )
 
     @classmethod
@@ -345,18 +342,23 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
             email1=context_creation_kwargs['email'],
             timezone=context_creation_kwargs['timezone'],
         )
-        self.logger.debug('Creating context: {!r}'.format(context))
-        self.logger.debug('Creating context admin: {!r}'.format(admin_user))
+        self.logger.debug('Creating context.', context=repr(context))
+        self.logger.debug(
+            'Creating context admin.',
+            admin_user=repr(admin_user),
+        )
         obj = self.default_service.create(context, admin_user)
         self.id = obj.id
-        self.logger.info('Adding secret file for context {}'.format(self.id))
+        self.logger.info('Adding secret file for context.', context=self.id)
         save_context_admin_password(
             context.id,
             admin_user.name,
             admin_user.password,
         )
         self.logger.info(
-            'Created context {!r} ({!r}).'.format(obj.name, self.id),
+            'Created context.',
+            name=obj.name,
+            context=self.id,
         )
         return obj.id
 
@@ -367,7 +369,7 @@ class SoapContext(with_metaclass(BackendMetaClass, SoapBackend, Context)):
         :return: None
         """
         super(SoapContext, self).remove()
-        self.logger.info('Removing secret file for context {}'.format(self.id))
+        self.logger.info('Removing secret file for context.', context=self.id)
         remove_context_admin_password(self.id)
 
     @classmethod
@@ -669,12 +671,11 @@ class SoapSharedAccount(
             {"id": self.context_id},
         )
         self.logger.info(
-            'Revoked Shared Account Permission from {} in context {}, removing users {!r} and groups {!r}.'.format(
-                self.name,
-                context_id,
-                users,
-                groups,
-            ),
+            'Revoked Shared Account Permission.',
+            name=self.name,
+            context=context_id,
+            users=users,
+            groups=groups,
         )
 
     def create_shared_account_permissions(
@@ -699,15 +700,14 @@ class SoapSharedAccount(
         )
 
         self.logger.info(
-            'Added Shared Account Permission for {} in context {}, granting users {!r} and groups {!r} mail={}, calendar={}, cap={!r}.'.format(
-                self.name,
-                context_id,
-                users,
-                groups,
-                mail_config,
-                calendar_config,
-                capabilities,
-            ),
+            'Added Shared Account Permission.',
+            name=self.name,
+            context=context_id,
+            users=users,
+            groups=groups,
+            mail_config=mail_config,
+            calendar_config=calendar_config,
+            capabilities=capabilities,
         )
 
 
@@ -750,12 +750,11 @@ class SoapSecondaryAccount(
         )
         self.service(self.context_id).create(obj, self.users, self.groups)
         self.logger.info(
-            'Created {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(),
-                obj.name,
-                self.context_id,
-                self.email,
-            ),
+            'Created object in context.',
+            object_type=self._object_type.lower(),
+            name=obj.name,
+            context=self.context_id,
+            email=self.email,
         )
 
     def modify(self):
@@ -770,12 +769,11 @@ class SoapSecondaryAccount(
         obj = self.service(self.context_id).Type(primaryAddress=self.email)
         self.service(self.context_id).delete(obj.primaryAddress)
         self.logger.info(
-            'Deleted {} {!r} in context {} (id={!r}).'.format(
-                self._object_type.lower(),
-                obj.name,
-                self.context_id,
-                self.email,
-            ),
+            'Deleted object in context.',
+            object_type=self._object_type.lower(),
+            name=obj.name,
+            context=self.context_id,
+            email=self.email,
         )
 
 

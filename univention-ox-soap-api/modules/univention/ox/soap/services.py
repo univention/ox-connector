@@ -54,7 +54,7 @@
 
 from __future__ import absolute_import
 from __future__ import annotations
-import logging
+from lancelog import logger
 
 try:
     from typing import Any, Optional, List, TYPE_CHECKING, Union
@@ -99,7 +99,6 @@ WS_URLS = {
     'UtilService': '{}/OXUtilService?wsdl'.format(WS_BASE_URL),
 }
 __ox_service_registry = dict()
-logger = logging.getLogger(__name__)
 
 
 def register_ox_service_class(service_type, cls):
@@ -142,10 +141,9 @@ class OxServiceMetaClass(type):
         if issubclass(kls, OxSoapService) and getattr(kls, '_type_name'):
             register_ox_service_class(kls._type_name, kls)
             logger.debug(
-                'Registered class {!r} for service type {!r}.'.format(
-                    cls.__name__,
-                    kls._type_name,
-                ),
+                'Registered class for service type.',
+                registered_class=cls.__name__,
+                service=kls._type_name,
             )
         return kls
 

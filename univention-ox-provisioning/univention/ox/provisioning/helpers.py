@@ -26,7 +26,6 @@
 # /usr/share/common-licenses/AGPL-3; if not, see
 # <http://www.gnu.org/licenses/>.
 
-import logging
 import ldap.dn
 from typing import Dict, Any
 
@@ -34,8 +33,6 @@ from typing import Dict, Any
 from zeep.exceptions import Fault
 
 _OX_VERSION = False
-
-logger = logging.getLogger("listener")
 
 
 class Skip(Exception):

@@ -17,7 +17,8 @@ dependencies = [
   "univention-ox-soap-api",
   "nubus-provisioning-consumer",
   "nubus-provisioning-common",
-  "udm-rest-api-client[sync]"
+  "udm-rest-api-client[sync]",
+  "lancelog>=0.3.4",
 ]
 
 [dependency-groups]
@@ -40,11 +41,18 @@ univention-ox-provisioning = { path = "./univention-ox-provisioning", editable =
 univention-ox-soap-api = { path = "./univention-ox-soap-api", editable = true }
 nubus-provisioning-consumer = { index = "nubus" }
 nubus-provisioning-common = { index = "nubus" }
+lancelog = { index = "gitlab" }
 
 [[tool.uv.index]]
 name = "nubus"
-url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple"
+url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple"  # provisioning
 explicit = true
+
+[[tool.uv.index]]
+name = "gitlab"
+url = "https://git.knut.univention.de/api/v4/projects/1449/packages/pypi/simple"  # lancelog
+explicit = true
+default = false
 
 [tool.pytest.ini_options]
 markers = [

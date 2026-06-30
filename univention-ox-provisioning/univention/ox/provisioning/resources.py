@@ -27,7 +27,7 @@
 # <http://www.gnu.org/licenses/>.
 
 
-import logging
+from lancelog import logger
 from copy import deepcopy
 
 from univention.ox.soap.backend_base import get_ox_integration_class
@@ -37,7 +37,6 @@ from univention.ox.provisioning.helpers import (
 )
 
 Resource = get_ox_integration_class("SOAP", "Resource")
-logger = logging.getLogger("listener")
 
 
 def resource_from_attributes(attributes, resource_id=None):
@@ -63,34 +62,51 @@ def get_resource_id(attributes):
 
 
 def create_resource(obj):
-    logger.info(f"Creating {obj}")
+    logger.info("Creating object", object=obj)
     if get_resource_id(obj.attributes):
         if obj.old_attributes is None:
             obj.old_attributes = deepcopy(obj.attributes)
             logger.warning(
                 "Found in DB but had no old attributes. Using new ones as old...",
             )
-        logger.info(f"{obj} exists. Modifying instead...")
+        logger.info("Object exists. Modifying instead...", object=obj)
         return modify_resource(obj)
     resource = resource_from_attributes(obj.attributes)
     resource.create()
 
 
 def modify_resource(obj):
-    logger.info(f"Modifying {obj}")
+    logger.info("Modifying object", object=obj)
     resource_id = get_resource_id(obj.old_attributes)
     if not resource_id:
-        logger.info(f"{obj} does not yet exist. Creating instead...")
+        logger.info(
+            "Object does not yet exist. Creating instead...",
+            object=obj,
+        )
         return create_resource(obj)
     if obj.old_attributes:
         old_context = get_context_id(obj.old_attributes)
         new_context = get_context_id(obj.attributes)
         if old_context != new_context:
-            logging.info(f"Changing context: {old_context} -> {new_context}")
+            logger.info(
+                "Changing context",
+                old_context=old_context,
+                new_context=new_context,
+            )
             already_existing_resource_id = get_resource_id(obj.attributes)
             if already_existing_resource_id:
                 logger.warning(
-                    f"{obj} was found in context {old_context} with ID {resource_id} and in {new_context} with {already_existing_resource_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
+                    "Object was found in two contexts",
+                    object=obj,
+                    id=resource_id,
+                    old_context=old_context,
+                    new_context=new_context,
+                    id_new_context=already_existing_resource_id,
+                )
+                logger.warning(
+                    "This should not happen. Will delete in old context and modify in new context",
+                    old_context=old_context,
+                    new_context=new_context,
                 )
                 delete_resource(deepcopy(obj))
             else:
@@ -100,16 +116,16 @@ def modify_resource(obj):
         resource.context_id = new_context
         update_resource(resource, obj.attributes)
     else:
-        logger.info(f"{obj} has no old data. Resync?")
+        logger.info("Object has no old data. Resync?", object=obj)
         resource = resource_from_attributes(obj.attributes, resource_id)
     resource.modify()
 
 
 def delete_resource(obj):
-    logger.info(f"Deleting {obj}")
+    logger.info("Deleting object", object=obj)
     resource_id = get_resource_id(obj.old_attributes)
     if not resource_id:
-        logger.info(f"{obj} does not exist. Doing nothing...")
+        logger.info("Object does not exist. Doing nothing...", object=obj)
         return
     resource = resource_from_attributes(obj.old_attributes, resource_id)
     resource.remove()

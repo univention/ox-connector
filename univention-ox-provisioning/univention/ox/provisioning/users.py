@@ -29,7 +29,7 @@
 
 import json
 import datetime
-import logging
+from lancelog import logger
 from copy import deepcopy
 from urllib.parse import urlparse
 import base64
@@ -72,7 +72,6 @@ User = get_ox_integration_class("SOAP", "User")
 UserCopy = get_ox_integration_class("SOAP", "UserCopy")
 Group = get_ox_integration_class("SOAP", "Group")
 DeputyPermission = get_ox_integration_class("SOAP", "DeputyPermission")
-logger = logging.getLogger("listener")
 
 
 def str2isodate(text):  # type: (str) -> str
@@ -151,7 +150,8 @@ def set_ox_property(user, ox_property, mapping, attributes):
                 content_type = "image/jpeg"
             else:
                 logger.warn(
-                    f"We only support jpeg images. Found {content_type!r}. Ignoring image...",
+                    "We only support jpeg images. Ignoring image...",
+                    type=content_type,
                 )
                 content_type = None
             if content_type:
@@ -188,7 +188,7 @@ def set_ox_property(user, ox_property, mapping, attributes):
         return x
 
     if not key:
-        logger.info(f"ox property {ox_property} unset")
+        logger.info("ox property unset", ox_property=ox_property)
         return
 
     val = attributes.get(key)
@@ -198,12 +198,14 @@ def set_ox_property(user, ox_property, mapping, attributes):
             val = attributes.get(attr)
             if val:
                 logger.info(
-                    f"Attribute {ox_property}. Using alternative ldap mapping {key} ...",
+                    "Using alternative ldap mapping key ...",
+                    attribute=ox_property,
+                    key=key,
                 )
                 break
 
     if not val and not mapping.get("nillable"):
-        logger.warn(f"Attribute {ox_property} is None.")
+        logger.warn("Attribute is None.", attribute=ox_property)
 
     val = position_handle(val)
     val = multivalue_handle(val)
@@ -293,7 +295,8 @@ def set_user_rights(user, obj):
         access_profile = get_access_profile(user_access)
         if access_profile is None:
             logger.warning(
-                f"Cannot find access profile {user_access!r}. Leaving access rights untouched!",
+                "Cannot find access profile for user. Leaving access rights untouched!",
+                user=user_access,
             )
             return
     else:
@@ -301,7 +304,11 @@ def set_user_rights(user, obj):
     for access_right in access_profile:
         if access_right in access_rights:
             access_rights[access_right] = True
-    logger.info(f"Changing user {user.id} to profile {user_access}")
+    logger.info(
+        "Changing user to profile",
+        user=user.id,
+        user_access=user_access,
+    )
 
     user.service(user.context_id).change_by_module_access(
         {"id": user.id},
@@ -320,7 +327,11 @@ def get_user_id(attributes, lookup_ox=True):
         return attributes["oxDbId"]
     if not lookup_ox:
         return None
-    logger.info(f"Searching for {username} in context {context_id}")
+    logger.info(
+        "Searching for username in context",
+        username=username,
+        context=context_id,
+    )
     if not User.service(context_id).exists(
         User.service(context_id).Type(id=None, name=username),
     ):
@@ -332,9 +343,9 @@ def get_user_id(attributes, lookup_ox=True):
 
 
 def create_user(obj, user_copy_service=None, user_id=None):
-    logger.info(f"Creating {obj}")
+    logger.info("Creating object", object=obj)
     if not is_ox_user(obj.attributes):
-        logger.info(f"{obj} is no OX user. Deleting instead...")
+        logger.info("Object is no OX user. Deleting instead...", object=obj)
         return delete_user(obj)
     try:
         if get_user_id(obj.attributes):
@@ -343,13 +354,14 @@ def create_user(obj, user_copy_service=None, user_id=None):
                 logger.warning(
                     "Found in DB but had no old attributes. Using new ones as old...",
                 )
-            logger.info(f"{obj} exists. Modifying instead...")
+            logger.info("Object exists. Modifying instead...", object=obj)
             return modify_user(obj)
     except SkipContextAdmin:
         raise
     except Skip:
         logger.warning(
-            f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.",
+            "Object has no oxContext attribute. No modification. Consider adding an oxContext to it.",
+            object=obj,
         )
         return
     user = user_from_attributes(
@@ -362,7 +374,9 @@ def create_user(obj, user_copy_service=None, user_id=None):
         user.create()
     else:
         logger.info(
-            f"Creating {obj} in context {user.context_id} using UserCopy",
+            "Creating object in context using UserCopy",
+            object=obj,
+            context=user.context_id,
         )
         user_copy_service.copy_user(
             user={"id": user_id},
@@ -387,8 +401,8 @@ def create_user(obj, user_copy_service=None, user_id=None):
                 )
             except zeep.exceptions.Fault as exc:
                 logger.error(
-                    "Failed to query user from OX after UserCopy before updating the copy: %s",
-                    exc,
+                    "Failed to query user from OX after UserCopy before updating the copy",
+                    error=exc,
                 )
                 if i == max_attempts:
                     raise
@@ -412,11 +426,12 @@ def create_user(obj, user_copy_service=None, user_id=None):
         group_obj = univention.ox.provisioning.helpers.get_old_obj(group)
         if group_obj is None or group_obj.attributes is None:
             logger.warning(
-                f"Dont know anything about {group}. Does it exist? Is it to be deleted? Skipping...",
+                "Dont know anything about group. Does it exist? Is it to be deleted? Skipping...",
+                group=group,
             )
             continue
         if not is_ox_group(group_obj.attributes):
-            logger.warning(f"{group} is no OX group. Skipping...")
+            logger.warning("Group is no OX group. Skipping...", group=group)
             continue
         univention.ox.provisioning.helpers.update_group_queue(
             group_obj.entry_uuid,
@@ -430,9 +445,9 @@ def create_user(obj, user_copy_service=None, user_id=None):
 
 
 def modify_user(obj):
-    logger.info(f"Modifying {obj}")
+    logger.info("Modifying object", object=obj)
     if not is_ox_user(obj.attributes):
-        logger.info(f"{obj} is no OX user. Deleting instead...")
+        logger.info("Object is no OX user. Deleting instead...", object=obj)
         return delete_user(obj)
     try:
         user_id = get_user_id(obj.old_attributes)
@@ -440,23 +455,28 @@ def modify_user(obj):
         raise
     except Skip:
         logger.warning(
-            "Old %s has no context ID. Using new context ID instead...",
-            obj,
+            "Old object has no context ID. Using new context ID instead...",
+            object=obj,
         )
         try:
             user_id = get_user_id(obj.attributes)
         except Skip:
             logger.warning(
-                f"{obj} has no oxContext attribute. No modification. Consider adding an oxContext to it.",
+                "Object has no oxContext attribute. No modification. Consider adding an oxContext to it.",
+                object=obj,
             )
             return
     if not user_id:
-        logger.info(f"{obj} does not yet exist. Creating instead...")
+        logger.info(
+            "Object does not yet exist. Creating instead...",
+            object=obj,
+        )
         return create_user(obj)
     if obj.old_attributes:
         if not is_ox_user(obj.old_attributes):
             logger.warning(
-                f"{obj} was no OX user before... that should not be the case. Modifying anyway...",
+                "Object was no OX user before... that should not be the case. Modifying anyway...",
+                object=obj,
             )
         try:
             old_context = get_context_id(obj.old_attributes)
@@ -467,15 +487,22 @@ def modify_user(obj):
             new_context = get_context_id(obj.attributes)
         except Skip:
             logger.warning(
-                f"{obj} has no oxContext. that should not be the case. Using old oxContext...",
+                "Object has no oxContext. that should not be the case. Using old oxContext...",
+                object=obj,
             )
             obj.set_attr("oxContext", old_context)
             new_context = old_context
         if old_context != new_context:
-            logging.info(f"Changing context: {old_context} -> {new_context}")
+            logger.info(
+                "Changing context",
+                old_context=old_context,
+                new_context=new_context,
+            )
             # remove all deputy permissions other users have for this user in old context
             logger.info(
-                f"Removing deputy permissions for user {obj} in old context {old_context}.",
+                "Removing deputy permissions for user in old context.",
+                user=obj,
+                old_context=old_context,
             )
             delete_deputy_permissions(obj, old_context)
             # deputy_service = DeputyPermission.service(old_context)
@@ -483,14 +510,24 @@ def modify_user(obj):
             already_existing_user_id = get_user_id(obj.attributes)
             if already_existing_user_id:
                 logger.warning(
-                    f"{obj} was found in context {old_context} with ID {user_id} and in {new_context} with {already_existing_user_id}. This should not happen. Will delete in {old_context} and modify in {new_context}"  # noqa
+                    "Object was found in two contexts",
+                    object=obj,
+                    id=user_id,
+                    old_context=old_context,
+                    new_context=new_context,
+                    id_new_context=already_existing_user_id,
+                )
+                logger.warning(
+                    "This should not happen. Will delete in old context and modify in new context",
+                    old_context=old_context,
+                    new_context=new_context,
                 )
                 try:
                     delete_user(deepcopy(obj))
                 except zeep.exceptions.Fault as exc:
                     logger.warning(
-                        "Cannot remove user in the old context: %s",
-                        exc,
+                        "Cannot remove user in the old context",
+                        error=exc,
                     )
                     raise
             else:
@@ -502,8 +539,8 @@ def modify_user(obj):
                     )
                 except zeep.exceptions.Fault as exc:
                     logger.warning(
-                        "Exception after copying user into new context: %s",
-                        exc,
+                        "Exception after copying user into new context",
+                        error=exc,
                     )
                     raise
                 return delete_user(deepcopy(obj))
@@ -521,7 +558,7 @@ def modify_user(obj):
             get_user_username(obj),
         )
     else:
-        logger.info(f"{obj} has no old data. Resync?")
+        logger.info("Object has no old data. Resync?", object=obj)
         user = user_from_attributes(
             obj.attributes,
             None,
@@ -531,10 +568,11 @@ def modify_user(obj):
     try:
         user.modify()
     except Exception as exc:
-        logger.debug("Modifying user failed: %s", exc)
+        logger.debug("Modifying user failed", error=exc)
         if str(exc).startswith("No such "):
             logger.info(
-                f"Cannot modify {obj}. User not found in db. Creating instead.",
+                "Cannot modify object. User not found in db. Creating instead.",
+                object=obj,
             )
             user.create()
         else:
@@ -546,13 +584,13 @@ def modify_user(obj):
 
 
 def delete_user(obj):
-    logger.info(f"Deleting {obj}")
+    logger.info("Deleting object", object=obj)
     if obj.old_attributes is None:
         logger.info("No attributes to work with. Doing nothing...")
         return
     user_id = get_user_id(obj.old_attributes)
     if not user_id:
-        logger.info(f"{obj} does not exist. Doing nothing...")
+        logger.info("Object does not exist. Doing nothing...", object=obj)
         return
     user = user_from_attributes(
         obj.old_attributes,
@@ -572,12 +610,16 @@ def delete_user(obj):
     logger.info("User was deleted, searching for now empty groups")
     for soap_group in soap_groups:
         logger.info(
-            f"Found group {soap_group.name} with {len(soap_group.members)} members",
+            "Found SOAP group with members",
+            soap_group=soap_group.name,
+            members=len(soap_group.members),
         )
 
         soap_group.members.remove(user.id)
         if not soap_group.members:
             logger.info(
-                f"Thus, deleting group {soap_group.id} in {user.context_id}...",
+                "Group is empty, deleting group in context...",
+                soap_group=soap_group.id,
+                context=user.context_id,
             )
             group_service.delete(soap_group)
