@@ -37,12 +37,7 @@ class SSHConfigurator(RemoteConfigurator):
     def _get_files(self) -> dict[str, str]:
         return {
             "/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json": "/tmp/contexts.json",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/contexts.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/contexts.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox_db_id.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox_db_id.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/non_ox_objs.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/non_ox_objs.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/usernames.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/usernames.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/shared_permissions.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/shared_permissions.db",
-            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/univention_object_identifier.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/univention_object_identifier.db",
+            "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db": "/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db",
         }
 
     def __enter__(self):
@@ -201,6 +196,7 @@ configs["ox_shared_accounts"] = ox_connector_env["OX_ENABLE_SHARED_ACCOUNT"]
 configs["ox_soap_server"] = ox_connector_env["OX_SOAP_SERVER"]
 configs["ox_imap_server"] = ox_connector_env["OX_IMAP_SERVER"]
 configs["ox_smtp_server"] = ox_connector_env["OX_SMTP_SERVER"]
+configs["ox_db_connection_string"] = ox_connector_env["OX_CONNECTOR_DB"]
 
 parsed_url = urlparse(configs["ox_soap_server"])
 host_ip = to_ip(parsed_url.hostname)

@@ -37,7 +37,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter
 from copy import deepcopy
 from functools import partial
 from logging.handlers import RotatingFileHandler
@@ -53,11 +53,11 @@ from univention.ox.provisioning.db import (
 logger = logging.getLogger("univention.ox")
 
 
-def _call(func: Callable[..., None], args: Namespace) -> None:
-    params: dict[str, Any] = deepcopy(args.__dict__)
-    db_func: Callable[..., None] = params.pop("func")
+def _call(func: Callable[..., None], args) -> None:
+    params = deepcopy(args.__dict__)
+    params.pop("func")
     with DBSession() as db:
-        db_func(db, **params)
+        func(db, **params)
 
 
 def _add_action(subparsers: Any, func: Callable[..., None]) -> None:
@@ -72,6 +72,9 @@ def _add_action(subparsers: Any, func: Callable[..., None]) -> None:
     )
     signature = inspect.signature(func)
     for name, param in signature.parameters.items():
+        if name == "db":
+            continue
+
         name = f"--{name.replace('_', '-')}"
         arg_params: dict[str, Any] = {
             "required": param.default == inspect._empty,
@@ -169,7 +172,11 @@ def search_tasks(
         print("Created at:", task.created_at)
         print("Status:", task.status)
         print("Error count:", task.num_errors)
-        print("-")
+        if task.attrs:
+            print("Attributes:")
+            for name, value in sorted(json.loads(task.attrs).items()):
+                print(" ", name, ":", value)
+            print("-")
         if first:
             break
 

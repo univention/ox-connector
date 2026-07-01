@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from univention.ox.provisioning.db import DBSession, _normalized_dn
+from univention.ox.provisioning.db import DBSession
 import json
 
 old_files = Path("/var/lib/univention-appcenter/apps/ox-connector/data/listener/old")
@@ -14,7 +14,7 @@ with DBSession() as db:
         with json_file.open() as fh:
             content = json.load(fh)
         udm_module = content["udm_object_type"]
-        dn = _normalized_dn(content["dn"])
+        dn = content["dn"]
         attrs = content["object"]
         obj_id = attrs.get("univentionObjectIdentifier", "")
         if not obj_id:

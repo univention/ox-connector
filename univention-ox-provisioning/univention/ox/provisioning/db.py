@@ -114,7 +114,7 @@ class Dead(Base):
     obj_id = Column(String, nullable=False)
     udm_module = Column(String, nullable=False)
     dn = Column(String, nullable=False)
-    attrs = Column(String, nullable=False)
+    attrs = Column(String, nullable=True)
     error_msg = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
