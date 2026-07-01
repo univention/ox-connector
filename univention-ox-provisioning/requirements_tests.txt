@@ -1,4 +1,0 @@
-pytest
-pytest-mock
-python-dateutil
-uritemplate

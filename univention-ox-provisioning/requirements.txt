@@ -1,4 +1,0 @@
-univention_ox_soap_api
-python-ldap
-sqlalchemy==1.4
-# psycopg2

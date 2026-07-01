@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 Univention GmbH
+
+[project]
+name = "univention-ox-soap-api"
+version = "4.0.0"
+description = "Library to access OX' SOAP API"
+authors = [
+    {name = "Univention GmbH", email = "packages@univention.de"},
+]
+license = {text = "AGPL-3.0-only"}
+requires-python = "==3.11.*"
+
+dependencies = [
+    "six",
+    "zeep",
+    "tenacity",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["modules/univention"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

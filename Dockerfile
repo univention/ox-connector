@@ -1,115 +1,47 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2023 Univention GmbH
+# SPDX-FileCopyrightText: 2026 Univention GmbH
 
-ARG DOCKER_PROXY
-FROM ${DOCKER_PROXY}alpine:3.14 AS final
+# TODO: 5.2-6
+ARG UCS_BASE_IMAGE_TAG=5.2.5-build.20260514@sha256:81b104694a78cf36043f84b5d9e4b3b0cbbe6777e46877239a44f08249379119
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base
 
-ARG version
 
-SHELL ["/bin/ash", "-euxo", "pipefail", "-c"]
+############# uv environment
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS uv
 
-WORKDIR /oxp
+ADD --checksum=sha256:6426a73c3837e6e2483ee344cbc00f36394d179afcba6183cb77437e67db4af0 \
+  https://github.com/astral-sh/uv/releases/download/0.11.26/uv-x86_64-unknown-linux-gnu.tar.gz \
+  /tmp/uv.tar.gz
 
-CMD ["/sbin/init"]
+RUN tar -xz --strip-components=1 -C /usr/local/bin/ -f /tmp/uv.tar.gz && \
+  rm -f /tmp/uv.tar.gz
 
-LABEL "description"="UCS OX provisioning app" \
-    "version"="$version"
+WORKDIR /app
 
-# init: Disable TTY spawning
-RUN sed -i -e 's/^tty/# tty/g' /etc/inittab
+RUN \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get --assume-yes --verbose-versions --no-install-recommends install \
+  python3 \
+  gcc \
+  libpq-dev \
+  python3-dev \
+  libldap-dev \
+  libsasl2-dev
 
-# generate pip requirements
-COPY univention-ox-soap-api/requirements.txt /build/requirements/ox-soap-api.txt
-COPY univention-ox-provisioning/requirements.txt /build/requirements/ox-provisioning.txt
-RUN set -o pipefail; find /build/requirements/ -name '*.txt' -exec cat {} + \
-  | grep -E -v 'univention|six' \
-  | sort \
-  | uniq \
-  > /build/requirements_all.txt \
- && rm -rf /build/requirements/
+COPY pyproject.toml ./
+COPY univention-ox-provisioning/ ./univention-ox-provisioning/
+COPY univention-ox-soap-api/ ./univention-ox-soap-api/
 
-# package and Python dependency installation, base system configuration,
-# and uninstallation - all in one step to keep image small
-RUN apk add --no-cache \
-    # build
-    gcc~=10.3 \
-    musl-dev~=1.2 \
-    python3-dev~=3.9 \
-    openldap-dev \
-    # runtime
-    libxml2~=2.9 \
-    libxslt~=1.1 \
-    python3~=3.9 \
-    tzdata~=2023c \
-    ca-certificates~=20230506 \
-    py3-pip~=20.3 \
-    py3-lxml~=4.6 \
-    py3-requests~=2.25 && \
-  cp -v /usr/share/zoneinfo/Europe/Berlin /etc/localtime && \
-  echo "Europe/Berlin" > /etc/timezone && \
-  pip3 install --no-cache-dir --compile --upgrade \
-    pip~=23.3 && \
-  pip3 install --no-cache-dir --compile --upgrade \
-    --requirement /build/requirements_all.txt \
-    udm-rest-api-client[sync]==0.0.2 && \
-  apk del --no-cache \
-    gcc \
-    musl-dev \
-    openldap-dev \
-    python3-dev && \
-  python3 -c "from zeep import Client" && \
-  rm -rf /tmp/*
+RUN uv sync --no-editable --locked
 
-COPY univention-ox-soap-api/ /tmp/univention-ox-soap-api/
-RUN export OX_PROVISIONING_VERSION="$version" &&\
-  pip3 install --no-cache-dir --compile --upgrade /tmp/univention-ox-soap-api && \
-  python3 -c "from univention.ox.soap.services import get_ox_soap_service_class" && \
-  python3 -c "from univention.ox.soap.backend_base import get_ox_integration_class" && \
-  rm -rf /tmp/*
 
-#RUN apk add py-spy  --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+############# udm translation files
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS translation
 
-COPY univention-ox-provisioning /tmp/univention-ox-provisioning
-COPY app/listener_trigger /tmp/app/
-COPY app/univention-ox-connector-task-management /tmp/app/
-COPY tests /tmp/tests
-COPY LICENSE /usr/local/share/ox-connector/LICENSE
-
-WORKDIR /tmp
-
-# 1st linting, then installation
-# hadolint ignore=SC1091
-RUN apk add --no-cache \
-    gcc~=10.3 \
-    musl-dev~=1.2 \
-    python3-dev~=3.9 && \
-  python3 -m venv --system-site-packages /tmp/venv && \
-  . /tmp/venv/bin/activate && \
-  pip3 install --no-cache-dir --compile --upgrade \
-    pip~=23.3 && \
-  pip3 install --no-cache-dir --compile \
-    black~=24.1 \
-	flake8~=7.0 \
-	isort~=5.13 && \
-  # deactivate() is not installed in 'ash' shell, manually deactivate virtualenv:
-  export PATH="${_OLD_VIRTUAL_PATH:-}" && \
-  export PS1="${_OLD_VIRTUAL_PS1:-}" && \
-  # setup.py will read app version from environment
-  export OX_PROVISIONING_VERSION="$version" && \
-  pip3 install --no-cache-dir --compile /tmp/univention-ox-provisioning && \
-  apk del --no-cache gcc python3-dev musl-dev && \
-  rm -rf /tmp/*
-
-COPY app/listener_trigger /usr/local/share/ox-connector/listener_trigger
-COPY app/univention-ox-connector-task-management /usr/local/share/ox-connector/univention-ox-connector-task-management
-COPY share/ /usr/local/share/ox-connector/resources
 COPY udm/ /usr/local/share/ox-connector/resources/udm
-COPY umc/ /usr/local/share/ox-connector/resources/umc
-COPY ldap/ /usr/local/share/ox-connector/resources/ldap
-COPY bin/* /usr/local/bin/
-
-# translation
-RUN apk add --no-cache \
+RUN \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get --assume-yes --verbose-versions --no-install-recommends install \
     gettext && \
   msgfmt \
     /usr/local/share/ox-connector/resources/udm/hooks.d/de.po \
@@ -122,33 +54,82 @@ RUN apk add --no-cache \
     -o /usr/local/share/ox-connector/resources/udm/handlers/oxmail/de.mo && \
   msgfmt \
     /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.po \
-    -o /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.mo && \
-  apk del --no-cache gettext && \
-  rm -rf /tmp/*
+    -o /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.mo
 
-WORKDIR /oxp
 
-###############################################################################
-# A separate stage for tests
-FROM final AS test
+############# python runtime
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS runtime
 
-RUN apk add --no-cache \
-    libldap \
-    py3-multidict~=5.1 \
-    py3-yarl~=1.6 \
-    vim~=8.2 && \
-  pip3 install --no-cache-dir --compile \
-    udm-rest-client~=1.2 && \
-  pip3 install --no-cache-dir --compile --index-url="https://test.pypi.org/simple/" \
-    openapi-client-udm-ox~=1.0 && \
-  python3 -c "from univention.ox.provisioning import run" && \
-  python3 -c "from udm_rest_client.udm import UDM" && \
-  python3 -c "import openapi_client_udm; openapi_client_udm.OxmailOxcontext.dn"
+RUN \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get --assume-yes --verbose-versions --no-install-recommends install \
+  python3 \
+  libldap-2.5-0 \
+  libpq5
 
-COPY share/check_sync_status.py /oxp/
-COPY univention-ox-provisioning/requirements_tests.txt tests/ /oxp/tests/
-RUN pip3 install --no-cache-dir --compile --upgrade -r /oxp/tests/requirements_tests.txt # && \
-  # python3 -m pytest --collect-only /oxp/tests && \
-  # rm -rf /oxp/.pytest_cache /oxp/tests/requirements_tests.txt
+COPY --from=uv /app/.venv/lib/python3.11/site-packages /usr/local/lib/python3.11/dist-packages/
+
+
+############# final image base
+FROM runtime AS almost
+
+ARG version
+
+LABEL "org.opencontainers.image.title"="OX Connector" \
+    "org.opencontainers.image.description"="OX Connector synchronizes entities from Univention Nubus to Open-Xchange" \
+    "org.opencontainers.image.documentation"="https://docs.software-univention.de/n/de/docs/ox-connector-app.html#ox-connector-app" \
+    "org.opencontainers.image.version"="$version"
+
+COPY --from=translation /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo
+COPY --from=translation /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo
+COPY --from=translation /usr/local/share/ox-connector/resources/udm/handlers/oxmail/de.mo /usr/local/share/ox-connector/resources/udm/handlers/oxmail/de.mo
+COPY --from=translation /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.mo /usr/local/share/ox-connector/resources/udm/handlers/oxresources/de.mo
+
+RUN \
+  python3 -c "from univention.ox.soap.services import get_ox_soap_service_class" && \
+  python3 -c "from univention.ox.soap.backend_base import get_ox_integration_class" && \
+  python3 -c "from univention.ox.provisioning import run"
+
+COPY LICENSE /usr/local/share/ox-connector/LICENSE
+
+
+############# final kubernetes image
+FROM almost AS k8s
+
+# for entrypoint.sh
+RUN \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get --assume-yes --verbose-versions --no-install-recommends install \
+  jq
+
+WORKDIR /
+
+COPY entrypoint.sh entrypoint.d/75-entrypoint.sh
+COPY share/migrate_fupo_to_shared_account.py /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py
+
+COPY standalone-files/ /
+
+CMD ["/usr/bin/python3", "/consumer.py"]
+
+
+############# final appcenter image
+FROM almost AS appcenter
+
+COPY share/ /usr/local/share/ox-connector/resources
+COPY udm/ /usr/local/share/ox-connector/resources/udm
+COPY umc/ /usr/local/share/ox-connector/resources/umc
+COPY ldap/ /usr/local/share/ox-connector/resources/ldap
+COPY bin/* /usr/local/bin/
+
+WORKDIR /
+
+# tests are included...
+# i know python3-univention-directory-manager-rest-client is already there... just want to make it explicit
+# gdbm probably not needed anymore now that we use a proper database
+COPY tests ./tests
+
+ENTRYPOINT ["/bin/sh", "-eux", "-c"]
+
+CMD ["sleep infinity"]
 
 # [EOF]

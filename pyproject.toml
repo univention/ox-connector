@@ -1,20 +1,22 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2025 Univention GmbH
+# SPDX-FileCopyrightText: 2025-2026 Univention GmbH
 
 [project]
-name = "ox-connector-metapackage"
-description = "Metapackage to support local development and testruns"
-version = "0.1.0"
+name = "ox-connector"
+description = "OX Connector - provision Nubus entities to Open-Xchange"
+version = "4.0.0"
 package-mode = false
 authors = [
     {name = "Univention GmbH", email = "packages@univention.de"},
 ]
 license = {text = "AGPL-3.0-only"}
-requires-python = ">=3.9"
+requires-python = "==3.11.*"
 
 dependencies = [
   "univention-ox-provisioning",
   "univention-ox-soap-api",
+  "nubus-provisioning-consumer",
+  "nubus-provisioning-common",
 ]
 
 [dependency-groups]
@@ -27,21 +29,24 @@ dev = [
   "pdbpp>=0.11.7",
   "python-dateutil>=2.9.0.post0",
   "tenacity",
-  "udm-rest-api-client[sync]==0.0.2"
+  "udm-rest-api-client[sync]"
 ]
 
 [tool.uv]
-# NOTE: The managed Python does not have gdbm available (at least on MacOS).
-# Test via:
-#    python -c "import dbm.gnu"
 python-preference = "system"
 
 [tool.uv.sources]
-univention-ox-provisioning = { path = "./univention-ox-provisioning/", editable = true }
-univention-ox-soap-api = { path = "./univention-ox-soap-api/", editable = true }
+univention-ox-provisioning = { path = "./univention-ox-provisioning", editable = true  }
+univention-ox-soap-api = { path = "./univention-ox-soap-api", editable = true  }
+nubus-provisioning-consumer = { index = "nubus" }
+nubus-provisioning-common = { index = "nubus" }
+
+[[tool.uv.index]]
+name = "nubus"
+url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple"
+explicit = true
 
 [tool.pytest.ini_options]
-pythonpath = ["standalone-files"]
 markers = [
     "k8s_skip(reason): mark test as expected to skip in Kubernetes context, provide a reason"
 ]

@@ -12,7 +12,10 @@
 !/tests/
 !/udm/
 !/umc/
+!/entrypoint.sh
+!/pyproject.toml
 !/univention-ox-provisioning/
 !/univention-ox-soap-api/
+!/standalone-files/
 
 # [EOF]
