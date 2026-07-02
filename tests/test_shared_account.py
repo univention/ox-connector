@@ -2,7 +2,14 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 import pytest
+from urllib.parse import urlparse
 
+from univention.ox.soap.config import (
+    DEFAULT_IMAP_SERVER,
+    DEFAULT_LANGUAGE,
+    DEFAULT_SMTP_SERVER,
+    LOCAL_TIMEZONE,
+)
 from univention.ox.soap.types import Types
 
 from udm_rest import UnprocessableEntity
@@ -148,6 +155,19 @@ def test_create_shared_account(
         new_account_name,
     )
     assert shared_account.primaryEmail == f"{new_account_name}@{domainname}"
+
+    assert shared_account.language == DEFAULT_LANGUAGE
+    assert shared_account.timezone == LOCAL_TIMEZONE
+
+    imap_url = urlparse(DEFAULT_IMAP_SERVER)
+    assert shared_account.imap_port == imap_url.port  # 143
+    assert shared_account.imap_schema == imap_url.scheme + "://"  # "imap://"
+    assert shared_account.imap_server == imap_url.hostname
+
+    smtp_url = urlparse(DEFAULT_SMTP_SERVER)
+    assert shared_account.smtp_port == smtp_url.port  # 587
+    assert shared_account.smtp_schema == smtp_url.scheme + "://"  # "smtp://"
+    assert shared_account.smtp_server == smtp_url.hostname
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1

@@ -28,6 +28,7 @@
 
 import logging
 from copy import deepcopy
+from urllib.parse import urlparse
 
 
 from univention.ox.provisioning.helpers import (
@@ -40,7 +41,14 @@ import univention.ox.provisioning.helpers
 
 from univention.ox.soap.backend_base import get_ox_integration_class
 from univention.ox.soap.types import Types
-import univention.ox.soap.config
+
+from univention.ox.soap.config import (
+    DEFAULT_IMAP_SERVER,
+    DEFAULT_LANGUAGE,
+    DEFAULT_SMTP_SERVER,
+    LOCAL_TIMEZONE,
+    SHARED_ACCOUNT_IDENTIFIER,
+)
 
 SharedAccount = get_ox_integration_class("SOAP", "SharedAccount")
 
@@ -55,16 +63,17 @@ class ConvertUserToSharedAccountException(Exception):
 
 def is_enabled():
     Types()  # to automatically set OX_ENABLE_SHARED_ACCOUNT
-    return (
-        str(univention.ox.soap.config.OX_ENABLE_SHARED_ACCOUNT).lower()
-        == "true"
-    )
+
+    # We can only import it after calling Types, because Types can change this variable
+    from univention.ox.soap.config import OX_ENABLE_SHARED_ACCOUNT
+
+    return str(OX_ENABLE_SHARED_ACCOUNT).lower() == "true"
 
 
 def _get_name(attributes):
     return (
         attributes.get("oxDbName")
-        or attributes.get(univention.ox.soap.config.SHARED_ACCOUNT_IDENTIFIER)
+        or attributes.get(SHARED_ACCOUNT_IDENTIFIER)
         or attributes.get("name")
     )
 
@@ -76,6 +85,19 @@ def update_shared_account(shared_account, attributes):
     shared_account.primaryEmail = attributes.get("mailPrimaryAddress")
     shared_account.email1 = shared_account.primaryEmail
     shared_account.password = "dummy"  # required by WSDL to be set. But not used; Shared Accounts cannot log in. And even if, we always expect LDAP integration, so a password in OX' database is always ignored
+
+    shared_account.language = DEFAULT_LANGUAGE
+    shared_account.timezone = LOCAL_TIMEZONE
+
+    imap_url = urlparse(DEFAULT_IMAP_SERVER)
+    shared_account.imap_port = imap_url.port  # 143
+    shared_account.imap_schema = imap_url.scheme + "://"  # "imap://"
+    shared_account.imap_server = imap_url.hostname
+
+    smtp_url = urlparse(DEFAULT_SMTP_SERVER)
+    shared_account.smtp_port = smtp_url.port  # 587
+    shared_account.smtp_schema = smtp_url.scheme + "://"  # "smtp://"
+    shared_account.smtp_server = smtp_url.hostname
 
 
 def _get_permission(obj_id):

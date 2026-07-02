@@ -632,6 +632,14 @@ class SoapSharedAccount(
         'primaryEmail': SoapAttribute('primaryEmail'),
         'email1': SoapAttribute('email1'),
         'password': SoapAttribute('password'),
+        'language': SoapAttribute('language'),
+        'timezone': SoapAttribute('timezone'),
+        'smtp_port': SoapAttribute('smtpPort'),
+        'smtp_schema': SoapAttribute('smtpSchema'),
+        'smtp_server': SoapAttribute('smtpServer'),
+        'imap_port': SoapAttribute('imapPort'),
+        'imap_schema': SoapAttribute('imapSchema'),
+        'imap_server': SoapAttribute('imapServer'),
     }
     _mandatory_creation_attr = ('name', 'primaryEmail')
 
