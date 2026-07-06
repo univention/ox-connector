@@ -1,13 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023-2026 Univention GmbH
 
-# TODO: 5.2-6
-ARG UCS_BASE_IMAGE_TAG=5.2.5-build.20260514@sha256:81b104694a78cf36043f84b5d9e4b3b0cbbe6777e46877239a44f08249379119
+ARG UCS_BASE_IMAGE_TAG=5.3.0-build.20260702
 ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-base-image/ucs-base
 
 
 ############# uv environment
-FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS uv
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS preuv
 
 ADD --checksum=sha256:6426a73c3837e6e2483ee344cbc00f36394d179afcba6183cb77437e67db4af0 \
   https://github.com/astral-sh/uv/releases/download/0.11.26/uv-x86_64-unknown-linux-gnu.tar.gz \
@@ -23,15 +22,22 @@ RUN \
   apt-get --assume-yes --verbose-versions --no-install-recommends install \
   python3 \
   gcc \
+  g++ \
   libpq-dev \
   python3-dev \
   libldap-dev \
-  libsasl2-dev
+  libsasl2-dev \
+  libxslt-dev \
+  libxml2-dev
 
 COPY pyproject.toml ./
 COPY uv.lock ./
 COPY univention-ox-provisioning/ ./univention-ox-provisioning/
 COPY univention-ox-soap-api/ ./univention-ox-soap-api/
+
+
+############# execute uv; split so that one can execute the uv call on their own
+FROM preuv AS uv
 
 RUN uv sync --no-editable --frozen
 
@@ -72,10 +78,12 @@ RUN \
   DEBIAN_FRONTEND=noninteractive \
   apt-get --assume-yes --verbose-versions --no-install-recommends install \
   python3 \
-  libldap-2.5-0 \
+  libldap2 \
+  libxslt1.1 \
+  libxml2 \
   libpq5
 
-COPY --from=uv /app/.venv/lib/python3.11/site-packages /usr/local/lib/python3.11/dist-packages/
+COPY --from=uv /app/.venv/lib/python3.13/site-packages /usr/local/lib/python3.13/dist-packages/
 
 COPY --from=translation /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo
 COPY --from=translation /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo

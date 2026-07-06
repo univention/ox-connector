@@ -9,11 +9,12 @@ authors = [
     {name = "Univention GmbH", email = "packages@univention.de"},
 ]
 license = {text = "AGPL-3.0-only"}
-requires-python = "==3.11.*"
+requires-python = "==3.13.*"
 
 dependencies = [
     "univention_ox_soap_api",
     "python-ldap",
+    "filetype",
     "sqlalchemy",
     "psycopg2",
 ]

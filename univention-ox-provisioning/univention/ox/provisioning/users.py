@@ -32,10 +32,10 @@ import datetime
 import logging
 from copy import deepcopy
 from urllib.parse import urlparse
-import imghdr
 import base64
 from time import sleep
 
+import filetype
 import zeep.exceptions
 from univention.ox.provisioning.deputy_permissions import (
     delete_deputy_permissions,
@@ -146,8 +146,8 @@ def set_ox_property(user, ox_property, mapping, attributes):
     def image_attibute(x):
         if x:
             byte_image = base64.b64decode(x.encode("utf8"))
-            content_type = imghdr.what(None, h=byte_image)
-            if content_type == "jpeg":
+            content_type = filetype.guess(byte_image)
+            if content_type and content_type.mime == "image/jpeg":
                 content_type = "image/jpeg"
             else:
                 logger.warn(
