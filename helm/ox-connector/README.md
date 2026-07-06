@@ -32,6 +32,9 @@ A Helm chart for the ox-connector
 | openXchange.auth.username | string | `"oxadminmaster"` | OX Admin username (the OX Admin can create, modify, delete contexts; has to exist) |
 | openXchange.domainName | string | `nil` | OX-Mail-Domain to generate OX-email-addresses |
 | openXchange.logLevel | string | `"INFO"` | OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR". |
+| openXchange.mappings.groupIdentifier | string | `"name"` | UDM group property that is used as the unique group identifier for OX |
+| openXchange.mappings.sharedAccountIdentifier | string | `"name"` | UDM shared account property that is used as the unique account identifier for OX |
+| openXchange.mappings.userIdentifier | string | `"username"` | UDM user property that is used as the unique user identifier for OX |
 | openXchange.oxDbConnectionString | string | `nil` | SQLAlchemy DB connection URL for the OX connector. |
 | openXchange.oxDefaultContext | string | `"10"` | Default context for users (has to exist) |
 | openXchange.oxDeputyPermissions | bool | `false` | Ox Connector deputy permissions flag. |

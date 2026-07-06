@@ -31,6 +31,9 @@ data:
   OX_SOAP_SERVER: "{{ .Values.openXchange.oxSoapServer }}"
   OX_ENABLE_DEPUTY_PERMISSIONS: "{{ .Values.openXchange.oxDeputyPermissions }}"
   OX_ENABLE_SHARED_ACCOUNT: "{{ .Values.openXchange.oxSharedAccount }}"
+  OX_USER_IDENTIFIER: "{{ .Values.openXchange.mappings.userIdentifier }}"
+  OX_GROUP_IDENTIFIER: "{{ .Values.openXchange.mappings.groupIdentifier }}"
+  OX_SHARED_ACCOUNT_IDENTIFIER: "{{ .Values.openXchange.mappings.sharedAccountIdentifier }}"
   LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash

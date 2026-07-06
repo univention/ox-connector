@@ -129,6 +129,13 @@ openXchange:
   oxSharedAccount: true
   # -- SQLAlchemy DB connection URL for the OX connector.
   oxDbConnectionString: null
+  mappings:
+    # -- UDM user property that is used as the unique user identifier for OX
+    userIdentifier: "username"
+    # -- UDM group property that is used as the unique group identifier for OX
+    groupIdentifier: "name"
+    # -- UDM shared account property that is used as the unique account identifier for OX
+    sharedAccountIdentifier: "name"
 
 waitForDependency:
   image:
