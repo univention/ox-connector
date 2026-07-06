@@ -158,6 +158,19 @@ unit-tests:
         path: coverage.xml
     expire_in: 1 week
 
+container-build:
+  variables:
+    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+    # NOTE: Disabled caching due to issues in undetected failing build on
+    # branches due to the reuse of the version / tag name based on the branch
+    # name.
+    KANIKO_CACHE_ARGS: ""
+  parallel:
+    matrix: *build-matrix
+  needs:
+    - job: pre-semantic-release
+  rules: *version-rules
+
 push-image-external:
   parallel:
     matrix: *publish-matrix

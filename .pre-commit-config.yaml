@@ -69,7 +69,6 @@ repos:
       - id: "hadolint"
         name: "Lint Dockerfiles"
         types: ["dockerfile"]
-        exclude: "^Dockerfile.standalone.dockerignore$"
         args:
           - "--no-color"
           - "--strict-labels"

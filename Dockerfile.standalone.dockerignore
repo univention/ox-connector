@@ -1,9 +1,0 @@
-# *
-# !/app/listener_trigger
-# !/entrypoint.sh
-# !/pyproject.toml
-# !/standalone-files/
-# !/tests/
-# !/uv.lock
-
-# [EOF]
