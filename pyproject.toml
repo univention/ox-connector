@@ -36,8 +36,8 @@ dev = [
 python-preference = "system"
 
 [tool.uv.sources]
-univention-ox-provisioning = { path = "./univention-ox-provisioning", editable = true  }
-univention-ox-soap-api = { path = "./univention-ox-soap-api", editable = true  }
+univention-ox-provisioning = { path = "./univention-ox-provisioning", editable = true }
+univention-ox-soap-api = { path = "./univention-ox-soap-api", editable = true }
 nubus-provisioning-consumer = { index = "nubus" }
 nubus-provisioning-common = { index = "nubus" }
 

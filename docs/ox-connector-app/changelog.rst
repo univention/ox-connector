@@ -12,20 +12,7 @@ This changelog documents all notable changes to the OX Connector app. `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`_ is the format and this
 project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-.. _app-changelog-v3.2.3:
-
-v3.2.3
-======
-
-Released: 2026-07-06
-
-Added
------
-
-For *OX Shared Accounts*, the following attributes are now explicitly
-synchronized: `Language`, `Timezone`, `SMTP server`, `IMAP server`. They are
-all taken from the global configuration of the OX Connector and cannot be
-changed individually.
+.. _app-changelog-v4.0.0:
 
 v4.0.0
 ======
@@ -48,6 +35,24 @@ The following tools have been deleted: `rebuild-old.db`,
 `get_current_error.py`. They used deprecated database calls and did not work
 properly. You can do all meaningful manipulation with the tool
 `univention-ox-task-management`.
+
+.. _app-changelog-v3.2.3:
+
+v3.2.3
+======
+
+Released: 2026-07-06
+
+Added
+-----
+
+For *OX Shared Accounts*, the following attributes are now explicitly
+synchronized: `Language`, `Timezone`, `SMTP server`, `IMAP server`. They are
+all taken from the global configuration of the OX Connector and cannot be
+changed individually.
+=======
+
+.. _app-changelog-v3.2.2:
 
 v3.2.2
 ======

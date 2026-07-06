@@ -69,16 +69,13 @@ variables:
     DOCKERFILE_PATH: "Dockerfile"
     KANIKO_ARGS: "--build-arg version=${DOCKER_BUILD_VERSION}"
   - IMAGE_NAME: "ox-connector-standalone"
-    DOCKERFILE_PATH: "Dockerfile.standalone"
-    KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--target=k8s --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
   - IMAGE_NAME: "ox-connector-standalone-test"
-    DOCKERFILE_PATH: "Dockerfile.standalone"
-    KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--target=k8stest --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
   - IMAGE_NAME: "ox-extension"
     DOCKERFILE_PATH: "ox-extension/Dockerfile"
-  - IMAGE_NAME: "ox-connector-appcenter-test"
-    DOCKERFILE_PATH: "Dockerfile"
-    KANIKO_ARGS: "--target=test --build-arg version=${DOCKER_BUILD_VERSION}"
 
 .post-build-matrix: &post-build-matrix
   - IMAGE_NAME:
@@ -107,25 +104,6 @@ container-malware-scan:
   - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
-
-container-build-appcenter:
-  stage: "build"
-  extends: ".kaniko"
-  variables:
-    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
-    # NOTE: Disabled caching due to issues in undetected failing build on
-    # branches due to the reuse of the version / tag name based on the branch
-    # name.
-    KANIKO_CACHE_ARGS: ""
-  parallel:
-    matrix:
-      - IMAGE_NAME: "ox-connector-appcenter"
-        DOCKERFILE_PATH: "Dockerfile"
-        KANIKO_ARGS: "--build-arg version=${DOCKER_BUILD_VERSION}"
-      - IMAGE_NAME: "ox-connector-appcenter-test"
-        DOCKERFILE_PATH: "Dockerfile"
-        KANIKO_ARGS: "--target=test --build-arg version=${DOCKER_BUILD_VERSION}"
-  rules: *version-rules
 
 test-chart-ox-connector:
   stage: test
@@ -179,28 +157,6 @@ unit-tests:
         coverage_format: cobertura
         path: coverage.xml
     expire_in: 1 week
-
-container-build:
-  variables:
-    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
-    # NOTE: Disabled caching due to issues in undetected failing build on
-    # branches due to the reuse of the version / tag name based on the branch
-    # name.
-    KANIKO_CACHE_ARGS: ""
-  parallel:
-    matrix:
-      - IMAGE_NAME: "ox-connector-standalone"
-        DOCKERFILE_PATH: "Dockerfile.standalone"
-        KANIKO_ARGS: "--target=final --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_BASE_IMAGE_TAG=${RELEASE_VERSION}"
-      - IMAGE_NAME: "ox-connector-standalone-test"
-        DOCKERFILE_PATH: "Dockerfile.standalone"
-        KANIKO_ARGS: "--target=test --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_BASE_IMAGE_TAG=${RELEASE_VERSION}"
-      - IMAGE_NAME: "ox-extension"
-        DOCKERFILE_PATH: "ox-extension/Dockerfile"
-  needs:
-    - job: container-build-appcenter
-    - job: pre-semantic-release
-  rules: *version-rules
 
 push-image-external:
   parallel:

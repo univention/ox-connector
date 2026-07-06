@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2026 Univention GmbH
+# SPDX-FileCopyrightText: 2023-2026 Univention GmbH
 
 # TODO: 5.2-6
 ARG UCS_BASE_IMAGE_TAG=5.2.5-build.20260514@sha256:81b104694a78cf36043f84b5d9e4b3b0cbbe6777e46877239a44f08249379119
@@ -61,6 +61,13 @@ RUN \
 ############# python runtime
 FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS runtime
 
+ARG version
+
+LABEL "org.opencontainers.image.title"="OX Connector" \
+    "org.opencontainers.image.description"="OX Connector synchronizes entities from Univention Nubus to Open-Xchange" \
+    "org.opencontainers.image.documentation"="https://docs.software-univention.de/n/de/docs/ox-connector-app.html#ox-connector-app" \
+    "org.opencontainers.image.version"="$version"
+
 RUN \
   DEBIAN_FRONTEND=noninteractive \
   apt-get --assume-yes --verbose-versions --no-install-recommends install \
@@ -69,17 +76,6 @@ RUN \
   libpq5
 
 COPY --from=uv /app/.venv/lib/python3.11/site-packages /usr/local/lib/python3.11/dist-packages/
-
-
-############# final image base
-FROM runtime AS almost
-
-ARG version
-
-LABEL "org.opencontainers.image.title"="OX Connector" \
-    "org.opencontainers.image.description"="OX Connector synchronizes entities from Univention Nubus to Open-Xchange" \
-    "org.opencontainers.image.documentation"="https://docs.software-univention.de/n/de/docs/ox-connector-app.html#ox-connector-app" \
-    "org.opencontainers.image.version"="$version"
 
 COPY --from=translation /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo /usr/local/share/ox-connector/resources/udm/hooks.d/de.mo
 COPY --from=translation /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo /usr/local/share/ox-connector/resources/udm/syntax.d/de.mo
@@ -95,7 +91,7 @@ COPY LICENSE /usr/local/share/ox-connector/LICENSE
 
 
 ############# final kubernetes image
-FROM almost AS k8s
+FROM runtime AS k8s
 
 # for entrypoint.sh
 RUN \
@@ -113,8 +109,14 @@ COPY standalone-files/ /
 CMD ["/usr/bin/python3", "/consumer.py"]
 
 
+############# kubernetes image + tests
+FROM k8s AS k8stest
+
+COPY tests /tests-env/tests
+
+
 ############# final appcenter image
-FROM almost AS appcenter
+FROM runtime AS appcenter
 
 COPY share/ /usr/local/share/ox-connector/resources
 COPY udm/ /usr/local/share/ox-connector/resources/udm
@@ -129,9 +131,6 @@ RUN \
 
 WORKDIR /
 
-# tests are included...
-# i know python3-univention-directory-manager-rest-client is already there... just want to make it explicit
-# gdbm probably not needed anymore now that we use a proper database
 COPY tests ./tests
 
 ENTRYPOINT ["/bin/bash", "-c"]
