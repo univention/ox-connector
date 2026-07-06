@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2025 Univention GmbH
 
-import dbm.gnu
 import os
 import time
 import logging
@@ -78,13 +77,6 @@ class BaseFileUtility:
     def open(self, path: typing.Union[os.PathLike, str], mode: str = "r"):
         raise NotImplementedError()
 
-    @contextmanager
-    def open_dbm(self, filepath: str, mode: str = "r"):
-        """
-        Convenience method to simplify reading from dbm files.
-        """
-        raise NotImplementedError()
-
 
 class FileUtility(BaseFileUtility):
     """
@@ -100,16 +92,6 @@ class FileUtility(BaseFileUtility):
             )
         with p.open(mode) as f:
             yield f
-
-    @contextmanager
-    def open_dbm(self, filepath: str, mode: str = "r"):
-        p = Path(filepath)
-        if not p.is_absolute():
-            raise ValueError(
-                f"FileUtility only supports absolute paths: {filepath!r}",
-            )
-        with dbm.gnu.open(str(p), mode) as db:
-            yield db
 
 
 class FileLogs(BaseLogs):

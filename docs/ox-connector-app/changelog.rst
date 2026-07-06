@@ -27,6 +27,28 @@ synchronized: `Language`, `Timezone`, `SMTP server`, `IMAP server`. They are
 all taken from the global configuration of the OX Connector and cannot be
 changed individually.
 
+v4.0.0
+======
+
+Released: TBA
+
+Changed
+-------
+
+The *Docker image* of the OX Connector has been changed from *Alpine Linux* to
+a *UCS Base Image*. In many cases, this should have no effect, but manual
+workflows may need adjustments if you assumed certain properties of the
+underlying image of the App.
+
+Removed
+-------
+
+The following tools have been deleted: `rebuild-old.db`,
+`remove-from-ox-db-cache`, `update-ox-db-cache`, `check_sync_status.py`,
+`get_current_error.py`. They used deprecated database calls and did not work
+properly. You can do all meaningful manipulation with the tool
+`univention-ox-task-management`.
+
 v3.2.2
 ======
 

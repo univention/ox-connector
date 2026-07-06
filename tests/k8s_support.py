@@ -11,7 +11,6 @@ There are similarities with the Kubernetes related fixtures of the e2e tests in
 https://git.knut.univention.de/univention/dev/nubus-for-k8s/e2e-tests.
 """
 
-import dbm.gnu
 import io
 import json
 import logging
@@ -187,19 +186,6 @@ class KubernetesFileUtility(BaseFileUtility):
     def open(self, filepath: typing.Union[os.PathLike, str], mode: str = "r"):
         with self.deployment.get_file_as_tempfile(filepath, mode=mode) as tmp:
             yield tmp
-
-    @contextmanager
-    def open_dbm(
-        self,
-        filepath: typing.Union[os.PathLike, str],
-        mode: str = "r",
-    ):
-        with self.deployment.get_file_as_tempfile(
-            filepath,
-            mode='rb',
-        ) as extracted_tmp:
-            with dbm.gnu.open(extracted_tmp.name, mode) as db:
-                yield db
 
 
 class KubernetesLogs(BaseLogs):

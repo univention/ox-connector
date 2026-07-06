@@ -29,10 +29,11 @@ RUN \
   libsasl2-dev
 
 COPY pyproject.toml ./
+COPY uv.lock ./
 COPY univention-ox-provisioning/ ./univention-ox-provisioning/
 COPY univention-ox-soap-api/ ./univention-ox-soap-api/
 
-RUN uv sync --no-editable --locked
+RUN uv sync --no-editable --frozen
 
 
 ############# udm translation files
@@ -119,7 +120,12 @@ COPY share/ /usr/local/share/ox-connector/resources
 COPY udm/ /usr/local/share/ox-connector/resources/udm
 COPY umc/ /usr/local/share/ox-connector/resources/umc
 COPY ldap/ /usr/local/share/ox-connector/resources/ldap
-COPY bin/* /usr/local/bin/
+
+# see app/configure
+RUN \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get --assume-yes --verbose-versions --no-install-recommends install \
+  ca-certificates
 
 WORKDIR /
 
@@ -128,7 +134,7 @@ WORKDIR /
 # gdbm probably not needed anymore now that we use a proper database
 COPY tests ./tests
 
-ENTRYPOINT ["/bin/sh", "-eux", "-c"]
+ENTRYPOINT ["/bin/bash", "-c"]
 
 CMD ["sleep infinity"]
 
