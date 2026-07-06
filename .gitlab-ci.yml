@@ -149,7 +149,7 @@ unit-tests:
     name: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
     entrypoint: [""]
   script:
-    - pytest unit_tests/ -v --cov=univention.ox.provisioning --cov-report=term --cov-report=xml:coverage.xml
+    - python3 -m pytest unit_tests/ -v --cov=univention.ox.provisioning --cov-report=term --cov-report=xml:coverage.xml
   coverage: '/TOTAL.*\s+(\d+%)/'
   artifacts:
     reports:
