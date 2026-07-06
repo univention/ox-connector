@@ -290,8 +290,6 @@ run-tests-testimage:
                     key: administrator_password
               - name: DOMAINNAME
                 value: "review.univention.dev"
-              - name: STANDALONE_KUBERNETES_TESTS
-                value: "1"
               - name: LDAP_MASTER
                 value: "'${DEPLOY_NAMESPACE}'.portal.review.univention.dev"
               - name: LDAP_BASE
@@ -311,19 +309,6 @@ run-tests-testimage:
         -m "not k8s_skip" \
         tests
       EOT
-  variables:
-    DOMAINNAME: review.univention.dev
-    OX_ENABLE_DEPUTY_PERMISSIONS: "true"
-    OX_SOAP_SERVER: https://${DEPLOY_SUBDOMAIN}-ox.review.univention.dev
-    OX_MASTER_ADMIN: stub-value
-    OX_MASTER_PASSWORD: stub-value
-    OX_SMTP_SERVER: stub-value
-    OX_IMAP_SERVER: imap://dovecot-ce:143
-    TESTS_UDM_ADMIN_USERNAME: cn=admin
-    STANDALONE_KUBERNETES_TESTS: "1"
-    LDAP_BASE: dc=univention-organization,dc=intranet
-    DEFAULT_CONTEXT: 10
-    PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
   rules:
     - if: '$SKIP_TESTRUN == "yes"'
       when: manual

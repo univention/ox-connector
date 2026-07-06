@@ -522,28 +522,8 @@ class KubernetesConfigurator(RemoteConfigurator):
             f"https://{ox_core_mw_properties['anywhere']['com.openexchange.hostname']}"
         )
 
-        if (
-            'com.openexchange.client.onboarding.mail.imap.host'
-            in ox_core_mw_properties['anywhere']
-            and 'com.openexchange.client.onboarding.mail.imap.port'
-            in ox_core_mw_properties['anywhere']
-        ):
-            imap_server = f"imaps://{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.imap.host']}:{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.imap.port']}"
-        else:
-            imap_server = "imap://dovecot-ce:143"
-
-        if (
-            'com.openexchange.client.onboarding.mail.smtp.host'
-            in ox_core_mw_properties['anywhere']
-            and 'com.openexchange.client.onboarding.mail.smtp.port'
-            in ox_core_mw_properties['anywhere']
-        ):
-            smtp_server = f"smtp://{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.smtp.host']}:{ox_core_mw_properties['anywhere']['com.openexchange.client.onboarding.mail.smtp.port']}"
-        else:
-            smtp_server = "stub-value"
-
-        remote_config["ox_imap_server"] = imap_server
-        remote_config["ox_smtp_server"] = smtp_server
+        remote_config["ox_imap_server"] = ox_connector_config['OX_IMAP_SERVER']
+        remote_config["ox_smtp_server"] = ox_connector_config['OX_SMTP_SERVER']
         remote_config["ox_secret_file"] = "/tmp/contexts.json"
 
         remote_config["udm_user"] = udm_rest_api_config["UDM_API_USER"]
