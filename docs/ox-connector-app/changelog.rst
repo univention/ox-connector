@@ -28,6 +28,9 @@ workflows may need adjustments if you assumed certain properties of the
 underlying image of the App. One striking change is the update from *Python
 3.9* to *Python 3.13*.
 
+The logging format throughout the App has been changed to
+:ref:`structured-logging`.
+
 Removed
 -------
 
