@@ -339,6 +339,57 @@ run-tests-testimage:
       when: manual
     - when: on_success
 
+run-tests-testimage-identifier:
+  needs:
+    - pipeline-configuration
+    - wait-until-ready
+    - run-tests-testimage
+    # NOTE: Ensure that the artifacts are available, e.g. the admin password.
+    - deploy-nubus
+  stage: "deploy"
+  image: "$HELMFILE_IMAGE"
+  script:
+    - echo "Patching ox-connector StatefulSet to use different identifier"
+    - >
+      kubectl patch statefulset ox-connector \
+        -n ${DEPLOY_NAMESPACE} \
+        --type strategic \
+        -p '
+      spec:
+        template:
+          spec:
+            containers:
+            - name: main
+              env:
+              - name: OX_USER_IDENTIFIER
+                value: "univentionObjectIdentifier"
+              - name: OX_GROUP_IDENTIFIER
+                value: "univentionObjectIdentifier"
+              - name: OX_SHARED_ACCOUNT_IDENTIFIER
+                value: "univentionObjectIdentifier"
+      '
+    - echo "Waiting for the ox-connector Pod to become ready after patch"
+    - >
+      kubectl -n "${DEPLOY_NAMESPACE}" rollout status --timeout=5m
+      statefulset -l "app.kubernetes.io/name=ox-connector"
+    - echo "Running tests inside ox-connector test image using installed environment"
+    - |
+      kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
+      pushd test-env
+      pytest \
+        -o cache_dir=/tmp/.pytest_cache \
+        -vl \
+        -m "not k8s_skip" \
+        tests/test_user.py \
+        tests/test_group.py \
+        tests/test_shared_account.py
+      EOT
+  rules:
+    - if: '$SKIP_TESTRUN == "yes"'
+      when: manual
+    - when: on_success
+
+
 stop-deployment:
   stage: cleanup
   allow_failure: true
@@ -348,6 +399,7 @@ stop-deployment:
     - ox-lab-deploy
     - deploy-ox-connector
     - run-tests-testimage
+    - run-tests-testimage-identifier
     - test-no-resync
   image: "$HELMFILE_IMAGE"
   script:
