@@ -3023,6 +3023,45 @@ properties:
   subscription: true
   usm: true
 ---
+action: create
+module: oxmail/shared_account_permission
+position: cn=shared_account_permissions,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "full_mail_access"
+  displayName: "Full Mail Access"
+  mail: author
+  calendar: none
+  sendAs: true
+---
+action: create
+module: oxmail/shared_account_permission
+position: cn=shared_account_permissions,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "read_only_mail"
+  displayName: "Read-only Mail Access"
+  mail: viewer
+  calendar: none
+---
+action: create
+module: oxmail/shared_account_permission
+position: cn=shared_account_permissions,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "full_calendar_access"
+  displayName: "Full Calendar Access"
+  mail: none
+  calendar: author
+  sendAs: true
+---
+action: create
+module: oxmail/shared_account_permission
+position: cn=shared_account_permissions,cn=open-xchange,{{ ldapBaseDn }}
+properties:
+  name: "full_mail_and_calendar_access"
+  displayName: "Full Mail and Calendar Access"
+  mail: author
+  calendar: author
+  sendAs: true
+---
 # Create default context
 action: create
 module: oxmail/oxcontext
