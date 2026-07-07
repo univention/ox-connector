@@ -197,6 +197,9 @@ configs["ox_soap_server"] = ox_connector_env["OX_SOAP_SERVER"]
 configs["ox_imap_server"] = ox_connector_env["OX_IMAP_SERVER"]
 configs["ox_smtp_server"] = ox_connector_env["OX_SMTP_SERVER"]
 configs["ox_db_connection_string"] = ox_connector_env["OX_CONNECTOR_DB"]
+configs["user_identifier"] = ox_connector_env["OX_USER_IDENTIFIER"]
+configs["group_identifier"] = ox_connector_env["OX_GROUP_IDENTIFIER"]
+configs["shared_account_identifier"] = ox_connector_env["OX_SHARED_ACCOUNT_IDENTIFIER"]
 
 parsed_url = urlparse(configs["ox_soap_server"])
 host_ip = to_ip(parsed_url.hostname)

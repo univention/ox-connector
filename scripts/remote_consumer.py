@@ -198,6 +198,11 @@ class RemoteConsumer:
                 "ox_shared_accounts"
             ]
             os.environ["OX_CONNECTOR_DB"] = configs["ox_db_connection_string"]
+            os.environ["OX_USER_IDENTIFIER"] = configs["user_identifier"]
+            os.environ["OX_GROUP_IDENTIFIER"] = configs["group_identifier"]
+            os.environ["OX_SHARED_ACCOUNT_IDENTIFIER"] = configs[
+                "shared_account_identifier"
+            ]
 
             if "hosts" in configs:
                 with open("/etc/hosts", 'a') as file:
@@ -303,6 +308,11 @@ class RemoteConsumer:
             "ox_deputy_permissions"
         ]
         test_env["OX_ENABLE_SHARED_ACCOUNT"] = configs["ox_shared_accounts"]
+        test_env["OX_USER_IDENTIFIER"] = configs["user_identifier"]
+        test_env["OX_GROUP_IDENTIFIER"] = configs["group_identifier"]
+        test_env["OX_SHARED_ACCOUNT_IDENTIFIER"] = configs[
+            "shared_account_identifier"
+        ]
 
         if "hosts" in configs:
             with open("/etc/hosts", 'a') as file:

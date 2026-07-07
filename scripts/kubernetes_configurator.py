@@ -539,6 +539,15 @@ class KubernetesConfigurator(RemoteConfigurator):
         remote_config["ox_db_connection_string"] = ox_connector_config[
             "OX_CONNECTOR_DB"
         ]
+        remote_config["user_identifier"] = ox_connector_config[
+            "OX_USER_IDENTIFIER"
+        ]
+        remote_config["group_identifier"] = ox_connector_config[
+            "OX_GROUP_IDENTIFIER"
+        ]
+        remote_config["shared_account_identifier"] = ox_connector_config[
+            "OX_SHARED_ACCOUNT_IDENTIFIER"
+        ]
 
         return remote_config
 
