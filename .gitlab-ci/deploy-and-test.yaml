@@ -224,6 +224,29 @@ collect-k8s-skip-tests:
     PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
 
 
+test-no-resync:
+  timeout: 2 hours
+  needs:
+    - pipeline-configuration
+    - wait-until-ready
+    # NOTE: Ensure that the artifacts are available, e.g. the admin password.
+    - deploy-nubus
+  stage: "deploy"
+  image: "$HELMFILE_IMAGE"
+  script:
+    - echo "Delete ox-connector pod to recreate it which should not trigger a refill"
+    - kubectl -n "${DEPLOY_NAMESPACE}" delete pod ox-connector-0
+    - echo "Waiting for the ox-connector Pod to become ready after patch"
+    - >
+      kubectl -n "${DEPLOY_NAMESPACE}" rollout status --timeout=5m
+      statefulset -l "app.kubernetes.io/name=ox-connector"
+    - kubectl -n "${DEPLOY_NAMESPACE}" logs ox-connector-0 -c init-db | grep "Tables are not empty. Skipping prefill."
+  rules:
+    - if: '$SKIP_TESTRUN == "yes"'
+      when: manual
+    - when: on_success
+
+
 run-tests-k8s:
   # Run the tests against the deployment through the Kubernetes API.
   timeout: 2 hours
@@ -232,6 +255,7 @@ run-tests-k8s:
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
     - deploy-nubus
+    - test-no-resync
   stage: "deploy"
   image: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
   script:
@@ -264,6 +288,7 @@ run-tests-testimage:
     - wait-until-ready
     # NOTE: Ensure that the artifacts are available, e.g. the admin password.
     - deploy-nubus
+    - test-no-resync
   stage: "deploy"
   image: "$HELMFILE_IMAGE"
   script:
@@ -314,7 +339,6 @@ run-tests-testimage:
       when: manual
     - when: on_success
 
-
 stop-deployment:
   stage: cleanup
   allow_failure: true
@@ -324,6 +348,7 @@ stop-deployment:
     - ox-lab-deploy
     - deploy-ox-connector
     - run-tests-testimage
+    - test-no-resync
   image: "$HELMFILE_IMAGE"
   script:
     - >

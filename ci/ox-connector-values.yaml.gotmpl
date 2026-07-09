@@ -24,6 +24,14 @@ provisioningApi:
   connection:
     baseUrl: "http://nubus-provisioning-api"
 
+  resync:
+    auth:
+      username: admin
+      existingSecret:
+        name: nubus-provisioning-api-admin
+        keyMapping:
+          password: password
+
 extraVolumes:
   - name: ox-connector-tmp
     emptyDir: {}
