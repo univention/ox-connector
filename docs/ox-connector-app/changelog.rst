@@ -50,7 +50,6 @@ For *OX Shared Accounts*, the following attributes are now explicitly
 synchronized: `Language`, `Timezone`, `SMTP server`, `IMAP server`. They are
 all taken from the global configuration of the OX Connector and cannot be
 changed individually.
-=======
 
 .. _app-changelog-v3.2.2:
 

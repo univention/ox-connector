@@ -5,7 +5,7 @@ Version = 4.0.0
 Name = OX Connector
 Vendor = Univention
 Contact = feedback@univention.de
-DockerScriptRestoreDataAfterSetup = /tmp/ox-connector.restore_data_after_setup
+DockerScriptRestoreDataAfterSetup =
 DockerScriptStoreData =
 DockerScriptUpdateAvailable =
 DockerScriptRestoreDataBeforeSetup =
@@ -20,7 +20,7 @@ DockerScriptConfigure = /tmp/ox-connector.configure
 DockerVolumes = /var/lib/univention-appcenter/listener/ox-connector/:/var/lib/univention-appcenter/listener/ox-connector/
 Description = Synchronize Nubus Users and Groups to Open-Xchange
 SupportedUcsVersions = 5.2-5
-RequiredAppVersionUpgrade = 2.3.5
+RequiredAppVersionUpgrade = 3.2.3
 Website = https://docs.software-univention.de/ox-connector-app/latest/
 LongDescription = <p>
 		The OX Connector App synchronizes selected users and groups to a local or remote OX installation via OX' SOAP API.

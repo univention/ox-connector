@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=21
+VERSION=22
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -507,9 +507,8 @@ setup_umc () {
 }
 
 create_cli() {
-  echo -e '#!/bin/bash\nunivention-app shell ox-connector /usr/local/share/ox-connector/univention-ox-connector-task-management "$@"' > /usr/sbin/univention-ox-connector-task-management
+  echo -e '#!/bin/bash\nunivention-app shell ox-connector /usr/local/share/ox-connector/resources/univention-ox-connector-task-management "$@"' > /usr/sbin/univention-ox-connector-task-management
   chmod 770 /usr/sbin/univention-ox-connector-task-management
-
 }
 
 die () { # [rv] "text"

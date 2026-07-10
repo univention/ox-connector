@@ -47,8 +47,7 @@ from sqlalchemy import (
     Index,
 )
 from sqlalchemy.engine.url import make_url
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from sqlalchemy import inspect as sa_inspect
 
 from univention.ox.soap.backend_base import get_ox_integration_class
