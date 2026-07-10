@@ -8,7 +8,7 @@
 Configure a database
 ********************
 
-.. versionadded:: 0.39.0
+.. versionadded:: 0.41.0
 
 To support the shared accounts feature,
 the *OX Connector* requires a PostgreSQL database to store account references.
@@ -16,7 +16,7 @@ PostgreSQL is the only tested and supported database for the *OX Connector*.
 The database isn't part of the OX App Suite packaged and the OX Connector integration.
 You need to provide it separately.
 
-Before you install or upgrade to a version ≥ 0.39.0,
+Before you install or upgrade to a version ≥ 0.41.0,
 ensure the following requirements for the database for the *OX Connector* in PostgreSQL:
 
 * You have created an empty database for the *OX Connector*.

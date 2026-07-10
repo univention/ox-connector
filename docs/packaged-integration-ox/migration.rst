@@ -2,13 +2,13 @@
 ..
 .. SPDX-License-Identifier: AGPL-3.0-only
 
-.. _migration-v0.39.0:
+.. _migration-v0.41.0:
 
 ********************
-Migration to v0.39.0
+Migration to v0.41.0
 ********************
 
-When you :ref:`upgrade from a previous version to v0.39.0 <consumer-changelog-v0.39.0>`,
+When you :ref:`upgrade from a previous version to v0.41.0 <consumer-changelog-v0.41.0>`,
 you must update your configuration
 so that the *OX Connector* can run through the following procedure in the ``init-db`` container.
 The first startup can take some time, because of the full synchronization.
@@ -20,7 +20,7 @@ The first startup can take some time, because of the full synchronization.
 
 .. warning::
 
-    Before you upgrade from a previous version to ``v0.39.0``
+    Before you upgrade from a previous version to ``v0.41.0``
     go through the migration steps.
     Otherwise, the *OX Connector* fails during start.
 

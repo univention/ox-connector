@@ -20,8 +20,8 @@ Kubernetes* documentation.
      - Change
 
    * - 22. Jun 2026
-     - :ref:`migration-v0.39.0`
-     - Add migration documentation for upgrading to v0.39.0 with PostgreSQL.
+     - :ref:`migration-v0.41.0`
+     - Add migration documentation for upgrading to v0.41.0 with PostgreSQL.
 
    * - 22. Jun 2026
      - :ref:`configure-database`
