@@ -45,6 +45,25 @@ action: create
 module: settings/umc_operationset
 position: cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
 properties:
+  name: "ox-shared-accounts"
+  description: Administration for OX shared accounts
+  flavor: oxmail/shared_account
+  hosts: []
+  objectFlag: []
+  operation:
+    - command: "udm/*"
+      option: "objectType=users/user"
+    - command: "udm/*"
+      option: "objectType=groups/group"
+    - command: "udm/*"
+      option: "objectType=oxmail/shared_account_permission"
+    - command: "udm/*"
+      option: "objectType=oxmail/shared_account"
+---
+action: create
+module: settings/umc_operationset
+position: cn=operations,cn=UMC,cn=univention,{{ ldapBaseDn }}
+properties:
   name: "ox-functional-accounts"
   description: Administration for OX functional mailboxes
   flavor: oxmail/functional_account
