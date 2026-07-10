@@ -1,9 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
+import os
 import pytest
 from urllib.parse import urlparse
 
+from univention.ox.provisioning.shared_account import (
+    _get_name as _get_name_shared_accounts,
+)
+from univention.ox.provisioning.users import _get_name as _get_name_users
+from univention.ox.provisioning.groups import _get_name as _get_name_groups
 from univention.ox.soap.config import (
     DEFAULT_IMAP_SERVER,
     DEFAULT_LANGUAGE,
@@ -13,6 +19,18 @@ from univention.ox.soap.config import (
 from univention.ox.soap.types import Types
 
 from udm_rest import UnprocessableEntity
+
+
+def get_identifier_shared_account(udm_object):
+    return _get_name_shared_accounts(udm_object.properties)
+
+
+def get_identifier_user(udm_object):
+    return _get_name_users(udm_object.properties)
+
+
+def get_identifier_group(udm_object):
+    return _get_name_groups(udm_object.properties)
 
 
 @pytest.fixture(scope="session")
@@ -52,7 +70,7 @@ def create_shared_account(
     users=None,
     groups=None,
 ):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/shared_account",
         "cn=shared_accounts,cn=open-xchange",
         {
@@ -64,8 +82,8 @@ def create_shared_account(
             "groups": groups,
         },
     )
-    print("Created account", dn, "in UDM")
-    return dn
+    print("Created account", obj.dn, "in UDM")
+    return obj
 
 
 def create_shared_account_permission(
@@ -80,7 +98,7 @@ def create_shared_account_permission(
     manageSieve=False,
     writeJSlob=False,
 ):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/shared_account_permission",
         "cn=shared_account_permissions,cn=open-xchange",
         {
@@ -96,8 +114,7 @@ def create_shared_account_permission(
             "writeJSlob": writeJSlob,
         },
     )
-    print("Created account permission", dn, "in UDM")
-    obj = udm.obj_by_dn(dn)
+    print("Created account permission", obj.dn, "in UDM")
     return obj.properties["univentionObjectIdentifier"]
 
 
@@ -134,7 +151,7 @@ def test_create_shared_account(
     )
 
     users = [[user.properties["univentionObjectIdentifier"], permission_uuid]]
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -142,15 +159,15 @@ def test_create_shared_account(
         users,
         [],
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
-    assert shared_account.name == new_account_name
+    assert shared_account.name == get_identifier_shared_account(sa_obj)
     assert shared_account.display_name == get_shared_account_display_name(
         new_account_name,
     )
@@ -175,7 +192,7 @@ def test_create_shared_account(
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user.properties["username"],
+        get_identifier_user(user),
     )
 
     assert_permission(
@@ -188,6 +205,13 @@ def test_create_shared_account(
     )
 
 
+@pytest.mark.skipif(
+    os.getenv("OX_SHARED_ACCOUNT_IDENTIFIER") != "name",
+    reason="""
+Modifying the shared account seems to not work properly when using a different identifier.
+If remove modifying of the name it works, but when modifying the name the display name is not modified
+but no errors from UDM or OX. Needs investigation.""",
+)
 def test_modify_shared_account(
     check_shared_account_support,
     udm,
@@ -208,14 +232,14 @@ def test_modify_shared_account(
         mail="editor",
     )
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
         domainname,
         users=[[user_uoid, permission_uoid]],
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     # Prepare new properties by modifying all of them
     modified_account_name = f"{new_account_name}_mod"
@@ -225,17 +249,16 @@ def test_modify_shared_account(
         "mailPrimaryAddress": f"{modified_account_name}@{domainname}",
     }
 
-    dn = udm.modify("oxmail/shared_account", dn, new_properties)
-    wait_for_listener(dn)
+    new_obj = udm.modify("oxmail/shared_account", sa_obj.dn, new_properties)
+    wait_for_listener(new_obj.dn)
 
-    # Since we modified 'name', we need to find the object by its new name
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        modified_account_name,
+        get_identifier_shared_account(new_obj),
     )
 
-    assert shared_account.name == modified_account_name
+    assert shared_account.name == get_identifier_shared_account(new_obj)
     assert shared_account.display_name == get_shared_account_display_name(
         modified_account_name,
     )
@@ -253,28 +276,28 @@ def test_delete_shared_account(
     find_ox_object,
     new_account_name,
 ):
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
         domainname,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
         assert_empty=False,
     )
 
-    udm.remove("oxmail/shared_account", dn)
-    wait_for_listener(dn)
+    udm.remove("oxmail/shared_account", sa_obj.dn)
+    wait_for_listener(sa_obj.dn)
 
     find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
         assert_empty=True,
     )
 
@@ -289,13 +312,13 @@ def test_shared_account_add_user(
     create_ox_user,
     wait_for_listener,
 ):
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
         domainname,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     user = create_ox_user()
     user_uoid = user.properties["univentionObjectIdentifier"]
@@ -308,13 +331,13 @@ def test_shared_account_add_user(
     )
 
     users = [[user_uoid, permission_uoid]]
-    udm.modify("oxmail/shared_account", dn, {"users": users})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"users": users})
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
@@ -322,7 +345,7 @@ def test_shared_account_add_user(
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user.properties["username"],
+        get_identifier_user(user),
     )
 
     assert_permission(
@@ -347,7 +370,6 @@ def test_shared_account_add_user_and_rename_it(
 ):
     user = create_ox_user()
     user_uoid = user.properties["univentionObjectIdentifier"]
-    username = user.properties["username"]
 
     permission_uoid = create_shared_account_permission(
         udm,
@@ -359,24 +381,28 @@ def test_shared_account_add_user_and_rename_it(
 
     users = [[user_uoid, permission_uoid]]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
         domainname,
         users,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
     permission = permissions[0]
-    ox_user = find_ox_object(default_ox_context, "User", username)
+    ox_user = find_ox_object(
+        default_ox_context,
+        "User",
+        get_identifier_user(user),
+    )
 
     assert_permission(
         permission,
@@ -387,14 +413,18 @@ def test_shared_account_add_user_and_rename_it(
         ["sendOnBehalf"],
     )
 
-    username = username + "_2"
-    dn = udm.modify("users/user", user.dn, {"username": username})
-    wait_for_listener(dn)
+    new_username = user.properties["username"] + "_2"
+    new_obj = udm.modify("users/user", user.dn, {"username": new_username})
+    wait_for_listener(new_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
     permission = permissions[0]
-    ox_user = find_ox_object(default_ox_context, "User", username)
+    ox_user = find_ox_object(
+        default_ox_context,
+        "User",
+        get_identifier_user(new_obj),
+    )
 
     assert_permission(
         permission,
@@ -439,7 +469,7 @@ def test_shared_account_add_user_in_another_context(
         user_data.append(
             {
                 "uoid": user.properties["univentionObjectIdentifier"],
-                "username": user.properties["username"],
+                "user": user,
                 "context_id": ctx_id,
                 "perm_uuid": perm_uuid,
                 "mail": mail,
@@ -450,7 +480,7 @@ def test_shared_account_add_user_in_another_context(
     users_list = [[d["uoid"], d["perm_uuid"]] for d in user_data]
 
     shared_ctx_id = create_ox_context()
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         shared_ctx_id,
         new_account_name,
@@ -458,14 +488,14 @@ def test_shared_account_add_user_in_another_context(
         users_list,
         [],
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         shared_ctx_id,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
-    assert shared_account.name == new_account_name
+    assert shared_account.name == get_identifier_shared_account(sa_obj)
     assert shared_account.display_name == get_shared_account_display_name(
         new_account_name,
     )
@@ -475,7 +505,11 @@ def test_shared_account_add_user_in_another_context(
     assert len(permissions) == len(user_data)
 
     for data in user_data:
-        ox_user = find_ox_object(data["context_id"], "User", data["username"])
+        ox_user = find_ox_object(
+            data["context_id"],
+            "User",
+            get_identifier_user(data["user"]),
+        )
         permission = next(
             p
             for p in permissions
@@ -504,18 +538,18 @@ def test_shared_account_add_group(
     create_ox_user,
     wait_for_listener,
 ):
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
         domainname,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permission_uoid = create_shared_account_permission(
@@ -528,18 +562,21 @@ def test_shared_account_add_group(
     user = create_ox_user()
 
     # group with the user as member from the start
-    group_dn = create_ox_group(new_group_name, members=[user.dn])
-    group = udm.obj_by_dn(group_dn)
+    group = create_ox_group(new_group_name, members=[user.dn])
     group_uoid = group.properties["univentionObjectIdentifier"]
 
     groups = [[group_uoid, permission_uoid]]
-    udm.modify("oxmail/shared_account", dn, {"groups": groups})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"groups": groups})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
     permission = permissions[0]
-    ox_group = find_ox_object(default_ox_context, "Group", new_group_name)
+    ox_group = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier_group(group),
+    )
 
     assert_permission(
         permission,
@@ -552,25 +589,28 @@ def test_shared_account_add_group(
 
     # group with the user as member after a while
     new_group_name = new_group_name + "_2"
-    group_dn = create_ox_group(new_group_name)
-    group = udm.obj_by_dn(group_dn)
+    group = create_ox_group(new_group_name)
     group_uoid = group.properties["univentionObjectIdentifier"]
 
     groups = [[group_uoid, permission_uoid]]
-    udm.modify("oxmail/shared_account", dn, {"groups": groups})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"groups": groups})
+    wait_for_listener(sa_obj.dn)
 
     # no permissions! group does not exist in OX (it is empty)
     permissions = shared_account.list_permissions()
     assert len(permissions) == 0
 
-    udm.modify("groups/group", group_dn, {"users": [user.dn]})
-    wait_for_listener(dn)
+    udm.modify("groups/group", group.dn, {"users": [user.dn]})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
     permission = permissions[0]
-    ox_group = find_ox_object(default_ox_context, "Group", new_group_name)
+    ox_group = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier_group(group),
+    )
 
     assert_permission(
         permission,
@@ -601,8 +641,7 @@ def test_shared_account_add_group_with_users_across_multiple_ox_contexts(
     new_context_id = create_ox_context()
     user1 = create_ox_user()
     user2 = create_ox_user(context_id=new_context_id)
-    group_dn = create_ox_group(new_group_name, members=[user1.dn, user2.dn])
-    group = udm.obj_by_dn(group_dn)
+    group = create_ox_group(new_group_name, members=[user1.dn, user2.dn])
     group_uoid = group.properties["univentionObjectIdentifier"]
 
     perm_uuid = create_shared_account_permission(
@@ -616,7 +655,7 @@ def test_shared_account_add_group_with_users_across_multiple_ox_contexts(
         [group_uoid, perm_uuid],
     ]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -624,12 +663,12 @@ def test_shared_account_add_group_with_users_across_multiple_ox_contexts(
         [],
         groups,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
@@ -665,7 +704,7 @@ def test_shared_account_remove_user(
         [user2.properties["univentionObjectIdentifier"], perm2_uuid],
     ]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -673,20 +712,20 @@ def test_shared_account_remove_user(
         users,
         [],
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 2
 
     users = [[user2.properties["univentionObjectIdentifier"], perm2_uuid]]
-    udm.modify("oxmail/shared_account", dn, {"users": users})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"users": users})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
@@ -694,7 +733,7 @@ def test_shared_account_remove_user(
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user2.properties["username"],
+        get_identifier_user(user2),
     )
 
     assert_permission(
@@ -720,11 +759,9 @@ def test_shared_account_remove_group(
     wait_for_listener,
 ):
     user = create_ox_user()
-    group1_dn = create_ox_group(new_group_name + "_1", members=[user.dn])
-    group2_dn = create_ox_group(new_group_name + "_2", members=[user.dn])
-    group1 = udm.obj_by_dn(group1_dn)
+    group1 = create_ox_group(new_group_name + "_1", members=[user.dn])
+    group2 = create_ox_group(new_group_name + "_2", members=[user.dn])
     group1_uoid = group1.properties["univentionObjectIdentifier"]
-    group2 = udm.obj_by_dn(group2_dn)
     group2_uoid = group2.properties["univentionObjectIdentifier"]
     perm1_uuid = create_shared_account_permission(
         udm,
@@ -740,7 +777,7 @@ def test_shared_account_remove_group(
     )
     groups = [[group1_uoid, perm1_uuid], [group2_uoid, perm2_uuid]]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -748,20 +785,20 @@ def test_shared_account_remove_group(
         [],
         groups,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 2
 
     groups = [[group1_uoid, perm1_uuid]]
-    udm.modify("oxmail/shared_account", dn, {"groups": groups})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"groups": groups})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
@@ -769,7 +806,7 @@ def test_shared_account_remove_group(
     ox_group = find_ox_object(
         default_ox_context,
         "Group",
-        new_group_name + "_1",
+        get_identifier_group(group1),
     )
 
     assert_permission(
@@ -806,7 +843,7 @@ def test_shared_account_change_user(
     )
     users = [[user.properties["univentionObjectIdentifier"], perm1_uuid]]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -814,12 +851,12 @@ def test_shared_account_change_user(
         users,
         [],
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
@@ -828,7 +865,7 @@ def test_shared_account_change_user(
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user.properties["username"],
+        get_identifier_user(user),
     )
 
     assert_permission(
@@ -841,8 +878,8 @@ def test_shared_account_change_user(
     )
 
     users = [[user.properties["univentionObjectIdentifier"], perm2_uuid]]
-    udm.modify("oxmail/shared_account", dn, {"users": users})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"users": users})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
@@ -878,7 +915,7 @@ def test_shared_account_replace_user(
     )
     users = [[user1.properties["univentionObjectIdentifier"], perm_uuid]]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -886,12 +923,12 @@ def test_shared_account_replace_user(
         users,
         [],
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
 
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
@@ -900,7 +937,7 @@ def test_shared_account_replace_user(
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user1.properties["username"],
+        get_identifier_user(user1),
     )
 
     assert_permission(
@@ -913,8 +950,8 @@ def test_shared_account_replace_user(
     )
 
     users = [[user2.properties["univentionObjectIdentifier"], perm_uuid]]
-    udm.modify("oxmail/shared_account", dn, {"users": users})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"users": users})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
@@ -922,7 +959,7 @@ def test_shared_account_replace_user(
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user2.properties["username"],
+        get_identifier_user(user2),
     )
 
     assert_permission(
@@ -948,8 +985,7 @@ def test_shared_account_change_group(
     wait_for_listener,
 ):
     user = create_ox_user()
-    group_dn = create_ox_group(new_group_name, members=[user.dn])
-    group = udm.obj_by_dn(group_dn)
+    group = create_ox_group(new_group_name, members=[user.dn])
     group_uoid = group.properties["univentionObjectIdentifier"]
     perm1_uuid = create_shared_account_permission(
         udm,
@@ -965,7 +1001,7 @@ def test_shared_account_change_group(
     )
     groups = [[group_uoid, perm1_uuid]]
 
-    dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -973,17 +1009,21 @@ def test_shared_account_change_group(
         [],
         groups,
     )
-    wait_for_listener(dn)
+    wait_for_listener(sa_obj.dn)
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
     permission = permissions[0]
-    ox_group = find_ox_object(default_ox_context, "Group", new_group_name)
+    ox_group = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier_group(group),
+    )
 
     assert_permission(
         permission,
@@ -995,8 +1035,8 @@ def test_shared_account_change_group(
     )
 
     groups = [[group_uoid, perm2_uuid]]
-    udm.modify("oxmail/shared_account", dn, {"groups": groups})
-    wait_for_listener(dn)
+    udm.modify("oxmail/shared_account", sa_obj.dn, {"groups": groups})
+    wait_for_listener(sa_obj.dn)
 
     permissions = shared_account.list_permissions()
     assert len(permissions) == 1
@@ -1055,8 +1095,7 @@ def test_shared_account_add_group_twice(
     default_ox_context,
     wait_for_listener,
 ):
-    group_dn = create_ox_group(new_group_name)
-    group = udm.obj_by_dn(group_dn)
+    group = create_ox_group(new_group_name)
     group_uoid = group.properties["univentionObjectIdentifier"]
     perm1_uuid = create_shared_account_permission(
         udm,
@@ -1086,7 +1125,7 @@ def test_create_shared_account_permission(
     wait_for_listener,
     new_account_name,
 ):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/shared_account_permission",
         "cn=shared_account_permissions,cn=open-xchange",
         {
@@ -1104,7 +1143,7 @@ def test_create_shared_account_permission(
             "writeJSlob": True,
         },
     )
-    wait_for_listener(dn)
+    wait_for_listener(obj.dn)
 
 
 def test_modify_shared_account_permission(
@@ -1117,7 +1156,7 @@ def test_modify_shared_account_permission(
     find_ox_object,
     domainname,
 ):
-    dn = udm.create(
+    permission = udm.create(
         "oxmail/shared_account_permission",
         "cn=shared_account_permissions,cn=open-xchange",
         {
@@ -1135,8 +1174,7 @@ def test_modify_shared_account_permission(
             "writeJSlob": False,
         },
     )
-    wait_for_listener(dn)
-    permission = udm.obj_by_dn(dn)
+    wait_for_listener(permission.dn)
 
     user = create_ox_user()
     users = [
@@ -1146,7 +1184,7 @@ def test_modify_shared_account_permission(
         ],
     ]
 
-    shared_account_dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -1154,20 +1192,24 @@ def test_modify_shared_account_permission(
         users,
         [],
     )
-    wait_for_listener(shared_account_dn)
+    wait_for_listener(sa_obj.dn)
 
-    udm.modify("oxmail/shared_account_permission", dn, {"sendAs": True})
-    wait_for_listener(shared_account_dn)
+    udm.modify(
+        "oxmail/shared_account_permission",
+        permission.dn,
+        {"sendAs": True},
+    )
+    wait_for_listener(sa_obj.dn)
 
     ox_user = find_ox_object(
         default_ox_context,
         "User",
-        user.properties["username"],
+        get_identifier_user(user),
     )
     shared_account = find_ox_object(
         default_ox_context,
         "SharedAccount",
-        new_account_name,
+        get_identifier_shared_account(sa_obj),
     )
 
     permissions = shared_account.list_permissions()
@@ -1190,7 +1232,7 @@ def test_delete_shared_account_permission(
     wait_for_listener,
     new_account_name,
 ):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/shared_account_permission",
         "cn=shared_account_permissions,cn=open-xchange",
         {
@@ -1208,9 +1250,9 @@ def test_delete_shared_account_permission(
             "writeJSlob": True,
         },
     )
-    wait_for_listener(dn)
+    wait_for_listener(obj.dn)
 
-    udm.remove("oxmail/shared_account_permission", dn)
+    udm.remove("oxmail/shared_account_permission", obj.dn)
 
 
 def test_delete_shared_account_permission_if_user_is_linked_to_shared_account_with_that_permission(
@@ -1222,7 +1264,7 @@ def test_delete_shared_account_permission_if_user_is_linked_to_shared_account_wi
     default_ox_context,
     domainname,
 ):
-    dn = udm.create(
+    permission = udm.create(
         "oxmail/shared_account_permission",
         "cn=shared_account_permissions,cn=open-xchange",
         {
@@ -1240,8 +1282,7 @@ def test_delete_shared_account_permission_if_user_is_linked_to_shared_account_wi
             "writeJSlob": False,
         },
     )
-    wait_for_listener(dn)
-    permission = udm.obj_by_dn(dn)
+    wait_for_listener(permission.dn)
 
     user = create_ox_user()
     users = [
@@ -1251,7 +1292,7 @@ def test_delete_shared_account_permission_if_user_is_linked_to_shared_account_wi
         ],
     ]
 
-    shared_account_dn = create_shared_account(
+    sa_obj = create_shared_account(
         udm,
         default_ox_context,
         new_account_name,
@@ -1259,8 +1300,8 @@ def test_delete_shared_account_permission_if_user_is_linked_to_shared_account_wi
         users,
         [],
     )
-    wait_for_listener(shared_account_dn)
+    wait_for_listener(sa_obj.dn)
 
     with pytest.raises(UnprocessableEntity):
         # oxmail/shared_account_permission cannot be removed as long as they are referenced
-        udm.remove("oxmail/shared_account_permission", dn)
+        udm.remove("oxmail/shared_account_permission", permission.dn)

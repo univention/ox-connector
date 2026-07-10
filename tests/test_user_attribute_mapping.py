@@ -43,12 +43,12 @@ def create_obj(
     }
     if attrs:
         _attrs.update(attrs)
-    dn = udm.create(
+    obj = udm.create(
         "users/user",
         "cn=users",
         _attrs,
     )
-    return dn
+    return obj.dn
 
 
 def no_none():

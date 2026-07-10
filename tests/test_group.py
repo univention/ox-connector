@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
+from univention.ox.provisioning.groups import _get_name
+
+
+def get_identifier(udm_object):
+    return _get_name(udm_object.properties)
+
 
 def test_ignore_group(
     find_ox_object,
@@ -43,21 +49,41 @@ def test_enable_and_disable_group(
     new_context_id2 = create_ox_context()
     user_dn2 = create_ox_user(context_id=new_context_id2).dn
     user_dn3 = create_ox_user(context_id=new_context_id2).dn
-    dn = create_ox_group(
+    group_obj = create_ox_group(
         new_group_name,
         members=[user_dn1, user_dn2, user_dn3],
         enabled=False,
     )
-    find_ox_object(new_context_id, "Group", new_group_name, assert_empty=True)
-    find_ox_object(new_context_id2, "Group", new_group_name, assert_empty=True)
-    udm.modify("groups/group", dn, {"isOxGroup": True})
-    wait_for_listener(dn)
-    find_ox_object(new_context_id, "Group", new_group_name)
-    find_ox_object(new_context_id2, "Group", new_group_name)
-    udm.modify("groups/group", dn, {"isOxGroup": False})
-    wait_for_listener(dn)
-    find_ox_object(new_context_id, "Group", new_group_name, assert_empty=True)
-    find_ox_object(new_context_id2, "Group", new_group_name, assert_empty=True)
+    find_ox_object(
+        new_context_id,
+        "Group",
+        get_identifier(group_obj),
+        assert_empty=True,
+    )
+    find_ox_object(
+        new_context_id2,
+        "Group",
+        get_identifier(group_obj),
+        assert_empty=True,
+    )
+    udm.modify("groups/group", group_obj.dn, {"isOxGroup": True})
+    wait_for_listener(group_obj.dn)
+    find_ox_object(new_context_id, "Group", get_identifier(group_obj))
+    find_ox_object(new_context_id2, "Group", get_identifier(group_obj))
+    udm.modify("groups/group", group_obj.dn, {"isOxGroup": False})
+    wait_for_listener(group_obj.dn)
+    find_ox_object(
+        new_context_id,
+        "Group",
+        get_identifier(group_obj),
+        assert_empty=True,
+    )
+    find_ox_object(
+        new_context_id2,
+        "Group",
+        get_identifier(group_obj),
+        assert_empty=True,
+    )
 
 
 def test_add_group_with_one_user(
@@ -75,9 +101,13 @@ def test_add_group_with_one_user(
     UDM attributes should be reflected in OX
     """
     user_dn = create_ox_user().dn
-    create_ox_group(new_group_name, members=[user_dn])
-    obj = find_ox_object(default_ox_context, "Group", new_group_name)
-    assert obj.name == new_group_name
+    group_obj = create_ox_group(new_group_name, members=[user_dn])
+    obj = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
+    assert obj.name == get_identifier(group_obj)
     assert len(obj.members) == 1
 
 
@@ -98,9 +128,9 @@ def test_add_group_with_one_enabled_user_and_one_disabled(
     new_context_id = create_ox_context()
     user_dn1 = create_ox_user(context_id=new_context_id).dn
     user_dn2 = create_ox_user(enabled=False).dn
-    create_ox_group(new_group_name, members=[user_dn1, user_dn2])
-    obj = find_ox_object(new_context_id, "Group", new_group_name)
-    assert obj.name == new_group_name
+    group_obj = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
+    obj = find_ox_object(new_context_id, "Group", get_identifier(group_obj))
+    assert obj.name == get_identifier(group_obj)
     assert len(obj.members) == 1
 
 
@@ -123,25 +153,51 @@ def test_change_context_for_group_multi_user(
     user_dn = create_ox_user(context_id=context_id).dn
     user_dn1 = create_ox_user(context_id=context_id).dn
     user_dn2 = create_ox_user(context_id=new_context_id).dn
-    group_dn = create_ox_group(
+    group_obj = create_ox_group(
         new_group_name,
         members=[user_dn, user_dn1, user_dn2],
     )
     assert (
-        len(find_ox_object(context_id, "Group", new_group_name).members) == 2
+        len(
+            find_ox_object(
+                context_id,
+                "Group",
+                get_identifier(group_obj),
+            ).members,
+        )
+        == 2
     )
     assert (
-        len(find_ox_object(new_context_id, "Group", new_group_name).members)
+        len(
+            find_ox_object(
+                new_context_id,
+                "Group",
+                get_identifier(group_obj),
+            ).members,
+        )
         == 1
     )
 
     udm.modify("users/user", user_dn, {"oxContext": new_context_id})
-    wait_for_listener(group_dn)
+    wait_for_listener(group_obj.dn)
     assert (
-        len(find_ox_object(context_id, "Group", new_group_name).members) == 1
+        len(
+            find_ox_object(
+                context_id,
+                "Group",
+                get_identifier(group_obj),
+            ).members,
+        )
+        == 1
     )
     assert (
-        len(find_ox_object(new_context_id, "Group", new_group_name).members)
+        len(
+            find_ox_object(
+                new_context_id,
+                "Group",
+                get_identifier(group_obj),
+            ).members,
+        )
         == 2
     )
 
@@ -163,13 +219,18 @@ def test_change_context_for_group_user(
     """
     context_id = create_ox_context()
     user_dn = create_ox_user(context_id=context_id).dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn])
-    find_ox_object(context_id, "Group", new_group_name)
+    group_obj = create_ox_group(new_group_name, members=[user_dn])
+    find_ox_object(context_id, "Group", get_identifier(group_obj))
     new_context_id = create_ox_context()
     udm.modify("users/user", user_dn, {"oxContext": new_context_id})
-    wait_for_listener(group_dn)
-    find_ox_object(context_id, "Group", new_group_name, assert_empty=True)
-    find_ox_object(new_context_id, "Group", new_group_name)
+    wait_for_listener(group_obj.dn)
+    find_ox_object(
+        context_id,
+        "Group",
+        get_identifier(group_obj),
+        assert_empty=True,
+    )
+    find_ox_object(new_context_id, "Group", get_identifier(group_obj))
 
 
 def test_rename_group(
@@ -186,12 +247,20 @@ def test_rename_group(
     Renaming a group should keep ID
     """
     user_dn = create_ox_user().dn
-    dn = create_ox_group(new_group_name, members=[user_dn])
-    obj = find_ox_object(default_ox_context, "Group", new_group_name)
+    group_obj = create_ox_group(new_group_name, members=[user_dn])
+    obj = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     old_id = obj.id
-    new_dn = udm.modify("groups/group", dn, {"name": f"new{new_group_name}"})
-    wait_for_listener(new_dn)
-    obj = find_ox_object(default_ox_context, "Group", f"new{new_group_name}")
+    new_obj = udm.modify(
+        "groups/group",
+        group_obj.dn,
+        {"name": f"new{new_group_name}"},
+    )
+    wait_for_listener(new_obj.dn)
+    obj = find_ox_object(default_ox_context, "Group", get_identifier(new_obj))
     assert obj.id == old_id
 
 
@@ -214,12 +283,15 @@ def test_add_group_with_multiple_users_and_contexts(
     new_context_id2 = create_ox_context()
     user_dn2 = create_ox_user(context_id=new_context_id2).dn
     user_dn3 = create_ox_user(context_id=new_context_id2).dn
-    create_ox_group(new_group_name, members=[user_dn1, user_dn2, user_dn3])
-    obj = find_ox_object(new_context_id, "Group", new_group_name)
-    assert obj.name == new_group_name
+    group_obj = create_ox_group(
+        new_group_name,
+        members=[user_dn1, user_dn2, user_dn3],
+    )
+    obj = find_ox_object(new_context_id, "Group", get_identifier(group_obj))
+    assert obj.name == get_identifier(group_obj)
     assert len(obj.members) == 1
-    obj2 = find_ox_object(new_context_id2, "Group", new_group_name)
-    assert obj2.name == new_group_name
+    obj2 = find_ox_object(new_context_id2, "Group", get_identifier(group_obj))
+    assert obj2.name == get_identifier(group_obj)
     assert len(obj2.members) == 2
 
 
@@ -237,11 +309,15 @@ def test_modify_group(
     Modifications in UDM should be reflected in OX
     """
     user_dn = create_ox_user().dn
-    dn = create_ox_group(new_group_name, members=[user_dn])
-    new_dn = udm.modify("groups/group", dn, {"name": f"x{new_group_name}x"})
-    wait_for_listener(new_dn)
-    obj = find_ox_object(default_ox_context, "Group", f"x{new_group_name}x")
-    assert obj.name == f"x{new_group_name}x"
+    group_obj = create_ox_group(new_group_name, members=[user_dn])
+    new_obj = udm.modify(
+        "groups/group",
+        group_obj.dn,
+        {"name": f"x{new_group_name}x"},
+    )
+    wait_for_listener(new_obj.dn)
+    obj = find_ox_object(default_ox_context, "Group", get_identifier(new_obj))
+    assert obj.name == get_identifier(new_obj)
     assert len(obj.members) == 1
 
 
@@ -259,12 +335,20 @@ def test_rename_user(
     Renaming user should keep User ID in groups member list
     """
     user_dn = create_ox_user().dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn])
-    obj = find_ox_object(default_ox_context, "Group", new_group_name)
+    group_obj = create_ox_group(new_group_name, members=[user_dn])
+    obj = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     old_members = obj.members
     udm.modify("users/user", user_dn, {"username": "new" + new_user_name})
-    wait_for_listener(group_dn)
-    obj = find_ox_object(default_ox_context, "Group", new_group_name)
+    wait_for_listener(group_obj.dn)
+    obj = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     assert old_members == obj.members
 
 
@@ -283,19 +367,27 @@ def test_remove_user(
     """
     user_dn1 = create_ox_user().dn
     user_dn2 = create_ox_user().dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
-    obj = find_ox_object(default_ox_context, "Group", new_group_name)
+    group_obj = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
+    obj = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     assert len(obj.members) == 2
     udm.remove("users/user", user_dn1)
-    wait_for_listener(group_dn)
-    obj = find_ox_object(default_ox_context, "Group", new_group_name)
+    wait_for_listener(group_obj.dn)
+    obj = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     assert len(obj.members) == 1
     udm.remove("users/user", user_dn2)
-    wait_for_listener(group_dn)
+    wait_for_listener(group_obj.dn)
     find_ox_object(
         default_ox_context,
         "Group",
-        new_group_name,
+        get_identifier(group_obj),
         assert_empty=True,
     )
 
@@ -317,17 +409,22 @@ def test_remove_group(
     new_context_id = create_ox_context()
     user_dn1 = create_ox_user().dn
     user_dn2 = create_ox_user(context_id=new_context_id).dn
-    dn = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
-    find_ox_object(new_context_id, "Group", new_group_name)
-    udm.remove("groups/group", dn)
-    wait_for_listener(dn)
+    group_obj = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
+    find_ox_object(new_context_id, "Group", get_identifier(group_obj))
+    udm.remove("groups/group", group_obj.dn)
+    wait_for_listener(group_obj.dn)
     find_ox_object(
         default_ox_context,
         "Group",
-        new_group_name,
+        get_identifier(group_obj),
         assert_empty=True,
     )
-    find_ox_object(new_context_id, "Group", new_group_name, assert_empty=True)
+    find_ox_object(
+        new_context_id,
+        "Group",
+        get_identifier(group_obj),
+        assert_empty=True,
+    )
 
 
 def test_remove_last_member_of_group_two_members(
@@ -348,23 +445,31 @@ def test_remove_last_member_of_group_two_members(
     # Create a group with two users
     user_dn1 = create_ox_user().dn
     user_dn2 = create_ox_user().dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
-    group = find_ox_object(default_ox_context, "Group", new_group_name)
+    group_obj = create_ox_group(new_group_name, members=[user_dn1, user_dn2])
+    group = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     assert len(group.members) == 2
 
     # Remove a user
     udm.remove("users/user", user_dn1)
-    wait_for_listener(group_dn)
-    updated_group = find_ox_object(default_ox_context, "Group", new_group_name)
+    wait_for_listener(group_obj.dn)
+    updated_group = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     assert len(updated_group.members) == 1
 
     # Remove another user, this should as well remove the group
     udm.remove("users/user", user_dn2)
-    wait_for_listener(group_dn)
+    wait_for_listener(group_obj.dn)
     find_ox_object(
         default_ox_context,
         "Group",
-        new_group_name,
+        get_identifier(group_obj),
         assert_empty=True,
     )
 
@@ -386,16 +491,20 @@ def test_remove_last_member_of_group_one_member(
     """
     # Create a group with one user
     user_dn1 = create_ox_user().dn
-    group_dn = create_ox_group(new_group_name, members=[user_dn1])
-    group = find_ox_object(default_ox_context, "Group", new_group_name)
+    group_obj = create_ox_group(new_group_name, members=[user_dn1])
+    group = find_ox_object(
+        default_ox_context,
+        "Group",
+        get_identifier(group_obj),
+    )
     assert len(group.members) == 1
 
     # Remove the user, this should as well remove the group
     udm.remove("users/user", user_dn1)
-    wait_for_listener(group_dn)
+    wait_for_listener(group_obj.dn)
     find_ox_object(
         default_ox_context,
         "Group",
-        new_group_name,
+        get_identifier(group_obj),
         assert_empty=True,
     )

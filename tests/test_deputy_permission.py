@@ -161,37 +161,37 @@ def test_update_reference(
 
     # rename deputy
     deputy_name = deputy_name + "-2"
-    new_deputy_dn = udm.modify(
+    new_deputy_obj = udm.modify(
         "users/user",
         old_deputy_dn,
         {"username": deputy_name},
     )
-    assert new_deputy_dn != old_deputy_dn
+    assert new_deputy_obj.dn != old_deputy_dn
     manager = get_udm_user(manager_name)
     assert manager.properties["oxDeputyPermissionGivenTo"] == [
-        [new_deputy_dn, "08444", "08444", True],
+        [new_deputy_obj.dn, "08444", "08444", True],
     ]
 
     # move deputy
-    old_deputy_dn = new_deputy_dn
+    old_deputy_dn = new_deputy_obj.dn
     container_name = new_user_name_generator()
-    container_dn = udm.create("container/cn", None, {"name": container_name})
-    new_deputy_dn = udm.move("users/user", old_deputy_dn, container_dn)
-    assert new_deputy_dn != old_deputy_dn
+    container_obj = udm.create("container/cn", None, {"name": container_name})
+    new_deputy_obj = udm.move("users/user", old_deputy_dn, container_obj.dn)
+    assert new_deputy_obj.dn != old_deputy_dn
     manager = get_udm_user(manager_name)
     assert manager.properties["oxDeputyPermissionGivenTo"] == [
-        [new_deputy_dn, "08444", "08444", True],
+        [new_deputy_obj.dn, "08444", "08444", True],
     ]
 
     # rename container
-    old_deputy_dn = new_deputy_dn
+    old_deputy_dn = new_deputy_obj.dn
     container_name = new_user_name_generator()
-    new_container_dn = udm.modify(
+    new_container_obj = udm.modify(
         "container/cn",
-        container_dn,
+        container_obj.dn,
         {"name": container_name},
     )
-    assert new_container_dn != container_dn
+    assert new_container_obj.dn != container_obj.dn
     new_deputy_dn = get_udm_user(deputy_name).dn
     assert new_deputy_dn != old_deputy_dn
     manager = get_udm_user(manager_name)
@@ -351,16 +351,16 @@ def test_modify_deputy_permission_after_rename(
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [permission]
     new_deputy_name = "new_" + deputy.properties["username"]
-    new_deputy_dn = udm.modify(
+    new_deputy_obj = udm.modify(
         "users/user",
         deputy.dn,
         {"username": new_deputy_name},
     )
-    wait_for_listener(new_deputy_dn)
+    wait_for_listener(new_deputy_obj.dn)
     # FIXME: udm_obj is
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == [
-        [new_deputy_dn] + permission[1:],
+        [new_deputy_obj.dn] + permission[1:],
     ]
 
 

@@ -422,7 +422,8 @@ class KubernetesConfigurator(RemoteConfigurator):
                         )
                         if cm.data:
                             for k, v in cm.data.items():
-                                spec_env[k] = v
+                                if k not in spec_env:
+                                    spec_env[k] = v
                     except Exception as e:
                         logging.error(
                             f"  Error reading ConfigMap {cm_name}: {e}",

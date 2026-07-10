@@ -12,7 +12,7 @@ def create_obj(
     users,
     position="cn=functional_accounts,cn=open-xchange",
 ):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/functional_account",
         position,
         {
@@ -22,8 +22,8 @@ def create_obj(
             "users": users,
         },
     )
-    print("Created account", dn, "in UDM")
-    return dn
+    print("Created account", obj.dn, "in UDM")
+    return obj.dn
 
 
 POSITIONS = ["cn=functional_accounts,cn=open-xchange", "cn=users"]
@@ -417,19 +417,19 @@ def test_modify_user(
     assert len(accounts) == 1
     assert accounts[0].userId == ox_user.id
 
-    new_dn = udm.modify(
+    new_obj = udm.modify(
         "users/user",
         user.dn,
         {"username": "new" + user.properties["username"]},
     )
-    assert user.dn != new_dn
-    wait_for_listener(new_dn)
+    assert user.dn != new_obj.dn
+    wait_for_listener(new_obj.dn)
     for account in udm.search(
         "oxmail/functional_account",
         f"cn={new_functional_account_name}",
     ):
         account = account.open()
-        assert account.properties["users"] == [new_dn]
+        assert account.properties["users"] == [new_obj.dn]
         break
     else:
         raise RuntimeError("No UDM object found")

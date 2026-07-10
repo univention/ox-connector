@@ -10,7 +10,7 @@ from univention.ox.provisioning.accessprofiles import (
 
 
 def create_user(udm, name, domainname, context_id, ox_access):
-    dn = udm.create(
+    obj = udm.create(
         "users/user",
         "cn=users",
         {
@@ -24,11 +24,11 @@ def create_user(udm, name, domainname, context_id, ox_access):
             "oxContext": context_id,
         },
     )
-    return dn
+    return obj.dn
 
 
 def create_obj(udm, name, right):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/accessprofile",
         "cn=accessprofiles,cn=open-xchange",
         {
@@ -37,7 +37,7 @@ def create_obj(udm, name, right):
             right: True,
         },
     )
-    return dn
+    return obj.dn
 
 
 def find_access(find_ox_object, context_id, name, assert_empty=False):

@@ -7,7 +7,7 @@ from udm_rest import UnprocessableEntity
 
 
 def create_context(udm, ox_host, context_id, name=None, max_quota=1000):
-    dn = udm.create(
+    obj = udm.create(
         "oxmail/oxcontext",
         "cn=open-xchange",
         {
@@ -16,7 +16,7 @@ def create_context(udm, ox_host, context_id, name=None, max_quota=1000):
             "name": name or "context{}".format(context_id),
         },
     )
-    return dn
+    return obj.dn
 
 
 def test_add_context(

@@ -306,7 +306,7 @@ class UDMTest(object):
         dns = self.new_objs.get(module, [])
         dns.append(dn)
         self.new_objs[module] = dns
-        return dn
+        return obj
 
     def modify(self, module, dn, attrs):
         print("Modifying {} object {}".format(module, dn))
@@ -323,7 +323,7 @@ class UDMTest(object):
                 pass
             dns.append(new_dn)
             self.new_objs[module] = dns
-        return new_dn
+        return obj
 
     def move(self, module, dn, position):
         print("Moving {} object {} into {}".format(module, dn, position))
@@ -339,7 +339,7 @@ class UDMTest(object):
             pass
         dns.append(new_dn)
         self.new_objs[module] = dns
-        return new_dn
+        return obj
 
     def remove(self, module, dn, remove_from_new_objs=True):
         print("Removing {} from {}".format(dn, module))
@@ -351,7 +351,7 @@ class UDMTest(object):
                 dns.remove(dn)
             except ValueError:
                 pass
-            return dn
+            return obj
 
     def search(self, module, search_filter):
         return self.client.get(module).search(search_filter)
@@ -400,7 +400,7 @@ def create_ox_context(
 ):
     def _func(context_id=None):
         context_id = context_id or new_context_id_generator()
-        dn = udm.create(
+        obj = udm.create(
             "oxmail/oxcontext",
             "cn=open-xchange",
             {
@@ -409,7 +409,7 @@ def create_ox_context(
                 "name": "context{}".format(context_id),
             },
         )
-        print("Created context", dn, "in UDM")
+        print("Created context", obj.dn, "in UDM")
 
         if not k8s_enabled:
             # The soap backend creates new credentials for a new context,
@@ -423,7 +423,7 @@ def create_ox_context(
         # example by creating a object in the new context may fail with an auth error
         # because new credentials are not yet written to the disk cache
         # because new crdentails are not yet written to the disk cache
-        wait_for_listener(dn)
+        wait_for_listener(obj.dn)
         return context_id
 
     return _func
@@ -441,7 +441,6 @@ def get_udm_user(udm):
 @pytest.fixture
 def create_ox_user(
     udm,
-    get_udm_user,
     new_user_name_generator,
     domainname,
     default_ox_context,
@@ -466,15 +465,15 @@ def create_ox_user(
             "oxAccess": "premium",
             "oxContext": context_id,
         }
-        dn = udm.create(
+        obj = udm.create(
             "users/user",
             ldap_path,
             attrs | (further_udm_attrs or {}),
         )
-        print("Created user", dn, "in UDM")
+        print("Created user", obj.dn, "in UDM")
         if wait:
-            wait_for_listener(dn)
-        return get_udm_user(name)
+            wait_for_listener(obj.dn)
+        return obj
 
     return _func
 
@@ -488,7 +487,7 @@ def create_ox_group(udm, wait_for_listener, default_ox_context):
         enabled=True,
         wait=True,
     ):
-        dn = udm.create(
+        obj = udm.create(
             "groups/group",
             "cn=groups",
             {
@@ -498,11 +497,11 @@ def create_ox_group(udm, wait_for_listener, default_ox_context):
                 "oxContext": context_id,
             },
         )
-        print(f"Created group {dn} in UDM")
+        print(f"Created group {obj.dn} in UDM")
         if wait:
-            wait_for_listener(dn)
+            wait_for_listener(obj.dn)
 
-        return dn
+        return obj
 
     return _func
 

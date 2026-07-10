@@ -17,12 +17,12 @@ def create_obj(udm, name, domainname, context_id, user, attrs=None):
     if attrs is not None:
         default_attrs.update(attrs)
 
-    dn = udm.create(
+    obj = udm.create(
         "oxresources/oxresources",
         "cn=oxresources,cn=open-xchange",
         default_attrs,
     )
-    return dn
+    return obj.dn
 
 
 def test_add_resource_in_default_context(

@@ -163,13 +163,13 @@ def test_rename_user(
     user = create_ox_user()
     db_id = get_db_id(user.dn, db=ox_mapping['id_mapping'])
     assert db_id is not None
-    dn = udm.modify(
+    new_obj = udm.modify(
         "users/user",
         user.dn,
         {"username": "new" + user.properties["username"]},
     )
-    wait_for_listener(dn)
-    new_db_id = get_db_id(dn, db=ox_mapping['id_mapping'])
+    wait_for_listener(new_obj.dn)
+    new_db_id = get_db_id(new_obj.dn, db=ox_mapping['id_mapping'])
     assert db_id == new_db_id
 
 
