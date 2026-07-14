@@ -67,7 +67,6 @@ main () {
   migrate_user_access_profiles "${@}"
 
   create_shared_account_permissions "${@}"
-
   setup_umc "${@}"
 
   create_cli
@@ -344,10 +343,6 @@ create_container () {
 }
 
 create_accessprofiles () {
-  if [[ "${JS_LAST_EXECUTED_VERSION}" -eq "1" ]]; then
-    # new listener filter
-    systemctl restart univention-directory-listener
-  fi
   echo "Creating OX access profiles..."
 
   univention-directory-manager oxmail/accessprofile create "${@}" \
@@ -454,10 +449,6 @@ migrate_user_access_profiles() {
 }
 
 create_shared_account_permissions () {
-  if [[ "${JS_LAST_EXECUTED_VERSION}" -lt "21" ]]; then
-    # new listener filter
-    systemctl restart univention-directory-listener
-  fi
   echo "Creating Shared Account Permissions..."
 
   univention-directory-manager oxmail/shared_account_permission create "${@}" \

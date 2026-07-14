@@ -6,18 +6,9 @@ set -o errexit
 set -o pipefail
 
 APP_ID="ox-connector"
-
 if [[ "${1}" = "install" ]]; then
   default_context="$(univention-app configure "${APP_ID}" --list | grep DEFAULT_CONTEXT: | awk '{ print $2 }')"
   ucr set ox/context/id="${default_context}"
 elif [[ "${1}" = "settings" ]]; then
   univention-app reinitialize "${APP_ID}"
-fi
-
-# remove later
-# between version 2.3.5 and 3.0.0 there we changed the udm listener api version for the appcenter listener.
-# because of this, the listener must be restarted after an upgrade from v 2.x to v 3.x.
-# Once we are sure that this update has happened for all customers, we can remove this.
-if [[ "${1}" = "upgrade" ]] ; then
-    systemctl restart univention-directory-listener.service
 fi

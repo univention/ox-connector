@@ -7,6 +7,121 @@ set -o pipefail
 
 APP_ID="ox-connector"
 
+# Returns 0 if this is a fresh install, 1 if upgrade
+is_install() {
+    # Piping `univention-app info` directly fails when run in a preinst script
+    # Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
+    # BrokenPipeError: [Errno 32] Broken pipe
+    app_state="$(univention-app info)"
+    if echo "${app_state}" | grep -q "^Installed:.*${APP_ID}="; then
+        echo "ox-connector already installed, this is an upgrade"
+        return 1
+    else
+        echo "ox-connector not yet installed, this is a fresh install"
+        return 0
+    fi
+}
+
+setup_provisioning_subscriptions() {
+    local subscription_name="${APP_ID}"
+    local app_provisioning_env_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning.env"
+    local force="${FORCE:-false}"
+
+    mkdir --parent "$(dirname "$app_provisioning_env_file")"
+
+    if [[ "$(ucr get "server/role")" != "domaincontroller_master" ]]; then
+        echo "Not running on primary, skipping provisioning setup."
+        return 0
+    fi
+
+    if [[ "$force" != "true" ]] && [[ -f "$app_provisioning_env_file" ]]; then
+        echo "$app_provisioning_env_file already exists, skipping provisioning setup."
+        return 0
+    fi
+
+    local fqdn
+    fqdn=$(ucr get ldap/master)
+    local base_url="https://$fqdn/univention/provisioning"
+    local username="admin"
+    local admin_password
+    admin_password=$(python3 <<'EOF'
+import json
+with open("/etc/provisioning-secrets.json", "r") as f:
+    print(json.load(f)["PROVISIONING_API_ADMIN_PASSWORD"])
+EOF
+)
+    local subscription_password
+    subscription_password=$(openssl rand -hex 32)
+
+    local prefill
+    if is_install; then
+        prefill="true"
+        echo "Subscription will be prefilled (fresh install)"
+    else
+        prefill="false"
+        echo "Subscription will NOT be prefilled (upgrade)"
+    fi
+
+    local data
+    # Order of realms_topics is important, this ensures we get ou's first
+    data="$(cat <<EOF
+{
+  "name": "$subscription_name",
+  "realms_topics": [
+    {"realm":"udm", "topic":"users/user"},
+    {"realm":"udm", "topic":"groups/group"},
+    {"realm":"udm", "topic":"oxmail/oxcontext"},
+    {"realm":"udm", "topic":"oxmail/accessprofile"},
+    {"realm":"udm", "topic":"oxresources/oxresources"},
+    {"realm":"udm", "topic":"oxmail/functional_account"},
+    {"realm":"udm", "topic":"oxmail/shared_account"},
+    {"realm":"udm", "topic":"oxmail/shared_account_permission"}
+  ],
+  "request_prefill": $prefill,
+  "password": "${subscription_password}"
+}
+EOF
+)"
+
+    curl --config <(cat <<EOF
+user = "$username:$admin_password"
+--silent
+--fail-with-body
+stderr = -
+request = "DELETE"
+header = "Accept: application/json"
+header = "Content-Type: application/json"
+url = "$base_url/v1/subscriptions/$subscription_name"
+EOF
+) || true  # ignore 404 when subscription doesn't exist yet
+
+    local response_create
+    response_create=$(curl --data "$data" \
+        --config <(cat <<EOF
+user = "$username:$admin_password"
+--silent
+--fail-with-body
+stderr = -
+request = "POST"
+header = "Accept: application/json"
+header = "Content-Type: application/json"
+url = "$base_url/v1/subscriptions"
+EOF
+))
+    if [[ $? -ne 0 ]]; then
+        echo "Error: Request to create subscription failed with: $response_create"
+        return 1
+    fi
+
+    cat <<EOF > "$app_provisioning_env_file"
+export PROVISIONING_API_USERNAME=$subscription_name
+export PROVISIONING_API_PASSWORD=$subscription_password
+EOF
+    chmod 640 "$app_provisioning_env_file"
+}
+
+setup_provisioning_subscriptions
+
 if [[ ! -d "/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets/" ]]; then
   mkdir -pv "/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets"
 fi

@@ -121,3 +121,11 @@ Show = Install, Settings
 Type = Bool
 Required = False
 InitialValue = True
+
+[MAX_ACKNOWLEDGEMENT_RETRIES]
+Description = Maximum number of retry attempts when acknowledging messages from the Nubus Provisioning API.
+Description[de] = Maximale Anzahl von Wiederholungsversuchen beim Bestätigen von Nachrichten der Nubus Provisioning API.
+Show = Install, Settings
+Type = Int
+Required = False
+InitialValue = 3

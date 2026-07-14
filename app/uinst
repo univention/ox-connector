@@ -49,6 +49,7 @@ purge_ox () {
   purge_ea "${@}"
   purge_user_template "${@}"
   purge_umc "${@}"
+  purge_subscription
 }
 purge_ea () {
   # For App Center apps it is recommended to remove all extended
@@ -66,6 +67,49 @@ purge_umc () {
     --dn "cn=udm-oxcontext,cn=operations,cn=UMC,cn=univention,${ldap_base}"
   univention-directory-manager settings/umc_operationset remove "${@}" \
     --dn "cn=udm-oxresources,cn=operations,cn=UMC,cn=univention,${ldap_base}"
+}
+purge_subscription() {
+    local subscription_name="${APP_ID}"
+    local app_provisioning_env_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning.env"
+    local force="${FORCE:-false}"
+
+    mkdir --parent "$(dirname "$app_provisioning_env_file")"
+
+    if [[ "$(ucr get "server/role")" != "domaincontroller_master" ]]; then
+        echo "Not running on primary, skipping provisioning setup."
+        return 0
+    fi
+
+    if [[ "$force" != "true" ]] && [[ -f "$app_provisioning_env_file" ]]; then
+        echo "$app_provisioning_env_file already exists, skipping provisioning setup."
+        return 0
+    fi
+
+    local fqdn
+    fqdn=$(ucr get ldap/master)
+    local base_url="https://$fqdn/univention/provisioning"
+    local username="admin"
+    local admin_password
+    admin_password=$(python3 <<'EOF'
+import json
+with open("/etc/provisioning-secrets.json", "r") as f:
+    print(json.load(f)["PROVISIONING_API_ADMIN_PASSWORD"])
+EOF
+)
+
+    curl --config <(cat <<EOF
+user = "$username:$admin_password"
+--silent
+--fail-with-body
+stderr = -
+request = "DELETE"
+header = "Accept: application/json"
+header = "Content-Type: application/json"
+url = "$base_url/v1/subscriptions/$subscription_name"
+EOF
+)
+
+  rm -f "${app_provisioning_env_file}"
 }
 
 ucs_removeServiceFromLocalhost "${SERVICE}" "${@}"

@@ -107,7 +107,7 @@ FROM runtime AS k8s
 
 WORKDIR /
 
-COPY entrypoint.sh entrypoint.d/75-entrypoint.sh
+COPY k8s-entrypoint.sh entrypoint.d/75-entrypoint.sh
 COPY share/migrate_fupo_to_shared_account.py /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py
 COPY share/univention-ox-connector-task-management /usr/local/bin/
 
@@ -145,9 +145,10 @@ WORKDIR /
 
 COPY --from=uv-dev /app/.venv/lib/python3.13/site-packages /usr/local/lib/python3.13/dist-packages/
 COPY tests ./tests
+COPY standalone-files/ /
+COPY appcenter-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/bin/bash", "-c"]
-
-CMD ["sleep infinity"]
-
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/bin/python3", "/consumer.py"]
 # [EOF]

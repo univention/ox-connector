@@ -58,10 +58,6 @@ from univention.ox.provisioning.helpers import (
 
 Base = declarative_base()
 
-LISTENER_DIR = Path(
-    "/var/lib/univention-appcenter/apps/ox-connector/data/listener/",
-)
-
 
 def get_db_url():
     db_connection_string = os.environ.get("OX_CONNECTOR_DB")
@@ -482,7 +478,6 @@ class DBSession:
             )
             self.session.add(task)
             logger.info("Retrying task", task=task)
-        open(LISTENER_DIR / "restart.json", "w")
 
     def remove_from_morgue(self, obj_id):
         """Remove items from the morgue table."""
@@ -751,7 +746,6 @@ class DBSession:
             )
             self.session.add(task)
             logger.info("Added task", task=task)
-            open(LISTENER_DIR / "restart.json", "w")
         else:
             logger.info(
                 "No old object found; not creating any task",
