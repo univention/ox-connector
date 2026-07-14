@@ -205,10 +205,10 @@ collect-k8s-skip-tests:
   image: "${CI_REGISTRY_IMAGE}/ox-connector-standalone-test:${RELEASE_VERSION}"
   script:
     - >
-      pytest --k8s --k8s-namespace="${DEPLOY_NAMESPACE}"
+      python3 -m pytest --k8s --k8s-namespace="${DEPLOY_NAMESPACE}"
       --collect-only
       -m "k8s_skip"
-      tests
+      /tests-env/tests
   variables:
     DOMAINNAME: review.univention.dev
     OX_ENABLE_DEPUTY_PERMISSIONS: "true"
@@ -327,8 +327,8 @@ run-tests-testimage:
     - echo "Running tests inside ox-connector test image using installed environment"
     - |
       kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
-      pushd test-env
-      pytest \
+      pushd tests-env
+      python3 -m pytest \
         -o cache_dir=/tmp/.pytest_cache \
         -vl \
         -m "not k8s_skip" \
@@ -375,8 +375,8 @@ run-tests-testimage-identifier:
     - echo "Running tests inside ox-connector test image using installed environment"
     - |
       kubectl exec -n "${DEPLOY_NAMESPACE}" -i ox-connector-0 -- /bin/bash <<EOT
-      pushd test-env
-      pytest \
+      pushd tests-env
+      python3 -m pytest \
         -o cache_dir=/tmp/.pytest_cache \
         -vl \
         -m "not k8s_skip" \
