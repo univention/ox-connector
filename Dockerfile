@@ -121,6 +121,7 @@ CMD ["/usr/bin/python3", "/consumer.py"]
 ############# kubernetes image + tests
 FROM k8s AS k8stest
 
+COPY ./share/change_attribute_mapping.py /usr/local/share/ox-connector/resources/change_attribute_mapping.py
 COPY tests /tests-env/tests
 
 
