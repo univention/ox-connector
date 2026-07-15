@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from udm_rest import UDM, UnprocessableEntity
+from univention.admin.rest.client import UDM, UnprocessableEntity
 from utils import FileUtility, FileLogs, SubprocessRunner
 
 from univention.ox.soap.backend_base import get_ox_integration_class

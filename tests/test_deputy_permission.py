@@ -9,7 +9,7 @@ from univention.ox.provisioning.users import User
 
 from univention.ox.soap.backend_base import ActiveDeputyPermission
 from univention.ox.soap.types import Types
-from udm_rest import UnprocessableEntity
+from univention.admin.rest.client import UnprocessableEntity
 
 
 @pytest.fixture(scope="session")
@@ -241,9 +241,6 @@ def test_remove_permission_after_context_change_of_deputy(
     wait_for_listener(deputy.dn)
     udm_obj = get_udm_user(manager.properties['username'])
     assert udm_obj.properties["oxDeputyPermissionGivenTo"] == []
-
-
-# FIXME -> udm_rest.UnprocessableEntity
 
 
 def test_remove_permission_after_context_change_of_manager(

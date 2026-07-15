@@ -3,7 +3,7 @@
 
 import pytest
 
-from udm_rest import UnprocessableEntity
+from univention.admin.rest.client import UnprocessableEntity
 
 
 def create_context(udm, ox_host, context_id, name=None, max_quota=1000):

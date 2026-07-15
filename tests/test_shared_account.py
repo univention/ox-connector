@@ -18,7 +18,7 @@ from univention.ox.soap.config import (
 )
 from univention.ox.soap.types import Types
 
-from udm_rest import UnprocessableEntity
+from univention.admin.rest.client import UnprocessableEntity
 
 
 def get_identifier_shared_account(udm_object):

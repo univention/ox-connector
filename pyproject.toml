@@ -17,6 +17,7 @@ dependencies = [
   "univention-ox-soap-api",
   "nubus-provisioning-consumer",
   "nubus-provisioning-common",
+  "udm-rest-api-client[sync]"
 ]
 
 [dependency-groups]
@@ -29,7 +30,6 @@ dev = [
   "pdbpp>=0.11.7",
   "python-dateutil>=2.9.0.post0",
   "tenacity",
-  "udm-rest-api-client[sync]"
 ]
 
 [tool.uv]

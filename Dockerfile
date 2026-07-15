@@ -6,7 +6,8 @@ ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/dev/projects/ucs-ba
 
 
 ############# uv environment
-FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS preuv
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS uv
+ARG UV_FROZEN=true
 
 ADD --checksum=sha256:6426a73c3837e6e2483ee344cbc00f36394d179afcba6183cb77437e67db4af0 \
   https://github.com/astral-sh/uv/releases/download/0.11.26/uv-x86_64-unknown-linux-gnu.tar.gz \
@@ -35,11 +36,14 @@ COPY uv.lock ./
 COPY univention-ox-provisioning/ ./univention-ox-provisioning/
 COPY univention-ox-soap-api/ ./univention-ox-soap-api/
 
+RUN UV_FROZEN="${UV_FROZEN}" uv sync --no-editable --no-dev
 
-############# execute uv; split so that one can execute the uv call on their own
-FROM preuv AS uv
 
-RUN uv sync --no-editable --frozen
+############# uv dev env
+FROM uv AS uv-dev
+ARG UV_FROZEN=true
+
+RUN UV_FROZEN="${UV_FROZEN}" uv sync --no-editable
 
 
 ############# udm translation files
@@ -119,7 +123,9 @@ CMD ["/usr/bin/python3", "/consumer.py"]
 
 
 ############# kubernetes image + tests
-FROM k8s AS k8stest
+FROM k8s AS k8s-test
+
+COPY --from=uv-dev /app/.venv/lib/python3.13/site-packages /usr/local/lib/python3.13/dist-packages/
 
 COPY ./share/change_attribute_mapping.py /usr/local/share/ox-connector/resources/change_attribute_mapping.py
 COPY tests /tests-env/tests
@@ -141,6 +147,7 @@ RUN \
 
 WORKDIR /
 
+COPY --from=uv-dev /app/.venv/lib/python3.13/site-packages /usr/local/lib/python3.13/dist-packages/
 COPY tests ./tests
 
 ENTRYPOINT ["/bin/bash", "-c"]

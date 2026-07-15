@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# SPDX-FileCopyrightText: 2023 Univention GmbH
+# SPDX-FileCopyrightText: 2026 Univention GmbH
 
 ---
 
@@ -11,9 +11,9 @@ services:
     platform: "linux/amd64"
     build:
       context: "."
-      dockerfile: "Dockerfile.standalone"
+      target: "k8s"
       args:
-        - "version=2.2.2"
+        - "version=4.0.0"
     environment:
       # -- Provisioning API
       # The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
@@ -55,7 +55,7 @@ services:
       # This specific value is tested in tests/test_user.py::test_modify_mailserver
       OX_IMAP_SERVER: imap://127.0.0.1:143
     working_dir: /test-env
-    entrypoint: ["pytest", "-vll", "--k8s"]
+    entrypoint: ["python3", "-m", "pytest", "-vll", "--k8s"]
     command: ["tests"]
 
   dev:
