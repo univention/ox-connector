@@ -105,12 +105,6 @@ COPY LICENSE /usr/local/share/ox-connector/LICENSE
 ############# final kubernetes image
 FROM runtime AS k8s
 
-# for entrypoint.sh
-RUN \
-  DEBIAN_FRONTEND=noninteractive \
-  apt-get --assume-yes --verbose-versions --no-install-recommends install \
-  jq
-
 WORKDIR /
 
 COPY entrypoint.sh entrypoint.d/75-entrypoint.sh

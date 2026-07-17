@@ -185,25 +185,20 @@ After creating a new test version in the provider portal the job
 https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/
 can be used to test the new image or to create a test environment.
 
-#### On a UCS
+#### On your laptop or on a UCS
 
 ```
-GIT_SSL_NO_VERIFY=1 git clone https://git.knut.univention.de/univention/dev/projects/open-xchange/connector.git
-cd provisioning
-./build_docker_image
-# creates docker-test-upload.software-univention.de/ox-connector:2.3.0
+# if the docker version is too old, you may need to temporarily remove the `--checksum` in ADD
+docker build --network=host --build-arg version=4.0.0 . --target=appcenter -t ox-connector:dev
 ```
-
-(This checks out certain submodules. There are some flaws when the submodules branch changes. You may need to remove and re-clone the whole repository sometimes?)
 
 ### Install during Development Phase
 
-For now, follow docker build instructions in Build. Then
+For now, follow docker build instructions in Build (on a UCS). Then
 
 ```
-#univention-app dev-set ox-connector DockerImage=docker-test-upload.software-univention.de/ox-connector:2.3.0 Volumes=ox-connector:/  # tbd
-univention-app install ox-connector --do-not-pull --set OX_MASTER_PASSWORD="$(cat /etc/ox-secrets/master.secret)"
-service univention-directory-manager-rest restart  # Bug 50253
+univention-app dev-set ox-connector DockerImage=ox-connector:dev
+univention-app install ox-connector --do-not-pull
 ```
 
 ### Double check
@@ -214,9 +209,7 @@ Here you can follow what the App does:
 
 ### Dev
 
-On your laptop:
-
-`devsync ~/git/provisioning/ /var/lib/docker/volumes/ox-connector/_data/`  # tbd
+You may want to read README.dev.md
 
 ### Tests
 
@@ -270,22 +263,6 @@ Please copy this block to your release issue:
 
   - Fixed a bug which prevents the removal of Open-Xchange contexts. (Bug 57258)
   ```
-
-## Standalone Service
-
-In this repository you can also find an image on `Dockerfile.standalone` which
-consists of the same code shipped on Univention AppCenter with some glue code
-to make it work with [Univention Directory Listener](https://docs.software-univention.de/developer-reference/5.0/en/listener/index.html),since [AppCenter provisioning](https://docs.software-univention.de/app-center/5.0/en/identity_management.html#provisioning)
-is not available in an stand-alone environment.
-
-### Development setup
-
-Please look into the [base container image](https://git.knut.univention.de/univention/customers/dataport/upx/container-listener-base#preparation)
-on which Univention Directory Listener is installed. An ansible playbook is
-provided there to ease the development setup.
-
-> Note a `docker-compose.override.yaml` will be created, as well as a `secret`
-and a `ssl` folder. All of them are needed for development on this repository.
 
 ## Testing
 

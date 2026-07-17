@@ -47,21 +47,25 @@ check_required_variables
 mkdir -p "/var/lib/univention-appcenter/apps/ox-connector/data/listener"
 
 # Write credentials file for univention/ox/soap/config.py
-if [[ ! -f "${OX_CREDENTIALS_FILE}" ]]; then
-  JSON_STRING=$(
-    jq \
-      --null-input \
-      --arg user "${OX_MASTER_ADMIN}" \
-      --arg pass "${OX_MASTER_PASSWORD}" \
-      '{"master": {adminuser: $user, adminpass: $pass}}'
-    )
+python3 <<EOF
+import os
+import json
 
-  mkdir --parents "/etc/ox-secrets"
-  echo "${JSON_STRING}" > "${OX_CREDENTIALS_FILE}"
-else
-  jq \
-    --arg user "${OX_MASTER_ADMIN}" \
-    --arg pass "${OX_MASTER_PASSWORD}" \
-    '.master.adminuser = $user | .master.adminpass = $pass' "${OX_CREDENTIALS_FILE}" > "${OX_CREDENTIALS_FILE}".tmp
-  mv "${OX_CREDENTIALS_FILE}".tmp "${OX_CREDENTIALS_FILE}"
-fi
+ox_credentials_file = os.environ["OX_CREDENTIALS_FILE"]
+ox_master_admin = os.environ["OX_MASTER_ADMIN"]
+ox_master_password = os.environ["OX_MASTER_PASSWORD"]
+
+if os.path.exists(ox_credentials_file):
+  content = json.load(open(ox_credentials_file))
+else:
+  content = {}
+
+content["master"] = {
+  "adminuser": ox_master_admin,
+  "adminpass": ox_master_password,
+}
+
+os.makedirs(os.path.dirname(ox_credentials_file), exist_ok=True)
+json.dump(content, open(ox_credentials_file + ".tmp", "w"), sort_keys=True, indent=2)
+os.rename(ox_credentials_file + ".tmp", ox_credentials_file)
+EOF
