@@ -1,6 +1,5 @@
 *
 !/app/listener_trigger
-!/app/univention-ox-connector-task-management
 !/bin/
 !/ldap/
 !/ox-extension

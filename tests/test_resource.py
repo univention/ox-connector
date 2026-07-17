@@ -280,9 +280,6 @@ def test_unset_all_attributes_resource(
     assert obj_after_unset.name == resource_name
 
 
-@pytest.mark.skip(
-    reason="ContextID can be a string, technically, any string is valid",
-)
 def test_invalid_context_id_resource(
     udm,
     domainname,

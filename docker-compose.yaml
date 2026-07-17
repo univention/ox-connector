@@ -11,7 +11,7 @@ services:
     platform: "linux/amd64"
     build:
       context: "."
-      target: "k8s"
+      target: "k8s-test"
       args:
         - "version=4.0.0"
     environment:

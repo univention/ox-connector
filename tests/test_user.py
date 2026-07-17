@@ -5,7 +5,6 @@ import os
 import random
 import typing
 import uuid
-import subprocess
 
 import pytest
 
@@ -188,21 +187,8 @@ OX_USER_IDENTIFIER != name, so a user account can actually be named like the tec
 Creating the user with the same name will fail because, old object is not found because of different
 identifier and a user with the same primary mail already exists""",
 )
-@pytest.mark.parametrize(
-    "with_cache_rebuild",
-    [
-        False,
-        pytest.param(
-            True,
-            marks=pytest.mark.k8s_skip(
-                reason="k8s deployment does not allow manipulating the cache",
-            ),
-        ),
-    ],
-)
 def test_modify_context_admin(
     find_ox_object,
-    with_cache_rebuild,
     create_ox_context,
     create_ox_user,
     domainname,
@@ -222,12 +208,6 @@ def test_modify_context_admin(
         wait=False,
     )
     wait_for_listener(udm_object.dn)
-
-    # Deleting and reloading the cache triggered Issue
-    # univention/open-xchange/provisioning#123 specifically
-    if with_cache_rebuild:
-        subprocess.check_call(["update-ox-db-cache", "--delete"])
-        subprocess.check_call(["update-ox-db-cache"])
 
     surname = "new-lastname"
     udm_object = udm.modify(

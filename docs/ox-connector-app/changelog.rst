@@ -25,7 +25,8 @@ Changed
 The *Docker image* of the OX Connector has been changed from *Alpine Linux* to
 a *UCS Base Image*. In many cases, this should have no effect, but manual
 workflows may need adjustments if you assumed certain properties of the
-underlying image of the App.
+underlying image of the App. One striking change is the update from *Python
+3.9* to *Python 3.13*.
 
 Removed
 -------
