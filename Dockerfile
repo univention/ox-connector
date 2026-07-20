@@ -45,6 +45,11 @@ ARG UV_FROZEN=true
 
 RUN UV_FROZEN="${UV_FROZEN}" uv sync --no-editable
 
+############# uv dev env
+FROM uv-dev AS uv-dev-scripts
+ARG UV_FROZEN=true
+
+RUN UV_FROZEN="${UV_FROZEN}" uv sync --no-editable --group dev-scripts
 
 ############# udm translation files
 FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS translation
@@ -108,6 +113,7 @@ FROM runtime AS k8s
 WORKDIR /
 
 COPY k8s-entrypoint.sh entrypoint.d/75-entrypoint.sh
+RUN chmod +x entrypoint.d/75-entrypoint.sh
 COPY share/migrate_fupo_to_shared_account.py /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py
 COPY share/univention-ox-connector-task-management /usr/local/bin/
 
@@ -115,13 +121,13 @@ ENV PYTHONPATH="/:$PYTHONPATH"
 
 COPY standalone-files/ /
 
-CMD ["/usr/bin/python3", "/consumer.py"]
+CMD ["/consumer.py"]
 
 
 ############# kubernetes image + tests
 FROM k8s AS k8s-test
 
-COPY --from=uv-dev /app/.venv/lib/python3.13/site-packages /usr/local/lib/python3.13/dist-packages/
+COPY --from=uv-dev-scripts /app/.venv/lib/python3.13/site-packages /usr/local/lib/python3.13/dist-packages/
 
 COPY ./share/change_attribute_mapping.py /usr/local/share/ox-connector/resources/change_attribute_mapping.py
 COPY tests /tests-env/tests
@@ -150,5 +156,5 @@ COPY appcenter-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/bin/python3", "/consumer.py"]
+CMD ["/consumer.py"]
 # [EOF]

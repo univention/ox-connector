@@ -6,7 +6,7 @@ import logging
 
 from aiohttp.client_exceptions import ClientConnectorError
 from aiohttp.resolver import DefaultResolver
-from configurator import RemoteConfigurator
+from .configurator import RemoteConfigurator
 from kubernetes import client, config
 from kubernetes.stream import stream, portforward
 from pathlib import Path
@@ -31,13 +31,14 @@ logger = logging.getLogger(__name__)
 
 
 class KubernetesConfigurator(RemoteConfigurator):
-    def __init__(self, namespace, sync_files):
+    def __init__(self, namespace, sync_files, keep_off):
         self.namespace = namespace
         self.ox_connector_selector = "app.kubernetes.io/name=ox-connector"
         self.ox_connector_pod_name = None
         self.sync_files = sync_files
         self.files = {}
         self.db_port_forward = None
+        self.keep_off = keep_off
 
     def _get_files(self) -> dict[str, str]:
         return {"/etc/ox-secrets/ox-contexts.json": "/tmp/contexts.json"}
@@ -333,7 +334,7 @@ class KubernetesConfigurator(RemoteConfigurator):
                 ):
                     self.files[remote] = local
 
-        self._scale_resources(self.ox_connector_selector, 0, True)
+            self._scale_resources(self.ox_connector_selector, 0, True)
 
         return self
 
@@ -341,7 +342,7 @@ class KubernetesConfigurator(RemoteConfigurator):
         if self.db_port_forward:
             self.db_port_forward.stop()
 
-        if not self.sync_files:
+        if not self.sync_files or self.keep_off:
             return
 
         self._scale_resources(self.ox_connector_selector, 1, False)

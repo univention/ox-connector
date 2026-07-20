@@ -1,29 +1,3 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.9"
-# dependencies = [
-#     "paramiko>=3.0.0",
-#     "univention-ox-provisioning",
-#     "univention-ox-soap-api",
-#     "nubus-provisioning-common>=v0.64.0",
-#     "nubus-provisioning-consumer>=v0.64.0",
-#     "udm-rest-api-client[cli]>=v0.1.0",
-#     "kubernetes",
-#     "pyyaml",
-#     "psycopg2-binary",
-#     "portforward"
-# ]
-#
-# [[tool.uv.index]]
-# name = "univention"
-# url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple"
-#
-# [tool.uv.sources]
-# univention-ox-provisioning = { path = "../univention-ox-provisioning/", editable = true }
-# univention-ox-soap-api = { path = "../univention-ox-soap-api/", editable = true }
-# nubus-provisioning-consumer = { index = "univention" }
-# ///
-
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2026 Univention GmbH
 
@@ -45,16 +19,15 @@ import logging
 from typing import Optional
 from pathlib import Path
 from univention.provisioning.consumer.api import (
-    MessageHandler,
     ProvisioningConsumerClient,
     ProvisioningConsumerClientSettings,
 )
 from univention.provisioning.models.subscription import RealmTopic
 from subprocess import Popen
 
-from configurator import RemoteConfigurator
-from ssh_configurator import SSHConfigurator
-from kubernetes_configurator import KubernetesConfigurator
+from .configurator import RemoteConfigurator
+from .ssh_configurator import SSHConfigurator
+from .kubernetes_configurator import KubernetesConfigurator
 
 LOG_FORMAT = "%(asctime)s %(levelname)-5s [%(module)s.%(funcName)s:%(lineno)d] %(message)s"
 logging.basicConfig(
@@ -218,16 +191,19 @@ class RemoteConsumer:
 
             logger.info(f"Applied configurations: {configs}")
 
-            sys.path.insert(0, "standalone-files/")
-
-            from consumer import logging as ox_consumer_logging
-
-            ox_consumer_logging.basicConfig(
-                format=LOG_FORMAT,
-                level=logging.DEBUG,
+            sys.path.insert(
+                0,
+                str(
+                    Path(__file__).resolve().parent.parent
+                    / "standalone-files",
+                ),
             )
 
-            from consumer import OXConsumer
+            from univention.ox.provisioning.db import engine
+
+            self.configurator.patch_sqlalchemy_engine(engine)
+
+            from consumer import _run_consumer_with_guard
 
             def create_provisioning_client():
                 provisioning_consumer = ProvisioningConsumerClient()
@@ -237,28 +213,16 @@ class RemoteConsumer:
 
                 return provisioning_consumer
 
-            from univention.ox.provisioning.db import engine, initialize_db
-
-            self.configurator.patch_sqlalchemy_engine(engine)
-            initialize_db()
-
             restarts_done = 0
             while True:
                 try:
-                    consumer = OXConsumer()
-                    await consumer.start_listening_for_changes(
-                        create_provisioning_client,
-                        MessageHandler,
-                    )
+                    sys.argv = [sys.argv[0]]
+                    await _run_consumer_with_guard(create_provisioning_client)
                 except asyncio.exceptions.CancelledError:
                     logger.info("Mainloop cancelled -> shutting down")
                     break
                 except Exception as e:
                     if restart:
-                        from importlib import reload
-
-                        OXConsumer = reload(sys.modules["consumer"]).OXConsumer
-
                         restarts_done += 1
                         print(traceback.format_exc())
                     else:
@@ -322,7 +286,7 @@ class RemoteConsumer:
         logger.info(f"Applied configurations: {configs}")
 
         # Run consumer locally using subprocess with environment
-        cmd = ["uv", "run", "--active", "pytest", "tests"]
+        cmd = ["python3", "-m", "pytest", "tests"]
         if command:
             cmd.extend(command)
 
@@ -371,6 +335,7 @@ def create_configurator(args) -> RemoteConfigurator:
         return KubernetesConfigurator(
             namespace=args.namespace,
             sync_files=args.command == "run",
+            keep_off=args.keep_off if args.command == "run" else False,
         )
     else:
         raise ValueError(f"Unknown mode: {args.mode}")
@@ -397,6 +362,12 @@ def add_command_parser(parser, parser_type):
         "-r",
         "--restart",
         help="Restart consumer ith exit code is != 0",
+        action="store_true",
+    )
+    run_parser.add_argument(
+        "-k",
+        "--keep-off",
+        help="Keep the original consumer off, do not restart it",
         action="store_true",
     )
 

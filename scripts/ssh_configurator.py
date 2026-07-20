@@ -5,7 +5,7 @@
 import json
 import logging
 
-from configurator import RemoteConfigurator
+from .configurator import RemoteConfigurator
 
 logging.basicConfig(
     level=logging.INFO,

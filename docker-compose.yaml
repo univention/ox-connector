@@ -11,9 +11,7 @@ services:
     platform: "linux/amd64"
     build:
       context: "."
-      target: "k8s-test"
-      args:
-        - "version=4.0.0"
+      target: "k8s"
     environment:
       # -- Provisioning API
       # The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
@@ -61,6 +59,9 @@ services:
   dev:
     container_name: "ox-connector-dev"
     image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest
+    build:
+      context: "."
+      target: "k8s-test"
     volumes:
         # needs to be mounted rw, because legacy setuptools is used which writes egg files
       - "./univention-ox-provisioning/:/test-env/univention-ox-provisioning:rw"
@@ -71,13 +72,11 @@ services:
       - "./standalone-files:/test-env/standalone-files:ro"
       - "./scripts:/test-env/scripts:ro"
       - "${KUBE_CONFIG:-~/.kube/config}:/root/.kube/config:ro"
-      - "uv-cache:/root/.cache/uv"
       - "shared-test-data:/tmp/"
       - "shared-test-data2:/var/lib/univention-appcenter/apps/ox-connector/data/"
     working_dir: /test-env
-    entrypoint: ["scripts/remote_consumer.py"]
+    entrypoint: ["python3", "-m", "scripts.remote_consumer"]
 
 volumes:
-  uv-cache:
   shared-test-data:
   shared-test-data2:

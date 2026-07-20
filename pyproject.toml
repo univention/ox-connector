@@ -15,9 +15,9 @@ requires-python = "==3.13.*"
 dependencies = [
   "univention-ox-provisioning",
   "univention-ox-soap-api",
-  "nubus-provisioning-consumer",
-  "nubus-provisioning-common",
-  "udm-rest-api-client[sync]",
+  "nubus-provisioning-consumer>=v0.64.0",
+  "nubus-provisioning-common>=v0.64.0",
+  "udm-rest-api-client[sync]>=v0.1.0",
   "lancelog>=0.3.4",
 ]
 
@@ -31,6 +31,14 @@ dev = [
   "pdbpp>=0.11.7",
   "python-dateutil>=2.9.0.post0",
   "tenacity",
+]
+dev-scripts = [
+  "paramiko>=3.0.0",
+  "udm-rest-api-client[cli]>=v0.1.0",
+  "kubernetes",
+  "pyyaml",
+  "psycopg2",
+  "portforward",
 ]
 
 [tool.uv]
