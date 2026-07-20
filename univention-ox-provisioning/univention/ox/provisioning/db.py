@@ -31,7 +31,6 @@
 import os
 import json
 from pathlib import Path
-from itertools import chain
 import datetime
 from copy import deepcopy
 
@@ -703,34 +702,6 @@ class DBSession:
 
             if not dry_run:
                 old.attrs = json.dumps(attrs)
-
-    def resync_item(self, obj_id):
-        """Resync an item using the latest data saved in UDM."""
-        for item in chain(
-            self.get_errors(obj_id=obj_id),
-            self.get_all_old_objects(obj_id=obj_id),
-        ):
-            attrs = {
-                "entry_uuid": item.obj_id,
-                "dn": item.dn,
-                "object_type": item.udm_module,
-                "command": "m",
-            }
-            timestamp = datetime.datetime.now().strftime(
-                "%Y-%m-%d-%H-%M-%S-%f",
-            )
-            filename = (
-                "/var/lib/univention-appcenter/listener/ox-connector/%s.json"
-                % timestamp
-            )
-            with open(filename, "w") as fd:
-                json.dump(attrs, fd, sort_keys=True, indent=4)
-            logger.info("Resynced item", item=item)
-            return
-        logger.warning(
-            "No error for object ID found in database, resync not possible",
-            obj_id=obj_id,
-        )
 
     def create_task_from_old(self, obj_id):
         """Create a retry task from an old object."""

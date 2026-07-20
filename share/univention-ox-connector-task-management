@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import json
 import logging
+import subprocess
 import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
 from copy import deepcopy
@@ -46,8 +47,8 @@ from typing import Any, Callable
 
 from univention.ox.provisioning.db import (
     DBSession,
-    LISTENER_DIR,
     Old,
+    Task,
 )
 
 logger = logging.getLogger("univention.ox")
@@ -107,11 +108,44 @@ def show_item(
     db.show_item(obj_id, output_format)
 
 
-def resync_item(db: DBSession, obj_id: str) -> None:
+def resync_item(
+    db: DBSession,
+    obj_id: str,
+    udm_user: str,
+    udm_password: str,
+    udm_uri: str,
+) -> None:
     """
-    An item is resynced using the latest data that is currently saved in UDM
+    An item is resynced using the latest data fetched from the UDM REST API
     """
-    db.resync_item(obj_id)
+    from univention.admin.rest.client import UDM
+
+    try:
+        udm = UDM.http(
+            udm_uri,
+            udm_user,
+            udm_password,
+        )
+        obj = udm.obj_by_dn(obj_id)
+        if not obj:
+            logger.info("Object %s not found in UDM; cannot resync", obj_id)
+            return
+
+        attrs = obj.properties
+        dn = obj.dn
+        udm_module = obj.object_type
+
+        task = Task(
+            obj_id=obj_id,
+            udm_module=udm_module,
+            dn=dn,
+            attrs=json.dumps(attrs) if attrs else None,
+        )
+        db.session.add(task)
+        logger.info("Resync task %s created for %s", task, obj_id)
+        _run_process_all_tasks(db)
+    except Exception as e:
+        logger.error("Failed to resync %s: %s", obj_id, e)
 
 
 def summarize_tasks(db: DBSession, output_format: str = "simple") -> None:
@@ -152,7 +186,17 @@ def add_task(db: DBSession, path: Path) -> None:
         )
         return
     db.enqueue_task(obj_id, udm_module, dn, attrs)
-    (LISTENER_DIR / "restart.json").touch()
+    _run_process_all_tasks(db)
+
+
+def _run_process_all_tasks(db: DBSession) -> None:
+    """Commit the database and trigger consumer to drain all tasks from the queue."""
+    db.commit()
+    subprocess.run(
+        ["/consumer.py", "--process-all-tasks"],
+        check=True,
+        cwd="/",
+    )
 
 
 def search_tasks(
@@ -188,19 +232,6 @@ def move_task_to_morgue(db: DBSession, task_id: int, error_msg: str) -> None:
     tasks table.
     """
     db.move_task_to_morgue(task_id, error_msg)
-
-
-def move_task_to_old(
-    db: DBSession,
-    task_id: int,
-    attributes: dict[str, Any] | None = None,
-) -> None:
-    """
-    Move the task to the old table, meaning that this data is now
-    considered the last snapshot for further updates of this object. Removed
-    from the list of the tasks table.
-    """
-    db.move_task_to_old(task_id, attributes)
 
 
 def add_old(db: DBSession, path: Path) -> None:
@@ -297,6 +328,7 @@ def retry_from_morgue(db: DBSession, obj_id: str) -> None:
     "resync" is still in the tasks db). If more than one item matches, all
     """
     db.retry_from_morgue(obj_id)
+    _run_process_all_tasks(db)
 
 
 def remove_from_morgue(db: DBSession, obj_id: str) -> None:
@@ -325,7 +357,7 @@ if __name__ == "__main__":
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     handler = RotatingFileHandler(
-        "%s/univention-ox-connector-task-management.log" % LISTENER_DIR,
+        "/var/lib/univention-appcenter/apps/ox-connector/data/univention-ox-connector-task-management.log",
         maxBytes=1024 * 1024 * 500,
     )
     handler.setLevel("DEBUG")
@@ -354,7 +386,6 @@ if __name__ == "__main__":
     _add_action(subparsers, add_task)
     _add_action(subparsers, search_tasks)
     _add_action(subparsers, move_task_to_morgue)
-    _add_action(subparsers, move_task_to_old)
     _add_action(subparsers, add_old)
     _add_action(subparsers, export_old)
     _add_action(subparsers, search_old)

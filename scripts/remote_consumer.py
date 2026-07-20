@@ -184,20 +184,14 @@ class RemoteConsumer:
 
             # dir is hardcoded in consumer.py
             Path(
-                "/var/lib/univention-appcenter/apps/ox-connector/data/listener",
+                "/var/lib/univention-appcenter/apps/ox-connector/data/",
             ).mkdir(exist_ok=True, parents=True)
             # start with a clean test.log
             Path("/tmp/test.log").unlink(missing_ok=True)
 
             logger.info(f"Applied configurations: {configs}")
 
-            sys.path.insert(
-                0,
-                str(
-                    Path(__file__).resolve().parent.parent
-                    / "standalone-files",
-                ),
-            )
+            sys.path.insert(0, "/")
 
             from univention.ox.provisioning.db import engine
 
@@ -322,6 +316,38 @@ class RemoteConsumer:
 
         udm_client_main(arg_list=udm_cmd)
 
+    def run_task_management(self, tm_args: list[str]):
+        configs = self.get_configurations()
+
+        os.environ["OX_CONNECTOR_DB"] = configs["ox_db_connection_string"]
+
+        from univention.ox.provisioning.db import engine
+
+        self.configurator.patch_sqlalchemy_engine(engine)
+
+        tm_cmd = tm_args
+        if tm_cmd and tm_cmd[0] == "resync-item":
+            tm_cmd = [
+                *tm_cmd,
+                "--udm-uri",
+                f"https://{configs['ldap_server']}/univention/udm/",
+                "--udm-user",
+                configs["ldap_admin_user"],
+                "--udm-password",
+                configs["ldap_admin_password"],
+            ]
+        logger.info(f"Running task-management with: {' '.join(tm_cmd)}")
+
+        sys.path.insert(0, "share/")
+
+        import importlib
+
+        task_manager = importlib.import_module(
+            "univention-ox-connector-task-management",
+        )
+
+        task_manager._call("show-items")
+
 
 def create_configurator(args) -> RemoteConfigurator:
     if args.mode == "ssh":
@@ -393,6 +419,12 @@ def add_command_parser(parser, parser_type):
         help="Run udm rest client, can be used to fix/delete objects in case connector or tests crash and cleanup was not done properly",
     )
 
+    # Task management command
+    command_subparsers.add_parser(
+        "task-management",
+        help="Run univention-ox-connector-task-management locally using remote UDM configuration",
+    )
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -404,6 +436,7 @@ Commands:
   run <mode> <target>                     Run consumer
   test <mode> <target> <pytest_args>      Run tests
   udm <mode> <target> <udm_args>          Run UDM command
+  task-management <mode> <target> <tm_args> Run task-management command using remote configuration
   help                                    Show this help
 
 Arguments:
@@ -471,6 +504,8 @@ Examples:
                 remote.run_tests(args.udm_username, args.udm_password, rest)
             elif args.command == "udm":
                 remote.run_udm(rest)
+            elif args.command == "task-management":
+                remote.run_task_management(rest)
         except KeyboardInterrupt:
             logger.info(
                 "Program interrupted by user (Ctrl+C). Shutting down...",
