@@ -141,7 +141,10 @@ if "spelling" in sys.argv:
 root_doc = "contents"
 
 intersphinx_mapping = {
-    "uv-manual": ("https://docs.software-univention.de/manual/5.2/en", None),
+    "uv-ucs-operation": (
+        "https://docs.software-univention.de/ucs-operation/5.2/en",
+        None,
+    ),
     "uv-nubus-manual": (
         "https://docs.software-univention.de/nubus-manual/1.x/en/",
         None,
