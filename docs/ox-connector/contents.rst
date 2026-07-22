@@ -17,3 +17,4 @@ OX Connector for Nubus documentation
    :hidden:
 
    doc-changelog
+   bibliography
