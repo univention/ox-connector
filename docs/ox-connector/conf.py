@@ -157,6 +157,10 @@ intersphinx_mapping = {
         "https://docs.software-univention.de/nubus-kubernetes-operation/1.x/en/",
         None,
     ),
+    "uv-navigation": (
+        "https://docs.software-univention.de/n/en/",
+        None,
+    ),
 }
 
 latex_engine = "lualatex"
