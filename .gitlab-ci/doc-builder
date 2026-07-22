@@ -95,6 +95,12 @@ def main() -> None:
             data = yaml.load(fd)
         pipeline.update(data)
 
+    appcenter_version = read_appcenter_version()
+    pipeline.setdefault("variables", {})
+    pipeline["variables"]["DOC_TARGET_VERSION"] = doc_target_version(
+        appcenter_version,
+    )
+
     add_jobs(pipeline)
 
     with args.out.open("w") as fd:
@@ -191,6 +197,42 @@ def add_jobs(pipeline: dict[str, object]) -> None:
                 DEPENDS.get(pkg, set()),
             )
             pipeline.update({name: job})
+
+
+def read_appcenter_version() -> str:
+    import os
+
+    appcenter_version = os.environ.get("APPCENTER_VERSION")
+    if appcenter_version:
+        return appcenter_version
+
+    yaml = YAML(typ="safe")
+    with (ROOT / ".gitlab-ci.yml").open() as fd:
+        data = yaml.load(fd)
+
+    variables = data.get("variables", {})
+    if not isinstance(variables, dict):
+        raise TypeError("Pipeline variables must be a mapping.")
+
+    appcenter_version = variables.get("APPCENTER_VERSION")
+    if not isinstance(appcenter_version, str):
+        raise ValueError("Missing APPCENTER_VERSION in pipeline variables.")
+
+    return appcenter_version
+
+
+def is_default_branch() -> bool:
+    import os
+
+    return os.environ.get("CI_COMMIT_REF_NAME") == os.environ.get(
+        "CI_DEFAULT_BRANCH",
+    )
+
+
+def doc_target_version(appcenter_version: str) -> str:
+    major_version = appcenter_version.split(".", 1)[0]
+    suffix = "" if is_default_branch() else "-dev"
+    return f"{major_version}.x{suffix}"
 
 
 if __name__ == "__main__":

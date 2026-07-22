@@ -129,8 +129,8 @@ lint-render-manifests:
   script:
     - helm dep build helm/ox-connector
     - helm template test helm/ox-connector
-        -f helm/ox-connector/linter_values.yaml
-        --output-dir manifests/
+      -f helm/ox-connector/linter_values.yaml
+      --output-dir manifests/
   artifacts:
     name: rendered-manifests
     expire_in: 1 week
