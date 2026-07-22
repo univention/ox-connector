@@ -21,8 +21,7 @@ OX Connector for Nubus documentation
       limitations
       troubleshooting
 
-   .. toctree::
-      :hidden:
+.. toctree::
+   :hidden:
 
-      changelog
-      bibliography
+   doc-changelog
