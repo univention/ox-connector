@@ -21,5 +21,9 @@ Year 2026
      - Change
 
    * - 22. Jul 2026
+     - :ref:`doc-entry`
+     - Add introduction section for the document.
+
+   * - 22. Jul 2026
      - Document
      - Initial document setup
