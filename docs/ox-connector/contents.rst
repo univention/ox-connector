@@ -2,24 +2,16 @@
 ..
 .. SPDX-License-Identifier: AGPL-3.0-only
 
-.. _doc-entry:
-
 ####################################
 OX Connector for Nubus documentation
 ####################################
 
-.. TODO: Add toctree as soon as first file exists.
-   .. toctree::
-      :hidden:
-      :numbered:
-      :maxdepth: 1
+.. toctree::
+   :hidden:
+   :numbered:
+   :maxdepth: 1
 
-      installation
-      usage
-      configuration
-      architecture
-      limitations
-      troubleshooting
+   index
 
 .. toctree::
    :hidden:
