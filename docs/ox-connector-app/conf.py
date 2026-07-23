@@ -165,6 +165,11 @@ intersphinx_mapping = {
         "https://docs.software-univention.de/ucs-operation/5.2/en/",
         None,
     ),
+    "uv-ox-connector": reference_inventory(
+        "ox-connector",
+        version=version,
+        language=language,
+    ),
 }
 
 latex_engine = "lualatex"
