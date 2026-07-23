@@ -115,4 +115,4 @@ The :program:`OX Connector` app doesn't evaluate permission level for created
 *access profiles* and tries to create any access profile.
 
 For more information, see `OX App Suite Permission Level
-<https://oxpedia.org/wiki/index.php?title=AppSuite:Permission_Level>`_.
+<https://wiki.open-xchange.com/wiki/index.php?title=AppSuite:Permission_Level>`_.
