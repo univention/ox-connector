@@ -18,7 +18,14 @@ import sys
 
 from datetime import date
 
+from ruamel.yaml import YAML
+
 # -- Project information -----------------------------------------------------
+
+
+def doc_target_version(appcenter_version: str) -> str:
+    major_version = appcenter_version.split(".", 1)[0]
+    return f"{major_version}.x"
 
 
 def read_version_from_ci() -> str:
@@ -36,18 +43,23 @@ def read_version_from_ci() -> str:
     :rtype: str
     """
 
-    import yaml
+    appcenter_version = os.environ.get("APPCENTER_VERSION")
+    if appcenter_version:
+        return doc_target_version(appcenter_version)
 
-    with open("../../.gitlab-ci.yml", "r") as f:
-        ci = yaml.safe_load(f)
-        # Either use the configured environment variable from the pipeline
-        # or extract the value from the pipeline configuration.
-        # This allows to build locally,
-        # but also take the dynamic pipeline settings into account.
-        return os.environ.get(
-            "DOCKER_BUILD_VERSION",
-            ci.get("variables").get("APPCENTER_VERSION"),
-        )
+    yaml = YAML(typ="safe")
+    with open("../../.gitlab-ci.yml") as fd:
+        data = yaml.load(fd)
+
+    variables = data.get("variables", {})
+    if not isinstance(variables, dict):
+        raise TypeError("Pipeline variables must be a mapping.")
+
+    appcenter_version = variables.get("APPCENTER_VERSION")
+    if not isinstance(appcenter_version, str):
+        raise ValueError("Missing APPCENTER_VERSION in pipeline variables.")
+
+    return doc_target_version(appcenter_version)
 
 
 release = read_version_from_ci()
