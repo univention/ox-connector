@@ -221,18 +221,9 @@ def read_appcenter_version() -> str:
     return appcenter_version
 
 
-def is_default_branch() -> bool:
-    import os
-
-    return os.environ.get("CI_COMMIT_REF_NAME") == os.environ.get(
-        "CI_DEFAULT_BRANCH",
-    )
-
-
 def doc_target_version(appcenter_version: str) -> str:
     major_version = appcenter_version.split(".", 1)[0]
-    suffix = "" if is_default_branch() else "-dev"
-    return f"{major_version}.x{suffix}"
+    return f"{major_version}.x"
 
 
 if __name__ == "__main__":
