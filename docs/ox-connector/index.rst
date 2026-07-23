@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2026 Univention GmbH
+.. SPDX-FileCopyrightText: 2021 - 2026 Univention GmbH
 ..
 .. SPDX-License-Identifier: AGPL-3.0-only
 
@@ -27,7 +27,7 @@ Deployment paths
 
 The *OX Connector* supports the following deployment paths:
 
-App Center app
+Connector app in Univention App Center
    Use this deployment path
    if you operate Nubus on Univention Corporate Server (UCS).
 
