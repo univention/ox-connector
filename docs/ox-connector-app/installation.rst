@@ -21,8 +21,9 @@ Prerequisites
    see: installation; prerequisites
    single: prerequisites
 
-Before you as administrator can install the :program:`OX Connector` app, you
-need to make sure that your environment fulfills the prerequisites.
+The prerequisites moved to the consolidated *OX Connector for Nubus* manual.
+For current prerequisite information,
+see :external+uv-ox-connector:ref:`ox-connector-prerequisites`.
 
 .. _prerequisite-ox-app-suite:
 
@@ -32,47 +33,9 @@ OX App Suite server
 .. index::
    single: prerequisites; OX App Suite
 
-For the *OX App Suite* server, you must ensure the following prerequisites:
-
-#. The environment requires an installed OX App Suite instance. This
-   documentation assumes that an OX App Suite installation already exists.
-
-   For limitations about the :program:`OX App Suite` app from Univention App
-   Center and the connector, see :ref:`limit-ox-app-suite-app`.
-
-   For installation of OX App Suite, see :cite:t:`ox-app-suite-admin-guide`.
-
-#. The OX App Suite instance must allow SOAP requests, so that the UCS system,
-   where the :ref:`administrator installs the OX Connector app
-   <install-on-ucs>`, can connect to ``/webservices``.
-
-#. You have to set up an administrator user in OX App Suite that can create OX
-   contexts.
-
-   The OX Connector can manage OX contexts. The installation of the :program:`OX
-   Connector` app needs username and password for that user and references them
-   in the setting :envvar:`OX_MASTER_ADMIN` and :envvar:`OX_MASTER_PASSWORD`.
-
-   For manually managing OX contexts without the OX Connector, see
-   :ref:`usage-contexts`.
-
-#. Since version 2.2.0, OX must allow the use of duplicated *displaynames*. To
-   enable it, add the following lines to the :file:`user.properties` file.
-
-   .. code-block:: console
-
-      com.openexchange.user.enforceUniqueDisplayName=false
-      com.openexchange.folderstorage.database.preferDisplayName=false
-
-   OX must also allow all group names that you can enter in UDM. For that, add
-   the following line to the :file:`Group.properties`.
-
-   .. code-block:: console
-
-      CHECK_GROUP_UID_FOR_NOT_ALLOWED_CHARS=false
-
-   .. note::
-      This is configured by default in version 7.10.6-ucs7 of :program:`OX App Suite` from the App Center.
+This section moved to the consolidated *OX Connector for Nubus* manual.
+For current prerequisite information,
+see :external+uv-ox-connector:ref:`prerequisites-ox-app-suite`.
 
 .. _prerequisite-ucs-domain:
 
@@ -82,41 +45,9 @@ UCS domain
 .. index::
    single: prerequisites; ucs domain
 
-Another prerequisite needs some steps in the UCS domain. To use the :program:`OX
-Connector` app, the central LDAP directory needs the *referential integrity*
-overlay enabled. The overlay ensures that UDM objects provided by the OX
-Connector keep their integrity and always reference user objects correctly in
-the LDAP directory.
-
-.. tab-set::
-
-   .. tab-item:: OX Connector on |UCSPRIMARYDN|
-
-      .. index::
-         single: ox connector; primary directory node
-         single: installation; primary directory node
-
-      If you install :program:`OX Connector` on |UCSPRIMARYDN|, the app already
-      takes care of the necessary step. No further action required.
-
-   .. tab-item:: OX Connector on other system roles
-
-      .. index::
-         single: ox connector; other system roles
-         single: installation; other system roles
-
-      If you install :program:`OX Connector` on other :ref:`uv-manual:system-roles`
-      than the |UCSPRIMARYDN|, you need to run the following commands:
-
-      .. code-block:: console
-         :caption: Activate OpenLDAP *referential integrity* overlay on |UCSPRIMARYDN|.
-         :name: prerequisite-activate-referential-integrity-overlay
-
-         $ ucr set ldap/refint=true
-         $ service slapd restart
-
-For more information about the *referential integrity* overlay, see
-:cite:t:`openldap-referential-integrity-overlay`.
+This section moved to the consolidated *OX Connector for Nubus* manual.
+For current prerequisite information,
+see :external+uv-ox-connector:ref:`prerequisites-app-center`.
 
 .. _install-on-ucs:
 
@@ -124,8 +55,9 @@ Installation on UCS system
 ==========================
 
 As administrator, you can install the :program:`OX Connector` app like any other
-app with Univention App Center. Make sure to fulfill the
-:ref:`app-prerequisites`.
+app from Univention App Center.
+Make sure to fulfill the prerequisites in
+:external+uv-ox-connector:ref:`ox-connector-prerequisites`.
 
 UCS offers two different ways for app installation:
 
