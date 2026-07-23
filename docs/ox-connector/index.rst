@@ -4,13 +4,13 @@
 
 .. _doc-entry:
 
-************
-Introduction
-************
+**********************
+OX Connector for Nubus
+**********************
 
-The *OX Connector* provisions selected directory objects from Nubus
+The *OX Connector* sends selected directory objects from Nubus
 to a remote *OX App Suite* installation through the OX SOAP API.
-These directory objects include user accounts,
+These objects include user accounts,
 user groups,
 and resources.
 
@@ -25,47 +25,49 @@ The connector doesn't install or operate *OX App Suite*.
 Deployment paths
 ================
 
-The *OX Connector* supports the following deployment paths:
+The *OX Connector* has two deployment paths:
 
 Connector app in Univention App Center
    Use this deployment path
    if you operate Nubus on Univention Corporate Server (UCS).
 
    The *OX Connector app* runs as an App Center app on UCS.
-   It provisions selected UCS directory objects to *OX App Suite*.
+   It sends selected UCS directory objects to *OX App Suite*.
 
 Nubus for Kubernetes
    Use this deployment path
    if you operate Nubus for Kubernetes.
 
-   The *OX Consumer* runs in the Kubernetes cluster.
-   It provisions selected Nubus directory objects to *OX App Suite*.
-   The Kubernetes deployment uses the packaged integration for *OX App Suite*
-   to extend Nubus with the required directory schema
+   The *OX Consumer* runs in your Kubernetes cluster.
+   It sends selected Nubus directory objects to *OX App Suite*.
+   The packaged integration for *OX App Suite* extends Nubus
+   with the required directory schema
    and management interface customizations.
 
 Both deployment paths use the same provisioning logic.
-The chapters in this manual state which steps apply to which deployment path.
+The chapters in this manual state which steps apply to each deployment path.
 
 .. _introduction-audience-and-prerequisites:
 
 Audience and prerequisites
 ==========================
 
-This manual addresses technical administrators and operators
+This manual is for technical administrators and operators
 who want to connect Nubus with *OX App Suite*.
 You need administrative access to the Nubus deployment
 that you want to connect.
+You also need access to an existing *OX App Suite* installation,
+including the credentials and network access
+that the connector needs to reach the OX SOAP API.
 
 For the App Center deployment,
-you need to know how to use a shell
-on a Debian GNU/Linux derivative distribution such as UCS.
+you need to know how to use a shell on Nubus for UCS.
 You also need to know how to manage apps
 through the Univention App Center.
 
 For the Kubernetes deployment,
-you need to know Kubernetes concepts
-and how to deploy and manage applications with Helm.
+you need to know Kubernetes concepts.
+You also need to know how to deploy and manage applications with Helm.
 
 .. _introduction-document-scope:
 
@@ -80,17 +82,14 @@ This manual covers the following topics:
 * Read about known limitations.
 * Find log files and troubleshoot common problems.
 
-This manual doesn't cover the following topics:
+This manual doesn't cover installation,
+setup,
+or operation of the following products:
 
-* Installation,
-  setup,
-  and operation of:
-
-  * Kubernetes
-  * *OX App Suite*
-  * *Nubus for UCS*
-
-* Installation and operation of *Nubus for Kubernetes*.
+* Kubernetes
+* *OX App Suite*
+* *Nubus for UCS*
+* *Nubus for Kubernetes*
 
 .. seealso::
 
@@ -109,7 +108,8 @@ This manual doesn't cover the following topics:
       in :cite:t:`uv-nubus-kubernetes-operation`.
 
    OX App Suite
-      for information, setup and operation,
+      For information about setup
+      and operation of *OX App Suite*,
       see :cite:t:`ox-app-suite-admin-guide`.
 
 .. _introduction-support-status:
@@ -117,12 +117,13 @@ This manual doesn't cover the following topics:
 Support status
 ==============
 
-The OX Connector supports Nubus for Kubernetes.
+Univention supports the *OX Connector* app for Nubus for UCS
+and the *OX Connector* for Nubus for Kubernetes.
 Support for the connector doesn't include installation,
 configuration,
 or operation of *OX App Suite*.
 
-For further documentation about Nubus for Kubernetes,
+For more information about Nubus for Kubernetes,
 see :external+uv-navigation:ref:`page-nubus`.
 
 .. _introduction-feedback:
@@ -130,9 +131,9 @@ see :external+uv-navigation:ref:`page-nubus`.
 Feedback
 ========
 
-Your feedback about this documentation is welcome and highly appreciated.
+We welcome your feedback about this documentation.
 If you have comments,
 suggestions,
 or criticism,
 `submit your feedback <https://www.univention.com/feedback/?ox-connector=generic>`_
-to improve the document.
+to help improve this document.
