@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 23. Jul 2026
+     - :ref:`ox-connector-prerequisites`
+     - Add prerequisites section for the *OX Connector*.
+
    * - 22. Jul 2026
      - :ref:`doc-entry`
      - Add introduction section for the document.
