@@ -27,6 +27,9 @@ DEPENDS = {
     "packaged-integration-ox": {
         "ox-connector-app",
     },
+    "ox-connector-app": {
+        "ox-connector",
+    },
 }
 SPECIAL: dict[str, dict[str, object]] = {
     "ox-connector-app": {
