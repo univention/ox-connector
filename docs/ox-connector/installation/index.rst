@@ -16,3 +16,4 @@ see :ref:`ox-connector-prerequisites`.
 .. toctree::
 
    ucs
+   kubernetes
