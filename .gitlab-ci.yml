@@ -88,16 +88,6 @@ variables:
       - "ox-connector-standalone-test"
       - "ox-extension"
 
-.version-rules: &version-rules
-  - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    when: "never"
-  - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
-    variables:
-      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
-  - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-    variables:
-      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
-
 get-appcenter-version:
   stage: prepare
   needs: []
@@ -124,6 +114,11 @@ get-appcenter-version:
   - "helm-unittests/**/*"
 
 .changes-container: &changes-container
+  - "ci/**/*"
+  - "helm/**/*"
+  - "helm-unittests/**/*"
+  - "nubus-test-environment/**/*"
+  - "tests/**/*"
   - ".dockerignore"
   - "Dockerfile"
   - "app/**/*"
@@ -141,15 +136,6 @@ get-appcenter-version:
   - "univention-ox-soap-api/**/*"
   - "pyproject.toml"
   - "uv.lock"
-
-.changes-deploy-test: &changes-deploy-test
-  - "ci/**/*"
-  - "helm/**/*"
-  - "nubus-test-environment/**/*"
-  - "tests/**/*"
-  - "standalone-files/**/*"
-  - "univention-ox-provisioning/**/*"
-  - "univention-ox-soap-api/**/*"
 
 .python-change-rules: &python-change-rules
   - if: '$RUN_RENOVATE == "yes"'
@@ -179,10 +165,10 @@ get-appcenter-version:
   - if: '$RUN_RENOVATE == "yes"'
     when: never
   - if: '$AUTO_TRIGGER_TESTS == "yes" && $CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-deploy-test
+    changes: *changes-container
     when: on_success
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-deploy-test
+    changes: *changes-container
     when: manual
   - if: '$AUTO_TRIGGER_TESTS == "yes" && $CI_PIPELINE_SOURCE != "merge_request_event"'
     when: on_success
