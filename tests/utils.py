@@ -133,7 +133,6 @@ class FileLogs(BaseLogs):
                     raise AssertionError(
                         f"Listener_trigger did NOT handle {text} for {timeout:.1f} seconds.",
                     )
-                    break
                 pos_new = fp.tell()
                 if pos == pos_new:
                     time.sleep(0.1)

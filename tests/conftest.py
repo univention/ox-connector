@@ -590,8 +590,8 @@ def k8s_patch_ox_credentials_reader(session_mocker, request, k8s_enabled):
 @pytest.fixture
 def platform(k8s_enabled):
     # There are two possibilities to run the tests in k8s.
-    #  - k8s-api: Run the tests on a seperate pod/container against a remote k8s deployment
-    #  - k8s: Run the tests locally on the ox-connector por in the deployment
+    #  - k8s-api: Run the tests on a separate pod/container against a remote k8s deployment
+    #  - k8s: Run the tests locally on the ox-connector pod in the deployment
     if k8s_enabled:
         return "k8s-api"
     else:
