@@ -8,6 +8,11 @@
 Installation
 ************
 
+Before you install the *OX Connector*,
+make sure that your environment meets the prerequisites.
+For details,
+see :ref:`ox-connector-prerequisites`.
+
 .. toctree::
 
    ucs
