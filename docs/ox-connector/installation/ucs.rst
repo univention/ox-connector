@@ -7,99 +7,156 @@
 Install on Nubus for UCS
 ========================
 
-As administrator, you can install the :program:`OX Connector` app like any other
-app with Univention App Center. Make sure to fulfill the
-:ref:`app-prerequisites`.
+As an administrator,
+you can install the *OX Connector* app
+with Univention App Center.
 
-UCS offers two different ways for app installation:
+Before you start,
+make sure that your environment meets the :ref:`prerequisites-app-center`.
+Identify the required app settings.
 
-* With the web browser in the UCS management system
+You can install the app in Nubus for UCS in the following ways:
 
-* With the command-line
+* Install with a web browser through the *Management UI*.
+  See :ref:`ox-connector-install-on-ucs-with-browser`.
 
-For general information about Univention App Center and how to use it for software
-installation, see :ref:`uv-manual:software-appcenter` in :cite:t:`ucs-manual`.
+* Install from the command line on Nubus for UCS.
+  See :ref:`ox-connector-install-on-ucs-with-command-line`.
+
+.. seealso::
+
+   :external+uv-ucs-operation:ref:`lifecycle-app-center`
+      in :cite:t:`uv-ucs-operation`
+      to learn how to install apps with Univention App Center.
 
 .. _ox-connector-install-on-ucs-with-browser:
 
-Install with the web browser
-----------------------------
+Install with a web browser
+--------------------------
 
 .. index::
    single: installation; with web browser
 
-To install :program:`OX Connector` from the UCS management system, use the
-following steps:
+To install the *OX Connector* with the *Management UI* in Nubus,
+use the following steps.
 
-#. Use a web browser and sign in to the UCS management system.
+.. index::
+   pair: installation; administrator
+   pair: installation; domain admins
 
-#. Open the *App Center*.
+Before you start,
+make sure that you have a user account
+with access to administrative management modules.
 
-#. Select or search for *OX Connector* and open the app with a click.
+For more information,
+see :external+uv-nubus-manual:ref:`nubus-authentication-sign-in-choose-user-account`
+in :cite:t:`uv-nubus-manual`.
 
-#. To install the OX Connector, click :guilabel:`Install`.
+#. In a web browser,
+   :external+uv-nubus-manual:ref:`sign in <nubus-authentication-sign-in>`
+   to the *Management UI*.
 
-#. Adjust the *App settings* to your preferences. For a reference, see
-   :ref:`app-configuration`.
+#. Open the *App Center* management module.
 
-#. To start the installation, click :guilabel:`Start Installation`.
+#. Select *OX Connector*
+   or search for it,
+   and then open the app.
 
-.. note::
+#. Click :guilabel:`Install`.
 
-   .. index::
-      pair: installation; administrator
-      pair: installation; domain admins
+#. Configure the *App settings* for your environment.
 
-   To install apps, the user account you choose for login to the UCS management
-   system must have domain administration rights, for example the username
-   ``Administrator``. User accounts with domain administration rights belong to
-   the user group ``Domain Admins``.
+   .. TODO: Add link to configuration reference.
+      For a reference, see :ref:`app-configuration`.
 
-   For more information, see :ref:`uv-manual:delegated-administration` in
-   :cite:t:`ucs-manual`.
+#. Click :guilabel:`Start Installation`.
+
+#. Verify that App Center shows the *OX Connector* app as installed.
+
+.. seealso::
+
+   :external+uv-ucs-operation:ref:`lifecycle-app-center-installation`
+      in :cite:t:`uv-ucs-operation`
+      for information about app installations.
 
 .. _ox-connector-install-on-ucs-with-command-line:
 
-Install with the command line
+Install from the command line
 -----------------------------
 
 .. index::
    single: installation; with command-line
 
-.. highlight:: console
+To install the *OX Connector* app from the command line,
+use the following steps:
 
-To install the :program:`OX Connector` app from the command-line, use the following
-steps:
+#. Open a terminal
+   or connect to a remote shell.
+   Use a user account that has administrative rights,
+   for example ``root``.
 
-#. Sign in to a terminal or remote shell with a username with administration
-   rights, for example ``root``.
+#. Determine the app settings for your environment.
+   To pass custom settings to the app during installation,
+   use the command template in :numref:`ox-connector-install-on-ucs-with-command-line-listing`.
 
-#. Adjust the settings to your preferences with the appropriate installation
-   command. For a reference, see :ref:`app-configuration`. To pass customized
-   settings to the app during installation, see the following command template:
+   Replace the following placeholders:
 
-   .. code-block::
+   - ``SETTING_KEY`` with the app setting name.
+   - ``SETTING_VALUE`` with the value.
 
-      $ univention-app install ox-connector --set $SETTING_KEY=$SETTING_VALUE
+   For an example,
+   see :numref:`ox-connector-install-on-ucs-with-command-line-example-listing`.
 
-   **Example**:
+   .. TODO: Add a cross-reference to the configuration reference, after it exists, see issue #169.
+      For a reference, see :ref:`app-configuration`.
 
-   .. code-block::
+#. Prepare credentials for the installation command.
+   Before you run the installation command,
+   make sure that you can provide the password
+   for the domain administrator account,
+   such as ``Administrator``.
+
+   .. tip::
+
+      To use a different account,
+      pass the account name with ``--username``
+      and the password file with ``--pwdfile``.
+      For more information,
+      see :command:`univention-app install -h`.
+
+#. Install the *OX Connector* app
+   with the :command:`univention-app install` command.
+
+   The following command shows the syntax
+   for passing app settings during installation.
+
+   .. code-block:: console
+      :caption: Install *OX Connector* from the command line
+      :name: ox-connector-install-on-ucs-with-command-line-listing
+
+      $ univention-app install ox-connector --set SETTING_KEY=SETTING_VALUE
+
+   The following example shows multiple app settings
+   in one installation command.
+
+   .. code-block:: console
+      :caption: Example: Set app settings for *OX Connector* during installation
+      :name: ox-connector-install-on-ucs-with-command-line-example-listing
 
       $ univention-app install ox-connector --set \
         OX_MASTER_ADMIN="oxadminmaster" \
-        OX_MASTER_PASSWORD="some secure password" \
-        LOCAL_TIMEZONE="Europe/Berlin"` \
+        OX_MASTER_PASSWORD="SECURE_PASSWORD" \
+        LOCAL_TIMEZONE="Europe/Berlin" \
         OX_LANGUAGE="de_DE" \
         DEFAULT_CONTEXT="10" \
         OX_SMTP_SERVER="smtp://my-smtp.example.com:587" \
         OX_IMAP_SERVER="imap://my-imap.example.com:143" \
         OX_SOAP_SERVER="https://my-ox.example.com"
 
+   .. caution::
 
-   .. note::
+      Command-line passwords can appear in the shell history or process list.
+      Use this method only on a trusted system.
 
-      The installation process asks for the password of the domain administrator
-      ``Administrator``. To use another username and password for installation,
-      pass different values with the options ``--username`` and ``--pwdfile``.
-      For more information, see :command:`univention-app install -h`.
+#. Verify that App Center shows the *OX Connector* app as installed.
+   You must check the installed state in App Center.
