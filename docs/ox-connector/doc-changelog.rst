@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 24. Jul 2026
+     - :ref:`ox-connector-installation`
+     - Add installation instructions for the *OX Connector* app on Nubus for UCS.
+
    * - 23. Jul 2026
      - :ref:`ox-connector-prerequisites`
      - Add prerequisites section for the *OX Connector*.
