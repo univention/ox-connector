@@ -2,7 +2,17 @@
 ..
 .. SPDX-License-Identifier: AGPL-3.0-only
 
-.. _ox-connector-installation-ucs:
+.. _ox-connector-install-on-ucs:
 
-Install OX Connector on Nubus for UCS
-=====================================
+Install on Nubus for UCS
+========================
+
+.. _ox-connector-install-on-ucs-with-browser:
+
+Install with the web browser
+----------------------------
+
+.. _ox-connector-install-on-ucs-with-command-line:
+
+Install with the command line
+-----------------------------
