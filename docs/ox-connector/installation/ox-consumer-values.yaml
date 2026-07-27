@@ -1,0 +1,84 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025 Univention GmbH
+
+---
+# Configuration for OX CONNECTOR
+openXchange:
+  # -- OX-Mail-Domain to generate OX-email-addresses
+  domainName: null
+  auth:
+    # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+    username: "oxadminmaster"
+    # -- OX Admin password
+    password: null
+    existingSecret:
+      # -- The name of an existing Secret to use for retrieving the password
+      # for the ox admin password.
+      #
+      # "oxConnector.auth.password" will be ignored if this value is set.
+      name: null
+      keyMapping:
+        # -- The key to retrieve the password from. Setting this value allows to use
+        # a key with a different name.
+        password: null
+  # -- Default timezone for new users
+  oxLocalTimezone: "Europe/Berlin"
+  # -- Default language for new users
+  oxLanguage: "de_DE"
+  # -- Default context for users (has to exist)
+  oxDefaultContext: "10"
+  # -- Default SMTP server for new users (if not set explicitely there)
+  oxSmtpServer: null
+  # -- Default IMAP server for new users (if not set explicitely there)
+  oxImapServer: null
+  # -- The server where Open-Xchange is installed
+  oxSoapServer: null
+  # -- OX Connector log level
+  # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
+  logLevel: "INFO"
+  # -- SQLAlchemy DB connection URL for the OX connector.
+  oxDbConnectionString: null
+
+# Configuration for the communication with the provisioning API.
+provisioningApi:
+  # -- Connection parameters
+  connection:
+    # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+    baseUrl: ""
+  # -- Authentication parameters
+  auth:
+    # -- The username to authenticate with.
+    username: null
+    # -- The password to authenticate with.
+    password: null
+    existingSecret:
+      # -- The name of an existing Secret to use for retrieving the password
+      # to authenticate with the Provisioning API.
+      #
+      # "provisioningApi.auth.password" will be ignored if this value is set.
+      name: null
+      keyMapping:
+        # -- The key to retrieve the password from. Setting this value allows to use
+        # a key with a different name.
+        password: null
+  # -- Database resync on first startup only if database is empty.
+  resync:
+    # -- Enable the database resync on first startup only if database is empty.
+    enabled: true
+    auth:
+      # -- The admin username to authenticate with the Provisioning API
+      # for re-creating the ox-connector subscriber.
+      username: "admin"
+      # -- The admin password to authenticate with the Provisioning API.
+      password: null
+      existingSecret:
+        # -- The name of an existing Secret to use for retrieving the password
+        # to authenticate with the Provisioning API.
+        #
+        # "provisioningApi.resync.auth.password" will be ignored if this value is set.
+        name: null
+        keyMapping:
+          # -- The key to retrieve the password from. Setting this value allows to use
+          # a key with a different name.
+          password: null
+...
