@@ -26,6 +26,7 @@ TARGETS = ["html", "linkcheck", "spelling", "pdf"]
 DEPENDS = {
     "packaged-integration-ox": {
         "ox-connector-app",
+        "ox-connector",
     },
     "ox-connector-app": {
         "ox-connector",
