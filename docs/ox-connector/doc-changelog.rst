@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 27. Jul 2026
+     - :ref:`ox-connector-install-on-kubernetes`
+     - Add installation instructions for the *OX Connector* on Nubus for Kubernetes.
+
    * - 24. Jul 2026
      - :ref:`ox-connector-installation`
      - Add installation instructions for the *OX Connector* app on Nubus for UCS.
