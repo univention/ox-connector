@@ -16,10 +16,11 @@
 #
 import os
 import sys
-
-# sys.path.insert(0, os.path.abspath('.'))
-
 from datetime import date
+
+from univention_sphinx_conf_helper.inventory_resolver import (
+    reference_inventory,
+)
 
 # -- Project information -----------------------------------------------------
 
@@ -70,6 +71,11 @@ intersphinx_mapping = {
     "uv-ox-connector-app": (
         "https://docs.software-univention.de/ox-connector-app/latest/",
         None,
+    ),
+    "uv-ox-connector": reference_inventory(
+        "ox-connector",
+        version=version,
+        language=language,
     ),
 }
 
