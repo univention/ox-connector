@@ -11,13 +11,73 @@ include:
       - "jobs/lint-pre-commit.yaml"
       - "jobs/lint-commit-messages.yaml"
       - "jobs/semantic-release-env.yaml"
+
+  - project: "univention/dev/nubus-for-k8s/common-ci"
+    ref: "v1.66.2"
+    file:
       - "jobs/container-build-external.yaml"
       - "jobs/package-and-publish-helm-charts-external.yaml"
+    rules:
+      - if: '$RUN_RENOVATE == "yes"'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        changes:
+          - "ci/**/*"
+          - "helm/**/*"
+          - "helm-unittests/**/*"
+          - "nubus-test-environment/**/*"
+          - "tests/**/*"
+          - ".dockerignore"
+          - "Dockerfile"
+          - "app/**/*"
+          - "appcenter-entrypoint.sh"
+          - "entrypoint.sh"
+          - "k8s-entrypoint.sh"
+          - "ldap/**/*"
+          - "ox-extension/**/*"
+          - "scripts/**/*"
+          - "share/**/*"
+          - "standalone-files/**/*"
+          - "udm/**/*"
+          - "umc/**/*"
+          - "univention-ox-provisioning/**/*"
+          - "univention-ox-soap-api/**/*"
+          - "pyproject.toml"
+          - "uv.lock"
+      - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
 
   - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.68.2"
     inputs:
       helm_chart_name: "ox-connector"
       helm_values: "--helm-values ${CI_PROJECT_DIR}/helm/ox-connector/linter_values.yaml"
+    rules:
+      - if: '$RUN_RENOVATE == "yes"'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        changes:
+          - "ci/**/*"
+          - "helm/**/*"
+          - "helm-unittests/**/*"
+          - "nubus-test-environment/**/*"
+          - "tests/**/*"
+          - ".dockerignore"
+          - "Dockerfile"
+          - "app/**/*"
+          - "appcenter-entrypoint.sh"
+          - "entrypoint.sh"
+          - "k8s-entrypoint.sh"
+          - "ldap/**/*"
+          - "ox-extension/**/*"
+          - "scripts/**/*"
+          - "share/**/*"
+          - "standalone-files/**/*"
+          - "udm/**/*"
+          - "umc/**/*"
+          - "univention-ox-provisioning/**/*"
+          - "univention-ox-soap-api/**/*"
+          - "pyproject.toml"
+          - "uv.lock"
+      - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
 
   - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.8.0"
 
@@ -325,35 +385,14 @@ container-build:
 push-image-external:
   parallel:
     matrix: *publish-matrix
-  rules: *container-change-rules
 
 container-sign-external:
   parallel:
     matrix: *publish-matrix
-  rules: *container-change-rules
 
 container-release-attestation:
   parallel:
     matrix: *publish-matrix
-  rules: *container-change-rules
-
-package-helm-charts:
-  rules: *release-change-rules
-
-publish-chart-external:
-  rules: *release-change-rules
-
-sbom-scan-and-upload-mr:
-  rules: *release-change-rules
-
-validate-vulnerabilities:
-  rules: *release-change-rules
-
-sbom-vex-attest:
-  rules: *release-manual-change-rules
-
-clean-up-dt-tag:
-  rules: *release-manual-change-rules
 
 deploy-and-test:
   stage: deploy
