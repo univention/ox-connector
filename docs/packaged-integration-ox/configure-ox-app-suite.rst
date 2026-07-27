@@ -14,7 +14,7 @@ is out of scope of this document.
 If you want to use LDAP authentication,
 you have to set the LDAP search user in *OX App Suite*
 that you configured in the packaged integration
-in :numref:`install-packaged-integration-helm-chart-values-listing`.
+in :external+uv-ox-connector:ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`.
 
 If you want to use single sign-on with OpenID Connect or SAML,
 you need to create a suitable client in *Keycloak*,

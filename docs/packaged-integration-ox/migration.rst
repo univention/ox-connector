@@ -52,4 +52,4 @@ Go through the following steps to update your configuration:
    * ``provisioningApi.resync.auth.username`` and  ``provisioningApi.resync.auth.password``
    * or ``provisioningApi.resync.auth.existingSecret``
 
-#. Run :command:`helm upgrade` as described in :numref:`user-provisioning-helm-listing` in :ref:`user-provisioning-installation`.
+#. Run :command:`helm upgrade` as described in :ref:`user-provisioning-installation`.

@@ -19,6 +19,10 @@ import sys
 from configparser import ConfigParser
 from pathlib import Path
 
+from univention_sphinx_conf_helper.inventory_resolver import (
+    reference_inventory,
+)
+
 # -- Project information -----------------------------------------------------
 
 
