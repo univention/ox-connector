@@ -15,6 +15,26 @@ This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ 
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 
+.. _consumer-changelog-v0.41.1:
+
+v0.41.1
+=======
+
+Released: 2026-08-03
+
+Fixed
+-----
+
+Relaxed the DB integrity checks when adding relations between objects. Even
+after some objects had errors while syncing and thus could not be saved, the
+relation still needs to be added. Integrity is enforced on the library layer,
+not the DBMS.
+
+If you deployed v0.41.0 at any time, you may want to `ALTER TABLE relations
+DROP CONSTRAINT relations_src_obj_id_fkey; ALTER TABLE relations DROP
+CONSTRAINT relations_dst_obj_id_fkey;` (or similar, depending on your
+database).
+
 .. _consumer-changelog-v0.41.0:
 
 v0.41.0
