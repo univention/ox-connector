@@ -39,7 +39,6 @@ from copy import deepcopy
 from sqlalchemy import (
     create_engine,
     Column,
-    ForeignKey,
     Integer,
     String,
     DateTime,
@@ -85,13 +84,11 @@ class Relation(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     src_obj_id = Column(
         String,
-        ForeignKey("old.obj_id", ondelete="CASCADE"),
         nullable=False,
     )
     src_udm_module = Column(String, nullable=False)
     dst_obj_id = Column(
         String,
-        ForeignKey("old.obj_id", ondelete="CASCADE"),
         nullable=False,
     )
     dst_udm_module = Column(String, nullable=False)
@@ -131,12 +128,12 @@ class Old(Base):
     attrs = Column(String, nullable=False)
     forward_relations = relationship(
         "Relation",
-        foreign_keys=[Relation.src_obj_id],
+        primaryjoin="foreign(Relation.src_obj_id) == Old.obj_id",
         cascade="delete",
     )
     backward_relations = relationship(
         "Relation",
-        foreign_keys=[Relation.dst_obj_id],
+        primaryjoin="foreign(Relation.dst_obj_id) == Old.obj_id",
         cascade="delete",
     )
 
