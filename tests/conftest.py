@@ -12,6 +12,7 @@ import pytest
 from udm_rest import UDM, UnprocessableEntity
 from utils import FileUtility, FileLogs, SubprocessRunner
 
+from univention.ox.provisioning.db import DBSession
 from univention.ox.soap.backend_base import get_ox_integration_class
 
 TEST_LOG_FILE = Path("/tmp/test.log")
@@ -99,6 +100,12 @@ def log_utility_session(k8s_enabled, request, pytestconfig):
 
     use_polling = pytestconfig.getoption("--k8s-logs-poll")
     return KubernetesLogs(deployment, use_polling=use_polling, timeout=timeout)
+
+
+@pytest.fixture
+def db_session():
+    with DBSession() as session:
+        yield session
 
 
 @pytest.fixture
