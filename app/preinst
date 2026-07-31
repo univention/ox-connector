@@ -120,7 +120,18 @@ EOF
     chmod 640 "$app_provisioning_env_file"
 }
 
+setup_docker_params() {
+    local current
+    current="$(ucr get "appcenter/apps/ox-connector/docker/params")"
+    if [[ -n "$current" ]]; then
+        echo "appcenter/apps/ox-connector/docker/params already set to '${current}', skipping."
+    else
+        ucr set 'appcenter/apps/ox-connector/docker/params=--restart=always'
+    fi
+}
+
 setup_provisioning_subscriptions
+setup_docker_params
 
 if [[ ! -d "/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets/" ]]; then
   mkdir -pv "/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets"
