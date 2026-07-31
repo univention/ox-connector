@@ -109,6 +109,8 @@ WORKDIR /
 
 COPY entrypoint.sh entrypoint.d/75-entrypoint.sh
 COPY share/migrate_fupo_to_shared_account.py /usr/local/share/ox-connector/resources/migrate_fupo_to_shared_account.py
+COPY share/univention-ox-connector-task-management /usr/local/bin/
+
 ENV PYTHONPATH="/:$PYTHONPATH"
 
 COPY standalone-files/ /
