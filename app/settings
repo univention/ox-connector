@@ -110,8 +110,8 @@ Type = List
 Required = True
 Description = Ox-connector log level
 Show = Install, Settings
-Values = DEBUG, ERROR, INFO, CRITICAL, WARNING
-Labels = DEBUG, ERROR, INFO, CRITICAL, WARNING
+Values = TRACE, DEBUG, ERROR, INFO, CRITICAL, WARNING
+Labels = TRACE, DEBUG, ERROR, INFO, CRITICAL, WARNING
 InitialValue = INFO
 
 [OX_CONNECTOR_STOP_ON_ERROR]
