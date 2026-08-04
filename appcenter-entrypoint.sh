@@ -21,7 +21,7 @@ fi
 old_db_path="/var/lib/univention-appcenter/apps/${APP_ID}/data/listener/ox-connector.db"
 new_db_path="/var/lib/univention-appcenter/apps/${APP_ID}/data/ox-connector.db"
 if [[ -f "${old_db_path}" ]]; then
-  echo "Moving databse do new location"
+  echo "Moving database to new location"
   mv "${old_db_path}" "${new_db_path}"
   rm -Rf "/var/lib/univention-appcenter/apps/${APP_ID}/data/listener/"
 fi
