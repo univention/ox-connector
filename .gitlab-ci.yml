@@ -38,8 +38,6 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "webide"'
 
 variables:
-  APPCENTER_VERSION: "4.0.0"
-
   # Variables for sphinx-docs
   LANG: "C.UTF-8"
   DEBIAN_FRONTEND: "noninteractive"
@@ -126,6 +124,18 @@ container-malware-scan:
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
 
+get-appcenter-version:
+  stage: prepare
+  needs: []
+  script:
+    - |
+      APPCENTER_VERSION=$(sed -n 's/^Version[[:space:]]*=[[:space:]]*//p' app/ini)
+      echo "APPCENTER_VERSION=${APPCENTER_VERSION}" > appcenter-version.env
+      cat appcenter-version.env
+  artifacts:
+    reports:
+      dotenv: appcenter-version.env
+
 test-chart-ox-connector:
   stage: test
   needs: []
@@ -193,6 +203,7 @@ container-build:
     matrix: *build-matrix
   needs:
     - job: pre-semantic-release
+    - job: get-appcenter-version
   rules: *version-rules
 
 push-image-external:
@@ -248,6 +259,7 @@ trigger-docs:
   stage: "build"
   needs:
     - job: generate-docs-pipeline-config
+    - job: get-appcenter-version
   trigger:
     strategy: "depend"
     include:
@@ -268,12 +280,21 @@ trigger-docs:
       changes: *changes-docs
       when: "manual"
 
-upload-docker-image:
+upload-docker-image-to-appcenter:
   stage: "publish"
   when: "manual"
+  manual_confirmation: |
+    This job pushes the image to docker.software-univention.de, used for the
+    App Center. The tag name is ox-connector:${APPCENTER_VERSION} (the one
+    from app/ini). On the default branch this pushes a PRODUCTION image and
+    will (hopefully) fail if it already exists. On feature branches, this
+    pushes the name with -dev suffixed and will OVERWRITE!
+  needs:
+    - job: pre-semantic-release
+    - job: get-appcenter-version
   variables:
     GIT_STRATEGY: none
-    BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter-test:${RELEASE_VERSION}"
+    BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter:${RELEASE_VERSION}"
   rules: *version-rules
   image:
     name: "docker-registry.knut.univention.de/knut/ssh"
@@ -286,6 +307,10 @@ upload-docker-image:
       PUB_REGISTRY_SERVER="docker-upload.software-univention.de"
       PUB_IMAGE_NAME="ox-connector"
       PUB_REGISTRY_PATH_AND_TAG="${PUB_REGISTRY_SERVER}/${PUB_IMAGE_NAME}:${DOCKER_BUILD_VERSION}"
+      if [ "${CI_COMMIT_REF_NAME}" = "${CI_DEFAULT_BRANCH}" ] && ssh ${SSH_ARGS} "docker manifest inspect ${PUB_REGISTRY_PATH_AND_TAG}" > /dev/null 2>&1; then
+        echo "ERROR: Found ${PUB_REGISTRY_PATH_AND_TAG}. Not overwriting existing production image. Bump the version in app/ini before publishing again." >&2
+        exit 1
+      fi
       ssh ${SSH_ARGS} "docker pull ${BUILD_IMAGE_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker tag ${BUILD_IMAGE_PATH_AND_TAG} ${PUB_REGISTRY_PATH_AND_TAG}"
       ssh ${SSH_ARGS} "docker push ${PUB_REGISTRY_PATH_AND_TAG}"
