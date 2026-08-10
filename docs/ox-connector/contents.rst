@@ -13,6 +13,7 @@ OX Connector for Nubus documentation
    index
    prerequisites
    installation/index
+   configuration/index
 
 .. toctree::
    :maxdepth: 1
