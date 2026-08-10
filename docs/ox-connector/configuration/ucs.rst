@@ -7,6 +7,13 @@
 Configuration for UCS
 =====================
 
+Use this reference to configure the :program:`OX Connector` app
+on Nubus for UCS.
+The app settings define how the connector reaches *OX App Suite*
+and how it provisions users, groups, shared accounts, and related features.
+The UCR variables describe UCS-specific values
+that affect the connector configuration.
+
 .. _ox-connector-configuration-ucs-app-settings:
 
 App settings
@@ -14,12 +21,21 @@ App settings
 
 .. envvar:: OX_SOAP_SERVER
 
-   Defines the server that has *OX App Suite* installed. Provide the protocol and
-   the FQDN, for example :samp:`https://ox-app-suite.example.com`.
+   Defines the *OX App Suite* server.
+   Provide the protocol and the fully qualified domain name (FQDN),
+   for example :samp:`https://ox-app-suite.example.com`.
 
-   :envvar:`OX_SOAP_SERVER` instructs the OX Connector app in the Docker
-   container, where it must look for the *OX App Suite* system. The Docker
-   container must resolve the FQDN.
+   :envvar:`OX_SOAP_SERVER` tells the :program:`OX Connector` app in the container
+   where to look for the *OX App Suite* system.
+   The container must resolve the FQDN.
+
+   For secure HTTPS connections,
+   the container needs to validate the certificate.
+   If the *OX App Suite* instance uses a self-signed certificate
+   or a certificate that the :program:`OX Connector` container can't validate,
+   the container needs the root certificate for validation.
+   For information about how to add self-signed certificates,
+   see :ref:`ox-connector-ucs-additional-certificates`.
 
    .. list-table::
       :header-rows: 1
@@ -33,27 +49,11 @@ App settings
         - String
         - :samp:`https://{$hostname}.{$domainname}`
 
-   For secure connections with HTTPS the Docker container needs to validate the
-   certificate.
-
-   .. note::
-
-      .. index::
-         single: certificate; self-signed
-         single: certificate; custom
-         see: installation; certificate
-
-      If the *OX App Suite* instance uses a self-signed certificate or a
-      certificate it can't validate, the OX Connector container needs the
-      root certificate for validation.
-      You need to store the self-signed certificate files in the
-      :file:`/var/lib/univention-appcenter/apps/ox-connector/data/conf/ca-certificates/` directory.
-      For details, see :ref:`additional-ca-certificates`.
-
 
 .. envvar:: OX_IMAP_SERVER
 
-   Defines the default IMAP server for new users, if not explicitly set at the user object.
+   Defines the default IMAP server for new users,
+   if not explicitly set on the user object.
 
    .. list-table::
       :header-rows: 1
@@ -70,8 +70,8 @@ App settings
 
 .. envvar:: OX_SMTP_SERVER
 
-   Defines the SMTP server for new users, if not explicitly set at the user
-   object.
+   Defines the SMTP server for new users,
+   if not explicitly set on the user object.
 
    .. list-table::
       :header-rows: 1
@@ -88,10 +88,14 @@ App settings
 
 .. envvar:: DEFAULT_CONTEXT
 
-   Defines the default context for users. The OX Connector doesn't create the
-   ``DEFAULT_CONTEXT`` automatically. You as administrator must ensure, the
-   default context exists before the OX Connector provisions the first user. To
-   create a context, see :ref:`usage-contexts`.
+   Defines the default context for users.
+   The :program:`OX Connector` doesn't create ``DEFAULT_CONTEXT`` automatically.
+   Before the :program:`OX Connector` provisions the first user,
+   ensure that the default context exists.
+
+   .. TODO: Reactivate after the usage of contexts is available in the document. See univention/dev/projects/open-xchange/connector#171
+
+      To create a context, see :ref:`usage-contexts`.
 
    .. list-table::
       :header-rows: 1
@@ -108,7 +112,7 @@ App settings
 
 .. envvar:: OX_LANGUAGE
 
-   Defines the default language for new users
+   Defines the default language for new users.
 
    .. list-table::
       :header-rows: 1
@@ -125,7 +129,7 @@ App settings
 
 .. envvar:: LOCAL_TIMEZONE
 
-   Defines the default timezone for new users
+   Defines the default time zone for new users.
 
    .. list-table::
       :header-rows: 1
@@ -142,9 +146,11 @@ App settings
 
 .. envvar:: OX_MASTER_ADMIN
 
-   Defines the user for the *OX App Suite* administrator user, also called *OX
-   Admin user*. This user can create, modify, and delete contexts. The user must
-   already exist. The administrator defines the username for the *OX Admin user*
+   Defines the username for the *OX App Suite* administrator account,
+   also called the *OX Admin user*.
+   This user can create, modify, and delete contexts.
+   The user must already exist.
+   The administrator defines the username for the *OX Admin user*
    during the installation of OX App Suite.
 
    .. list-table::
@@ -179,8 +185,9 @@ App settings
 
 .. envvar:: OX_IMAP_LOGIN
 
-   Defines the value that is used by OX to log in to the user's inbox.
-   If this value is empty it is set to the user's mail address.
+   Defines the value that *OX App Suite* uses to access the user's inbox.
+   If this value is empty,
+   *OX App Suite* sets it to the user's email address.
 
    .. list-table::
       :header-rows: 1
@@ -194,26 +201,34 @@ App settings
         - String
         - N/A
 
-   In cases where you use single sign-on,
-   you need to append this variable with an asterisk
-   and the mail server's master user.
-   For Dovecot, the master user is ``*dovecotadmin``.
-   In this case, you need to set ``OX_IMAP_LOGIN`` to ``'{}*dovecotadmin'``.
-   The OX Connector interprets the curly braces as a template for the primary email address.
-   You can add any user attribute inside the curly braces if needed, for example,
-   ``{username}`` while empty braces are for ``primaryMailAddress``.
+   If you use single sign-on (SSO),
+   append an asterisk and the mail server master user to this variable.
+   For Dovecot,
+   set ``OX_IMAP_LOGIN`` to ``'{}*dovecotadmin'``.
+
+   The :program:`OX Connector` interprets the curly braces as a template.
+   Empty braces use ``primaryMailAddress``.
+   To use another user attribute,
+   enter the attribute name in the braces,
+   for example ``{username}``.
 
 
 .. envvar:: OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE
 
-   A template that defines the value which is used by OX to log in to the functional account inbox.
-   If this value is empty it is set to a concatenation of the functional account LDAP entry UUID
-   and the user LDAP uid.
+   Defines the value that *OX App Suite* uses
+   to access the functional account inbox.
+   If this value is empty,
+   the :program:`OX Connector` sets it to a concatenation
+   of the functional account LDAP entry UUID and the LDAP UID of the user.
 
-   This template can include the functional account entry UUID (`fa_entry_uuid`), the functional
-   account email address (`fa_email_address`) and any OX user UDM property (including the user's `entry_uuid` and `dn`).
-   Every UDM property used in this template must be enclosed by ``{{ }}`` e.g ``{{fa_entry_uuid}}{{username}}``. Multiple values can
-   optionally be separated by other text.
+   This template can include the functional account entry UUID
+   (``fa_entry_uuid``),
+   the functional account email address (``fa_email_address``),
+   and any Univention Directory Manager (UDM) property of the OX user,
+   including the user's ``entry_uuid`` and ``dn``.
+   Enclose every UDM property used in this template in ``{{ }}``,
+   for example ``{{fa_entry_uuid}}{{username}}``.
+   You can optionally separate multiple values with other text.
 
    .. list-table::
       :header-rows: 1
@@ -227,38 +242,61 @@ App settings
         - String
         - N/A
 
-   .. note::
+   If you use the *OX App Suite* app from Univention App Center,
+   you can leave this app setting empty.
+   An empty value is equivalent to ``{{fa_entry_uuid}}{{username}}``.
 
-        If the UCS *OX App Suite* is used, this app setting can be left empty, which is equivalent to using the
-        value ``{{fa_entry_uuid}}{{username}}``.
+   If an existing :program:`OX Connector` installation used only
+   the functional account entry UUID,
+   set this app setting to ``{{fa_entry_uuid}}``.
 
-        OX Connector installations that previously only used the functional account entry UUID should configure
-        this app setting to ``{{fa_entry_uuid}}``.
+   :numref:`settings-ox-functional-account-login-template-examples-listing`
+   shows valid template values.
 
-        Some examples:
+   .. code-block:: console
+      :caption: Valid functional account login template values
+      :name: settings-ox-functional-account-login-template-examples-listing
 
-        .. code-block:: console
+      "{{fa_entry_uuid}}::{{entry_uuid}}"
+      "{{username}}+{{fa_entry_uuid}}+{{dn}}"
+      "{{fa_email_address}}*dovecotadmin"
 
-            "{{fa_entry_uuid}}::{{entry_uuid}}" # Functional account entry UUID and user UUID separated by two colons.
-            "{{username}}+{{fa_entry_uuid}}+{{dn}}" # username, functional account entry UUID and user dn separated by a '+'
-            "{{fa_email_address}}*dovecotadmin" # Concatenation of functional account's mail address and the string *\*dovecotadmin
+   ``{{fa_entry_uuid}}::{{entry_uuid}}``
+      Concatenates the functional account entry UUID
+      and the user UUID,
+      separated by two colons.
 
-   .. note::
+   ``{{username}}+{{fa_entry_uuid}}+{{dn}}``
+      Concatenates the username,
+      the functional account entry UUID,
+      and the user DN,
+      separated by plus signs.
 
-        In cases where SSO is to be used, this variable has to be appended with an asterisk
-        and the mail server's master user. For Dovecot this would be *\*dovecotadmin*. In this
-        case ``OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE`` can be set to ``'{{fa_email_address}}*dovecotadmin'``.
-        The resulting login value for the functional account would then look like this:
+   ``{{fa_email_address}}*dovecotadmin``
+      Concatenates the functional account email address
+      and the string ``*dovecotadmin``.
 
-        .. code-block:: console
+   If you use single sign-on,
+   append an asterisk and the mail server master user to this variable.
+   For Dovecot,
+   set ``OX_FUNCTIONAL_ACCOUNT_LOGIN_TEMPLATE``
+   to ``'{{fa_email_address}}*dovecotadmin'``.
+   :numref:`settings-ox-functional-account-login-template-sso-listing`
+   shows the resulting login value for the functional account.
 
-            myfunctional_account@maildomain.de*dovecotadmin
+   .. code-block:: console
+      :caption: Resulting functional account login value with SSO
+      :name: settings-ox-functional-account-login-template-sso-listing
+
+      myfunctional_account@maildomain.de*dovecotadmin
 
 
 .. envvar:: OX_USER_IDENTIFIER
 
-   Defines which UDM user property is used as the unique user identifier for OX. If this app setting is not set the :program:`OX Connector`
-   will use the ``username`` property by default.
+   Defines the UDM user property that *OX App Suite* uses
+   as the unique user identifier.
+   If this app setting isn't set,
+   the :program:`OX Connector` uses the ``username`` property by default.
 
    .. list-table::
       :header-rows: 1
@@ -272,16 +310,22 @@ App settings
         - String
         - N/A
 
-   .. note::
+   .. caution::
 
-         Only a UDM user property that contains a **single value** which is **not None** (mandatory UDM property) is a valid option. In case a UDM user property
-         that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
-         to be resolved manually by simply setting a valid value.
+      Use only a mandatory UDM user property
+      that contains one non-empty value.
+      If you specify a UDM user property
+      that contains an empty value or a list of values,
+      the :program:`OX Connector` enters an error state.
+      To resolve the error,
+      set a valid property.
 
 .. envvar:: OX_GROUP_IDENTIFIER
 
-   Defines which UDM group property is used as the unique group identifier for OX. If this app setting is not set the :program:`OX Connector`
-   will use the ``name`` property by default.
+   Defines the UDM group property that *OX App Suite* uses
+   as the unique group identifier.
+   If this app setting isn't set,
+   the :program:`OX Connector` uses the ``name`` property by default.
 
    .. list-table::
       :header-rows: 1
@@ -295,16 +339,22 @@ App settings
         - String
         - N/A
 
-   .. note::
+   .. caution::
 
-         Only a UDM group property that contains a **single value** which is **not None** (mandatory UDM property) is a valid option. In case a UDM group property
-         that contains an empty value or a list of values is specified, the :program:`OX Connector` will enter an error state which needs
-         to be resolved manually by simply setting a valid value.
+      Use only a mandatory UDM group property
+      that contains one non-empty value.
+      If you specify a UDM group property
+      that contains an empty value or a list of values,
+      the :program:`OX Connector` enters an error state.
+      To resolve the error,
+      set a valid property.
 
 .. envvar:: OX_SHARED_ACCOUNT_IDENTIFIER
 
-   Defines which UDM shared account property is used as the unique shared account identifier for OX. If this app setting is not set the :program:`OX Connector`
-   will use the ``name`` property by default.
+   Defines the UDM shared account property that *OX App Suite* uses
+   as the unique shared account identifier.
+   If this app setting isn't set,
+   the :program:`OX Connector` uses the ``name`` property by default.
 
    .. list-table::
       :header-rows: 1
@@ -318,19 +368,21 @@ App settings
         - String
         - N/A
 
-   .. note::
+   .. caution::
 
-         Only a UDM shared account property that contains a **single value**
-         which is **not None** (mandatory UDM property) is a valid option. In
-         case a UDM shared account property that contains an empty value or a
-         list of values is specified, the :program:`OX Connector` will enter an
-         error state which needs to be resolved manually by simply setting a
-         valid value.
+      Use only a mandatory UDM shared account property
+      that contains one non-empty value.
+      If you specify a UDM shared account property
+      that contains an empty value or a list of values,
+      the :program:`OX Connector` enters an error state.
+      To resolve the error,
+      set a valid property.
 
 .. envvar:: OX_CONNECTOR_LOG_LEVEL
 
-   Defines the log level for the ox-connector app. If this app setting is not set the :program:`OX Connector`
-   will use ``INFO`` by default.
+   Defines the log level for the :program:`OX Connector` app.
+   If this app setting isn't set,
+   the :program:`OX Connector` uses ``INFO`` by default.
 
    .. list-table::
       :header-rows: 1
@@ -347,23 +399,26 @@ App settings
 .. envvar:: OX_ENABLE_DEPUTY_PERMISSIONS
 
    Enables the provisioning of OX deputy permissions.
-   Administrators then can set, modify, or delete deputy permissions for users in the UMC.
+   Administrators can then set, modify, or delete deputy permissions
+   for users in the *Management UI*.
 
-   For example, administrators can grant ``user01`` the roles *Viewer*, *Editor*, and *Author*
-   for the calendar and mail module for ``user02``.
-   Furthermore, ``user01`` can send emails on behalf of ``user02``.
+   For example,
+   administrators can grant ``user01`` the roles *Viewer*, *Editor*, and *Author*
+   for the calendar and mail modules for ``user02``.
+   Also,
+   ``user01`` can send email on behalf of ``user02``.
 
    The default value is ``False``.
    To enable the feature,
    set the app setting :envvar:`OX_ENABLE_DEPUTY_PERMISSIONS` to ``True``.
 
-   To see the feature in the UMC,
-   you need to enable the UMC representation for the extended attribute
-   either after the app installation,
+   To show the feature in the *Management UI*,
+   you must enable the UMC representation for the extended attribute
+   after the app installation
    or after the configuration.
    Run the command in :numref:`settings-ox-enable-deputy-permission-listing`
-   either on the *UCS Primary Directory Node*
-   or a *UCS Backup Directory Node*.
+   on the :external+uv-ucs-operation:term:`Primary Directory Node`
+   or a :external+uv-ucs-operation:term:`Backup Directory Node`.
 
    .. code-block:: console
       :caption: Activate the UMC representation of the enabled deputy permission feature.
@@ -388,26 +443,36 @@ App settings
 
    .. important::
 
-      The *Deputy Permissions* feature requires *OX App Suite* version >= 8.
+      The *Deputy Permissions* feature requires *OX App Suite* version 8 or later.
 
-      Users can modify the deputy permissions on their own in *OX App Suite*.
-      The provisioning in the :program:`OX Connector` app through UCS overwrites these settings.
+      Users can modify their deputy permissions in *OX App Suite*.
+      Provisioning through the :program:`OX Connector` app in Nubus for UCS
+      overwrites these settings.
 
    .. seealso::
 
-      `Deputy permissions : Technical Documentation <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/deputy_permission.html>`_
+      `Deputy permissions: Technical Documentation <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/deputy_permission.html>`_
          for more information about OX deputy permissions.
 
 .. envvar:: OX_CONNECTOR_STOP_ON_ERROR
 
-   Changes the behavior of the app :program:`OX Connector` when it handles
-   errors during synchronization. It can either stop on any error and retry the
-   failed action until it succeeds or the Administrator resolves it manually
-   (``True``). The App can also continue with other actions in its queue and
-   instead put the failed action "aside", meaning it will no longer interfere
-   with the execution of the connector, but can be examined by the
-   Administrator at any later stage (``False``). See also
-   :ref:`app-troubleshooting`.
+   Changes how the :program:`OX Connector` app handles synchronization errors.
+   Set one of the following values:
+
+   ``True``
+      Stop on any error.
+      The app retries the failed action until it succeeds
+      or an administrator resolves the error manually.
+
+   ``False``
+      Continue with other queued actions.
+      The app moves the failed action to the morgue.
+      The failed action no longer interferes with the connector run,
+      and an administrator can examine it later.
+
+   .. TODO: Reactivate after troubleshooting exists. See univention/dev/projects/open-xchange/connector#175
+
+      See also :ref:`app-troubleshooting`.
 
    .. list-table::
       :header-rows: 1
@@ -428,89 +493,95 @@ UCR variables
 
 .. envvar:: ox/context/id
 
-   The app setting :envvar:`DEFAULT_CONTEXT` sets the value of the |UCSUCRV|
+   The app setting :envvar:`DEFAULT_CONTEXT` sets the value of the UCR variable
    :envvar:`ox/context/id`.
 
-   Upon installation of the app :program:`OX Connector`, the OX Connector
-   creates the extended attribute ``oxContext`` and uses the value from
-   :envvar:`ox/context/id` as initial value for the extended attribute
-   ``oxContext``.
+   When you install the :program:`OX Connector` app,
+   it creates the extended attribute ``oxContext``
+   and uses the value from :envvar:`ox/context/id`
+   as the initial value for the extended attribute ``oxContext``.
 
-   When an administrator creates a new user account that the OX Connector
-   synchronizes, UDM sets the OX context for the user account to value of the
-   extended attribute ``oxContext``.
+   When an administrator creates a user account
+   that the :program:`OX Connector` app synchronizes,
+   UDM sets the OX context for the user account
+   to the value of the extended attribute ``oxContext``.
 
    .. caution::
 
-      The UCR variable :envvar:`ox/context/id` **isn't** for manual usage.
+      The UCR variable :envvar:`ox/context/id` **isn't** for manual use.
 
-      Changing the variable **doesn't** change the OX context on existing user
-      accounts.
+      Changing the variable **doesn't** change the OX context
+      on existing user accounts.
 
-      Changing the value of the app setting :envvar:`DEFAULT_CONTEXT` does
-      **neither** change :envvar:`ox/context/id` **nor** the extended attribute
-      ``oxContext``.
+      Changing the value of the app setting :envvar:`DEFAULT_CONTEXT`
+      changes **neither** :envvar:`ox/context/id`
+      **nor** the extended attribute ``oxContext``.
 
 .. _ox-connector-configuration-ucs-user-attribute-mapping:
 
 User attribute mapping
 ----------------------
 
-Since version 2.2.9, you can modify the mapping
-between *Open-Xchange* and *UDM* properties
-using the script :program:`change_attribute_mapping.py` provided with the app.
+Since version 2.2.9,
+you can change the mapping between *Open-Xchange* and *UDM* properties.
+Use the :program:`change_attribute_mapping.py` script from the app.
 The script creates a JSON file
-that stores information about the Open-Xchange properties
-and other information useful for user provisioning.
+with the Open-Xchange property mapping
+and provisioning data.
 
-Don't modify the file manually, but only with the script.
-The JSON file locates at
+Don't modify the file manually.
+Use only the script.
+The script stores the JSON file at
 :file:`/var/lib/univention-appcenter/apps/ox-connector/data/AttributeMapping.json`.
+
 If the file doesn't exist,
-the OX Connector uses the default mapping defined in
-:file:`/usr/lib/python3.9/site-packages/univention/ox/provisioning/default_user_mapping.py`
-inside the Docker container of the app.
+the :program:`OX Connector` app uses the default mapping.
+The default mapping comes from the following file
+inside the container of the app:
+
+:file:`/usr/lib/python3.9/site-packages/univention/ox/provisioning/default_user_mapping.py`.
 
 .. program:: change_attribute_mapping.py
 
-The script allows the following operations:
+The script supports these actions:
 
 .. option:: modify
 
-   performs operations that change the current mapping.
+   Performs operations that change the current mapping.
 
 .. option:: restore_default
 
-   restores the default mapping.
+   Restores the default mapping.
 
 .. option:: dump
 
-   writes the current JSON mapping to console.
+   Writes the current JSON mapping to the console.
 
 
-With the *modify* operation, you can use the following additional operations:
+The *modify* action supports these options:
 
-.. option:: --set
+.. option:: modify --set
 
-   Changes the UDM property used for an Open-Xchange property provisioning.
-   :numref:`conf-user-mapping-set-listing` shows how to set the mapping
-   of the Open Xchange property ``userfield01`` to the UDM property ``description``.
+   Changes the UDM property used to provision an Open-Xchange property.
+   :numref:`conf-user-mapping-set-listing` shows how to map
+   the Open-Xchange property ``userfield01``
+   to the UDM property ``description``.
 
    .. code-block:: console
-      :caption: Sets the mapping of an Open-Xchange property to an UDM property.
+      :caption: Set the mapping of an Open-Xchange property to a UDM property
       :name: conf-user-mapping-set-listing
 
       $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
          modify \
          --set userfield01 description
 
-   It's possible to use the :option:`--set` arguments multiple times in the same invocation.
-   :numref:`conf-user-mapping-multiple-set-listing` shows an example
-   that sets the mapping of the Open-Xchange properties ``userfield01`` and ``given_name``
-   to the UDM properties ``description`` and ``custom_attribute``.
+   You can use the :option:`modify --set` argument multiple times
+   in the same invocation.
+   :numref:`conf-user-mapping-multiple-set-listing` shows how to map
+   multiple Open-Xchange properties to multiple UDM properties.
 
    .. code-block:: console
-      :caption: Sets the mapping of multiple Open-Xchange properties to multiple UDM properties.
+      :caption: Set multiple Open-Xchange properties to multiple UDM properties
       :name: conf-user-mapping-multiple-set-listing
 
       $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
@@ -518,11 +589,11 @@ With the *modify* operation, you can use the following additional operations:
          --set userfield01 description \
          --set given_name custom_attribute
 
-.. option:: --unset
+.. option:: modify --unset
 
    Removes the Open-Xchange property from the mapping
-   if it isn't marked as required.
-   You can use it to remove properties from the synchronization.
+   if the property isn't marked as required.
+   You can use this option to remove properties from synchronization.
 
    .. code-block:: console
       :caption: Unset the OX property ``userfield01``.
@@ -531,83 +602,114 @@ With the *modify* operation, you can use the following additional operations:
          modify \
          --unset userfield01
 
-.. option:: --set_alternatives
+.. option:: modify --set_alternatives
 
-   Sets alternative UDM properties used for the synchronization if the main one is ``None``.
-   :numref:`conf-user-mapping-set-alternative-listing` shows an example
-   to set the theoretical attributes ``CustomAttributeUserMail`` and ``CustomAttributeUserMail2``
+   Sets alternative UDM properties for synchronization
+   when the primary UDM property is ``None``.
+   :numref:`conf-user-mapping-set-alternative-listing`
+   shows how to set the example attributes
+   ``CustomAttributeUserMail`` and ``CustomAttributeUserMail2``
    as alternatives to the Open-Xchange property ``email1``.
 
    .. code-block:: console
-      :caption: Set theoretical attributes as alternatives to an Open-Xchange property.
+      :caption: Set example attributes as alternatives to an Open-Xchange property
       :name: conf-user-mapping-set-alternative-listing
 
       $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
          modify \
          --set_alternatives email1 CustomAttributeUserMail CustomAttributeUserMail2
 
-.. option:: --unset_alternatives
+.. option:: modify --unset_alternatives
 
-   Unset the current alternatives for an OX property
+   Removes the current alternatives for an OX property.
+
+   :numref:`conf-user-mapping-unset-alternative-listing`
+   shows how to remove the alternative attributes for the OX property ``email1``.
 
    .. code-block:: console
-      :caption: Unset the alternative attributes to the OX property ``email1``.
+      :caption: Unset the alternative attributes for the OX property ``email1``
+      :name: conf-user-mapping-unset-alternative-listing
 
       $ python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
          modify \
          --unset_alternatives email1
 
-If you previously used the attribute mapping feature of the *OX App Suite* app from the App Center,
-you can migrate it by running the following command
-on the UCS system where you installed the OX App Suite.
-You then use the output of the script as command and run it
-on the UCS system where the OX Connector is running.
+You can migrate an existing attribute mapping
+from the *OX App Suite* app in Univention App Center.
+To migrate the mapping,
+do the following:
 
-.. code-block:: python
+#. On the Nubus for UCS system that runs *OX App Suite*,
+   run the command in
+   :numref:`conf-user-mapping-migrate-existing-mapping-listing`.
 
-   python3 <<EOF
-     from univention.config_registry import ConfigRegistry
-     ucr = ConfigRegistry()
-     ucr.load()
+   .. code-block:: console
+      :caption: Create the migration command for an existing attribute mapping
+      :name: conf-user-mapping-migrate-existing-mapping-listing
 
-     changed_mapping_single = {
-       'displayname': 'display_name',
-       'givenmame': 'given_name',
-       'surname': 'sur_name',
-       'categories': 'employee_type',
-       'quota': 'max_quota',
-       }
+      $ python3 <<EOF
+      from univention.config_registry import ConfigRegistry
+      ucr = ConfigRegistry()
+      ucr.load()
 
-     changed_mapping_multi = {
-       'telephone_business': ['telephone_business1', 'telephone_business2'],
-       'telephone_home': ['telephone_home1', 'telephone_home2'],
-     }
+      changed_mapping_single = {
+        'displayname': 'display_name',
+        'givenmame': 'given_name',
+        'surname': 'sur_name',
+        'categories': 'employee_type',
+        'quota': 'max_quota',
+        }
+
+      changed_mapping_multi = {
+        'telephone_business': ['telephone_business1', 'telephone_business2'],
+        'telephone_home': ['telephone_home1', 'telephone_home2'],
+      }
 
 
-     ucr_ldap2ox = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2ox', '').strip()
-     ucr_ldap2oxmulti = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2oxmulti', '').strip()
-     command = []
-     if ucr_ldap2ox:
-       for entry in ucr_ldap2ox.split():
-         value, key = entry.split(':', 1)
-         if value is None:
-           command.append(f"--unset {changed_mapping_single.get(key, key)}")
-         else:
-           command.append(f"--set {changed_mapping_single.get(key, key)} {value}")
+      ucr_ldap2ox = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2ox', '').strip()
+      ucr_ldap2oxmulti = ucr.get('ox/listener/user/ldap/attributes/mapping/ldap2oxmulti', '').strip()
+      command = []
+      if ucr_ldap2ox:
+        for entry in ucr_ldap2ox.split():
+          value, key = entry.split(':', 1)
+          if value is None:
+            command.append(f"--unset {changed_mapping_single.get(key, key)}")
+          else:
+            command.append(f"--set {changed_mapping_single.get(key, key)} {value}")
 
-     if ucr_ldap2oxmulti:
-       ldap2oxmulti = {}
-       for entry in ucr_ldap2oxmulti.split():
-         value, key = entry.split(':', 1)
-         if value is None:
-           for v in changed_mapping_multi.get(key, [key]):
-             command.append(f"--unset {v}")
-         else:
-           for v in changed_mapping_multi.get(key, [key]):
-             command.append(f"--set {v} {value}")
-     if command:
-       print("Run the following command on the ox-connector server to update attribute mapping:")
-       print("python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify " + " ".join(command))
-     else:
-       print("Nothing to do.")
-   EOF
+      if ucr_ldap2oxmulti:
+        ldap2oxmulti = {}
+        for entry in ucr_ldap2oxmulti.split():
+          value, key = entry.split(':', 1)
+          if value is None:
+            for v in changed_mapping_multi.get(key, [key]):
+              command.append(f"--unset {v}")
+          else:
+            for v in changed_mapping_multi.get(key, [key]):
+              command.append(f"--set {v} {value}")
+
+      if command:
+        print("Run the following command on the ox-connector server to update attribute mapping:")
+        print("python3 /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py modify " + " ".join(command))
+      else:
+        print("Nothing to do.")
+      EOF
+
+#. Copy the generated command from the output.
+
+#. On the Nubus for UCS system where the :program:`OX Connector` app runs,
+   run the generated command.
+
+#. Verify the migration result.
+   Run the command in
+   :numref:`conf-user-mapping-verify-migration-listing`
+   and check that the expected Open-Xchange properties
+   map to the expected UDM properties.
+
+   .. code-block:: console
+      :caption: Verify the migrated attribute mapping
+      :name: conf-user-mapping-verify-migration-listing
+
+      $ python3 \
+         /var/lib/univention-appcenter/apps/ox-connector/data/resources/change_attribute_mapping.py \
+         dump
