@@ -65,9 +65,7 @@ in :cite:t:`uv-nubus-manual`.
 #. Click :guilabel:`Install`.
 
 #. Configure the *App settings* for your environment.
-
-   .. TODO: Add link to configuration reference.
-      For a reference, see :ref:`app-configuration`.
+   For a reference, see :ref:`ox-connector-configuration-ucs-app-settings`.
 
 #. Click :guilabel:`Start Installation`.
 
@@ -107,8 +105,7 @@ use the following steps:
    For an example,
    see :numref:`ox-connector-install-on-ucs-with-command-line-example-listing`.
 
-   .. TODO: Add a cross-reference to the configuration reference, after it exists, see issue #169.
-      For a reference, see :ref:`app-configuration`.
+   For a reference, see :ref:`ox-connector-configuration-ucs-app-settings`.
 
 #. Prepare credentials for the installation command.
    Before you run the installation command,
