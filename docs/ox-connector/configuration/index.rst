@@ -18,3 +18,4 @@ and structured logging for the connector.
 .. toctree::
 
    ucs
+   ucs-ca-certificates
