@@ -7,16 +7,15 @@ OX Connector for Nubus documentation
 ####################################
 
 .. toctree::
-   :hidden:
    :numbered:
-   :maxdepth: 1
+   :maxdepth: 3
 
    index
    prerequisites
    installation/index
 
 .. toctree::
-   :hidden:
+   :maxdepth: 1
 
    doc-changelog
    bibliography
