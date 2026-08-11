@@ -7,34 +7,44 @@
 Import additional CA certificates on UCS
 ========================================
 
-The :program:`OX Connector` app in UCS runs as a container with its own CA certificate store.
-By default, the app imports the UCS root CA certificate into the CA store
-to enable a secure connection to the UCS LDAP directory.
-You may need additional CA certificates for the :program:`OX Connector` app,
-for example, when provisioning to a remote *OX App Suite* installation.
+The :program:`OX Connector` app on Nubus for UCS
+runs in a container with its own CA store.
+By default,
+the app imports the Nubus for UCS root CA into this store.
+This import enables a secure connection to the Nubus LDAP directory.
+You might need additional CA certificates
+when provisioning to a remote *OX App Suite* installation.
 
-To add certificates to the certificate store in the :program:`OX Connector`,
-use the following steps on the system where the app is installed:
+Before you start,
+make sure that you meet the following prerequisites:
+
+* You have installed the :program:`OX Connector` app.
+* You have the CA certificate files in PEM format.
+
+Use these steps on the system that runs the :program:`OX Connector` app:
 
 #. Create the
    :file:`/var/lib/univention-appcenter/apps/ox-connector/data/conf/ca-certificates/` directory.
 
-#. Copy the CA certificate files in PEM format with the ending ``.pem`` into this directory.
+#. Copy the CA certificate files in PEM format to this directory.
+   Use only files with the ``.pem`` filename extension.
    :numref:`additional-ca-certificates-examples-listing` shows an example.
 
    .. code-block:: console
-      :caption: Examples for additional CA certificates
+      :caption: Examples of additional CA certificates
       :name: additional-ca-certificates-examples-listing
-
 
       $ file /var/lib/univention-appcenter/apps/ox-connector/data/conf/ca-certificates/*.pem
       .../ox-connector/data/conf/ca-certificates/cert1.pem: PEM certificate
       .../ox-connector/data/conf/ca-certificates/cert2.pem: PEM certificate
 
-#. Manually reconfigure the OX Connector with the command in
-   :numref:`additional-ca-certificates-manual-reconfigure-listing`.
-   The :program:`OX Connector` app automatically adds the certificates to its certificate store,
-   also during app updates.
+#. Run the command shown in
+   :numref:`additional-ca-certificates-manual-reconfigure-listing`
+   to reconfigure the :program:`OX Connector` app.
+   The command finishes without errors
+   and adds the certificates to the app's certificate store.
+   During app updates,
+   the app also imports the certificates from the directory.
 
    .. code-block:: console
       :caption: Manually reconfigure the OX Connector
