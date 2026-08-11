@@ -68,7 +68,7 @@ def get_group_name(group):
 
 def update_group(group, attributes, group_name):
     group.name = group_name
-    group.display_name = group.name
+    group.display_name = attributes.get("name", group.name)
     if not is_ox_group(attributes):
         # no need to search anything...
         # specifically skip "Domain Users"... this would be expensive
