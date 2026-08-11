@@ -108,6 +108,7 @@ def test_add_group_with_one_user(
         get_identifier(group_obj),
     )
     assert obj.name == get_identifier(group_obj)
+    assert obj.display_name == group_obj.properties.get("name")
     assert len(obj.members) == 1
 
 
@@ -262,6 +263,7 @@ def test_rename_group(
     wait_for_listener(new_obj.dn)
     obj = find_ox_object(default_ox_context, "Group", get_identifier(new_obj))
     assert obj.id == old_id
+    assert obj.display_name == new_obj.properties.get("name")
 
 
 def test_add_group_with_multiple_users_and_contexts(
@@ -318,6 +320,7 @@ def test_modify_group(
     wait_for_listener(new_obj.dn)
     obj = find_ox_object(default_ox_context, "Group", get_identifier(new_obj))
     assert obj.name == get_identifier(new_obj)
+    assert obj.display_name == new_obj.properties.get("name")
     assert len(obj.members) == 1
 
 
