@@ -20,6 +20,11 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 12. Aug 2026
+     - :ref:`ox-connector-configuration-kubernetes`
+     - Add generated Helm Chart values reference for the *OX Connector*
+       on Nubus for Kubernetes.
+
    * - 10. Aug 2026
      - :ref:`ox-connector-configuration`
      - Add UCS configuration reference for the *OX Connector* app.
