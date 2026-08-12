@@ -6,159 +6,151 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# The global properties are used to configure multiple charts at once.
+# Global values configure shared settings for multiple charts.
 global:
   # -- Container registry address.
   imageRegistry: "artifacts.software-univention.de"
-  # -- Credentials to fetch images from private registry.
-  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-  #
-  # imagePullSecrets:
-  #   - "docker-registry"
+  # -- Credentials to fetch images from a private registry.
+  # For details, see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/.
   imagePullSecrets: []
 
-  # -- Define an ImagePullPolicy.
-  #
-  # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
-  #
-  # "IfNotPresent" => The image is pulled only if it is not already present locally.
-  # "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to
-  #             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached
-  #             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved
-  #             digest, and uses that image to launch the container.
-  # "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the
-  #            kubelet attempts to start the container; otherwise, startup fails.
+  # -- Image pull policy for all container images that don't define their own pull policy.
+  # For details, see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy.
   imagePullPolicy: null
 
-# Configuration for the communication with the provisioning API.
+# Configuration for communication with the Provisioning API.
 provisioningApi:
   config:
-    # -- The maximum number of retries for acknowledging a message
+    # -- Maximum number of retries for acknowledging a message.
     maxAcknowledgementRetries: 3
-  # -- Connection parameters
+  # -- Connection parameters for the Provisioning API.
   connection:
-    # -- The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+    # -- Base URL where the Provisioning API is reachable, for example "https://provisioning-api".
     baseUrl: ""
-  # -- Authentication parameters
+  # -- Authentication parameters for the Provisioning API subscription user.
   auth:
-    # -- The username to authenticate with.
+    # -- Username for authenticating to the Provisioning API.
     username: "ox-consumer"
-    # -- The password to authenticate with.
+    # -- Password for authenticating to the Provisioning API.
     password: null
     existingSecret:
-      # -- The name of an existing Secret to use for retrieving the password
-      # to authenticate with the Provisioning API.
-      #
-      # "provisioningApi.auth.password" will be ignored if this value is set.
+      # -- Name of an existing Secret that contains the Provisioning API password.
+      # The value in "provisioningApi.auth.password" is ignored if this value is set.
       name: null
       keyMapping:
-        # -- The key to retrieve the password from. Setting this value allows to use
-        # a key with a different name.
+        # -- Key in the existing Secret that contains the password.
+        # Set this value to use a key with a different name.
         password: null
   resync:
-    # -- Enable the database resync on first startup only if database is empty.
+    # -- Enable database resync on the first startup if the database is empty.
     enabled: true
     auth:
-      # -- The admin username to authenticate with the Provisioning API
-      # for recreating the ox-connector subscriber.
+      # -- Admin username for authenticating to the Provisioning API during resync.
       username: "admin"
-      # -- The admin password to authenticate with the Provisioning API.
+      # -- Admin password for authenticating to the Provisioning API during resync.
       password: null
       existingSecret:
-        # -- The name of an existing Secret to use for retrieving the password
-        # to authenticate with the Provisioning API.
-        #
-        # "provisioningApi.resync.auth.password" will be ignored if this value is set.
+        # -- Name of an existing Secret that contains the Provisioning API admin password.
+        # The value in "provisioningApi.resync.auth.password" is ignored if this value is set.
         name: null
         keyMapping:
-          # -- The key to retrieve the password from. Setting this value allows to use
-          # a key with a different name.
+          # -- Key in the existing Secret that contains the admin password.
+          # Set this value to use a key with a different name.
           password: null
 
 oxConnector:
   image:
+    # -- Image pull policy for the OX Connector container image.
     pullPolicy: null
+    # -- Container registry for the OX Connector image.
     registry: null
+    # -- Repository of the OX Connector image.
     repository: "nubus-dev/images/ox-connector-standalone"
+    # -- Tag of the OX Connector image.
     tag: "latest"
 
   # -- Array with extra environment variables to add to containers.
-  #
-  # extraEnvVars:
-  #   - name: FOO
-  #     value: "bar"
   extraEnvVars: []
 
-# Configuration for OX CONNECTOR
+# Configuration for the OX Connector.
 openXchange:
-  # -- OX-Mail-Domain to generate OX-email-addresses
+  # -- OX mail domain that the connector uses to generate email addresses.
   domainName: null
   auth:
-    # -- OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+    # -- Username of the OX Admin user.
+    # The OX Admin user can create, modify, and delete contexts and must already exist.
     username: "oxadminmaster"
-    # -- OX Admin password
+    # -- Password of the OX Admin user.
     password: null
     existingSecret:
-      # -- The name of an existing Secret to use for retrieving the password
-      # for the ox admin password.
-      #
-      # "oxConnector.auth.password" will be ignored if this value is set.
+      # -- Name of an existing Secret that contains the OX Admin password.
+      # The value in "openXchange.auth.password" is ignored if this value is set.
       name: null
       keyMapping:
-        # -- The key to retrieve the password from. Setting this value allows to use
-        # a key with a different name.
+        # -- Key in the existing Secret that contains the OX Admin password.
+        # Set this value to use a key with a different name.
         password: null
-  # -- Default timezone for new users
+  # -- Default time zone for new users.
   oxLocalTimezone: "Europe/Berlin"
-  # -- Default language for new users
+  # -- Default language for new users.
   oxLanguage: "de_DE"
-  # -- Default context for users (has to exist)
+  # -- Default OX context for users. The context must already exist.
   oxDefaultContext: "10"
-  # -- Default SMTP server for new users (if not set explicitely there)
+  # -- Default SMTP server for new users if no SMTP server is set on the user object.
   oxSmtpServer: null
-  # -- Default IMAP server for new users (if not set explicitely there)
+  # -- Default IMAP server for new users if no IMAP server is set on the user object.
   oxImapServer: null
-  # -- The server where Open-Xchange is installed
+  # -- Server where OX App Suite is installed.
   oxSoapServer: null
-  # -- OX Connector log level
-  # Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
+  # -- OX Connector log level. Choose from "DEBUG", "INFO", "WARNING", and "ERROR".
   logLevel: "INFO"
-  # -- Ox Connector deputy permissions flag.
+  # -- Enable provisioning of OX deputy permissions.
   oxDeputyPermissions: false
-  # -- Ox Connector shared account flag.
+  # -- Enable provisioning of OX shared accounts.
   oxSharedAccount: true
   # -- SQLAlchemy DB connection URL for the OX connector.
   oxDbConnectionString: null
   mappings:
-    # -- UDM user property that is used as the unique user identifier for OX
+    # -- UDM user property that the connector uses as the unique user identifier in OX.
     userIdentifier: "username"
-    # -- UDM group property that is used as the unique group identifier for OX
+    # -- UDM group property that the connector uses as the unique group identifier in OX.
     groupIdentifier: "name"
-    # -- UDM shared account property that is used as the unique account identifier for OX
+    # -- UDM shared account property that the connector uses as the unique shared account identifier in OX.
     sharedAccountIdentifier: "name"
 
 waitForDependency:
   image:
+    # -- Image pull policy for the dependency waiter image.
     pullPolicy: null
+    # -- Container registry for the dependency waiter image.
     registry: null
+    # -- Repository of the dependency waiter image.
     repository: "nubus/images/wait-for-dependency"
+    # -- Tag of the dependency waiter image.
     tag: "0.36.12@sha256:7150d72c8f342a05b945ce1b21464864aa91590d00f65ebe4b628571cce34efc"
 
-# Set PVCs size and storage class
+# Persistent volume claim settings.
 persistence:
-  # -- Specify storageClassName - Leave empty to use the default storage class
+  # -- Storage class name. Leave empty to use the default storage class.
   storageClass: ""
-  # -- Specify PVCs size
+  # -- Persistent volume claim size.
   size: 1Gi
 
-## Global values
+# -- Pod affinity rules for the OX Connector workload.
 affinity: {}
+# -- Additional environment variables for deployment templates.
 environment: {}
+# -- Override the fully qualified chart name.
 fullnameOverride: ""
+# -- Override the chart name.
 nameOverride: ""
+# -- Node selector for scheduling the OX Connector pod.
 nodeSelector: {}
+# -- Additional annotations for the OX Connector pod.
 podAnnotations: {}
+# -- Number of OX Connector replicas.
 replicaCount: 1
+# -- Tolerations for scheduling the OX Connector pod.
 tolerations: []
 
 # -- Optionally specify an extra list of additional volumes.
@@ -167,15 +159,21 @@ extraVolumes: []
 # -- Optionally specify an extra list of additional volumeMounts.
 extraVolumeMounts: []
 
-## Container deployment probes
+# Container deployment probes.
 probes:
   liveness:
+    # -- Initial delay in seconds before the liveness probe starts.
     initialDelaySeconds: 120
+    # -- Timeout in seconds for the liveness probe.
     timeoutSeconds: 3
+    # -- Interval in seconds between liveness probe executions.
     periodSeconds: 30
+    # -- Number of failed liveness probes before Kubernetes restarts the container.
     failureThreshold: 3
+    # -- Number of successful liveness probes required to mark the container healthy.
     successThreshold: 1
     exec:
+      # -- Command for the liveness probe.
       command:
         - /bin/sh
         - -c
@@ -183,69 +181,92 @@ probes:
           exit 0
 
   readiness:
+    # -- Initial delay in seconds before the readiness probe starts.
     initialDelaySeconds: 30
+    # -- Timeout in seconds for the readiness probe.
     timeoutSeconds: 3
+    # -- Interval in seconds between readiness probe executions.
     periodSeconds: 15
+    # -- Number of failed readiness probes before Kubernetes marks the container not ready.
     failureThreshold: 30
+    # -- Number of successful readiness probes required to mark the container ready.
     successThreshold: 1
     exec:
+      # -- Command for the readiness probe.
       command:
         - /bin/sh
         - -c
         - |
           exit 0
 
-## Deployment resources
+# Deployment resources for the OX Connector container.
 resources:
   requests:
+    # -- Requested memory for the OX Connector container.
     memory: "512Mi"
+    # -- Requested CPU for the OX Connector container.
     cpu: "250m"
   limits:
+    # -- Memory limit for the OX Connector container.
     memory: "4Gi"
+    # -- CPU limit for the OX Connector container.
     cpu: "4"
 
 # -- Deployment resources for the dependency waiters
 resourcesWaitForDependency:
   requests:
+    # -- Requested memory for dependency waiter containers.
     memory: "64Mi"
+    # -- Requested CPU for dependency waiter containers.
     cpu: "100m"
   limits:
+    # -- Memory limit for dependency waiter containers.
     memory: "128Mi"
+    # -- CPU limit for dependency waiter containers.
     cpu: "200m"
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # -- Create a service account for the OX Connector.
   create: true
-  # Annotations to add to the service account
+  # -- Additional annotations for the service account.
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # -- Service account name. If this value is empty and "serviceAccount.create" is true, the chart generates a name from the fullname template.
   name: ""
-  ## @param serviceAccount.automountServiceAccountToken Allows auto mount of
-  # ServiceAccountToken on the serviceAccount created
-  ## Can be set to false if pods using this serviceAccount do not need to use K8s API
-  ##
+  # -- Allow automatic mounting of the service account token.
   automountServiceAccountToken: false
   # -- Additional custom labels for the ServiceAccount.
   labels: {}
 
 podSecurityContext:
+  # -- File system group ID for mounted volumes.
   fsGroup: 1000
+  # -- User ID for the OX Connector pod.
   runAsUser: 1000
+  # -- Group ID for the OX Connector pod.
   runAsGroup: 1000
+  # -- Require the OX Connector pod to run as a non-root user.
   runAsNonRoot: true
   seccompProfile:
+    # -- Seccomp profile type for the OX Connector pod.
     type: "RuntimeDefault"
 
 securityContext:
+  # -- Run the OX Connector container in privileged mode.
   privileged: false
+  # -- Allow privilege escalation in the OX Connector container.
   allowPrivilegeEscalation: false
+  # -- Mount the OX Connector container root filesystem as read-only.
   readOnlyRootFilesystem: true
+  # -- User ID for the OX Connector container.
   runAsUser: 1000
+  # -- Group ID for the OX Connector container.
   runAsGroup: 1000
+  # -- Require the OX Connector container to run as a non-root user.
   runAsNonRoot: true
   seccompProfile:
+    # -- Seccomp profile type for the OX Connector container.
     type: "RuntimeDefault"
   capabilities:
+    # -- Linux capabilities to drop from the OX Connector container.
     drop:
       - "ALL"
