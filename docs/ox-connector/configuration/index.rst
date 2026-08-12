@@ -20,3 +20,4 @@ and structured logging for the connector.
    ucs
    ucs-ca-certificates
    ucs-structured-logging
+   kubernetes
