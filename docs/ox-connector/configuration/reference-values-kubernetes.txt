@@ -1,0 +1,758 @@
+:Name: ``ox-connector``
+:Version: ``0.42.1``
+:Description: A Helm chart for the ox-connector
+
+You find the configuration options for ``ox-connector`` in the following sections.
+
+.. _helm-ref-affinity:
+
+``affinity``
+------------
+
+.. envvar:: affinity
+
+   #Global values
+
+   **Default value**: ``{}``
+
+.. _helm-ref-environment:
+
+``environment``
+---------------
+
+.. envvar:: environment
+
+   .. FIXME: Add documentation string for environment.
+
+   **Default value**: ``{}``
+
+.. _helm-ref-extravolumemounts:
+
+``extraVolumeMounts``
+---------------------
+
+.. envvar:: extraVolumeMounts
+
+   Optionally specify an extra list of additional volumeMounts.
+
+   **Default value**: ``[]``
+
+.. _helm-ref-extravolumes:
+
+``extraVolumes``
+----------------
+
+.. envvar:: extraVolumes
+
+   Optionally specify an extra list of additional volumes.
+
+   **Default value**: ``[]``
+
+.. _helm-ref-fullnameoverride:
+
+``fullnameOverride``
+--------------------
+
+.. envvar:: fullnameOverride
+
+   .. FIXME: Add documentation string for fullnameOverride.
+
+   **Default value**: ``""``
+
+.. _helm-ref-global:
+
+``global``
+----------
+
+.. envvar:: global.imagePullPolicy
+
+   Define an ImagePullPolicy. # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy # "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.
+
+   **Default value**: ``null``
+
+
+.. envvar:: global.imagePullSecrets
+
+   Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ # imagePullSecrets:   - "docker-registry"
+
+   **Default value**: ``[]``
+
+
+.. envvar:: global.imageRegistry
+
+   Container registry address.
+
+   **Default value**:
+
+   .. code-block:: json
+
+      "artifacts.software-univention.de"
+
+
+.. _helm-ref-nameoverride:
+
+``nameOverride``
+----------------
+
+.. envvar:: nameOverride
+
+   .. FIXME: Add documentation string for nameOverride.
+
+   **Default value**: ``""``
+
+.. _helm-ref-nodeselector:
+
+``nodeSelector``
+----------------
+
+.. envvar:: nodeSelector
+
+   .. FIXME: Add documentation string for nodeSelector.
+
+   **Default value**: ``{}``
+
+.. _helm-ref-openxchange:
+
+``openXchange``
+---------------
+
+.. envvar:: openXchange.auth.existingSecret.keyMapping.password
+
+   The key to retrieve the password from. Setting this value allows to use a key with a different name.
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.auth.existingSecret.name
+
+   The name of an existing Secret to use for retrieving the password for the ox admin password. # "oxConnector.auth.password" will be ignored if this value is set.
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.auth.password
+
+   OX Admin password
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.auth.username
+
+   OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+
+   **Default value**: ``"oxadminmaster"``
+
+
+.. envvar:: openXchange.domainName
+
+   OX-Mail-Domain to generate OX-email-addresses
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.logLevel
+
+   OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
+
+   **Default value**: ``"INFO"``
+
+
+.. envvar:: openXchange.mappings.groupIdentifier
+
+   UDM group property that is used as the unique group identifier for OX
+
+   **Default value**: ``"name"``
+
+
+.. envvar:: openXchange.mappings.sharedAccountIdentifier
+
+   UDM shared account property that is used as the unique account identifier for OX
+
+   **Default value**: ``"name"``
+
+
+.. envvar:: openXchange.mappings.userIdentifier
+
+   UDM user property that is used as the unique user identifier for OX
+
+   **Default value**: ``"username"``
+
+
+.. envvar:: openXchange.oxDbConnectionString
+
+   SQLAlchemy DB connection URL for the OX connector.
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.oxDefaultContext
+
+   Default context for users (has to exist)
+
+   **Default value**: ``"10"``
+
+
+.. envvar:: openXchange.oxDeputyPermissions
+
+   Ox Connector deputy permissions flag.
+
+   **Default value**: ``false``
+
+
+.. envvar:: openXchange.oxImapServer
+
+   Default IMAP server for new users (if not set explicitely there)
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.oxLanguage
+
+   Default language for new users
+
+   **Default value**: ``"de_DE"``
+
+
+.. envvar:: openXchange.oxLocalTimezone
+
+   Default timezone for new users
+
+   **Default value**: ``"Europe/Berlin"``
+
+
+.. envvar:: openXchange.oxSharedAccount
+
+   Ox Connector shared account flag.
+
+   **Default value**: ``true``
+
+
+.. envvar:: openXchange.oxSmtpServer
+
+   Default SMTP server for new users (if not set explicitely there)
+
+   **Default value**: ``null``
+
+
+.. envvar:: openXchange.oxSoapServer
+
+   The server where Open-Xchange is installed
+
+   **Default value**: ``null``
+
+.. _helm-ref-oxconnector:
+
+``oxConnector``
+---------------
+
+.. envvar:: oxConnector.extraEnvVars
+
+   Array with extra environment variables to add to containers. # extraEnvVars:   - name: FOO     value: "bar"
+
+   **Default value**: ``[]``
+
+
+.. envvar:: oxConnector.image.pullPolicy
+
+   .. FIXME: Add documentation string for oxConnector.image.pullPolicy.
+
+   **Default value**: ``null``
+
+
+.. envvar:: oxConnector.image.registry
+
+   .. FIXME: Add documentation string for oxConnector.image.registry.
+
+   **Default value**: ``null``
+
+
+.. envvar:: oxConnector.image.repository
+
+   .. FIXME: Add documentation string for oxConnector.image.repository.
+
+   **Default value**:
+
+   .. code-block:: json
+
+      "nubus/images/ox-connector-standalone"
+
+
+
+.. envvar:: oxConnector.image.tag
+
+   .. FIXME: Add documentation string for oxConnector.image.tag.
+
+   **Default value**:
+
+   .. code-block:: json
+
+      "0.42.1@sha256:16a17bf4d2ca2074d16ec708798012c9543091028cd3bc5a10e1c8be4fb14a64"
+
+
+.. _helm-ref-persistence:
+
+``persistence``
+---------------
+
+.. envvar:: persistence.size
+
+   Specify PVCs size
+
+   **Default value**: ``"1Gi"``
+
+
+.. envvar:: persistence.storageClass
+
+   Specify storageClassName - Leave empty to use the default storage class
+
+   **Default value**: ``""``
+
+.. _helm-ref-podannotations:
+
+``podAnnotations``
+------------------
+
+.. envvar:: podAnnotations
+
+   .. FIXME: Add documentation string for podAnnotations.
+
+   **Default value**: ``{}``
+
+.. _helm-ref-podsecuritycontext:
+
+``podSecurityContext``
+----------------------
+
+.. envvar:: podSecurityContext.fsGroup
+
+   .. FIXME: Add documentation string for podSecurityContext.fsGroup.
+
+   **Default value**: ``1000``
+
+
+.. envvar:: podSecurityContext.runAsGroup
+
+   .. FIXME: Add documentation string for podSecurityContext.runAsGroup.
+
+   **Default value**: ``1000``
+
+
+.. envvar:: podSecurityContext.runAsNonRoot
+
+   .. FIXME: Add documentation string for podSecurityContext.runAsNonRoot.
+
+   **Default value**: ``true``
+
+
+.. envvar:: podSecurityContext.runAsUser
+
+   .. FIXME: Add documentation string for podSecurityContext.runAsUser.
+
+   **Default value**: ``1000``
+
+
+.. envvar:: podSecurityContext.seccompProfile.type
+
+   .. FIXME: Add documentation string for podSecurityContext.seccompProfile.type.
+
+   **Default value**: ``"RuntimeDefault"``
+
+.. _helm-ref-probes:
+
+``probes``
+----------
+
+.. envvar:: probes.liveness.exec.command
+
+   .. FIXME: Add documentation string for probes.liveness.exec.command.
+
+   **Default value**: ``["/bin/sh", "-c", "exit 0\n"]``
+
+
+.. envvar:: probes.liveness.failureThreshold
+
+   .. FIXME: Add documentation string for probes.liveness.failureThreshold.
+
+   **Default value**: ``3``
+
+
+.. envvar:: probes.liveness.initialDelaySeconds
+
+   .. FIXME: Add documentation string for probes.liveness.initialDelaySeconds.
+
+   **Default value**: ``120``
+
+
+.. envvar:: probes.liveness.periodSeconds
+
+   .. FIXME: Add documentation string for probes.liveness.periodSeconds.
+
+   **Default value**: ``30``
+
+
+.. envvar:: probes.liveness.successThreshold
+
+   .. FIXME: Add documentation string for probes.liveness.successThreshold.
+
+   **Default value**: ``1``
+
+
+.. envvar:: probes.liveness.timeoutSeconds
+
+   .. FIXME: Add documentation string for probes.liveness.timeoutSeconds.
+
+   **Default value**: ``3``
+
+
+.. envvar:: probes.readiness.exec.command
+
+   .. FIXME: Add documentation string for probes.readiness.exec.command.
+
+   **Default value**: ``["/bin/sh", "-c", "exit 0\n"]``
+
+
+.. envvar:: probes.readiness.failureThreshold
+
+   .. FIXME: Add documentation string for probes.readiness.failureThreshold.
+
+   **Default value**: ``30``
+
+
+.. envvar:: probes.readiness.initialDelaySeconds
+
+   .. FIXME: Add documentation string for probes.readiness.initialDelaySeconds.
+
+   **Default value**: ``30``
+
+
+.. envvar:: probes.readiness.periodSeconds
+
+   .. FIXME: Add documentation string for probes.readiness.periodSeconds.
+
+   **Default value**: ``15``
+
+
+.. envvar:: probes.readiness.successThreshold
+
+   .. FIXME: Add documentation string for probes.readiness.successThreshold.
+
+   **Default value**: ``1``
+
+
+.. envvar:: probes.readiness.timeoutSeconds
+
+   .. FIXME: Add documentation string for probes.readiness.timeoutSeconds.
+
+   **Default value**: ``3``
+
+.. _helm-ref-provisioningapi:
+
+``provisioningApi``
+-------------------
+
+.. envvar:: provisioningApi.auth.existingSecret.keyMapping.password
+
+   The key to retrieve the password from. Setting this value allows to use a key with a different name.
+
+   **Default value**: ``null``
+
+
+.. envvar:: provisioningApi.auth.existingSecret.name
+
+   The name of an existing Secret to use for retrieving the password to authenticate with the Provisioning API. # "provisioningApi.auth.password" will be ignored if this value is set.
+
+   **Default value**: ``null``
+
+
+.. envvar:: provisioningApi.auth.password
+
+   The password to authenticate with.
+
+   **Default value**: ``null``
+
+
+.. envvar:: provisioningApi.auth.username
+
+   The username to authenticate with.
+
+   **Default value**: ``"ox-consumer"``
+
+
+.. envvar:: provisioningApi.config.maxAcknowledgementRetries
+
+   The maximum number of retries for acknowledging a message
+
+   **Default value**: ``3``
+
+
+.. envvar:: provisioningApi.connection.baseUrl
+
+   The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+
+   **Default value**: ``""``
+
+
+.. envvar:: provisioningApi.resync.auth.existingSecret.keyMapping.password
+
+   The key to retrieve the password from. Setting this value allows to use a key with a different name.
+
+   **Default value**: ``null``
+
+
+.. envvar:: provisioningApi.resync.auth.existingSecret.name
+
+   The name of an existing Secret to use for retrieving the password to authenticate with the Provisioning API. # "provisioningApi.resync.auth.password" will be ignored if this value is set.
+
+   **Default value**: ``null``
+
+
+.. envvar:: provisioningApi.resync.auth.password
+
+   The admin password to authenticate with the Provisioning API.
+
+   **Default value**: ``null``
+
+
+.. envvar:: provisioningApi.resync.auth.username
+
+   The admin username to authenticate with the Provisioning API for recreating the ox-connector subscriber.
+
+   **Default value**: ``"admin"``
+
+
+.. envvar:: provisioningApi.resync.enabled
+
+   Enable the database resync on first startup only if database is empty.
+
+   **Default value**: ``true``
+
+.. _helm-ref-replicacount:
+
+``replicaCount``
+----------------
+
+.. envvar:: replicaCount
+
+   .. FIXME: Add documentation string for replicaCount.
+
+   **Default value**: ``1``
+
+.. _helm-ref-resources:
+
+``resources``
+-------------
+
+.. envvar:: resources.limits.cpu
+
+   .. FIXME: Add documentation string for resources.limits.cpu.
+
+   **Default value**: ``"4"``
+
+
+.. envvar:: resources.limits.memory
+
+   .. FIXME: Add documentation string for resources.limits.memory.
+
+   **Default value**: ``"4Gi"``
+
+
+.. envvar:: resources.requests.cpu
+
+   .. FIXME: Add documentation string for resources.requests.cpu.
+
+   **Default value**: ``"250m"``
+
+
+.. envvar:: resources.requests.memory
+
+   .. FIXME: Add documentation string for resources.requests.memory.
+
+   **Default value**: ``"512Mi"``
+
+.. _helm-ref-resourceswaitfordependency:
+
+``resourcesWaitForDependency``
+------------------------------
+
+.. envvar:: resourcesWaitForDependency.limits.cpu
+
+   .. FIXME: Add documentation string for resourcesWaitForDependency.limits.cpu.
+
+   **Default value**: ``"200m"``
+
+
+.. envvar:: resourcesWaitForDependency.limits.memory
+
+   .. FIXME: Add documentation string for resourcesWaitForDependency.limits.memory.
+
+   **Default value**: ``"128Mi"``
+
+
+.. envvar:: resourcesWaitForDependency.requests.cpu
+
+   .. FIXME: Add documentation string for resourcesWaitForDependency.requests.cpu.
+
+   **Default value**: ``"100m"``
+
+
+.. envvar:: resourcesWaitForDependency.requests.memory
+
+   .. FIXME: Add documentation string for resourcesWaitForDependency.requests.memory.
+
+   **Default value**: ``"64Mi"``
+
+.. _helm-ref-securitycontext:
+
+``securityContext``
+-------------------
+
+.. envvar:: securityContext.allowPrivilegeEscalation
+
+   .. FIXME: Add documentation string for securityContext.allowPrivilegeEscalation.
+
+   **Default value**: ``false``
+
+
+.. envvar:: securityContext.capabilities.drop
+
+   .. FIXME: Add documentation string for securityContext.capabilities.drop.
+
+   **Default value**: ``["ALL"]``
+
+
+.. envvar:: securityContext.privileged
+
+   .. FIXME: Add documentation string for securityContext.privileged.
+
+   **Default value**: ``false``
+
+
+.. envvar:: securityContext.readOnlyRootFilesystem
+
+   .. FIXME: Add documentation string for securityContext.readOnlyRootFilesystem.
+
+   **Default value**: ``true``
+
+
+.. envvar:: securityContext.runAsGroup
+
+   .. FIXME: Add documentation string for securityContext.runAsGroup.
+
+   **Default value**: ``1000``
+
+
+.. envvar:: securityContext.runAsNonRoot
+
+   .. FIXME: Add documentation string for securityContext.runAsNonRoot.
+
+   **Default value**: ``true``
+
+
+.. envvar:: securityContext.runAsUser
+
+   .. FIXME: Add documentation string for securityContext.runAsUser.
+
+   **Default value**: ``1000``
+
+
+.. envvar:: securityContext.seccompProfile.type
+
+   .. FIXME: Add documentation string for securityContext.seccompProfile.type.
+
+   **Default value**: ``"RuntimeDefault"``
+
+.. _helm-ref-serviceaccount:
+
+``serviceAccount``
+------------------
+
+.. envvar:: serviceAccount.annotations
+
+   Annotations to add to the service account
+
+   **Default value**: ``{}``
+
+
+.. envvar:: serviceAccount.automountServiceAccountToken
+
+   #\@param serviceAccount.automountServiceAccountToken Allows auto mount of ServiceAccountToken on the serviceAccount created #Can be set to false if pods using this serviceAccount do not need to use K8s API ##
+
+   **Default value**: ``false``
+
+
+.. envvar:: serviceAccount.create
+
+   Specifies whether a service account should be created
+
+   **Default value**: ``true``
+
+
+.. envvar:: serviceAccount.labels
+
+   Additional custom labels for the ServiceAccount.
+
+   **Default value**: ``{}``
+
+
+.. envvar:: serviceAccount.name
+
+   The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+
+   **Default value**: ``""``
+
+.. _helm-ref-tolerations:
+
+``tolerations``
+---------------
+
+.. envvar:: tolerations
+
+   .. FIXME: Add documentation string for tolerations.
+
+   **Default value**: ``[]``
+
+.. _helm-ref-waitfordependency:
+
+``waitForDependency``
+---------------------
+
+.. envvar:: waitForDependency.image.pullPolicy
+
+   .. FIXME: Add documentation string for waitForDependency.image.pullPolicy.
+
+   **Default value**: ``null``
+
+
+.. envvar:: waitForDependency.image.registry
+
+   .. FIXME: Add documentation string for waitForDependency.image.registry.
+
+   **Default value**: ``null``
+
+
+.. envvar:: waitForDependency.image.repository
+
+   .. FIXME: Add documentation string for waitForDependency.image.repository.
+
+   **Default value**:
+
+   .. code-block:: json
+
+      "nubus/images/wait-for-dependency"
+
+
+
+.. envvar:: waitForDependency.image.tag
+
+   .. FIXME: Add documentation string for waitForDependency.image.tag.
+
+   **Default value**:
+
+   .. code-block:: json
+
+      "0.36.12@sha256:7150d72c8f342a05b945ce1b21464864aa91590d00f65ebe4b628571cce34efc"
+
+
+
+.. vim: filetype=rst
