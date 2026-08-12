@@ -1,0 +1,35 @@
+:Name: ``{{ name }}``
+:Version: ``{{ version }}``
+:Description: {{ description|trim }}
+
+You find the configuration options for ``{{ name }}`` in the following sections.
+
+{%- set ns = namespace(last_heading="") %}
+{% for (param, comment, default) in values %}
+{%- set heading = param.split('.')[0] %}
+{%- if ns.last_heading != heading %}
+.. _helm-ref-{{ heading|lower }}:
+
+``{{ heading }}``
+{{ "-" * (heading|length + 4) }}
+{%- set ns.last_heading = heading %}
+{%- endif %}
+
+.. envvar:: {{ param|trim }}
+{% if comment|length > 0 %}
+   {{ comment|trim }}
+{% else %}
+   .. FIXME: Add documentation string for {{ param|trim }}.
+{% endif %}
+{%- if default|length > 30 or default.startswith('"{{') %}
+   **Default value**:
+
+   .. code-block:: json
+
+      {{ default|trim }}
+{% else %}
+   **Default value**: ``{{ default|trim }}``
+{%- endif %}
+{% endfor %}
+
+.. vim: filetype=rst
