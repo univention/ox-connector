@@ -50,8 +50,6 @@ The *OX App Suite* server must meet the following prerequisites:
    use the settings
    :envvar:`OX_MASTER_ADMIN` and :envvar:`OX_MASTER_PASSWORD`.
 
-   .. TODO: Add envvar directive in the document to resolve the cross-references for OX_MASTER_…
-
    For Nubus for Kubernetes,
    configure the OX administrator credentials in the Helm values
    for the *OX Consumer*.
