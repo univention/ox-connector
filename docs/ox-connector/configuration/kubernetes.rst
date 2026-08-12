@@ -7,10 +7,14 @@
 Configuration for Nubus for Kubernetes
 ======================================
 
-.. _ox-connector-configuration-kubernetes-helm-chart-reference:
+Use this reference to configure the :program:`OX Connector`
+on Nubus for Kubernetes.
+This page uses the published :program:`OX Connector` Helm Chart
+to provide the Helm Chart values reference.
 
-Helm Chart reference
---------------------
+..
+   The included reference is generated.
+   To update it, run docs/ox-connector/update-helm-values-reference.py.
 
 .. only:: not spelling and not linkcheck
 
