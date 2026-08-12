@@ -291,17 +291,20 @@ follow these steps:
 #. Set the required values for the following settings.
 
    For optional settings and their default values,
-   see the configuration reference for the *OX Consumer*.
+   see :ref:`ox-connector-configuration-kubernetes`.
 
-   .. TODO: Add cross-reference to configuration reference with issue #170.
+   Section :ref:`helm-ref-openxchange`
+      :envvar:`openXchange.domainName`: The OX mail domain that the connector uses to generate email addresses.
 
-   Section ``openXchange``
-      :``domainName``: The OX mail domain that the connector uses to generate email addresses.
-      :``auth.password``: :envvar:`OX_MASTER_PASSWORD`
-      :``oxSmtpServer``: :envvar:`OX_SMTP_SERVER`
-      :``oxImapServer``: :envvar:`OX_IMAP_SERVER`
-      :``oxSoapServer``: :envvar:`OX_SOAP_SERVER`
-      :``oxDbConnectionString``: The SQLAlchemy connection string for the database.
+      :envvar:`openXchange.auth.password`: :envvar:`OX_MASTER_PASSWORD`
+
+      :envvar:`openXchange.oxSmtpServer`: :envvar:`OX_SMTP_SERVER`
+
+      :envvar:`openXchange.oxImapServer`: :envvar:`OX_IMAP_SERVER`
+
+      :envvar:`openXchange.oxSoapServer`: :envvar:`OX_SOAP_SERVER`
+
+      :envvar:`openXchange.oxDbConnectionString`: The SQLAlchemy connection string for the database.
 
       The connection string uses the following pattern::
 
@@ -312,12 +315,15 @@ follow these steps:
       ``<HOSTNAME>``,
       and ``<DATABASE_NAME>`` with the values for your database connection.
 
-   Section ``provisioningApi``
-      :``auth.username``: The value of the ``name`` attribute in :numref:`ox-connector-kubernetes-subscription-listing`.
+   Section :ref:`helm-ref-provisioningapi`
+      :envvar:`provisioningApi.auth.username`:
+      The value of the ``name`` attribute in :numref:`ox-connector-kubernetes-subscription-listing`.
 
-      :``auth.password``: The value of the ``password`` attribute in :numref:`ox-connector-kubernetes-subscription-listing`.
+      :envvar:`provisioningApi.auth.password`:
+      The value of the ``password`` attribute in :numref:`ox-connector-kubernetes-subscription-listing`.
 
-      :``connection.baseUrl``: The base URL for the *Provisioning API* in the *Provisioning Service*.
+      :envvar:`provisioningApi.connection.baseUrl`:
+      The base URL for the *Provisioning API* in the *Provisioning Service*.
 
       The URL points to the Kubernetes service for the *Provisioning API*.
 
@@ -327,9 +333,10 @@ follow these steps:
          Replace :samp:`{release-name}` with the Helm Chart release name
          of your Nubus for Kubernetes installation.
 
-      :``resync.auth.password``: The password for the administrative user
-         of the *Provisioning API*.
-         Use this setting if you leave ``resync.enabled`` set to ``true``.
+      :envvar:`provisioningApi.resync.auth.password`:
+      The password for the administrative user
+      of the *Provisioning API*.
+      Use this setting if you leave :envvar:`provisioningApi.resync.enabled` set to ``true``.
 
       .. important::
 
@@ -342,9 +349,9 @@ follow these steps:
 
          Instead of specifying passwords directly in the values file,
          you can use existing Kubernetes secrets.
-         Set ``openXchange.auth.existingSecret``,
-         ``provisioningApi.auth.existingSecret``,
-         and ``provisioningApi.resync.auth.existingSecret``
+         Set ``openXchange.auth.existingSecret.*``,
+         ``provisioningApi.auth.existingSecret.*``,
+         and ``provisioningApi.resync.auth.existingSecret.*``
          to the names of the secrets that contain the credentials.
 
          When you use existing secrets,
