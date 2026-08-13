@@ -1,0 +1,228 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 Univention GmbH
+
+---
+include:
+  - project: "univention/dev/nubus-for-k8s/common-ci"
+    ref: "v1.68.2"
+    file:
+      - "jobs/container-build-external.yaml"
+      - "jobs/package-and-publish-helm-charts-external.yaml"
+
+  - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.68.2"
+    inputs:
+      helm_chart_name: "ox-connector"
+      helm_values: "--helm-values ${CI_PROJECT_DIR}/helm/ox-connector/linter_values.yaml"
+
+.build-matrix: &build-matrix
+  - IMAGE_NAME: "ox-connector-appcenter"
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--build-arg version=${DOCKER_BUILD_VERSION}"
+  - IMAGE_NAME: "ox-connector-standalone"
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--target=k8s --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
+  - IMAGE_NAME: "ox-connector-standalone-test"
+    DOCKERFILE_PATH: "Dockerfile"
+    KANIKO_ARGS: "--target=k8s-test --build-arg version=${RELEASE_VERSION} --build-arg APPCENTER_DOCKER_TAG=${RELEASE_VERSION}"
+  - IMAGE_NAME: "ox-extension"
+    DOCKERFILE_PATH: "ox-extension/Dockerfile"
+
+.publish-matrix: &publish-matrix
+  - IMAGE_NAME:
+      - "ox-connector-appcenter"
+      - "ox-connector-standalone"
+      - "ox-connector-standalone-test"
+      - "ox-extension"
+
+.changes-container: &changes-container
+  - "ci/**/*"
+  - "helm/**/*"
+  - "helm-unittests/**/*"
+  - "nubus-test-environment/**/*"
+  - "tests/**/*"
+  - ".dockerignore"
+  - "Dockerfile"
+  - "app/**/*"
+  - "appcenter-entrypoint.sh"
+  - "entrypoint.sh"
+  - "k8s-entrypoint.sh"
+  - "ldap/**/*"
+  - "ox-extension/**/*"
+  - "scripts/**/*"
+  - "share/**/*"
+  - "standalone-files/**/*"
+  - "udm/**/*"
+  - "umc/**/*"
+  - "univention-ox-provisioning/**/*"
+  - "univention-ox-soap-api/**/*"
+  - "pyproject.toml"
+  - "uv.lock"
+
+.changes-helm: &changes-helm
+  - "helm/**/*"
+  - "helm-unittests/**/*"
+
+.container-change-rules: &container-change-rules
+  - if: '$RUN_RENOVATE == "yes"'
+    when: never
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    changes: *changes-container
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    when: on_success
+
+.version-container-rules: &version-container-rules
+  - if: '$RUN_RENOVATE == "yes"'
+    when: "never"
+  - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    when: "never"
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
+    changes: *changes-container
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+    changes: *changes-container
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+
+.release-change-rules: &release-change-rules
+  - if: '$RUN_RENOVATE == "yes"'
+    when: never
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    changes: *changes-container
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    changes: *changes-helm
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    changes:
+      - ".gitlab-ci.yml"
+      - ".gitlab-ci/**/*"
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    when: on_success
+
+.deploy-test-change-rules: &deploy-test-change-rules
+  - if: '$RUN_RENOVATE == "yes"'
+    when: never
+  - if: '$AUTO_TRIGGER_TESTS == "yes" && $CI_PIPELINE_SOURCE == "merge_request_event"'
+    changes: *changes-container
+    when: on_success
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    changes: *changes-container
+    when: manual
+  - if: '$AUTO_TRIGGER_TESTS == "yes" && $CI_PIPELINE_SOURCE != "merge_request_event"'
+    when: on_success
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    when: manual
+
+.version-container-manual-rules: &version-container-manual-rules
+  - if: '$RUN_RENOVATE == "yes"'
+    when: "never"
+  - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    when: "never"
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
+    changes: *changes-container
+    when: manual
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+    changes: *changes-container
+    when: manual
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
+    when: manual
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
+  - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+    when: manual
+    variables:
+      DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
+
+pre-semantic-release:
+  rules: *release-change-rules
+
+container-malware-scan:
+  parallel:
+    matrix: *build-matrix
+  rules: *container-change-rules
+
+container-build:
+  variables:
+    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
+    # NOTE: Disabled caching due to issues in undetected failing build on
+    # branches due to the reuse of the version / tag name based on the branch
+    # name.
+    KANIKO_CACHE_ARGS: ""
+  parallel:
+    matrix: *build-matrix
+  needs:
+    - job: pre-semantic-release
+    - job: get-appcenter-version
+  rules: *version-container-rules
+
+push-image-external:
+  parallel:
+    matrix: *publish-matrix
+
+container-sign-external:
+  parallel:
+    matrix: *publish-matrix
+
+container-release-attestation:
+  parallel:
+    matrix: *publish-matrix
+
+deploy-and-test:
+  stage: deploy
+  allow_failure: true
+  needs:
+    - job: publish-chart-external
+      artifacts: false
+    - job: pre-semantic-release
+      artifacts: true
+  trigger:
+    include:
+      - local: .gitlab-ci/deploy-and-test.yaml
+    forward:
+      pipeline_variables: true
+    strategy: depend
+  rules: *deploy-test-change-rules
+
+upload-docker-image-to-appcenter:
+  stage: "publish"
+  when: "manual"
+  manual_confirmation: |
+    This job pushes the image to docker.software-univention.de, used for the
+    App Center. The tag name is ox-connector:${APPCENTER_VERSION} (the one
+    from app/ini). On the default branch this pushes a PRODUCTION image and
+    will (hopefully) fail if it already exists. On feature branches, this
+    pushes the name with -dev suffixed and will OVERWRITE!
+  needs:
+    - job: pre-semantic-release
+    - job: get-appcenter-version
+  variables:
+    GIT_STRATEGY: none
+    BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter:${RELEASE_VERSION}"
+  rules: *version-container-manual-rules
+  image:
+    name: "docker-registry.knut.univention.de/knut/ssh@sha256:dca0fc523dc28499692e5990757b42e626369a3c05b5fb3507e9eee9ea5c725c"
+    entrypoint: [""]
+  before_script:
+    - chmod 0600 "${SSH_PRIVATE_KEY}"
+  script:
+    - |
+      SSH_ARGS="-o BatchMode=yes -i "${SSH_PRIVATE_KEY}" -l root docker.knut.univention.de"
+      PUB_REGISTRY_SERVER="docker-upload.software-univention.de"
+      PUB_IMAGE_NAME="ox-connector"
+      PUB_REGISTRY_PATH_AND_TAG="${PUB_REGISTRY_SERVER}/${PUB_IMAGE_NAME}:${DOCKER_BUILD_VERSION}"
+      if [ "${CI_COMMIT_REF_NAME}" = "${CI_DEFAULT_BRANCH}" ] && ssh ${SSH_ARGS} "docker manifest inspect ${PUB_REGISTRY_PATH_AND_TAG}" > /dev/null 2>&1; then
+        echo "ERROR: Found ${PUB_REGISTRY_PATH_AND_TAG}. Not overwriting existing production image. Bump the version in app/ini before publishing again." >&2
+        exit 1
+      fi
+      ssh ${SSH_ARGS} "docker pull ${BUILD_IMAGE_PATH_AND_TAG}"
+      ssh ${SSH_ARGS} "docker tag ${BUILD_IMAGE_PATH_AND_TAG} ${PUB_REGISTRY_PATH_AND_TAG}"
+      ssh ${SSH_ARGS} "docker push ${PUB_REGISTRY_PATH_AND_TAG}"
