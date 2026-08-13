@@ -227,4 +227,3 @@ trigger-docs:
       variables:
         DOC_TARGET_VERSION: "${APPCENTER_VERSION}"
       changes: *changes-docs
-      when: "manual"

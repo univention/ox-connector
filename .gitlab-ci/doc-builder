@@ -44,15 +44,7 @@ pipeline: dict[str, object] = {
     "docs-merge-to-one-artifact": {
         "extends": ".docs-merge",
         "rules": [
-            {
-                "if": '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH != "develop"',
-                "changes": all_paths,
-                "when": "manual",
-            },
-            {
-                "if": '$CI_COMMIT_REF_PROTECTED == "false" || $CI_COMMIT_BRANCH == "develop"',
-                "changes": all_paths,
-            },
+            {"changes": all_paths},
         ],
     },
     "review": {
