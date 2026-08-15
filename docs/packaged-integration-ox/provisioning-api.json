@@ -24,6 +24,14 @@
     {
       "realm": "udm",
       "topic": "users/user"
+    },
+    {
+      "realm": "udm",
+      "topic": "oxmail/shared_account"
+    },
+    {
+      "realm": "udm",
+      "topic": "oxmail/shared_account_permission"
     }
   ],
   "request_prefill": true,
