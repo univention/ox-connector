@@ -25,10 +25,7 @@ include:
       helm_chart_name: "ox-connector"
       helm_values: "--helm-values ${CI_PROJECT_DIR}/helm/ox-connector/linter_values.yaml"
 
-  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.13.1"
-    inputs:
-      clear_previous_comments: true
-
+  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.8.0"
 
 workflow:
   rules:
