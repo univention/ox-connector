@@ -2,6 +2,33 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 ---
+.changes-container:
+  changes: &changes-container
+    - ".gitlab-ci.yml"
+    - ".gitlab-ci/**/*"
+    - "ci/**/*"
+    - "helm/**/*"
+    - "helm-unittests/**/*"
+    - "nubus-test-environment/**/*"
+    - "tests/**/*"
+    - ".dockerignore"
+    - "Dockerfile"
+    - "app/**/*"
+    - "appcenter-entrypoint.sh"
+    - "entrypoint.sh"
+    - "k8s-entrypoint.sh"
+    - "ldap/**/*"
+    - "ox-extension/**/*"
+    - "scripts/**/*"
+    - "share/**/*"
+    - "standalone-files/**/*"
+    - "udm/**/*"
+    - "umc/**/*"
+    - "univention-ox-provisioning/**/*"
+    - "univention-ox-soap-api/**/*"
+    - "pyproject.toml"
+    - "uv.lock"
+
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
     ref: "v1.68.2"
@@ -17,31 +44,7 @@ include:
       - if: '$RUN_RENOVATE == "yes"'
         when: never
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-        changes:
-          - ".gitlab-ci.yml"
-          - ".gitlab-ci/product-jobs.yml"
-          - "ci/**/*"
-          - "helm/**/*"
-          - "helm-unittests/**/*"
-          - "nubus-test-environment/**/*"
-          - "tests/**/*"
-          - ".dockerignore"
-          - "Dockerfile"
-          - "app/**/*"
-          - "appcenter-entrypoint.sh"
-          - "entrypoint.sh"
-          - "k8s-entrypoint.sh"
-          - "ldap/**/*"
-          - "ox-extension/**/*"
-          - "scripts/**/*"
-          - "share/**/*"
-          - "standalone-files/**/*"
-          - "udm/**/*"
-          - "umc/**/*"
-          - "univention-ox-provisioning/**/*"
-          - "univention-ox-soap-api/**/*"
-          - "pyproject.toml"
-          - "uv.lock"
+        changes: *changes-container
       - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
   - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.8.0"
 
@@ -97,24 +100,26 @@ get-appcenter-version:
     reports:
       dotenv: appcenter-version.env
 
-.changes-python: &changes-python
-  - "pyproject.toml"
-  - "uv.lock"
-  - "standalone-files/**/*"
-  - "tests/**/*"
-  - "unit_tests/**/*"
-  - "univention-ox-provisioning/**/*"
-  - "univention-ox-soap-api/**/*"
+.changes-python:
+  changes:
+    - "pyproject.toml"
+    - "uv.lock"
+    - "standalone-files/**/*"
+    - "tests/**/*"
+    - "unit_tests/**/*"
+    - "univention-ox-provisioning/**/*"
+    - "univention-ox-soap-api/**/*"
 
-.changes-helm: &changes-helm
-  - "helm/**/*"
-  - "helm-unittests/**/*"
+.changes-helm:
+  changes:
+    - "helm/**/*"
+    - "helm-unittests/**/*"
 
 .python-change-rules: &python-change-rules
   - if: '$RUN_RENOVATE == "yes"'
     when: never
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-python
+    changes: !reference [.changes-python, changes]
   - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     when: on_success
 
@@ -122,7 +127,7 @@ get-appcenter-version:
   - if: '$RUN_RENOVATE == "yes"'
     when: never
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-helm
+    changes: !reference [.changes-helm, changes]
   - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     when: on_success
 

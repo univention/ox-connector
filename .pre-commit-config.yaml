@@ -18,7 +18,7 @@ repos:
         name: "check for merge conflicts"
       - id: "check-yaml"
         name: "check yaml"
-        args: [--allow-multiple-documents]
+        args: [--allow-multiple-documents, --unsafe]
         exclude: "^(helm/.+/templates/|udm/udm-data-loader/)"
       - id: "end-of-file-fixer"
         name: "fix end of files"

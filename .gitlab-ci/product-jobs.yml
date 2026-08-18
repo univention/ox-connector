@@ -34,39 +34,11 @@ include:
       - "ox-connector-standalone-test"
       - "ox-extension"
 
-.changes-container: &changes-container
-  - "ci/**/*"
-  - "helm/**/*"
-  - "helm-unittests/**/*"
-  - "nubus-test-environment/**/*"
-  - "tests/**/*"
-  - ".dockerignore"
-  - "Dockerfile"
-  - "app/**/*"
-  - "appcenter-entrypoint.sh"
-  - "entrypoint.sh"
-  - "k8s-entrypoint.sh"
-  - "ldap/**/*"
-  - "ox-extension/**/*"
-  - "scripts/**/*"
-  - "share/**/*"
-  - "standalone-files/**/*"
-  - "udm/**/*"
-  - "umc/**/*"
-  - "univention-ox-provisioning/**/*"
-  - "univention-ox-soap-api/**/*"
-  - "pyproject.toml"
-  - "uv.lock"
-
-.changes-helm: &changes-helm
-  - "helm/**/*"
-  - "helm-unittests/**/*"
-
 .container-change-rules: &container-change-rules
   - if: '$RUN_RENOVATE == "yes"'
     when: never
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
   - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     when: on_success
 
@@ -76,11 +48,11 @@ include:
   - if: '$CI_PIPELINE_SOURCE == "schedule"'
     when: "never"
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
   - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
@@ -94,13 +66,7 @@ include:
   - if: '$RUN_RENOVATE == "yes"'
     when: never
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-container
-  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-helm
-  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes:
-      - ".gitlab-ci.yml"
-      - ".gitlab-ci/**/*"
+    changes: !reference [.changes-container, changes]
   - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     when: on_success
 
@@ -108,10 +74,10 @@ include:
   - if: '$RUN_RENOVATE == "yes"'
     when: never
   - if: '$AUTO_TRIGGER_TESTS == "yes" && $CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
     when: on_success
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
     when: manual
   - if: '$AUTO_TRIGGER_TESTS == "yes" && $CI_PIPELINE_SOURCE != "merge_request_event"'
     when: on_success
@@ -124,12 +90,12 @@ include:
   - if: '$CI_PIPELINE_SOURCE == "schedule"'
     when: "never"
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
     when: manual
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
-    changes: *changes-container
+    changes: !reference [.changes-container, changes]
     when: manual
     variables:
       DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
