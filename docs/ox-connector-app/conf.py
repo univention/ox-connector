@@ -15,39 +15,45 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
-
 from datetime import date
+from pathlib import Path
+
+from ruamel.yaml import YAML
 
 # -- Project information -----------------------------------------------------
 
 
+def ignore_gitlab_reference(constructor, node) -> None:
+    """Ignore GitLab-only tags outside the variables mapping."""
+    return None
+
+
 def read_version_from_ci() -> str:
-    """Read the version for the documentation from the pipeline definition
+    """Read the documentation version from the environment or CI config."""
+    doc_target_version = os.environ.get("DOC_TARGET_VERSION")
+    if doc_target_version:
+        return doc_target_version
 
-    To not maintain the documentation version in different places, just define
-    at one place and use it in different places.
+    appcenter_version = os.environ.get("APPCENTER_VERSION")
+    if appcenter_version:
+        return appcenter_version
 
-    The documentation version influences the version shown in the content of
-    the document and the path of the published documentation.
+    yaml = YAML(typ="safe")
+    yaml.constructor.add_constructor("!reference", ignore_gitlab_reference)
 
-    :returns: The version number for the documentation as defined in the CI/CD
-        pipeline.
+    ci_config = Path(__file__).resolve().parents[2] / ".gitlab-ci.yml"
+    with ci_config.open(encoding="utf-8") as fd:
+        data = yaml.load(fd)
 
-    :rtype: str
-    """
+    variables = data.get("variables", {})
+    if not isinstance(variables, dict):
+        raise TypeError("Pipeline variables must be a mapping.")
 
-    import yaml
+    appcenter_version = variables.get("APPCENTER_VERSION")
+    if not isinstance(appcenter_version, str):
+        raise ValueError("Missing APPCENTER_VERSION in pipeline variables.")
 
-    with open("../../.gitlab-ci.yml", "r") as f:
-        ci = yaml.safe_load(f)
-        # Either use the configured environment variable from the pipeline
-        # or extract the value from the pipeline configuration.
-        # This allows to build locally,
-        # but also take the dynamic pipeline settings into account.
-        return os.environ.get(
-            "DOC_TARGET_VERSION",
-            ci.get("variables").get("APPCENTER_VERSION"),
-        )
+    return appcenter_version
 
 
 release = read_version_from_ci()

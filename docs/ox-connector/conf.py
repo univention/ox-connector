@@ -15,8 +15,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
-
 from datetime import date
+from pathlib import Path
 
 from ruamel.yaml import YAML
 
@@ -28,27 +28,22 @@ def doc_target_version(appcenter_version: str) -> str:
     return f"{major_version}.x"
 
 
+def ignore_gitlab_reference(constructor, node):
+    """Ignore GitLab-only tags outside the variables mapping."""
+    return None
+
+
 def read_version_from_ci() -> str:
-    """Read the version for the documentation from the pipeline definition
-
-    To not maintain the documentation version in different places, just define
-    at one place and use it in different places.
-
-    The documentation version influences the version shown in the content of
-    the document and the path of the published documentation.
-
-    :returns: The version number for the documentation as defined in the CI/CD
-        pipeline.
-
-    :rtype: str
-    """
-
+    """Read the version for the documentation from the pipeline definition."""
     appcenter_version = os.environ.get("APPCENTER_VERSION")
     if appcenter_version:
         return doc_target_version(appcenter_version)
 
     yaml = YAML(typ="safe")
-    with open("../../.gitlab-ci.yml") as fd:
+    yaml.constructor.add_constructor("!reference", ignore_gitlab_reference)
+
+    ci_config = Path(__file__).resolve().parents[2] / ".gitlab-ci.yml"
+    with ci_config.open(encoding="utf-8") as fd:
         data = yaml.load(fd)
 
     variables = data.get("variables", {})
