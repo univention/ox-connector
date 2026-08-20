@@ -14,7 +14,7 @@ OX Connector for Nubus documentation
    prerequisites
    installation/index
    configuration/index
-   usage
+   usage/index
    architecture/index
 
 .. toctree::
