@@ -2,7 +2,7 @@
 ..
 .. SPDX-License-Identifier: AGPL-3.0-only
 
-.. _app-usage:
+.. _ox-connector-usage:
 
 *****
 Usage
@@ -14,9 +14,10 @@ UCS. This section shows how.
 
 To follow the tasks, you need to sign-in to Univention Management Console (UMC)
 with a user account with domain administration rights. For more information, see
-:ref:`uv-manual:delegated-administration` in :cite:t:`ucs-manual`.
+:external+uv-ucs-operation:ref:`management-interface-delegated-administration`
+in :cite:t:`uv-ucs-operation`.
 
-.. _usage-contexts:
+.. _ox-connector-usage-contexts:
 
 Contexts
 ========
@@ -39,8 +40,7 @@ To view, add, update, or delete a context, you navigate to
    This approach doesn't require to share the credentials for the OX context
    administrator.
 
-
-.. _usage-users:
+.. _ox-connector-usage-users:
 
 Users
 =====
@@ -83,9 +83,11 @@ To enable a user account for OX App Suite, run the following steps:
 
 .. seealso::
 
-   :ref:`uv-manual:users-general` in :cite:t:`ucs-manual`.
+   :external+uv-nubus-manual:ref:`nubus-user-management`
+      in :cite:t:`uv-nubus-manual`
+      for information about user management in Nubus.
 
-.. _usage-groups:
+.. _ox-connector-usage-groups:
 
 Groups
 ======
@@ -158,9 +160,13 @@ To enable a group for OX App suite, run the following steps:
 
          $ udm groups/group modify --dn $dn_of_group --set isOxGroup=Not
 
-.. seealso:: :ref:`uv-manual:groups` in :cite:t:`ucs-manual`.
+.. seealso::
 
-.. _usage-access-profiles:
+   :external+uv-nubus-manual:ref:`nubus-groups`
+      in :cite:t:`uv-nubus-manual`
+      for information about group management Nubus.
+
+.. _ox-connector-usage-access-profiles:
 
 Access profiles
 ===============
@@ -170,10 +176,12 @@ users. Administrators can create custom *access profiles* in UMC in the *LDAP
 directory* module at :menuselection:`Domain --> LDAP directory` at the directory
 location ``open-xchange/accessprofiles/``.
 
-For limitations about plausibility verification, see
-:ref:`limit-access-profiles`.
+.. TODO: Reactivate after limitations are available with #174
 
-.. _usage-functional-accounts:
+   For limitations about plausibility verification, see
+   :ref:`limit-access-profiles`.
+
+.. _ox-connector-usage-functional-accounts:
 
 Functional accounts
 ===================
@@ -182,7 +190,7 @@ Functional accounts
 
 OX App Suite shares functional mailboxes among other users in the same context.
 
-With the |UDM| module ``oxmail/functional_account`` administrators can add,
+With the management module ``oxmail/functional_account`` administrators can add,
 update or delete objects for functional accounts. OX App Suite users with the
 same functional account share the read status. Emails to addresses of functional
 accounts show up in the OX Mail view for every user where administrators granted
@@ -190,20 +198,21 @@ the permission.
 
 .. warning::
 
-   Open-Xchange marked this feature as deprecated in favor of :ref:`usage-shared-accounts`.
+   Open-Xchange marked this feature as deprecated in favor of :ref:`ox-connector-usage-shared-accounts`.
 
+.. _ox-connector-usage-functional-accounts-default-ldap-position:
 
 Default LDAP position for functional accounts
 ---------------------------------------------
 
 .. versionadded:: 2.2.12
 
-When you create a new ``oxmail/functional_account`` object in |UMC| the
+When you create a new ``oxmail/functional_account`` object in the *Management UI* the
 default position for these new objects in the directory tree is
 ``cn=functional_accounts,cn=open-xchange,$LDAP_BASE``.
 
 However, you can add additional default containers for the
-``oxmail/functional_account`` so that |UMC| will ask for a position before
+``oxmail/functional_account`` so that the *Management UI* will ask for a position before
 creating the new object.
 
 In the UMC module :guilabel:`LDAP directory` open the container ``univention``
@@ -213,7 +222,7 @@ containers to the list of ``Default container for OX functional accounts``.
 The values are LDAP DNs of existing container objects in your LDAP directory,
 which must include the LDAP base DN.
 
-.. _usage-resources:
+.. _ox-connector-usage-resources:
 
 Resources
 =========
@@ -227,7 +236,7 @@ To view, add, update, or delete a resource, you navigate to
 
 .. TODO : Add section about resources.
 
-.. _usage-shared-accounts:
+.. _ox-connector-usage-shared-accounts:
 
 Shared accounts
 ===============
@@ -250,12 +259,12 @@ to manage shared accounts and the permissions of users and groups.
 
    `Shared accounts <https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/shared_accounts.html>`_
 
-.. _usage-shared-accounts-udm-module:
+.. _ox-connector-usage-shared-accounts-udm-module:
 
 UDM module for shared accounts
 ------------------------------
 
-As an administrator, you can use the |UDM| module ``oxmail/shared_account``
+As an administrator, you can use the management module ``oxmail/shared_account``
 to add, update, or delete objects for shared accounts
 and manage their permissions.
 You can find the UDM module in the *Management UI* under *LDAP directory*
@@ -269,7 +278,7 @@ Each user and group entry in the list links to an ``oxmail/shared_account_permis
    :external+uv-nubus-manual:ref:`nubus-domain-ldap`
       for information about the *LDAP directory* management module.
 
-.. _usage-shared-accounts-udm-permissions:
+.. _ox-connector-usage-shared-accounts-udm-permissions:
 
 UDM module for permissions
 --------------------------
@@ -279,15 +288,15 @@ OX Connector provides ready-to-use *permissions* for OX App Suite shared account
 including *Full Calendar Access*, *Full Mail Access*, *Full Mail and Calendar Access*, and *Read-Only Mail Access*.
 You can also create permissions to meet your requirements.
 
-As an administrator, you can use the |UDM| module ``oxmail/shared_account_permissions``
+As an administrator, you can use the management module ``oxmail/shared_account_permissions``
 to create, update, or delete permissions for shared accounts.
 You can find the UDM module in the *Management UI* under *LDAP directory*
 at the directory location ``open-xchange/shared_account_permissions``.
 
 When you create an ``oxmail/shared_account`` object,
-you can grant permissions to users and groups in |UMC|.
+you can grant permissions to users and groups in the *Management UI*.
 
-.. _usage-shared-accounts-migration:
+.. _ox-connector-usage-shared-accounts-migration:
 
 Migration from functional accounts to shared accounts
 -----------------------------------------------------
@@ -323,7 +332,9 @@ use the ``--help`` option.
 It provides options about addressing multiple functional accounts with one run,
 or providing credentials through environment variables.
 
-For troubleshooting, see :ref:`app-troubleshooting-migration`.
+.. TODO: Reactivate after troubleshooting is added with #175
+
+   For troubleshooting, see :ref:`app-troubleshooting-migration`.
 
 Depending on your deployment of the OX Connector,
 choose one of the following options to run the migration.
