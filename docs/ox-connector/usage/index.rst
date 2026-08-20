@@ -8,10 +8,10 @@
 Usage
 *****
 
-The :program:`OX Connector` centrally manages users, groups, OX contexts, OX
-access profiles and functional accounts with the web based management system in
-UCS. This section shows how.
-
+Use the following sections to manage OX App Suite provisioning objects
+through the *Management UI*.
+They cover contexts, users, groups, access profiles, functional accounts,
+resources, shared accounts, and migration from functional accounts.
 
 .. toctree::
 
