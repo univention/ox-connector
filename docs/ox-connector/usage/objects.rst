@@ -8,10 +8,30 @@
 Manage OX objects
 *****************
 
-To follow the tasks, you need to sign-in to Univention Management Console (UMC)
-with a user account with domain administration rights. For more information, see
-:external+uv-ucs-operation:ref:`management-interface-delegated-administration`
-in :cite:t:`uv-ucs-operation`.
+Use this page to manage OX App Suite objects.
+The OX Connector synchronizes these objects from the LDAP directory.
+The following instructions explain how to create and configure contexts,
+user accounts, groups, access profiles, functional accounts, and resources
+in the *Management UI*.
+Read them to control which directory objects are available in OX App Suite
+and how the connector provisions them.
+
+To complete the following tasks, sign in to the *Management UI*
+with a user account that has domain administration rights.
+
+.. seealso::
+
+   :external+uv-nubus-manual:ref:`nubus-ui`
+      in :cite:t:`uv-nubus-manual`
+      for information about the *Management UI*.
+
+   :external+uv-nubus-manual:ref:`nubus-authentication-sign-in`
+      in :cite:t:`uv-nubus-manual`
+      for information about sign-in.
+
+   :external+uv-ucs-operation:ref:`management-interface-delegated-administration`
+      in :cite:t:`uv-ucs-operation`
+      for information about delegative administration.
 
 .. _ox-connector-usage-contexts:
 
@@ -23,30 +43,27 @@ collaboration in a virtual space. Data from one context isn't visible to other
 contexts. For more information about contexts, see
 :cite:t:`ox-context-management`.
 
-To view, add, update, or delete a context, you navigate to
-:menuselection:`Domain --> OX Contexts` in UMC.
+To view, add, update, or delete a context, navigate to
+:menuselection:`Domain --> OX Contexts` in the *Management UI*.
 
 .. note::
 
-   If you don't want the OX Connector to manage *contexts*, you can manually
-   manage them in OX App Suite, as long as you maintain the *context*
-   configuration for the OX Connector in the
-   :file:`/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`.
+   If you manage *contexts* manually in OX App Suite,
+   keep the OX Connector context configuration in the
+   :file:`/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`
+   file.
 
-   This approach doesn't require to share the credentials for the OX context
-   administrator.
+   You don't need to share the OX context administrator credentials.
+
+   In the case of Kubernetes deployment, the configuration is
+   in the :file:`/etc/ox-secrets/ox-contexts.json` file.
 
 .. _ox-connector-usage-users:
 
 Users
 =====
 
-To enable users for OX App Suite, administrators can either create user accounts
-or update existing ones.
-
-To enable a user account for OX App Suite, run the following steps:
-
-#. Navigate to :menuselection:`Users --> Users` in UMC and click to open.
+To add a user to OX App Suite, create a user account or update an existing one.
 
 .. tab-set::
 
@@ -54,28 +71,33 @@ To enable a user account for OX App Suite, run the following steps:
 
       To create a user account:
 
-      2. Click :guilabel:`Add` to create a user account and select the *User
-         template* ``open-xchange groupware account``.
+      #. Navigate to :menuselection:`Users --> Users` in the *Management UI*.
 
-      #. Click :guilabel:`Next`.
+      #. Select :guilabel:`Add` and the *User template*
+         ``open-xchange groupware account``.
 
-      #. Fill out the required fields. To fill out more attributes, click :guilabel:`Advanced`.
+      #. Select :guilabel:`Next`.
 
-      #. When finished, click :guilabel:`Create user`.
+      #. Enter the required information. To enter additional attributes,
+         select :guilabel:`Advanced`.
+
+      #. Select :guilabel:`Create user`.
 
    .. tab-item:: Update user account
 
       To update a user account:
 
-      2. Click the username for the user you want to update.
+      #. Navigate to :menuselection:`Users --> Users` in the *Management UI*.
 
-      #. Go to the *Apps* tab and activate the *Open-Xchange* checkbox. The tab
-         *Open-Xchange* appears.
+      #. Select the username of the user account that you want to update.
 
-      #. Define an email address for the user at :menuselection:`General --> Primary
-         e-mail address (mailbox)`.
+      #. On the *Apps* tab, select the *Open-Xchange* checkbox.
+         The *Open-Xchange* tab appears.
 
-      #. Click :guilabel:`Save`.
+      #. Enter the user's primary email address at
+         :menuselection:`General --> Primary email address (mailbox)`.
+
+      #. Select :guilabel:`Save`.
 
 .. seealso::
 
@@ -92,85 +114,97 @@ The :program:`OX Connector` app adds a group to the same context as the group
 members. When the last group member leaves the group, the connector removes the
 group from OX App Suite.
 
-To enable a group for OX App suite, run the following steps:
+To enable a group for OX App Suite, follow these procedures:
 
-#. Navigate to :menuselection:`Users --> Groups` in UMC and click to open.
-
-..tab-set::
+.. tab-set::
 
    .. tab-item:: Add group
 
       To create a group:
 
-      2. Click :guilabel:`Add` to create a group.
+      #. Navigate to :menuselection:`Users --> Groups` in the *Management UI*.
 
-      #. On the *General* tab, fill out the required fields and add users as group
-         members.
+      #. Select :guilabel:`Add`.
 
-      #. Go to the *OX App Suite* tab and activate the *Activate Group in OX*.
+      #. On the *General* tab, enter the required information
+         and add users as group members.
 
-      #. Click :guilabel:`Create group`.
+      #. On the *OX App Suite* tab, select the *Activate Group in OX* checkbox.
 
+      #. Select :guilabel:`Create group`.
 
    .. tab-item:: Update group
 
       To update a group:
 
-      2. Click a group to edit.
+      #. Navigate to :menuselection:`Users --> Groups` in the *Management UI*.
 
-      #. The UDM module *Groups* automatically enables *Activate Group in OX*, when
-         you edit a group. UMC displays a notification.
+      #. Select the group that you want to edit.
 
-         If you don't want to enable the group, clear the checkbox *Activate Group
-         in OX* on the *OX App Suite* tab.
+      #. The *Groups* module in the *Management UI* automatically selects the
+         *Activate Group in OX* checkbox when you edit a group. The *Management UI*
+         displays a notification.
 
-      #. Click :guilabel:`Save`.
+      #. To prevent OX provisioning,
+         clear the *Activate Group in OX* checkbox on the *OX App Suite* tab.
+
+      #. Select :guilabel:`Save`.
 
       .. warning::
 
-         When you as administrator update a group, that already is a group in OX App
-         Suite, and you clear the checkbox *Activate Group in OX* on the *OX App
-         Suite* tab, the connector removes this group from OX App Suite.
+         If you clear the *Activate Group in OX* checkbox while updating a group that
+         exists in OX App Suite, the connector removes the group from OX App Suite.
 
-      To update a group from the command-line, run the following command:
+      To update a group from the command line,
+      run the command in
+      :numref:`ox-connector-update-group-command`.
+      Replace ``GROUP_DN`` with the distinguished name (DN) of the group.
 
       .. code-block:: console
+         :caption: Update a group from the command line
+         :name: ox-connector-update-group-command
 
-         $ udm groups/group modify --dn $dn_of_group --set isOxGroup=OK
+         $ udm groups/group modify --dn GROUP_DN --set isOxGroup=OK
 
    .. tab-item:: Remove group
 
       To remove a group from OX App Suite:
 
-      2. Click a group to edit.
+      #. Navigate to :menuselection:`Users --> Groups` in the *Management UI*.
+      #. Select the group that you want to edit.
+      #. On the *OX App Suite* tab, clear the *Activate Group in OX* checkbox.
+      #. Select :guilabel:`Save`.
 
-      #. Go to the *OX App Suite* tab and clear the checkbox *Activate Group
-         in OX*.
-
-      #. Click :guilabel:`Save`.
-
-      To remove the group from OX App Suite through command-line, run the following
-      command:
+      To remove a group from OX App Suite,
+      run the command in
+      :numref:`ox-connector-remove-group-command`.
+      Replace ``GROUP_DN`` with the distinguished name (DN) of the group.
 
       .. code-block:: console
+         :caption: Remove a group from the command line
+         :name: ox-connector-remove-group-command
 
-         $ udm groups/group modify --dn $dn_of_group --set isOxGroup=Not
+         $ udm groups/group modify --dn GROUP_DN --set isOxGroup=Not
 
 .. seealso::
 
    :external+uv-nubus-manual:ref:`nubus-groups`
       in :cite:t:`uv-nubus-manual`
-      for information about group management Nubus.
+      for information about group management in Nubus.
 
 .. _ox-connector-usage-access-profiles:
 
 Access profiles
 ===============
 
-The OX Connector already provides ready-to-use *access profiles* for OX App Suite
-users. Administrators can create custom *access profiles* in UMC in the *LDAP
-directory* module at :menuselection:`Domain --> LDAP directory` at the directory
-location ``open-xchange/accessprofiles/``.
+The OX Connector provides *access profiles* for OX App Suite users.
+To view custom *access profiles*:
+
+#. Navigate to :menuselection:`Domain --> LDAP directory`
+   in the *Management UI*.
+
+#. In the *LDAP directory* module, open
+   ``open-xchange/accessprofiles/``.
 
 .. TODO: Reactivate after limitations are available with #174
 
@@ -182,52 +216,54 @@ location ``open-xchange/accessprofiles/``.
 Functional accounts
 ===================
 
+.. deprecated:: 3.2.0
+   Open-Xchange deprecated this feature in favor of
+   :ref:`ox-connector-usage-shared-accounts`.
+
 .. versionadded:: 2.0.0
 
-OX App Suite shares functional mailboxes among other users in the same context.
+Functional accounts let users in the same context share a functional mailbox and
+its read status.
 
-With the management module ``oxmail/functional_account`` administrators can add,
-update or delete objects for functional accounts. OX App Suite users with the
-same functional account share the read status. Emails to addresses of functional
-accounts show up in the OX Mail view for every user where administrators granted
-the permission.
-
-.. warning::
-
-   Open-Xchange marked this feature as deprecated in favor of :ref:`ox-connector-usage-shared-accounts`.
-
-.. _ox-connector-usage-functional-accounts-default-ldap-position:
-
-Default LDAP position for functional accounts
----------------------------------------------
+Use the ``oxmail/functional_account`` management module to add, update, or delete
+functional-account objects.
+When administrators grant a user permission,
+emails sent to functional-account addresses appear in the OX Mail view for that user.
 
 .. versionadded:: 2.2.12
 
-When you create a new ``oxmail/functional_account`` object in the *Management UI* the
-default position for these new objects in the directory tree is
+The default directory position for ``oxmail/functional_account`` objects is:
 ``cn=functional_accounts,cn=open-xchange,$LDAP_BASE``.
+Replace ``$LDAP_BASE`` with the LDAP base DN.
 
-However, you can add additional default containers for the
-``oxmail/functional_account`` so that the *Management UI* will ask for a position before
-creating the new object.
+You can add default containers for ``oxmail/functional_account``.
+The *Management UI* then prompts you to select a position when you create an object.
 
-In the UMC module :guilabel:`LDAP directory` open the container ``univention``
-in the tree view (left) and then open the object ``default containers`` in
-the object list (right). Click on ``OX App suite`` and add additional default
-containers to the list of ``Default container for OX functional accounts``.
-The values are LDAP DNs of existing container objects in your LDAP directory,
-which must include the LDAP base DN.
+To add default containers:
+
+#. In the :guilabel:`LDAP directory` module, open the ``univention`` container.
+
+#. Open the ``default containers`` object.
+
+#. Select ``OX App Suite``.
+
+#. Add containers to the ``Default container for OX functional accounts`` list.
+
+Enter the distinguished names (DNs) of existing container objects.
+Each DN must include the LDAP base DN.
 
 .. _ox-connector-usage-resources:
 
 Resources
 =========
 
-OX App Suite uses *OX Resources* to manage resources like rooms or equipment
-that users can book for appointments. For more information about resource
-management, see :cite:t:`ox-resource-management`.
+Use *OX Resources* to manage bookable rooms and equipment.
+For more information about resource management, see
+:cite:t:`ox-resource-management`.
 
-To view, add, update, or delete a resource, you navigate to
-:menuselection:`Domain --> OX Resources` in UMC.
+To view resources, navigate to
+:menuselection:`Domain --> OX Resources` in the *Management UI*.
 
-.. TODO : Add section about resources.
+.. spelling:word-list::
+
+   delegative
