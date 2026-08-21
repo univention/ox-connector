@@ -49,14 +49,83 @@ To view, add, update, or delete a context, navigate to
 .. note::
 
    If you manage *contexts* manually in OX App Suite,
-   keep the OX Connector context configuration in the
-   :file:`/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`
-   file.
-
+   keep the OX Connector context configuration.
    You don't need to share the OX context administrator credentials.
 
-   In the case of Kubernetes deployment, the configuration is
-   in the :file:`/etc/ox-secrets/ox-contexts.json` file.
+   .. tab-set::
+
+      .. tab-item:: Nubus for UCS
+         :sync: ucs
+
+         In Nubus for UCS deployments,
+         the configuration for *contexts* is in the
+         :file:`/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`
+         file.
+
+         After you changed the *contexts* configuration file,
+         you need to restart the OX Connector
+         so that the changes become active.
+         For the necessary commands, see
+         :numref:`ox-connector-usage-contexts-ucs-restart-listing`.
+
+         .. code-block:: console
+            :caption: Restart the OX Connector on Nubus for UCS
+            :name: ox-connector-usage-contexts-ucs-restart-listing
+
+            $ sudo systemctl restart docker-app-ox-connector.service \
+                univention-appcenter-listener-converter@ox-connector.service
+
+      .. tab-item:: Nubus for Kubernetes
+         :sync: kubernetes
+
+         In Nubus for Kubernetes deployments,
+         the configuration for *contexts* is in the
+         :file:`/etc/ox-secrets/ox-contexts.json` file
+         as part of a *PVC*.
+         To edit the file,
+         see the commands in :numref:`ox-connector-usage-contexts-kubernetes-listing`.
+
+         * Replace ``NAMESPACE`` with the Kubernetes namespace for the OX Connector.
+           See :ref:`ox-connector-install-on-kubernetes-install-ox-consumer`.
+
+         * Replace ``POD`` with the OX Connector pod name.
+
+         .. code-block:: console
+            :caption: Download, edit and upload :file:`ox-contexts.json`
+            :name: ox-connector-usage-contexts-kubernetes-listing
+
+            $ kubectl -n "$NAMESPACE" \
+               get pods -l app.kubernetes.io/name=ox-connector
+            $ kubectl -n "$NAMESPACE" \
+               cp "$POD":/etc/ox-secrets/ox-contexts.json ./ox-contexts.json
+
+            $ cp ./ox-contexts.json ./ox-contexts.json.bak
+            $ EDITOR ./ox-contexts.json
+
+            $ python3 -m json.tool ./ox-contexts.json >/dev/null
+
+            $ kubectl -n "$NAMESPACE" \
+               cp ./ox-contexts.json "$POD":/etc/ox-secrets/ox-contexts.json
+
+         After you changed the *contexts* configuration file,
+         you need to restart the OX Connector
+         so that the changes become active.
+         For the necessary commands, see
+         :numref:`ox-connector-usage-contexts-kubernetes-restart-listing`.
+
+         * As before, replace ``NAMESPACE``.
+         * Replace ``STATEFULSET`` with the name returned by the first command.
+
+         .. code-block:: console
+            :caption: Restart the OX Connector in a Kubernetes deployment
+            :name: ox-connector-usage-contexts-kubernetes-restart-listing
+
+            $ kubectl -n "$NAMESPACE" \
+               get statefulsets -l app.kubernetes.io/name=ox-connector
+            $ kubectl -n "$NAMESPACE" \
+               rollout restart statefulset/"$STATEFULSET"
+            $ kubectl -n "$NAMESPACE" \
+               rollout status statefulset/"$STATEFULSET"
 
 .. _ox-connector-usage-users:
 
