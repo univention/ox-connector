@@ -62,7 +62,7 @@ The app ships a CLI to manage the list of errors, see :ref:`app-cli`.
 
 As administrator, you need to monitor the list of errors manually and decide
 what to do (delete or retry). Meanwhile, the :program:`OX Connector` continues
-to process data it gets from the :term:`Listener`.
+to process data it gets from the :term:`Provisioning Service`.
 
 Note that certain errors are excluded from that behavior. When the :program:`OX
 Connector` encounters a problem that hints to a network error, it retries this
@@ -82,13 +82,20 @@ OX Connector stops at faulty items
 .. index::
    single: provisioning; faulty item
 
-When the :program:`OX Connector` encounters a faulty queue item that it can't
-process, it stops the provisioning at the item and the problematic task in the
-:term:`Listener Converter` log file, see :ref:`log-files`.
+When the :program:`OX Connector` encounters a faulty queue item
+that it can't process,
+it stops provisioning at that item
+and logs the problematic task
+in the :term:`Provisioning Consumer` log output.
+For more information,
+see :ref:`log-files`.
 
-Despite the stop, the :term:`Listener` continues to add items to the queue.
-After the administrator removed the faulty queue item, the Listener Converter
-continues to process the queue and also takes care of the added items.
+Despite the stop,
+the :term:`Provisioning Service` keeps delivering changes
+and the :term:`Provisioning Consumer` keeps adding items to the queue.
+After the administrator removes the faulty queue item,
+the :term:`Provisioning Consumer` continues to process the queue
+and the added items.
 
 As administrator, you need to resolve that conflict manually when it happens,
 see :ref:`provision-stopped`. After the conflict resolution, the connector

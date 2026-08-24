@@ -31,6 +31,21 @@ underlying image of the App. One striking change is the update from *Python
 The logging format throughout the App has been changed to
 :ref:`structured-logging`.
 
+The OX Connector no longer receives changes from the UCS LDAP directory
+through the App Center *Listener* mechanism. It now subscribes to the Nubus
+*Provisioning Service* through the *Provisioning API*. The *Provisioning Consumer*
+inside the app container receives the changes directly, without the intermediate
+JSON files. As a consequence, the database moved from
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`
+to :file:`/var/lib/univention-appcenter/apps/ox-connector/data/ox-connector.db`.
+Existing databases are moved automatically on update.
+
+The OX Connector depends on the *Provisioning Service*.
+During installation or upgrade,
+you can set the provisioning parameters.
+For more information,
+see :external+uv-manual:ref:`nubus-provisioning-service`.
+
 Removed
 -------
 

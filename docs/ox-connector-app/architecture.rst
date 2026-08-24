@@ -34,8 +34,9 @@ LDAP directory with relevance to OX App Suite.
 
    OX Connector app architecture
 
-   View focuses on the elements LDAP Directory, Listener, Listener Converter, OX
-   Connector with the provisioning script, OX App Suite, and its SOAP API.
+   The diagram shows the *LDAP directory*, *Provisioning Service*,
+   *Provisioning API*, *OX Connector* with the *Provisioning Consumer*,
+   *OX App Suite*, and its *SOAP API*.
 
 
 .. glossary::
@@ -45,45 +46,48 @@ LDAP directory with relevance to OX App Suite.
       directory stores all identity and infrastructure data of the UCS domain. For
       more information, see :ref:`domain-ldap` in :cite:t:`ucs-manual`.
 
-   Listener
-      The App Center creates a *Listener* module for the :program:`OX Connector`
-      app, when it installs the app on a |UCS| system. The *Listener* writes the
-      ``UniventionObjectIdentifier`` of the LDAP object that changed, in JSON format to
-      :file:`/var/lib/univention-appcenter/listener/ox-connector/{timestamp}.json`.
-      Each change creates one file.
+   Provisioning Service
+      The *Provisioning Service* is a Nubus app
+      that you install in the Nubus for UCS domain.
+      It's an event and messaging service
+      that watches the LDAP directory for changes.
+      When data changes on the :external+uv-ucs-operation:term:`Primary Directory Node`,
+      the *Provisioning Service* notifies subscribed services about the change.
 
-      .. index::
-         pair: listener; JSON
-         see: files; JSON
+      In contrast to the Univention Directory Listener,
+      it provides the UDM representation of the changed objects
+      instead of the LDAP representation.
+      The :program:`OX Connector` app subscribes to the
+      *Provisioning Service* through the :term:`Provisioning API`
+      for the UDM modules it provisions.
 
-   Listener Converter
-      The *Listener Converter* is a services running on |UCS| with the following
-      responsibility:
+      On a fresh install of the :program:`OX Connector`,
+      the *Provisioning Service* sends all existing UDM objects
+      of the subscribed modules to the OX Connector (a *prefill*).
 
-      #. Process the JSON files from the :term:`Listener` ordered by the
-         timestamp in the filename.
-      #. Request the LDAP object attributes through |UDM| for each
-         ``UniventionObjectIdentifier``.
-
-      The converter writes the results in JSON format to
-      :file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/{timestamp}.json`.
-
-      .. index::
-         pair: listener converter; JSON
-         see: files; JSON
+   Provisioning API
+      The *Provisioning API* runs on the Primary Directory Node
+      and :external+uv-ucs-operation:term:`Backup Directory Nodes <Backup Directory Node>`.
+      It's the API that applications use
+      to subscribe to events of the :term:`Provisioning Service`.
+      The :term:`Provisioning Consumer` of the :program:`OX Connector` app
+      subscribes through the *Provisioning API*
+      for the UDM modules the connector provisions.
+      You can access the *Provisioning API* locally through :file:`http://localhost:7777`
+      or remotely through :file:`https://<primary FQDN>/univention/provisioning/`.
 
    OX Connector
       *OX Connector* connects the |UCS| identity management with OX App Suite.
-      The connector receives data about changes in the LDAP directory. A
-      :term:`Script` handles the data, processes it and sends it to the
-      :term:`SOAP API` in OX App Suite.
+      The connector receives data about changes in the LDAP directory.
+      A :term:`Provisioning Consumer` handles the data,
+      processes it, and sends it to the :term:`SOAP API` in OX App Suite.
 
-   Script
-      The *Script* runs inside the Docker container of the OX Connector. It
-      handles the files in JSON format from the :term:`Listener Converter`,
-      consumes it and sends data to the :term:`SOAP API`.
-
-      The *Script* doesn't run multiple times at the same time.
+   Provisioning Consumer
+      The *Provisioning Consumer* runs inside the Docker container of the
+      OX Connector. It subscribes to the :term:`Provisioning API` for the
+      UDM modules the connector provisions. For every message it receives,
+      it stores a task in its SQLite database and processes the tasks in a
+      fixed module order, sending the data to the :term:`SOAP API`.
 
    OX App Suite
       *OX App Suite* is the groupware and collaboration software from Open-Xchange.
@@ -150,6 +154,22 @@ Provisioning
 In detail, the provisioning has the following steps, see
 :numref:`sync-procedure`:
 
+#. The :term:`Provisioning Service` detects the change in the LDAP directory
+   and sends a message with the UDM object
+   through the :term:`Provisioning API`.
+
+#. In the container,
+   the :term:`Provisioning Consumer` receives the message
+   and stores it as a task in its SQLite database.
+
+#. The :term:`Provisioning Consumer` processes the tasks in a fixed module
+   order and sends the data of each task
+   to the :term:`SOAP API` in OX App Suite.
+
+#. After the :term:`SOAP API` receives and processes the data successfully,
+   the :term:`Provisioning Consumer` stores the state of the object
+   in its database of old entries, see :ref:`db-old-entries`.
+
 .. index::
    single: provisioning; procedure
 
@@ -159,25 +179,6 @@ In detail, the provisioning has the following steps, see
    :alt: provisioning procedure
 
    Provisioning procedure
-
-#. The :term:`Listener` writes one file per change.
-
-#. The :term:`Listener Converter` writes one file per change with the LDAP object
-   attributes.
-
-#. The *Listener Converter* triggers the :term:`Script` in the OX Connector
-   Docker container.
-
-#. In the Docker container, the :term:`Script` consumes all the JSON files from
-   the :term:`Listener Converter`.
-
-#. After the :term:`SOAP API` received the data and processed them successfully,
-   the *Script* deletes each JSON file.
-
-#. The *Listener Converter* waits for 5 seconds and restarts at step 2.
-
-For more information about the file contents of the :term:`Listener` and
-:term:`Listener Converter`, see :ref:`architecture-overview`.
 
 .. _synced-attributes:
 
@@ -226,12 +227,14 @@ UCS LDAP directory, but maintains a database in which it stores the data old
 object's it processed for later reference (i.e., for retrieving the *internal
 ID*)
 
-The database files is located at
-:file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`.
-The table is named `old`. Administrators are highly advised to use the
-CLI the App provides to manipulate this database, see :ref:`app-cli`.
+The OX Connector stores its database file at
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/ox-connector.db`.
+The database contains a table named ``old``.
+Use the command-line interface that the app provides to modify this database.
+For more information,
+see :ref:`app-cli`.
 
-When the :term:`Listener Converter` updates groups in OX App Suite, the request
+When the :term:`Provisioning Consumer` updates groups in OX App Suite, the request
 to the :term:`SOAP API` must include the internal ID of all group members. The
 connector would need to ask the database of OX App Suite for the *internal ID*
 of each group member, involving network requests and database queries. To speed

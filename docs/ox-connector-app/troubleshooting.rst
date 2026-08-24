@@ -21,20 +21,35 @@ The :program:`OX Connector` app produces different logging information in
 different places.
 
 .. index::
-   pair: listener converter; log file
+   pair: consumer; log file
 
-Listener Converter: :file:`/var/log/univention/listener_modules/ox-connector.log`
-   Contains log information from the :term:`Listener Converter` about create,
-   update and delete actions of objects.
+Provisioning Consumer: standard output of the OX Connector container
+   Contains log information from the :term:`Provisioning Consumer` about create,
+   update, and delete actions of objects.
 
-   It also shows warnings and errors when the OX Connector configuration isn't
-   correct, or the connector can't establish a connection to the :term:`SOAP
-   API`.
+   It also shows warnings and errors
+   when the OX Connector configuration isn't correct,
+   or the connector can't establish a connection to the :term:`SOAP API`.
+
+   .. code-block:: console
+      :caption: View the log output of the OX Connector Provisioning Consumer
+
+      $ univention-app logs ox-connector
+
+.. index::
+   single: provisioning service; log file
+
+Provisioning Service: :file:`/var/log/univention/listener_modules/nubus-provisioning.log`
+   Contains log information from the :term:`Provisioning Service` about the
+   changes it detected in the LDAP directory
+   and delivered to subscribed services.
+   The Provisioning Service containers write additional log information
+   to :file:`/var/log/syslog`.
 
 .. index::
    single: database management script; log file
 
-Database management script: :file:`/var/lib/univention-appcenter/apps/ox-connector/data/db.log`
+Database management script: :file:`/var/lib/univention-appcenter/apps/ox-connector/data/univention-ox-connector-task-management.log`
    Contains log information from the `Database management script` that is described below.
 
 .. index::
@@ -54,25 +69,25 @@ Domain join: :file:`/var/log/univention/join.log`
    Contains log information from the join processes. When the App Center install
    OX Connector, the app also joins the domain.
 
-.. _troubleshoot-listener:
+.. _troubleshoot-consumer:
 
-Checking the Listener
-=====================
+Check the Provisioning Consumer
+===============================
 
-Before checking the OX Connector, you may want to have a look at the connection
-between the :term:`Listener` and the :term:`Listener Converter`. The Listener
-should create files and the Listener Converter should translate these files
-rather quickly.
+To troubleshoot the OX Connector,
+inspect the queue of tasks
+that the :term:`Provisioning Consumer` receives
+from the :term:`Provisioning Service`.
 
 .. code-block:: console
-   :caption: Verify the number of unprocessed files for the :term:`Listener`.
+   :caption: Show all tasks the OX Connector is yet to process.
 
-   $ DIR_LISTENER="/var/lib/univention-appcenter/listener/ox-connector"
-   $ ls -1 "$DIR_LISTENER"/*.json 2> /dev/null | wc -l
-   0
+   $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
 
-If files here are not created upon a change or are piling up, this indicates a
-problem in the Listener or Listener Converter. See :ref:`log-files`.
+If the number of pending tasks keeps growing after a change in the LDAP directory,
+this indicates a problem in the :term:`Provisioning Consumer`
+or in the :term:`Provisioning Service`.
+For more information, see :ref:`log-files`.
 
 .. _app-cli:
 
@@ -89,7 +104,7 @@ synced and errors it may have found.
    $ /usr/sbin/univention-ox-connector-task-management --help
 
 The tool operates on the :program:`SQLite` database
-:file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`.
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/ox-connector.db`.
 The terminology of the tool is as follows:
 
 .. glossary::
@@ -119,11 +134,11 @@ Health check
 ------------
 
 .. index::
-   pair: listener converter; health check
-   pair: listener; health check
+   pair: provisioning consumer; health check
+   pair: provisioning service; health check
 
-First, have a look at the log file for the :term:`Listener Converter` and look
-for warnings and errors, see :ref:`log-files`.
+First, have a look at the log output of the :term:`Provisioning Consumer` and
+look for warnings and errors, see :ref:`log-files`.
 
 Second you can get a brief summary of current tasks. This can indicate if the
 OX Connector can process the items fast enough or at all.
@@ -222,21 +237,60 @@ Re-provision all data
 
    **Reprovisioning all data isn't recommended.**
 
-The following command reads all |UDM| objects from the |UCS| LDAP directory and
-adds them to the provisioning queue:
+To re-provision all data, you recreate the subscription of the OX Connector
+with *prefill*. The :term:`Provisioning Service` then sends all existing |UDM|
+objects of the subscribed modules to the OX Connector, and the
+:term:`Provisioning Consumer` adds them to the provisioning queue.
+
+Run the commands in :numref:`queue-reprovision-all-listing`
+on the :external+uv-ucs-operation:term:`Primary Directory Node`.
+The Provisioning Service doesn't add deleted UDM objects to the queue.
+Therefore, the OX Connector doesn't run delete operations during re-provisioning.
 
 .. code-block:: console
    :caption: Re-provisioning all UDM objects to OX App Suite
+   :name: queue-reprovision-all-listing
 
-   $ univention-directory-listener-ctrl resync ox-connector
-
-The re-provisioning won't run any *delete* operations, because the Listener
-only adds existing UDM objects to the queue.
+   $ export BASE_URL="https://$(ucr get ldap/master)/univention/provisioning"
+   $ export ADMIN_PASSWORD="$(python3 -c 'import json; print(json.load(open("/etc/provisioning-secrets.json"))["PROVISIONING_API_ADMIN_PASSWORD"])')"
+   $ export SUBSCRIPTION_PASSWORD="$(openssl rand -hex 32)"
+   $ curl --user "admin:$ADMIN_PASSWORD" \
+       -X DELETE "$BASE_URL/v1/subscriptions/ox-connector" || true
+   $ umask 077
+   $ cat > /tmp/ox-connector-subscription.json <<EOF
+   {
+     "name": "ox-connector",
+     "realms_topics": [
+       {"realm":"udm", "topic":"users/user"},
+       {"realm":"udm", "topic":"groups/group"},
+       {"realm":"udm", "topic":"oxmail/oxcontext"},
+       {"realm":"udm", "topic":"oxmail/accessprofile"},
+       {"realm":"udm", "topic":"oxresources/oxresources"},
+       {"realm":"udm", "topic":"oxmail/functional_account"},
+       {"realm":"udm", "topic":"oxmail/shared_account"},
+       {"realm":"udm", "topic":"oxmail/shared_account_permission"}
+     ],
+     "request_prefill": true,
+     "password": "$SUBSCRIPTION_PASSWORD"
+   }
+   EOF
+   $ curl --fail --user "admin:$ADMIN_PASSWORD" \
+       -H "Content-Type: application/json" \
+       -X POST "$BASE_URL/v1/subscriptions" \
+       --data @/tmp/ox-connector-subscription.json \
+       || { rm -f /tmp/ox-connector-subscription.json; exit 1; }
+   $ rm -f /tmp/ox-connector-subscription.json
+   $ printf 'export PROVISIONING_API_USERNAME=ox-connector\nexport PROVISIONING_API_PASSWORD=%s\n' \
+       "$SUBSCRIPTION_PASSWORD" \
+       > /var/lib/univention-appcenter/apps/ox-connector/conf/provisioning.env
+   $ chmod 640 /var/lib/univention-appcenter/apps/ox-connector/conf/provisioning.env
+   $ univention-app restart ox-connector
 
 .. caution::
 
-   The OX Connector may decide to delete objects based on data in the JSON
-   files. For example ``isOxGroup = Not`` in a group object.
+   The OX Connector can delete objects
+   based on the data it receives.
+   For example, ``isOxGroup = False`` in a group object.
 
 .. _cache-rebuild:
 
@@ -329,38 +383,33 @@ Add the following lines to the :file:`user.properties` file.
    This is configured by default in the *OX App Suite* installation from the App center.
 
 
-Traceback provisioning *groups*
-===============================
+.. _troubleshooting-missing-group-members:
 
-When an ox group is synchronized, the :program:`OX Connector` obtains information about all
-its users by reading from the `listener/old` directory where the latest version of the objects
-that have already been synchronized is stored. If any user is part of such group but is not in
-`listener/old`, the :program:`OX Connector` will fail with a traceback like the following:
+Missing group members
+=====================
+
+When the :program:`OX Connector` synchronizes a group,
+it needs the *internal ID* of all its members,
+see :ref:`db-old-entries`.
+It looks the members up in its database of old entries.
+If a user belongs to a group
+but isn't in the database of old entries,
+the :program:`OX Connector` doesn't fail.
+It skips that user and logs a message as shown in
+:numref:`troubleshooting-missing-group-members-log-listing`.
+
+You need to re-provision the user object manually,
+in the example ``uid=oxuser1,cn=users,dc=example,dc=com``.
+Follow the instructions in :ref:`handling-errors` to synchronize the missing users.
+The next time the OX Connector processes the group object,
+the :term:`Provisioning Consumer` takes the user up as group member again.
 
 .. code-block:: console
+   :caption: Log message for missing group members
+   :name: troubleshooting-missing-group-members-log-listing
 
-   2024-11-15 16:06:33 INFO    Group oxgroup will be OX Group
-   2024-11-15 16:06:33 INFO    Error while processing /var/lib/univention-appcenter/apps/ox-connector/data/listener/2024-11-15-15-51-31-669745.json
-   2024-11-15 16:06:33 INFO    This is consecutive error #11
-   2024-11-15 16:06:33 INFO    Sleeping for 0 sec
-   2024-11-15 16:06:33 WARNING Traceback (most recent call last):
-   2024-11-15 16:06:33 INFO    Successfully processed 0 files during this run
-   2024-11-15 16:06:33 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 419, in run_on_files
-   2024-11-15 16:06:33 WARNING     function(obj)
-   2024-11-15 16:06:33 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 115, in run
-   2024-11-15 16:06:33 WARNING     for new_obj in get_group_objs(obj):
-   2024-11-15 16:06:33 WARNING   File "/usr/lib/python3.9/site-packages/univention/ox/provisioning/__init__.py", line 173, in get_group_objs
-   2024-11-15 16:06:33 WARNING     user_obj = univention.ox.provisioning.helpers.get_old_obj(user)
-   2024-11-15 16:06:33 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 76, in _get_old_object
-   2024-11-15 16:06:33 WARNING     raise Exception(f"Old object file {path_to_old_user} for {distinguished_name} does not exist!\nYou need to re-provision \"{distinguished_name}\" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting  .html#traceback-provisioning-groups).")
-   2024-11-15 16:06:33 WARNING Exception: Old object file /var/lib/univention-appcenter/apps/ox-connector/data/listener/old/d10338de-3144-103f-8ea2-f39fa7a811dd.json for uid=oxuser1,cn=users,dc=example,dc=com does not exist!
-   2024-11-15 16:06:33 WARNING You need to re-provision "uid=oxuser1,cn=users,dc=example,dc=com" (see https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#traceback-provisioning-groups).
-
-You need to re-provision the user object
-(*uid=oxuser1,cn=users,dc=example,dc=com* in this case) manually. Follow the
-instructions in :ref:`handling-errors` to synchronize the missing users.
-After this manual intervention the connector automatically continues with the
-synchronization of the group object.
+    2024-11-15 16:06:33 INFO    Group will be OX Group
+    2024-11-15 16:06:33 INFO    Group wants user as member. But the user is unknown. Ignoring...
 
 Collect information for support ticket
 ======================================
@@ -368,11 +417,9 @@ Collect information for support ticket
 Before you open a support ticket, make sure to collect and provide relevant
 details about your case, so that the Univention Support team can help you:
 
-* `Provide relevant details about your environment
-  <https://help.univention.com/faq#posting-guidelines>`_.
-
-* Provide the relevant messages and tracebacks from  :ref:`log-files`,
-  specifically the :term:`Listener Converter`.
+* Provide the relevant messages and tracebacks
+  from :ref:`log-files`,
+  specifically the :term:`Provisioning Consumer`.
 
 * Describe the steps that can reproduce the faulty behavior.
 
@@ -382,6 +429,7 @@ details about your case, so that the Univention Support team can help you:
 
 Invalid values for OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER
 ============================================================
+
 Only a UDM user property (or UDM group property in case of OX_GROUP_IDENTIFIER) that contains a **single value** which is **not None**
 is a valid option. In case a UDM property that contains an empty value or a list of values is specified, the :program:`OX Connector`
 will enter an error state which needs to be resolved manually by simply setting a valid value.
