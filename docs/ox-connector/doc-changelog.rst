@@ -24,6 +24,12 @@ Year 2026
      - :ref:`ox-connector-architecture-ucs`
      - Add architecture description for OX Connector on Nubus for UCS.
 
+   * - 20. Aug 2026
+     - :ref:`ox-connector-usage`
+     - Add instructions for managing OX App Suite contexts, users, groups,
+       access profiles, functional accounts, resources, and shared accounts.
+       Add instructions for migrating functional accounts to shared accounts.
+
    * - 12. Aug 2026
      - :ref:`ox-connector-configuration-kubernetes`
      - Add generated Helm Chart values reference for the *OX Connector*
