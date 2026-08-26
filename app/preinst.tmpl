@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Abort on nonzero exitstatus [-e]
+set -o errexit
+# Don't hide errors within pipes
+set -o pipefail
+
+APP_ID="ox-connector"
+
+PROVISIONING_CLIENT="$(mktemp)"
+trap 'rm -f "${PROVISIONING_CLIENT}"' EXIT
+
+cat <<'EOF' > "${PROVISIONING_CLIENT}"
+%PROVISIONING-SERVICE-CLIENT%
+EOF
+chmod 700 "${PROVISIONING_CLIENT}"
+
+# Returns 0 if this is a fresh install, 1 if upgrade
+is_install() {
+    # Piping `univention-app info` directly fails when run in a preinst script
+    # Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
+    # BrokenPipeError: [Errno 32] Broken pipe
+    app_state="$(univention-app info)"
+    if echo "${app_state}" | grep -q "^Installed:.*${APP_ID}="; then
+        echo "ox-connector already installed, this is an upgrade"
+        return 1
+    else
+        echo "ox-connector not yet installed, this is a fresh install"
+        return 0
+    fi
+}
+
+setup_provisioning_subscriptions() {
+    local subscription_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning-subscription.json"
+    local app_provisioning_env_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning.env"
+    local -a prefill_args=()
+    local topics='[
+  {"realm":"udm", "topic":"users/user"},
+  {"realm":"udm", "topic":"groups/group"},
+  {"realm":"udm", "topic":"oxmail/oxcontext"},
+  {"realm":"udm", "topic":"oxmail/accessprofile"},
+  {"realm":"udm", "topic":"oxresources/oxresources"},
+  {"realm":"udm", "topic":"oxmail/functional_account"},
+  {"realm":"udm", "topic":"oxmail/shared_account"},
+  {"realm":"udm", "topic":"oxmail/shared_account_permission"}
+]'
+
+    mkdir --parent "$(dirname "${subscription_file}")"
+
+    if [[ -f "${app_provisioning_env_file}" ]]; then
+        echo "${app_provisioning_env_file} already exists, skipping provisioning setup."
+        return 0
+    fi
+
+    if is_install; then
+        prefill_args=(--request-prefill)
+        echo "Subscription will be prefilled (fresh install)"
+    else
+        echo "Subscription will NOT be prefilled (upgrade)"
+    fi
+
+    "${PROVISIONING_CLIENT}" subscribe \
+        --provisioning-server "$(ucr get ldap/master)" \
+        --subscription-file "${subscription_file}" \
+        --topics "${topics}" \
+        "${prefill_args[@]}" \
+        "${@}"
+
+    python3 - "${subscription_file}" > "${app_provisioning_env_file}" <<'EOF'
+import json
+import sys
+
+with open(sys.argv[1]) as fd:
+    credentials = json.load(fd)
+
+print(f"export PROVISIONING_API_USERNAME={credentials['subscription_name']}")
+print(f"export PROVISIONING_API_PASSWORD={credentials['subscription_password']}")
+EOF
+    chmod 640 "${app_provisioning_env_file}"
+}
+
+setup_docker_params() {
+    local current
+    current="$(ucr get "appcenter/apps/ox-connector/docker/params")"
+    if [[ -n "$current" ]]; then
+        echo "appcenter/apps/ox-connector/docker/params already set to '${current}', skipping."
+    else
+        ucr set 'appcenter/apps/ox-connector/docker/params=--restart=always'
+    fi
+}
+
+setup_provisioning_subscriptions "${@}"
+setup_docker_params
+
+if [[ ! -d "/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets/" ]]; then
+  mkdir -pv "/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets"
+fi

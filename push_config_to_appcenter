@@ -41,6 +41,14 @@ download_univention-appcenter-control() {
   fi
 }
 
+render_preinst() {
+  cp app/preinst.tmpl app/preinst
+  sed -i \
+    -e '/^%PROVISIONING-SERVICE-CLIENT%$/r share/univention-provisioning-service-client' \
+    -e '/^%PROVISIONING-SERVICE-CLIENT%$/d' \
+    app/preinst
+}
+
 APP_VERSION="$(grep ^Version app/ini | awk '{ print $3 }')"
 APP_VERSION_STRING="5.2/${APP_ID}=${APP_VERSION}"
 echo "App version in source code is: '${APP_VERSION}'."
@@ -55,10 +63,13 @@ fi
 # upload to univention app provider portal
 download_univention-appcenter-control
 
+trap 'rm -f app/preinst' EXIT
+render_preinst
+
 echo -e "\nFiles to upload:\n-------------------------------------------------------------------------------"
-find app/ -type f | sort
+find app/ -type f ! -name 'preinst.tmpl' | sort
 
 read -n1 -r -p "Press any key to continue or Ctrl-C to abort."
 echo
 
-./univention-appcenter-control upload "${APP_VERSION_STRING}" $(find app/ -type f | sort)
+./univention-appcenter-control upload "${APP_VERSION_STRING}" $(find app/ -type f ! -name 'preinst.tmpl' | sort)

@@ -9,9 +9,12 @@
 #
 import argparse
 import json
+import ldap
 import os
 import secrets
+import shlex
 import socket
+import subprocess
 import sys
 import uuid
 from typing import TypedDict
@@ -54,6 +57,8 @@ class ProvisioningConsumerSubscriber:
             subscription_file: str | None,
             subscription_name: str | None,
             provisioning_server: str | None,
+            binddn: str | None,
+            bindpwdfile: str | None,
     ):
         """
         ProvisioningConsumerSubscriber
@@ -72,6 +77,8 @@ class ProvisioningConsumerSubscriber:
         self.admin_credential_file: str = admin_credential_file
         self.subscription_file: str | None = subscription_file
         self.subscription_password: str | None = None
+        self.binddn: str | None = binddn
+        self.bindpwdfile: str | None = bindpwdfile
         if subscription_file is not None and os.path.isfile(subscription_file):
             name, self.subscription_password = self._get_subscription_credentials()
             if subscription_name is None:
@@ -94,6 +101,41 @@ class ProvisioningConsumerSubscriber:
 
     def _get_admin_credentials(self) -> tuple[str | None, str | None]:
         """Retrieves the credentials for the Provisioning API from the configured JSON file."""
+        if (
+            self.provisioning_server != socket.getfqdn()
+            and self.binddn
+            and self.bindpwdfile
+        ):
+            username = ldap.dn.explode_rdn(self.binddn, notypes=True)[0]
+            remote_command = f"/usr/bin/cat -- {shlex.quote(self.admin_credential_file)}"
+            try:
+                result = subprocess.run(
+                    [
+                        "/usr/sbin/univention-ssh",
+                        "--no-split",
+                        self.bindpwdfile,
+                        f"{username}@{self.provisioning_server}",
+                        remote_command,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    text=True,
+                )
+                password = json.loads(result.stdout).get(
+                    "PROVISIONING_API_ADMIN_PASSWORD"
+                )
+            except (OSError, subprocess.CalledProcessError, json.decoder.JSONDecodeError) as exc:
+                raise AdminCredentialError(
+                    f"Failed to fetch Provisioning API admin credentials "
+                    f"from {self.provisioning_server!r}: {exc}"
+                )
+            if password is None:
+                self._warning(
+                    f"PROVISIONING_API_ADMIN_PASSWORD could not be read from "
+                    f"{self.admin_credential_file!r}"
+                )
+            return "admin", password
+
         try:
             with open(self.admin_credential_file) as fd:
                 password = json.load(fd).get("PROVISIONING_API_ADMIN_PASSWORD")
@@ -293,18 +335,18 @@ def main():
     subscribe_parser.add_argument("--request-prefill", action="store_true", help="Request a (new) prefill for this subscription queue")
     subscribe_parser.add_argument("--admin-credential-file", help="Path to the admin credential file of the Provisioning API (default: %(default)s)", default=FN_PROVISIONING_API_ADMIN_CREDENTIALS)
     subscribe_parser.add_argument("--provisioning-server", default=HOSTNAME, help="FQDN of the Provisioning API server (uses '%(default)s' if not specified)")
+    subscribe_parser.add_argument("--binddn")
+    subscribe_parser.add_argument("--bindpwdfile")
 
     # --- unsubscribe ---
     unsubscribe_parser = subparsers.add_parser("unsubscribe", help="Remove a subscription")
     unsubscribe_parser.add_argument("--subscription-file", required=True, help="Path to the subscription credential file")
     unsubscribe_parser.add_argument("--admin-credential-file", help="Path to the admin credential file of the Provisioning API (default: %(default)s)", default=FN_PROVISIONING_API_ADMIN_CREDENTIALS)
     unsubscribe_parser.add_argument("--provisioning-server", default=HOSTNAME, help="FQDN of the Provisioning API server (uses '%(default)s' if not specified)")
+    unsubscribe_parser.add_argument("--binddn")
+    unsubscribe_parser.add_argument("--bindpwdfile")
 
-    args = parser.parse_args()
-
-    if not os.path.isfile(args.admin_credential_file):
-        print(f"ERROR: --admin-credential-file: The file {args.admin_credential_file!r} does not exist!")
-        sys.exit(1)
+    args, _ = parser.parse_known_args()
 
     if args.command == "subscribe":
         if not is_valid_realms_and_topics_data(args.topics):
@@ -324,6 +366,8 @@ def main():
             args.subscription_file,
             args.subscription_name,
             args.provisioning_server,
+            args.binddn,
+            args.bindpwdfile,
         )
         if args.command == "subscribe":
             if client.subscription_exists():
