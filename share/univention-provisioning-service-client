@@ -52,13 +52,13 @@ class RealmTopic(TypedDict):
 
 class ProvisioningConsumerSubscriber:
     def __init__(
-            self,
-            admin_credential_file: str,
-            subscription_file: str | None,
-            subscription_name: str | None,
-            provisioning_server: str | None,
-            binddn: str | None,
-            bindpwdfile: str | None,
+        self,
+        admin_credential_file: str,
+        subscription_file: str | None,
+        subscription_name: str | None,
+        provisioning_server: str | None,
+        binddn: str | None,
+        bindpwdfile: str | None,
     ):
         """
         ProvisioningConsumerSubscriber
@@ -80,13 +80,17 @@ class ProvisioningConsumerSubscriber:
         self.binddn: str | None = binddn
         self.bindpwdfile: str | None = bindpwdfile
         if subscription_file is not None and os.path.isfile(subscription_file):
-            name, self.subscription_password = self._get_subscription_credentials()
+            name, self.subscription_password = (
+                self._get_subscription_credentials()
+            )
             if subscription_name is None:
                 subscription_name = name
 
         self.subscription_name: str | None = subscription_name
         self.provisioning_server = provisioning_server
-        self.admin_username, self.admin_password = self._get_admin_credentials()
+        self.admin_username, self.admin_password = (
+            self._get_admin_credentials()
+        )
 
     # the following log methods do not use loguru on purpose to keep this script lightweight
     # TODO: switch to logging
@@ -107,7 +111,9 @@ class ProvisioningConsumerSubscriber:
             and self.bindpwdfile
         ):
             username = ldap.dn.explode_rdn(self.binddn, notypes=True)[0]
-            remote_command = f"/usr/bin/cat -- {shlex.quote(self.admin_credential_file)}"
+            remote_command = (
+                f"/usr/bin/cat -- {shlex.quote(self.admin_credential_file)}"
+            )
             try:
                 result = subprocess.run(
                     [
@@ -122,17 +128,21 @@ class ProvisioningConsumerSubscriber:
                     text=True,
                 )
                 password = json.loads(result.stdout).get(
-                    "PROVISIONING_API_ADMIN_PASSWORD"
+                    "PROVISIONING_API_ADMIN_PASSWORD",
                 )
-            except (OSError, subprocess.CalledProcessError, json.decoder.JSONDecodeError) as exc:
+            except (
+                OSError,
+                subprocess.CalledProcessError,
+                json.decoder.JSONDecodeError,
+            ) as exc:
                 raise AdminCredentialError(
                     f"Failed to fetch Provisioning API admin credentials "
-                    f"from {self.provisioning_server!r}: {exc}"
+                    f"from {self.provisioning_server!r}: {exc}",
                 )
             if password is None:
                 self._warning(
                     f"PROVISIONING_API_ADMIN_PASSWORD could not be read from "
-                    f"{self.admin_credential_file!r}"
+                    f"{self.admin_credential_file!r}",
                 )
             return "admin", password
 
@@ -140,9 +150,13 @@ class ProvisioningConsumerSubscriber:
             with open(self.admin_credential_file) as fd:
                 password = json.load(fd).get("PROVISIONING_API_ADMIN_PASSWORD")
         except (OSError, json.decoder.JSONDecodeError) as exc:
-            raise AdminCredentialError(f"Failed to fetch Provisioning API admin credentials from {self.admin_credential_file!r}: {exc}") from exc
+            raise AdminCredentialError(
+                f"Failed to fetch Provisioning API admin credentials from {self.admin_credential_file!r}: {exc}",
+            ) from exc
         if password is None:
-            self._warning(f"PROVISIONING_API_ADMIN_PASSWORD could not be read from {self.admin_credential_file!r}")
+            self._warning(
+                f"PROVISIONING_API_ADMIN_PASSWORD could not be read from {self.admin_credential_file!r}",
+            )
         return "admin", password
 
     def _get_subscription_credentials(self) -> tuple[str | None, str | None]:
@@ -152,19 +166,31 @@ class ProvisioningConsumerSubscriber:
             name and password are None if configuration file could
             not be found or values are unset.
         """
-        if self.subscription_file is not None and os.path.isfile(self.subscription_file):
+        if self.subscription_file is not None and os.path.isfile(
+            self.subscription_file,
+        ):
             try:
                 with open(self.subscription_file) as fd:
                     data = json.load(fd)
-                    if "subscription_name" in data and "subscription_password" in data:
-                        self._info(f"Successfully read the configuration file {self.subscription_file!r}")
-                        return data["subscription_name"], data["subscription_password"]
+                    if (
+                        "subscription_name" in data
+                        and "subscription_password" in data
+                    ):
+                        self._info(
+                            f"Successfully read the configuration file {self.subscription_file!r}",
+                        )
+                        return (
+                            data["subscription_name"],
+                            data["subscription_password"],
+                        )
                     self._warning(
                         f"Read the configuration file {self.subscription_file!r} but no "
                         "'subscription_name' or 'subscription_password' was found",
                     )
             except (OSError, json.decoder.JSONDecodeError) as exc:
-                raise SubscriptionFileError(f"Failed to fetch data from {self.subscription_file!r}: {exc}") from exc
+                raise SubscriptionFileError(
+                    f"Failed to fetch data from {self.subscription_file!r}: {exc}",
+                ) from exc
         else:
             # When creating a new subscription file, it is intended to create a new one.
             # The following message might confuse devs and admins and is therefore deactivated:
@@ -172,7 +198,11 @@ class ProvisioningConsumerSubscriber:
             pass
         return None, None
 
-    def _save_subscription_credentials(self, subscription_name: str, subscription_password: str) -> None:
+    def _save_subscription_credentials(
+        self,
+        subscription_name: str,
+        subscription_password: str,
+    ) -> None:
         """Save given subscription name and password to configuration file."""
         if self.subscription_file is None:
             # TODO: FIXME: self.log.error("Cannot save credentials to subscription file! Subscription file has not been specified!")
@@ -188,7 +218,9 @@ class ProvisioningConsumerSubscriber:
                 json.dump(data, f, indent=2)
             os.rename(fn_new, self.subscription_file)
         except OSError as exc:
-            raise SubscriptionFileError(f"Failed to write data to {self.subscription_file!r}: {exc}") from exc
+            raise SubscriptionFileError(
+                f"Failed to write data to {self.subscription_file!r}: {exc}",
+            ) from exc
 
     def subscription_exists(self) -> bool:
         """Check if there is already a valid subscription."""
@@ -203,21 +235,29 @@ class ProvisioningConsumerSubscriber:
                 auth=(self.subscription_name, self.subscription_password),
             )
         except requests.exceptions.ConnectionError as exc:
-            raise ProvisioningAPIConnectionError(f"Request to {url} failed: {exc}") from exc
-        if resp.status_code in (404, ):
+            raise ProvisioningAPIConnectionError(
+                f"Request to {url} failed: {exc}",
+            ) from exc
+        if resp.status_code in (404,):
             return False
-        if resp.status_code in (401, ):
-            self._warning(f"Failed to query status of subscription {self.subscription_name} due to incorrect/outdated credentials: [{resp.status_code}] {resp.text}")
+        if resp.status_code in (401,):
+            self._warning(
+                f"Failed to query status of subscription {self.subscription_name} due to incorrect/outdated credentials: [{resp.status_code}] {resp.text}",
+            )
             # assuming the subscription does not exist: after the subscription has been removed, a status query returns 401/incorrect credentials
             return False
         if 200 <= resp.status_code <= 299:
             return True
-        raise ProvisioningAPIResponseError(f"Failed to query status of subscription {self.subscription_name}: [{resp.status_code}] {resp.text}")
+        raise ProvisioningAPIResponseError(
+            f"Failed to query status of subscription {self.subscription_name}: [{resp.status_code}] {resp.text}",
+        )
 
     def unsubscribe(self) -> None:
         """Removes an existing subscription."""
         if not self.subscription_name:
-            self._error(f"Unsubscribe request failed. No subscription_name found in subscription_file {self.subscription_file}")
+            self._error(
+                f"Unsubscribe request failed. No subscription_name found in subscription_file {self.subscription_file}",
+            )
             return
 
         url = f"https://{self.provisioning_server}/univention/provisioning/v1/subscriptions/{self.subscription_name}"
@@ -227,18 +267,26 @@ class ProvisioningConsumerSubscriber:
                 auth=(self.admin_username, self.admin_password),
             )
         except requests.exceptions.ConnectionError as exc:
-            raise ProvisioningAPIConnectionError(f"Request to {url} failed: {exc}") from exc
+            raise ProvisioningAPIConnectionError(
+                f"Request to {url} failed: {exc}",
+            ) from exc
         if resp.status_code == 404:
-            self._warning(f"Request to remove subscription has been skipped. The subscription {self.subscription_name} does not exist.")
+            self._warning(
+                f"Request to remove subscription has been skipped. The subscription {self.subscription_name} does not exist.",
+            )
             return
         elif resp.status_code >= 300:
-            raise ProvisioningAPIResponseError(f"Unsubscribe request at {url} failed with error code {resp.status_code}: {resp.text}")
-        self._info(f"Subscription {self.subscription_name} has been removed successfully.")
+            raise ProvisioningAPIResponseError(
+                f"Unsubscribe request at {url} failed with error code {resp.status_code}: {resp.text}",
+            )
+        self._info(
+            f"Subscription {self.subscription_name} has been removed successfully.",
+        )
 
     def subscribe(
-            self,
-            realms_topics: list[RealmTopic],
-            request_prefill: bool = False,
+        self,
+        realms_topics: list[RealmTopic],
+        request_prefill: bool = False,
     ) -> None:
         """
         Creates a new subscription for the specified realms and topics.
@@ -290,10 +338,16 @@ class ProvisioningConsumerSubscriber:
                 auth=(self.admin_username, self.admin_password),
             )
         except requests.exceptions.ConnectionError as exc:
-            raise ProvisioningAPIConnectionError(f"Request to {url} failed: {exc}") from exc
+            raise ProvisioningAPIConnectionError(
+                f"Request to {url} failed: {exc}",
+            ) from exc
         if resp.status_code >= 300:
-            raise ProvisioningAPIResponseError(f"Subscription request at {url} failed with error code {resp.status_code}: {resp.text}")
-        self._info(f"Subscription {self.subscription_name} {'with' if request_prefill else 'without'} prefill request has been created successfully.")
+            raise ProvisioningAPIResponseError(
+                f"Subscription request at {url} failed with error code {resp.status_code}: {resp.text}",
+            )
+        self._info(
+            f"Subscription {self.subscription_name} {'with' if request_prefill else 'without'} prefill request has been created successfully.",
+        )
 
 
 def is_valid_realms_and_topics_data(data_str: str) -> bool:
@@ -305,7 +359,11 @@ def is_valid_realms_and_topics_data(data_str: str) -> bool:
     return (
         isinstance(data, list)
         and all(isinstance(item, dict) for item in data)
-        and all(isinstance(item.get("realm"), str) and isinstance(item.get("topic"), str) for item in data)
+        and all(
+            isinstance(item.get("realm"), str)
+            and isinstance(item.get("topic"), str)
+            for item in data
+        )
     )
 
 
@@ -319,8 +377,15 @@ def main():
     HOSTNAME = socket.getfqdn()
 
     # --- subscribe ---
-    subscribe_parser = subparsers.add_parser("subscribe", help="Create or renew a subscription")
-    subscribe_parser.add_argument("--subscription-name", help="Name of the subscription. If no name is specified, the name from the subscription file is used. If that file does not yet exist, a random name is automatically generated (sub-$UUID).", default=None)
+    subscribe_parser = subparsers.add_parser(
+        "subscribe",
+        help="Create or renew a subscription",
+    )
+    subscribe_parser.add_argument(
+        "--subscription-name",
+        help="Name of the subscription. If no name is specified, the name from the subscription file is used. If that file does not yet exist, a random name is automatically generated (sub-$UUID).",
+        default=None,
+    )
     subscribe_parser.add_argument(
         "--topics",
         required=True,
@@ -331,18 +396,49 @@ def main():
         required=True,
         help="Path to the file where subscription credentials are written to",
     )
-    subscribe_parser.add_argument("--force", action="store_true", help="Overwrite/recreate an existing subscription")
-    subscribe_parser.add_argument("--request-prefill", action="store_true", help="Request a (new) prefill for this subscription queue")
-    subscribe_parser.add_argument("--admin-credential-file", help="Path to the admin credential file of the Provisioning API (default: %(default)s)", default=FN_PROVISIONING_API_ADMIN_CREDENTIALS)
-    subscribe_parser.add_argument("--provisioning-server", default=HOSTNAME, help="FQDN of the Provisioning API server (uses '%(default)s' if not specified)")
+    subscribe_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite/recreate an existing subscription",
+    )
+    subscribe_parser.add_argument(
+        "--request-prefill",
+        action="store_true",
+        help="Request a (new) prefill for this subscription queue",
+    )
+    subscribe_parser.add_argument(
+        "--admin-credential-file",
+        help="Path to the admin credential file of the Provisioning API (default: %(default)s)",
+        default=FN_PROVISIONING_API_ADMIN_CREDENTIALS,
+    )
+    subscribe_parser.add_argument(
+        "--provisioning-server",
+        default=HOSTNAME,
+        help="FQDN of the Provisioning API server (uses '%(default)s' if not specified)",
+    )
     subscribe_parser.add_argument("--binddn")
     subscribe_parser.add_argument("--bindpwdfile")
 
     # --- unsubscribe ---
-    unsubscribe_parser = subparsers.add_parser("unsubscribe", help="Remove a subscription")
-    unsubscribe_parser.add_argument("--subscription-file", required=True, help="Path to the subscription credential file")
-    unsubscribe_parser.add_argument("--admin-credential-file", help="Path to the admin credential file of the Provisioning API (default: %(default)s)", default=FN_PROVISIONING_API_ADMIN_CREDENTIALS)
-    unsubscribe_parser.add_argument("--provisioning-server", default=HOSTNAME, help="FQDN of the Provisioning API server (uses '%(default)s' if not specified)")
+    unsubscribe_parser = subparsers.add_parser(
+        "unsubscribe",
+        help="Remove a subscription",
+    )
+    unsubscribe_parser.add_argument(
+        "--subscription-file",
+        required=True,
+        help="Path to the subscription credential file",
+    )
+    unsubscribe_parser.add_argument(
+        "--admin-credential-file",
+        help="Path to the admin credential file of the Provisioning API (default: %(default)s)",
+        default=FN_PROVISIONING_API_ADMIN_CREDENTIALS,
+    )
+    unsubscribe_parser.add_argument(
+        "--provisioning-server",
+        default=HOSTNAME,
+        help="FQDN of the Provisioning API server (uses '%(default)s' if not specified)",
+    )
     unsubscribe_parser.add_argument("--binddn")
     unsubscribe_parser.add_argument("--bindpwdfile")
 
@@ -350,14 +446,18 @@ def main():
 
     if args.command == "subscribe":
         if not is_valid_realms_and_topics_data(args.topics):
-            print("ERROR: --topics: the given JSON string is not a valid definition of realms and topics!")
+            print(
+                "ERROR: --topics: the given JSON string is not a valid definition of realms and topics!",
+            )
             sys.exit(1)
         topics = json.loads(args.topics)
 
     elif args.command == "unsubscribe":
         args.subscription_name = None
         if not os.path.isfile(args.subscription_file):
-            print(f"ERROR: --subscription-file: The file {args.subscription_file!r} does not exist!")
+            print(
+                f"ERROR: --subscription-file: The file {args.subscription_file!r} does not exist!",
+            )
             sys.exit(1)
 
     try:
@@ -374,7 +474,10 @@ def main():
                 if args.force:
                     client.unsubscribe()
                 else:
-                    print("ERROR: Subscription exists! Stopping here!", file=sys.stderr)
+                    print(
+                        "ERROR: Subscription exists! Stopping here!",
+                        file=sys.stderr,
+                    )
                     sys.exit(1)
             client.subscribe(topics, args.request_prefill)
         elif args.command == "unsubscribe":
