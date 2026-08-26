@@ -2,12 +2,14 @@
 ..
 .. SPDX-License-Identifier: AGPL-3.0-only
 
+.. _ox-connector-architecture-ucs:
+
 Architecture on Nubus for UCS
 =============================
 
 The :program:`OX Connector` app architecture consists of the following elements:
 
-* The operating environment |UCS| with the App Center and the Docker engine
+* The operating environment Nubus for UCS with the App Center and the Docker engine
   running OX Connector.
 
 * The OX Connector software inside a Docker image.
@@ -15,13 +17,13 @@ The :program:`OX Connector` app architecture consists of the following elements:
 * The OpenLDAP LDAP directory in UCS as identity management source for OX App
   Suite.
 
-.. _architecture-overview:
+.. _ox-connector-architecture-ucs-overview:
 
 Overview
 ========
 
 The :program:`OX Connector` app consists of a Docker image with all the software
-needed to provision user identities from |UCS| identity management to OX App
+needed to provision user identities from the Nubus identity management to OX App
 Suite. The OX connector connects to the OX App Suite SOAP API and creates, updates,
 or deletes object entries in OX App Suite depending on what changed in the UCS
 LDAP directory with relevance to OX App Suite.
@@ -34,17 +36,17 @@ LDAP directory with relevance to OX App Suite.
    View focuses on the elements LDAP Directory, Listener, Listener Converter, OX
    Connector with the provisioning script, OX App Suite, and its SOAP API.
 
-
 .. glossary::
 
    LDAP
-      The OpenLDAP software provides the *LDAP* directory in |UCS|. The LDAP
+      The OpenLDAP software provides the *LDAP* directory in Nubus. The LDAP
       directory stores all identity and infrastructure data of the UCS domain. For
-      more information, see :ref:`domain-ldap` in :cite:t:`ucs-manual`.
+      more information,
+      see :external+uv-ucs-operation:ref:`domain-infrastructure-ldap-directory` in :cite:t:`uv-ucs-operation`.
 
    Listener
       The App Center creates a *Listener* module for the :program:`OX Connector`
-      app, when it installs the app on a |UCS| system. The *Listener* writes the
+      app, when it installs the app on a Nubus for UCS system. The *Listener* writes the
       ``UniventionObjectIdentifier`` of the LDAP object that changed, in JSON format to
       :file:`/var/lib/univention-appcenter/listener/ox-connector/{timestamp}.json`.
       Each change creates one file.
@@ -54,12 +56,12 @@ LDAP directory with relevance to OX App Suite.
          see: files; JSON
 
    Listener Converter
-      The *Listener Converter* is a services running on |UCS| with the following
+      The *Listener Converter* is a services running on Nubus for UCS with the following
       responsibility:
 
       #. Process the JSON files from the :term:`Listener` ordered by the
          timestamp in the filename.
-      #. Request the LDAP object attributes through |UDM| for each
+      #. Request the LDAP object attributes through *Univention Directory Manager* for each
          ``UniventionObjectIdentifier``.
 
       The converter writes the results in JSON format to
@@ -70,7 +72,7 @@ LDAP directory with relevance to OX App Suite.
          see: files; JSON
 
    OX Connector
-      *OX Connector* connects the |UCS| identity management with OX App Suite.
+      *OX Connector* connects the Nubus identity management with OX App Suite.
       The connector receives data about changes in the LDAP directory. A
       :term:`Script` handles the data, processes it and sends it to the
       :term:`SOAP API` in OX App Suite.
@@ -90,7 +92,7 @@ LDAP directory with relevance to OX App Suite.
       protocol to receive data and run remote procedure calls. The connector uses
       the SOAP API to create, update, or delete object entries in OX App Suite.
 
-.. _app-how-it-works:
+.. _ox-connector-architecture-ucs-how-it-works:
 
 How the connector works
 =======================
@@ -105,8 +107,8 @@ How the connector works
    single: udm modules; oxmail/oxcontext
    single: udm modules; oxresources/oxresources
 
-The OX Connector reacts on changes in the LDAP directory in |UCS| and relies on
-modules in the Univention Directory Manager (UDM) modules. |UDM| is a layer on top
+The OX Connector reacts on changes in the LDAP directory in Nubus and relies on
+modules in the *Univention Directory Manager* (UDM) modules. *Univention Directory Manager* is a layer on top
 of the LDAP directory in UCS.
 
 UCS provides the following UDM modules:
@@ -123,7 +125,7 @@ The OX Connector provides the following UDM modules:
 The OX Connector reacts on changes to the listed UDM modules and sends data to the
 SOAP API in OX App Suite.
 
-.. _connector-access-profiles:
+.. _ox-connector-architecture-ucs-profiles:
 
 Access profiles
 ---------------
@@ -139,7 +141,7 @@ user rights and roles in OX App Suite. Administrators find the *access profiles*
 in UMC in the module LDAP directory at :menuselection:`open-xchange -->
 accessprofile`.
 
-.. _connector-provisioning:
+.. _ox-connector-architecture-ucs-provisioning:
 
 Provisioning
 ------------
@@ -174,9 +176,9 @@ In detail, the provisioning has the following steps, see
 #. The *Listener Converter* waits for 5 seconds and restarts at step 2.
 
 For more information about the file contents of the :term:`Listener` and
-:term:`Listener Converter`, see :ref:`architecture-overview`.
+:term:`Listener Converter`, see :ref:`ox-connector-architecture-ucs-overview`.
 
-.. _synced-attributes:
+.. _ox-connector-architecture-ucs-attributes:
 
 Provisioned attributes
 ======================
@@ -204,7 +206,7 @@ run the following command on the UCS system with OX Connector installed. Replace
 Likewise, the attributes for groups, context, and resources locate in the
 respective source files in the ``update_*()`` function.
 
-.. _db-old-entries:
+.. _ox-connector-architecture-ucs-database:
 
 Database of old entries
 =======================
@@ -226,7 +228,11 @@ ID*)
 The database files is located at
 :file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`.
 The table is named `old`. Administrators are highly advised to use the
-CLI the App provides to manipulate this database, see :ref:`app-cli`.
+CLI the App provides to manipulate this database.
+
+.. TODO: Replace with working reference after troubleshooting section is done with #175
+
+   see :ref:`app-cli`.
 
 When the :term:`Listener Converter` updates groups in OX App Suite, the request
 to the :term:`SOAP API` must include the internal ID of all group members. The
