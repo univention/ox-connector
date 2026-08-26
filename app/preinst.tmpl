@@ -31,7 +31,7 @@ is_install() {
 }
 
 setup_provisioning_subscriptions() {
-    local subscription_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning-subscription.json"
+    local subscription_file="/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets/provisioning-subscription.json"
     local app_provisioning_env_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning.env"
     local -a prefill_args=()
     local topics='[
@@ -46,6 +46,7 @@ setup_provisioning_subscriptions() {
 ]'
 
     mkdir --parent "$(dirname "${subscription_file}")"
+    mkdir --parent "$(dirname "${app_provisioning_env_file}")"
 
     if [[ -f "${app_provisioning_env_file}" ]]; then
         echo "${app_provisioning_env_file} already exists, skipping provisioning setup."

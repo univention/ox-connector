@@ -69,14 +69,14 @@ purge_umc () {
     --dn "cn=udm-oxresources,cn=operations,cn=UMC,cn=univention,${ldap_base}"
 }
 purge_subscription() {
-    local subscription_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning-subscription.json"
+    local subscription_file="/var/lib/univention-appcenter/apps/${APP_ID}/data/secrets/provisioning-subscription.json"
     local app_provisioning_env_file="/var/lib/univention-appcenter/apps/${APP_ID}/conf/provisioning.env"
     local provisioning_client="/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/univention-provisioning-service-client"
 
     "${provisioning_client}" unsubscribe \
         --provisioning-server "$(ucr get ldap/master)" \
         --subscription-file "${subscription_file}" \
-        "${@}"
+        "${@}" || die "Failed to remove the Provisioning subscription"
 
     rm -f "${subscription_file}" "${app_provisioning_env_file}"
 }
