@@ -22,23 +22,26 @@ Released: TBA
 Changed
 -------
 
-The *Docker image* of the OX Connector has been changed from *Alpine Linux* to
-a *UCS Base Image*. In many cases, this should have no effect, but manual
-workflows may need adjustments if you assumed certain properties of the
-underlying image of the App. One striking change is the update from *Python
-3.9* to *Python 3.13*.
+The container image for the OX Connector changed from *Alpine Linux*
+to a *UCS Base Image*.
+In most cases, this change has no effect.
+If manual workflows rely on properties of the underlying OX Connector image,
+adjust them.
+The image also updates Python from ``3.9`` to ``3.13``.
 
-The logging format throughout the App has been changed to
-:ref:`structured-logging`.
+The App now uses :ref:`structured-logging`.
 
 The OX Connector no longer receives changes from the UCS LDAP directory
-through the App Center *Listener* mechanism. It now subscribes to the Nubus
-*Provisioning Service* through the *Provisioning API*. The *Provisioning Consumer*
-inside the app container receives the changes directly, without the intermediate
-JSON files. As a consequence, the database moved from
+through the App Center *Listener* mechanism.
+It now subscribes to the Nubus *Provisioning Service*
+through the *Provisioning API*.
+The *Provisioning Consumer* inside the app container receives the changes
+directly, without the intermediate JSON files.
+The database location changed from
 :file:`/var/lib/univention-appcenter/apps/ox-connector/data/listener/ox-connector.db`
 to :file:`/var/lib/univention-appcenter/apps/ox-connector/data/ox-connector.db`.
-Existing databases are moved automatically on update.
+During an update,
+the app automatically moves existing databases.
 
 The OX Connector depends on the *Provisioning Service*.
 During installation or upgrade,
