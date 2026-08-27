@@ -4,29 +4,34 @@
 
 .. _ox-connector-architecture-ucs:
 
-Architecture on Nubus for UCS
-=============================
+******************************
+Architecture for Nubus for UCS
+******************************
 
-The :program:`OX Connector` app architecture consists of the following elements:
+The :program:`OX Connector` app architecture includes the following elements:
 
-* The operating environment Nubus for UCS with the App Center and the Docker engine
-  running OX Connector.
+* The Nubus for UCS operating environment includes the App Center and Docker Engine.
+  A container runs OX Connector.
 
-* The OX Connector software inside a Docker image.
+* The container image contains the OX Connector software.
 
-* The OpenLDAP LDAP directory in UCS as identity management source for OX App
-  Suite.
+* The OpenLDAP directory in Nubus for UCS is the identity management source for OX App Suite.
 
 .. _ox-connector-architecture-ucs-overview:
 
 Overview
 ========
 
-The :program:`OX Connector` app consists of a Docker image with all the software
-needed to provision user identities from the Nubus identity management to OX App
-Suite. The OX connector connects to the OX App Suite SOAP API and creates, updates,
-or deletes object entries in OX App Suite depending on what changed in the UCS
-LDAP directory with relevance to OX App Suite.
+The :program:`OX Connector` uses the software in its container image
+to provision identity data from Nubus for UCS to OX App Suite.
+The OX Connector connects to the OX App Suite SOAP API.
+It creates, updates, or deletes OX App Suite objects,
+including users, groups, contexts, and resources,
+in response to relevant LDAP directory changes.
+For an illustration,
+see :numref:`ox-connector-architecture-ucs-overview-figure`.
+
+.. _ox-connector-architecture-ucs-overview-figure:
 
 .. figure:: /images/OX_Connector_Architecture_Provisioning.*
    :target: ../_images/OX_Connector_Architecture_Provisioning.svg
@@ -34,9 +39,10 @@ LDAP directory with relevance to OX App Suite.
 
    OX Connector app architecture
 
-   View focuses on the elements *Identity Store and Directory Service*, *Directory Manager*,
-   *Provisioning Service*, *Provisioning API*, *OX Connector* with *OX Connector Provisioning
-   Consumer*, *OX App Suite*, and its SOAP API.
+   The diagram shows identity data flowing from the
+   *Identity Store and Directory Service* through
+   *Directory Manager*, *Provisioning Service*, *Provisioning API*, and *OX Connector*
+   to *OX App Suite*.
 
    .. dropdown:: Information about architecture notation
       :color: info
@@ -53,61 +59,70 @@ LDAP directory with relevance to OX App Suite.
 
 .. glossary::
 
-   LDAP
-      The OpenLDAP software provides the *LDAP* directory in Nubus. The LDAP
-      directory stores all identity and infrastructure data of the UCS domain. For
-      more information, see :ref:`domain-ldap` in :cite:t:`ucs-manual`.
+   Identity Store and Directory Service
+      The *Identity Store and Directory Service* includes the OpenLDAP software
+      that provides the LDAP directory in Nubus.
+      The LDAP directory stores all identity and infrastructure data of the UCS domain.
+      For more information,
+      see :external+uv-ucs-operation:ref:`domain-infrastructure-ldap-directory`
+      in :cite:t:`uv-ucs-operation`.
 
    Provisioning Service
-      The *Provisioning Service* is a Nubus app
-      that you install in the Nubus for UCS domain.
-      It's an event and messaging service
-      that watches the LDAP directory for changes.
-      When data changes on the :external+uv-ucs-operation:term:`Primary Directory Node`,
-      the *Provisioning Service* notifies subscribed services about the change.
-
-      In contrast to the Univention Directory Listener,
-      it provides the UDM representation of the changed objects
-      instead of the LDAP representation.
-      The :program:`OX Connector` app subscribes to the
-      *Provisioning Service* through the :term:`Provisioning API`
-      for the UDM modules it provisions.
-
-      On a fresh install of the :program:`OX Connector`,
-      the *Provisioning Service* sends all existing UDM objects
-      of the subscribed modules to the OX Connector (a *prefill*).
+      The :program:`OX Connector` app subscribes to the *Provisioning Service*
+      through the :term:`Provisioning API` for the UDM modules it provisions.
+      For information about change processing, consumer registration, and *prefill*,
+      see :external+uv-nubus-kubernetes-architecture:ref:`component-provisioning-service`
+      in :cite:t:`uv-nubus-kubernetes-architecture`.
 
    Provisioning API
-      The *Provisioning API* runs on the Primary Directory Node
-      and :external+uv-ucs-operation:term:`Backup Directory Nodes <Backup Directory Node>`.
-      It's the API that applications use
-      to subscribe to events of the :term:`Provisioning Service`.
       The :term:`Provisioning Consumer` of the :program:`OX Connector` app
       subscribes through the *Provisioning API*
-      for the UDM modules the connector provisions.
-      You can access the *Provisioning API* locally through :file:`http://localhost:7777`
-      or remotely through :file:`https://<primary FQDN>/univention/provisioning/`.
+      for the UDM modules that the connector provisions.
+      For information about the API and consumer registration,
+      see :external+uv-nubus-kubernetes-architecture:ref:`component-provisioning-service-consumer-registration-http-rest-api`
+      in :cite:t:`uv-nubus-kubernetes-architecture`.
 
    OX Connector
-      *OX Connector* connects the |UCS| identity management with OX App Suite.
+      *OX Connector* connects Nubus identity management to OX App Suite.
       The connector receives data about changes in the LDAP directory.
       A :term:`Provisioning Consumer` handles the data,
       processes it, and sends it to the :term:`SOAP API` in OX App Suite.
 
    Provisioning Consumer
-      The *Provisioning Consumer* runs inside the Docker container of the
-      OX Connector. It subscribes to the :term:`Provisioning API` for the
-      UDM modules the connector provisions. For every message it receives,
-      it stores a task in its SQLite database and processes the tasks in a
-      fixed module order, sending the data to the :term:`SOAP API`.
+      The *Provisioning Consumer* runs in the OX Connector container.
+      It subscribes to the :term:`Provisioning API`
+      for the UDM modules that the connector provisions.
+      For every message it receives,
+      it stores a task in its SQLite database
+      and processes the tasks in a fixed module order,
+      sending the data to the :term:`SOAP API`.
 
    OX App Suite
       *OX App Suite* is the groupware and collaboration software from Open-Xchange.
 
    SOAP API
-      OX App Suite uses `SOAP <https://en.wikipedia.org/wiki/SOAP>`_ as network
-      protocol to receive data and run remote procedure calls. The connector uses
-      the SOAP API to create, update, or delete object entries in OX App Suite.
+      OX App Suite provides a SOAP API for receiving data
+      and running remote procedure calls.
+      The connector uses the SOAP API to create, update, or delete OX App Suite objects.
+
+.. dropdown:: OX Connector app architecture in more detail
+   :color: success
+
+   :numref:`ox-connector-architecture-ucs-detail-figure`
+   includes the *Provisioning Service* with all its parts
+   and what happens there before the data moves to the *OX Connector*.
+   Follow the *Flow* relations from the top right corner to the OX App Suite.
+
+   .. _ox-connector-architecture-ucs-detail-figure:
+
+   .. figure:: /images/OX_Connector_Architecture_Provisioning_Details_Behavior.*
+      :target: ../_images/OX_Connector_Architecture_Provisioning_Details_Behavior.svg
+      :alt: OX Connector app architecture
+
+      OX Connector app architecture in more detail
+
+      Click to zoom the view.
+
 
 .. _ox-connector-architecture-ucs-how-it-works:
 
@@ -124,23 +139,26 @@ How the connector works
    single: udm modules; oxmail/oxcontext
    single: udm modules; oxresources/oxresources
 
-The OX Connector reacts on changes in the LDAP directory in |UCS| and relies on
-modules in the Univention Directory Manager (UDM) modules. |UDM| is a layer on top
-of the LDAP directory in UCS.
+Univention Directory Manager (UDM) is an object layer
+on top of the LDAP directory in UCS.
+The OX Connector reacts to changes in the following UDM modules:
 
-UCS provides the following UDM modules:
+* Source modules:
 
-* ``users/user``
-* ``groups/group``
+  * ``users/user``
+  * ``groups/group``
 
-The OX Connector provides the following UDM modules:
+* Connector-specific modules:
 
-* ``oxmail/oxcontext``
-* ``oxresources/oxresources``
-* ``oxmail/accessprofile``
+  * ``oxmail/oxcontext``
+  * ``oxresources/oxresources``
+  * ``oxmail/accessprofile``
+  * ``oxmail/functional_account``
+  * ``oxmail/shared_account``
+  * ``oxmail/shared_account_permission``
 
-The OX Connector reacts on changes to the listed UDM modules and sends data to the
-SOAP API in OX App Suite.
+The connector processes changes to these modules
+and sends data to the SOAP API in OX App Suite when required.
 
 .. _ox-connector-architecture-ucs-profiles:
 
@@ -150,23 +168,30 @@ Access profiles
 .. index::
    single: udm modules; oxmail/accessprofile
 
-Upon changes in the UDM module ``oxmail/accessprofile``, the connector rewrites
-the local file
-:file:`/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties`
-and doesn't send data to the SOAP API in OX App Suite. The module handles the
-user rights and roles in OX App Suite. Administrators find the *access profiles*
-in UMC in the module LDAP directory at :menuselection:`open-xchange -->
-accessprofile`.
+When the ``oxmail/accessprofile`` UDM module changes,
+the connector rewrites the local file
+:file:`/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties`.
+It doesn't send access-profile data directly to the SOAP API in OX App Suite.
+When the connector provisions a user,
+it applies the access-profile definitions from this file through the SOAP API.
+
+Administrators can find *access profiles*
+in the *Management UI*,
+in the *LDAP directory* module,
+at :menuselection:`open-xchange --> accessprofile`.
 
 .. _ox-connector-architecture-ucs-provisioning:
 
 Provisioning
 ------------
 
-In detail, the provisioning has the following steps, see
-:numref:`sync-procedure`:
+For a visualization of the provisioning process,
+see :numref:`ox-connector-architecture-ucs-provisioning-figure`.
+The following steps describe how the OX Connector provisions changed UDM objects
+to OX App Suite:
 
-#. The :term:`Provisioning Service` detects the change in the LDAP directory
+#. The :term:`Provisioning Service` detects a change
+   in the *Identity Store and Directory Service*
    and sends a message with the UDM object
    through the :term:`Provisioning API`.
 
@@ -174,18 +199,23 @@ In detail, the provisioning has the following steps, see
    the :term:`Provisioning Consumer` receives the message
    and stores it as a task in its SQLite database.
 
-#. The :term:`Provisioning Consumer` processes the tasks in a fixed module
-   order and sends the data of each task
+#. The :term:`Provisioning Consumer` processes tasks in a fixed module order
+   and sends the data for each task
    to the :term:`SOAP API` in OX App Suite.
 
-#. After the :term:`SOAP API` receives and processes the data successfully,
-   the :term:`Provisioning Consumer` stores the state of the object
-   in its database of old entries, see :ref:`db-old-entries`.
+#. After the :term:`SOAP API` successfully processes the data,
+   the :term:`Provisioning Consumer` stores the object state
+   in its database of old entries.
+   For more information, see :ref:`ox-connector-architecture-ucs-database`.
+
+#. After a connection error, the connector stops processing tasks
+   and retries later.
+   For other errors, it moves the task to the morgue.
 
 .. index::
    single: provisioning; procedure
 
-.. _sync-procedure:
+.. _ox-connector-architecture-ucs-provisioning-figure:
 
 .. figure:: /images/OX_Connector_Architecture_Provisioning_Procedure.*
    :target: ../_images/OX_Connector_Architecture_Provisioning_Procedure.svg
@@ -193,7 +223,7 @@ In detail, the provisioning has the following steps, see
 
    Provisioning procedure
 
-.. _synced-attributes:
+.. _ox-connector-architecture-ucs-attributes:
 
 Provisioned attributes
 ======================
@@ -201,25 +231,16 @@ Provisioned attributes
 .. index::
    pair: provisioning; attributes
 
-The :program:`OX Connector` provisions a lot of attributes to OX App Suite. A
-detailed description is beyond the scope of this document.
+The :program:`OX Connector` maps UDM attributes to OX App Suite attributes.
+For information about configuring the user attribute mapping,
+see :ref:`ox-connector-configuration-ucs-user-attribute-mapping`.
 
-The OX Connector comes with the source code. The user attributes for
-provisioning locate in the function :py:func:`update_user()` in
-:file:`univention-ox-provisioning/univention/ox/provisioning/users.py` inside
-the Docker container. To view the attributes, for example with :program:`vim`,
-run the following command on the UCS system with OX Connector installed. Replace
-:samp:`$version` with the proper Python version used in the Connector:
+For the related group, context, and resource provisioning implementations,
+see the following files:
 
-.. code-block:: console
-   :caption: Example for how to view the definition of provisioned attributes.
-
-   $ univention-app shell ox-connector \
-     cat /usr/lib/python"$version"/site-packages/univention/ox/provisioning/users.py \
-     | vim -
-
-Likewise, the attributes for groups, context, and resources locate in the
-respective source files in the ``update_*()`` function.
+* :file:`univention-ox-provisioning/univention/ox/provisioning/groups.py`
+* :file:`univention-ox-provisioning/univention/ox/provisioning/contexts.py`
+* :file:`univention-ox-provisioning/univention/ox/provisioning/resources.py`
 
 .. _ox-connector-architecture-ucs-database:
 
@@ -233,22 +254,35 @@ Database of old entries
 
 .. versionadded:: 3.0.0
 
-:term:`OX App Suite` creates an *internal ID* for every user object it creates
-or updates. The OX Connector saves this *internal ID* in its own database, when it
-processed the objects without errors. The connector doesn't store that ID in the
-UCS LDAP directory, but maintains a database in which it stores the data old
-object's it processed for later reference (i.e., for retrieving the *internal
-ID*)
+:term:`OX App Suite` assigns an *internal ID* to each object that it creates or updates.
+After it successfully processes an object,
+the OX Connector stores the object state, including the internal ID,
+in a local database.
+The connector doesn't store the internal ID in the LDAP directory.
+It uses the local database to retrieve the internal ID when required.
 
 The OX Connector stores its database file at
 :file:`/var/lib/univention-appcenter/apps/ox-connector/data/ox-connector.db`.
 The database contains a table named ``old``.
-Use the command-line interface that the app provides to modify this database.
-For more information,
-see :ref:`app-cli`.
+Don't modify the database file directly.
 
-When the :term:`Provisioning Consumer` updates groups in OX App Suite, the request
-to the :term:`SOAP API` must include the internal ID of all group members. The
-connector would need to ask the database of OX App Suite for the *internal ID*
-of each group member, involving network requests and database queries. To speed
-up the processing, the OX Connector uses the *internal ID* from the database.
+:numref:`ox-connector-architecture-ucs-inspect-pending-tasks`
+shows how to inspect pending tasks on the Nubus for UCS system.
+The command displays a summary of the pending tasks.
+
+.. code-block:: console
+   :name: ox-connector-architecture-ucs-inspect-pending-tasks
+   :caption: Inspect pending OX Connector tasks.
+
+   $ univention-app shell ox-connector \
+     python3 -m univention.ox.provisioning.db summarize-tasks
+
+.. TODO: Refers to a section in troubleshooting. Update with issue #175
+
+   For more information,
+   see :ref:`app-cli`.
+
+When the OX Connector updates a group through the :term:`SOAP API`,
+the request must include the internal ID of each group member.
+The OX Connector uses cached internal IDs from its local database.
+Using cached IDs avoids a remote lookup in OX App Suite for each group member.

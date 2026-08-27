@@ -164,6 +164,10 @@ intersphinx_mapping = {
         "https://docs.software-univention.de/nubus-kubernetes-operation/1.x/en/",
         None,
     ),
+    "uv-nubus-kubernetes-architecture": (
+        "https://docs.software-univention.de/nubus-kubernetes-architecture/1.x/en/",
+        None,
+    ),
     "uv-ucs-architecture": (
         "https://docs.software-univention.de/architecture/5.2/en/",
         None,
