@@ -28,13 +28,28 @@ Suite. The OX connector connects to the OX App Suite SOAP API and creates, updat
 or deletes object entries in OX App Suite depending on what changed in the UCS
 LDAP directory with relevance to OX App Suite.
 
-.. figure:: /images/architecture.*
+.. figure:: /images/OX_Connector_Architecture_Provisioning.*
+   :target: ../_images/OX_Connector_Architecture_Provisioning.svg
    :alt: OX Connector app architecture
 
    OX Connector app architecture
 
-   View focuses on the elements LDAP Directory, Listener, Listener Converter, OX
-   Connector with the provisioning script, OX App Suite, and its SOAP API.
+   View focuses on the elements *Identity Store and Directory Service*, *Directory Manager*,
+   *Provisioning Service*, *Provisioning API*, *OX Connector* with *OX Connector Provisioning
+   Consumer*, *OX App Suite*, and its SOAP API.
+
+   .. dropdown:: Information about architecture notation
+      :color: info
+
+      This page uses the *ArchiMate®* enterprise architecture modeling notation
+      to visualize the architecture of the *OX Connector*.
+      For more information,
+      see :external+uv-ucs-architecture:ref:`architecture-notation-archimate`
+      in :cite:t:`uv-ucs-architecture`.
+
+      *ArchiMate®* is a registered trademark of The Open Group.
+      The diagrams are independently created by Univention GmbH
+      and aren't endorsed or certified by The Open Group.
 
 .. glossary::
 
@@ -154,7 +169,8 @@ In detail, the provisioning has the following steps, see
 
 .. _sync-procedure:
 
-.. figure:: /images/sync-procedure.*
+.. figure:: /images/OX_Connector_Architecture_Provisioning_Procedure.*
+   :target: ../_images/OX_Connector_Architecture_Provisioning_Procedure.svg
    :alt: provisioning procedure
 
    Provisioning procedure
