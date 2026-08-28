@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 27. Aug 2026
+     - :ref:`ox-connector-architecture-ucs`
+     - Add architecture description for OX Connector on Nubus for UCS.
+
    * - 12. Aug 2026
      - :ref:`ox-connector-configuration-kubernetes`
      - Add generated Helm Chart values reference for the *OX Connector*
