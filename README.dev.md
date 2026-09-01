@@ -113,3 +113,16 @@ Run consumer and tests, the tests must run in the same container because they sh
 docker compose run --remove-orphans dev kubernetes jburgmeier-ox run
 docker compose run --remove-orphans dev kubernetes jburgmeier-ox test -s -v
 ```
+
+
+# Use case: Manual management of contexts
+
+There is an edge case in which an Administrator/operator don't want to provide the admin password
+of OpenXchange.
+
+In this case the file for managing contexts the UCS one is in `/var/lib/univention-appcenter/apps/ox-connector/data/secrets/contexts.json`
+for K8s the file is mounted in `/etc/ox-secrets/ox-contexts.json`
+
+Modifying those files required a restart of the pod/application.
+
+Using this undocumented feature might be handy in some case.
