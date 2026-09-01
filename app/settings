@@ -129,3 +129,12 @@ Show = Install, Settings
 Type = Int
 Required = False
 InitialValue = 3
+
+[ox/connector/provisioning-server]
+Description = Fully qualified domain name (FQDN) of the Provisioning Service host. If left empty, the Primary Directory Node is used.
+Description[de] = Vollqualifizierter Domainname (FQDN) des Provisioning-Service-Hosts. Wenn das Feld leer bleibt, wird der Primary Directory Node verwendet.
+Show = Install, Upgrade
+ShowReadOnly = Settings
+Type = String
+InitialValue = @%@ldap/master@%@
+Scope = outside

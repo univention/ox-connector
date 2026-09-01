@@ -44,6 +44,11 @@ setup_provisioning_subscriptions() {
   {"realm":"udm", "topic":"oxmail/shared_account"},
   {"realm":"udm", "topic":"oxmail/shared_account_permission"}
 ]'
+    local provisioning_server="$(ucr get ox/connector/provisioning-server)"
+    if [[ -z "${provisioning_server}" ]]; then
+        provisioning_server="$(ucr get ldap/master)"
+        ucr set "ox/connector/provisioning-server=${provisioning_server}"
+    fi
 
     mkdir --parent "$(dirname "${subscription_file}")"
     mkdir --parent "$(dirname "${app_provisioning_env_file}")"
@@ -61,7 +66,7 @@ setup_provisioning_subscriptions() {
     fi
 
     "${PROVISIONING_CLIENT}" subscribe \
-        --provisioning-server "$(ucr get ldap/master)" \
+        --provisioning-server "${provisioning_server}" \
         --subscription-file "${subscription_file}" \
         --topics "${topics}" \
         "${prefill_args[@]}" \

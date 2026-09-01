@@ -74,7 +74,7 @@ purge_subscription() {
     local provisioning_client="/var/lib/univention-appcenter/apps/${APP_ID}/data/resources/univention-provisioning-service-client"
 
     "${provisioning_client}" unsubscribe \
-        --provisioning-server "$(ucr get ldap/master)" \
+        --provisioning-server "$(ucr get ox/connector/provisioning-server)" \
         --subscription-file "${subscription_file}" \
         "${@}" || die "Failed to remove the Provisioning subscription"
 
