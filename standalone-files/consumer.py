@@ -9,6 +9,7 @@ import json
 import socket
 import sys
 import traceback
+import time
 from importlib.metadata import version
 
 # internal
@@ -292,6 +293,7 @@ class OXConsumer:
         Stops on error when stop_on_error is True or when the failing task is an oxcontext task;
         otherwise the task is moved to the morgue and processing continues.
         """
+        log_level = get_ox_consumer_settings().log_level
         while db.contain_tasks():
             for udm_module, empty_attributes in TASK_PROCESSING_ORDER:
                 for task in db.get_tasks(udm_module, empty_attributes):
@@ -337,12 +339,23 @@ class OXConsumer:
                         run(obj)
                     except (HTTPError, ConnectionError, Timeout) as exc:
                         logger.error("Error while handling", task=task)
-                        db.increment_error_count(task.id)
+                        error_count = db.increment_error_count(task.id)
                         logger.exception(exc)
                         # Connection errors always stop processing
-                        return
+                        # sleep for increments
+                        delay = error_count * 5 if error_count < 240 else 1200
+                        if log_level == 'DEBUG':
+                            logger.debug("Skipping sleep for faster debugging")
+                        else:
+                            logger.info(
+                                "Waiting for retry. In case you want to retry now, restart the connector",
+                                delay=delay,
+                            )
+                            db.commit()
+                            time.sleep(delay)
+                        break
                     except Exception as exc:
-                        db.increment_error_count(task.id)
+                        error_count = db.increment_error_count(task.id)
                         logger.error("Error while handling", task=task)
                         logger.exception(exc)
                         if (
@@ -350,7 +363,22 @@ class OXConsumer:
                             or task.udm_module == "oxmail/oxcontext"
                         ):
                             # oxcontext failures always stop; others respect stop_on_error
-                            return
+                            # sleep for increments
+                            delay = (
+                                error_count * 5 if error_count < 240 else 1200
+                            )
+                            if log_level == 'DEBUG':
+                                logger.debug(
+                                    "Skipping sleep for faster debugging",
+                                )
+                            else:
+                                logger.info(
+                                    "Waiting for retry. In case you want to retry now, restart the connector",
+                                    delay=delay,
+                                )
+                                db.commit()
+                                time.sleep(delay)
+                            break
                         db.move_task_to_morgue(task.id, traceback.format_exc())
                         # Continue to next task after morgue
                         continue
@@ -431,6 +459,12 @@ async def _run_consumer_with_guard(provisioning_consumer_client=None):
 
     settings = get_ox_consumer_settings()
     setup_logging(level=settings.log_level, request_id_func=get_job_id)
+
+    if settings.log_level == "DEBUG":
+        import logging
+
+        logging.getLogger("zeep").setLevel(logging.DEBUG)
+        logging.getLogger("zeep.transports").setLevel(logging.DEBUG)
 
     # Initialize the SQL database
     logger.info(
