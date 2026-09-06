@@ -25,3 +25,29 @@ class TestOxMasterPasswordSecret(SecretPasswords):
 
     def values(self, localpart: dict) -> dict:
         return {"openXchange": localpart}
+
+
+class TestDbConnectionStringSecret(SecretPasswords):
+    """The connection URL is the credential of this Secret.
+
+    The harness drives `auth.password` and `auth.existingSecret`; they map onto
+    `openXchange.oxDbConnectionString` and `openXchange.database.existingSecret`.
+    """
+
+    template_file = "templates/secret-db-connection-string.yaml"
+    secret_key = "OX_CONNECTOR_DB"
+
+    def values(self, localpart: dict) -> dict:
+        auth = localpart.get("auth", {})
+        open_xchange = {}
+        if "password" in auth:
+            open_xchange["oxDbConnectionString"] = auth["password"]
+        if "existingSecret" in auth:
+            existing_secret = dict(auth["existingSecret"])
+            key_mapping = existing_secret.pop("keyMapping", None)
+            if key_mapping is not None:
+                existing_secret["keyMapping"] = {
+                    "OX_CONNECTOR_DB": key_mapping.get("password"),
+                }
+            open_xchange["database"] = {"existingSecret": existing_secret}
+        return {"openXchange": open_xchange}
