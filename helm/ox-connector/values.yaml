@@ -109,7 +109,18 @@ openXchange:
   # -- Enable provisioning of OX shared accounts.
   oxSharedAccount: true
   # -- SQLAlchemy DB connection URL for the OX connector.
+  # Ignored if "openXchange.database.existingSecret.name" is set.
   oxDbConnectionString: null
+  database:
+    existingSecret:
+      # -- Name of an existing Secret that contains the SQLAlchemy DB connection URL.
+      # The value in "openXchange.oxDbConnectionString" is ignored if this value is set.
+      # Providing the URL this way keeps the database password out of the rendered manifests.
+      name: null
+      keyMapping:
+        # -- Key in the existing Secret that holds the connection URL.
+        # Defaults to the key the chart uses in its own Secret.
+        OX_CONNECTOR_DB: null
   mappings:
     # -- UDM user property that the connector uses as the unique user identifier in OX.
     userIdentifier: "username"
