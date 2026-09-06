@@ -25,3 +25,9 @@ class TestOxMasterPasswordSecret(SecretPasswords):
 
     def values(self, localpart: dict) -> dict:
         return {"openXchange": localpart}
+
+class TestDbConnectionStringSecret(SecretPasswords):
+    template_file = "templates/secret-db-connection-string.yaml"
+
+    def values(self, localpart: dict) -> dict:
+        return {"openXchange": localpart}

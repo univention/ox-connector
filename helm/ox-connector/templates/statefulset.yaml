@@ -80,9 +80,12 @@ spec:
           envFrom:
              - configMapRef:
                  name: {{ include "common.names.fullname" . }}
-             - secretRef:
-                 name: {{ include "common.names.fullname" . }}-db-connection-string
           env:
+            - name: "OX_CONNECTOR_DB"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.database.existingSecret "defaultNameSuffix" "db-connection-string" "context" .) | quote }}
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.database.existingSecret "key" "OX_CONNECTOR_DB") | quote }}
             - name: PROVISIONING_API_RESYNC_ENABLED
               value: {{ .Values.provisioningApi.resync.enabled | quote }}
             {{- if .Values.provisioningApi.resync.enabled }}
@@ -126,14 +129,17 @@ spec:
                 secretKeyRef:
                   key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.auth.existingSecret "key" "password") | quote }}
                   name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.auth.existingSecret "defaultNameSuffix" "ox-master-password" "context" .) | quote }}
+            - name: "OX_CONNECTOR_DB"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.database.existingSecret "defaultNameSuffix" "db-connection-string" "context" .) | quote }}
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.database.existingSecret "key" "OX_CONNECTOR_DB") | quote }}
           {{- with .Values.oxConnector.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
-            - secretRef:
-                name: {{ include "common.names.fullname" . }}-db-connection-string
           volumeMounts:
             - name: {{ include "common.names.fullname" . }}-ox-contexts
               mountPath: /etc/ox-secrets
