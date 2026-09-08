@@ -22,14 +22,8 @@ Benutzer und Gruppen müssen explizit für OX freigeschaltet werden, ansonsten w
 <p>
 </p>
 <p>
-	Die OX Connector App geht davon aus, die OX-Kontexte selbst zu verwalten. Für Kontexte, die bereits zuvor angelegt worden sind, muss folgendes gemacht werden: Der Kontext-Admin muss  "oxadmin-context<i>$id</i>" heißen und das Passwort in diese Datei geschrieben werden: <i>/var/lib/univention-appcenter/apps/ox-connector/data/secrets/context<i>$id</i></i>. Eine Ausnahme ist der Standard-Kontext, bei dem der Kontext-Admin "oxadmin" heißt. Das ist es, was die App macht und was sie auch erwartet.
-</p>
-<p>
 	Ein Standard-Kontext kann in den App-Einstellungen konfiguriert werden. Er wird für neue Benutzer und Ressourcen verwendet. Die App erstellt diesen Standard-Kontext allerdings nicht automatisch.
 </p>
 <p>
 	Ein Benutzer-Template wird hinzugefügt. Es kann (und sollte) für neue Benutzer genutzt werden, wenn dieser in OX angelegt werden soll. Das Template enthält auch den Wert des Deafult-Kontextes. Sollte der geändert werden, muss man das Template ebenso anpassen.
-</p>
-<p>
-	Die Log-Datei <i>/var/log/univention/listener_modules/ox-connector.log</i> sollte alle Informationen enthalten, falls die Provisionierung zum erliegen kommt. Die Daten, auf denen die App operiert, finden sich hier: <i>/var/lib/univention-appcenter/apps/ox-connector/data/listener/</i>.
 </p>

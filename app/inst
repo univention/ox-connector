@@ -40,7 +40,7 @@ set -o errexit
 # Don't hide errors within pipes
 set -o pipefail
 
-VERSION=22
+VERSION=23
 APP_ID="ox-connector"
 SERVICE='ox'
 
@@ -99,7 +99,7 @@ clean_old_provisioning () {
   # This function should remove:
   #   - listeners (this is only useful for updates, if appsuite was removed
   #   the listeners doesn't exist)
-  find /usr/lib/univention-directory-listener/system -type l -name 'ox-*.py' -delete
+  univention-app register ox-connector --listener --undo-it --force-undo-listener
 
   #   - udm modules
   unregister_ldap_extension "${@}" -- --udm_module oxmail/oxcontext

@@ -101,12 +101,6 @@ class BackendMetaClass(type):
                 kls._object_type,
                 kls,
             )
-            cls.local_logger.debug(
-                'Registered class for backend and object type.',
-                registered_class=cls.__name__,
-                backend=kls._backend,
-                object_type=kls._object_type,
-            )
         return kls
 
 

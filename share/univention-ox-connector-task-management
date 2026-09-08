@@ -208,21 +208,37 @@ def search_tasks(
     Search items from the tasks database (queue of current tasks). Items found
     can be printed in different formats ("simple" or "fuller" or "json")
     """
+    json_output = []
     for task in db.get_tasks():
-        print("DN:", task.dn)
-        print("Object Identifier:", task.obj_id)
-        print("UDM module:", task.udm_module)
-        print("ID (database):", task.id)
-        print("Created at:", task.created_at)
-        print("Status:", task.status)
-        print("Error count:", task.num_errors)
-        if task.attrs:
-            print("Attributes:")
-            for name, value in sorted(json.loads(task.attrs).items()):
-                print(" ", name, ":", value)
+        if output_format == "json":
+            json_output.append(
+                {
+                    "db_id": task.id,
+                    "univention_object_identifier": task.obj_id,
+                    "dn": task.dn,
+                    "udm_module": task.udm_module,
+                    "attrs": json.loads(task.attrs),
+                    "num_errors": task.num_errors,
+                },
+            )
+        else:
+            print("DN:", task.dn)
+            print("Object Identifier:", task.obj_id)
+            print("UDM module:", task.udm_module)
+            print("ID (database):", task.id)
+            print("Created at:", task.created_at)
+            print("Status:", task.status)
+            print("Error count:", task.num_errors)
+            if output_format == "fuller" and task.attrs:
+                print("Attributes:")
+                for name, value in sorted(json.loads(task.attrs).items()):
+                    print(" ", name, ":", value)
             print("-")
         if first:
             break
+
+    if output_format == "json":
+        print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
 def move_task_to_morgue(db: DBSession, task_id: int, error_msg: str) -> None:
@@ -283,21 +299,34 @@ def search_old(
 ) -> None:
     """
     Search an item from the old table. It contains data the Connector has
-    stored for item the last time it was processed successfully from the tasks
-    table. Note: If the task was to delete, so was the item in the old table.
-    Output can be either "simple" or "json".
+    stored for that item the last time it was processed successfully from the
+    tasks table. Note: If the task was to delete, so was the item in the old
+    table. Output can be either "simple" or "json".
     """
+    json_output = []
     obj_id = obj_id.replace("*", "%")
     olds = db.session.query(Old).filter(Old.obj_id.like(obj_id)).all()
     for old in olds:
-        print("DN:", old.dn)
-        print("Object Identifier:", old.obj_id)
-        print("UDM module:", old.udm_module)
-        print("ID (database):", old.id)
-        print("Attributes:")
-        for name, value in sorted(json.loads(old.attrs).items()):
-            print(" ", name, ":", value)
-        print("-")
+        if output_format == "json":
+            json_output.append(
+                {
+                    "id": old.obj_id,
+                    "udm_object_type": old.udm_module,
+                    "dn": old.dn,
+                    "object": json.loads(old.attrs),
+                },
+            )
+        else:
+            print("DN:", old.dn)
+            print("Object Identifier:", old.obj_id)
+            print("UDM module:", old.udm_module)
+            print("ID (database):", old.id)
+            print("Attributes:")
+            for name, value in sorted(json.loads(old.attrs).items()):
+                print(" ", name, ":", value)
+            print("-")
+    if output_format == "json":
+        print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
 def search_morgue(
@@ -309,14 +338,37 @@ def search_morgue(
     Search items in the morgue db. Items found can be printed in different
     formats ("simple" or "fuller" or "json")
     """
+    json_output = []
     for error in db.get_errors(obj_id=obj_id):
-        print("DN:", error.dn)
-        print("Object Identifier:", error.obj_id)
-        print("UDM module:", error.udm_module)
-        print("ID (database):", error.id)
-        print("Error occurred:", error.timestamp)
-        print("Error:", error.error_msg.splitlines()[-1])
-        print("-")
+        if output_format == "json":
+            json_output.append(
+                {
+                    "db_id": error.id,
+                    "univention_object_identifier": error.obj_id,
+                    "dn": error.dn,
+                    "udm_module": error.udm_module,
+                    "attrs": json.loads(error.attrs),
+                    "error": error.error_msg,
+                },
+            )
+        else:
+            print("DN:", error.dn)
+            print("Object Identifier:", error.obj_id)
+            print("UDM module:", error.udm_module)
+            print("ID (database):", error.id)
+            print("Error occurred:", error.timestamp)
+            if output_format == "simple":
+                print("Error: ", error.error_msg.splitlines()[-1])
+            else:
+                print("Attributes:")
+                for name, value in sorted(json.loads(error.attrs).items()):
+                    print(" ", name, ":", value)
+                print("Error:")
+                for line in error.error_msg.splitlines():
+                    print("  ", line)
+            print("-")
+    if output_format == "json":
+        print(json.dumps(json_output, sort_keys=True, indent=2))
 
 
 def retry_from_morgue(db: DBSession, obj_id: str) -> None:
@@ -326,6 +378,7 @@ def retry_from_morgue(db: DBSession, obj_id: str) -> None:
     been / will not be synchronized with a more recent set of attributes as
     these would be overwritten by this retry (e.g., do not "retry" while a
     "resync" is still in the tasks db). If more than one item matches, all
+    items are retried.
     """
     db.retry_from_morgue(obj_id)
     _run_process_all_tasks(db)

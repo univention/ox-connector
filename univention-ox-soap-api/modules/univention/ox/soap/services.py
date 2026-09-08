@@ -54,7 +54,6 @@
 
 from __future__ import absolute_import
 from __future__ import annotations
-from lancelog import logger
 
 try:
     from typing import Any, Optional, List, TYPE_CHECKING, Union
@@ -140,11 +139,6 @@ class OxServiceMetaClass(type):
         )  # type: Type[OxSoapService]
         if issubclass(kls, OxSoapService) and getattr(kls, '_type_name'):
             register_ox_service_class(kls._type_name, kls)
-            logger.debug(
-                'Registered class for service type.',
-                registered_class=cls.__name__,
-                service=kls._type_name,
-            )
         return kls
 
 
