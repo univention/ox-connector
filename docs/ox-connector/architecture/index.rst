@@ -13,3 +13,4 @@ Architecture
 .. toctree::
 
    ucs
+   kubernetes
