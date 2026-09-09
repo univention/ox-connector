@@ -4,9 +4,9 @@
 
 .. _ox-connector-architecture-ucs:
 
-******************************
-Architecture for Nubus for UCS
-******************************
+*****************
+For Nubus for UCS
+*****************
 
 The :program:`OX Connector` app architecture includes the following elements:
 
@@ -46,6 +46,7 @@ see :numref:`ox-connector-architecture-ucs-overview-figure`.
 
    .. dropdown:: Information about architecture notation
       :color: info
+      :icon: info
 
       This page uses the *ArchiMate®* enterprise architecture modeling notation
       to visualize the architecture of the *OX Connector*.
@@ -105,8 +106,9 @@ see :numref:`ox-connector-architecture-ucs-overview-figure`.
       and running remote procedure calls.
       The connector uses the SOAP API to create, update, or delete OX App Suite objects.
 
-.. dropdown:: OX Connector app architecture in more detail
-   :color: success
+.. dropdown:: For OX Connector app architecture in more detail, click to open.
+   :color: info
+   :icon: zoom-in
 
    :numref:`ox-connector-architecture-ucs-detail-figure`
    includes the *Provisioning Service* with all its parts
