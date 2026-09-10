@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: 2023-2026 Univention GmbH
 
 # Source provisioning env file if present
+APP_ID="ox-connector"
 APP_CONF="/var/lib/univention-appcenter/apps/ox-connector/conf"
 PROVISIONING_ENV="$APP_CONF/provisioning.env"
 if [[ -f "$PROVISIONING_ENV" ]]; then
