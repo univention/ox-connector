@@ -8,22 +8,31 @@
 For Nubus for Kubernetes
 ************************
 
-The :program:`OX Connector` provisions selected identity data from Nubus for Kubernetes
-into OX App Suite.
-It receives directory changes through the Provisioning API
-and sends create, update, and delete requests to the OX App Suite SOAP API.
+The :program:`OX Connector` provisions selected identity data
+from Nubus for Kubernetes into *OX App Suite*.
+It receives directory changes through the *Provisioning API*.
+It sends create, update, and delete requests to the *OX App Suite SOAP API*.
+
+Before you continue reading, ensure you know :ref:`ox-connector-architecture-common`.
 
 .. _ox-connector-architecture-kubernetes-overview:
 
 Overview
 ========
 
-The :program:`OX Connector` runs as an OX Consumer in the Kubernetes cluster.
-The consumer receives changes to selected Univention Directory Manager (UDM) modules
-from the Provisioning Service.
-It processes the changes and provisions the corresponding OX App Suite objects.
+The :program:`OX Connector` runs as an *OX Connector Provisioning Consumer* in the Kubernetes cluster.
+The consumer receives changes from the *Provisioning Service*
+for selected Univention Directory Manager (UDM) modules.
+It processes the changes and provisions the corresponding *OX App Suite* objects.
 :numref:`ox-connector-architecture-kubernetes-components-figure`
-shows the components and their boundaries.
+shows the following components, their boundaries, and dependencies:
+
+#. :term:`Identity Store and Directory Service`
+#. :term:`Directory Manager`
+#. :term:`Provisioning Service`
+#. :term:`Provisioning API`
+#. :term:`OX Connector Provisioning Consumer`
+#. :term:`OX App Suite`
 
 .. _ox-connector-architecture-kubernetes-components-figure:
 
@@ -33,67 +42,37 @@ shows the components and their boundaries.
 
    OX Connector components for Nubus for Kubernetes
 
-   The diagram shows identity data flowing from the
-   *Identity Store and Directory Service* through *Directory Manager*,
-   *Provisioning Service*, *Provisioning API*, and the *OX Consumer*
-   to *OX App Suite*.
-
-   .. dropdown:: Information about architecture notation
-      :color: info
-      :icon: info
-
-      This page uses the *ArchiMate®* enterprise architecture modeling notation
-      to visualize the OX Connector architecture.
-      For more information,
-      see :external+uv-ucs-architecture:ref:`architecture-notation-archimate`
-      in :cite:t:`uv-ucs-architecture`.
-
-      *ArchiMate®* is a registered trademark of The Open Group.
-      The diagrams are independently created by Univention GmbH
-      and aren't endorsed or certified by The Open Group.
-
 .. glossary::
 
-   OX Consumer
-      The *OX Consumer* is the OX Connector component that receives provisioning messages,
-      stores work in the connector database, and provisions OX App Suite objects.
-
    Subscription
-      A *subscription* defines the Provisioning Service topics
-      for which the OX Consumer receives messages.
+      A *subscription* defines the *Provisioning Service* topics
+      for which the *OX Connector Provisioning Consumer* receives messages.
 
-   PostgreSQL DB: OX Connector
+   PostgreSQL database: OX Connector
       The :term:`OX Connector Provisioning Consumer` requires a PostgreSQL database
       for the task queue and object state.
-      It helps the connector to keep up on the objects in case of synchronization errors.
-      The database isn't part of the OX Connector deployment.
+      The database helps the connector keep track of objects
+      when synchronization errors occur.
+      The database isn't part of the *OX Connector* deployment.
 
-Besides the listed components,
-the architecture contains the following ones, described separately
-in the architecture overview for Nubus for UCS.
-They have the same functionality in both deployments:
-
-* :term:`Identity Store and Directory Service`
-* :term:`Provisioning Service`
-* :term:`Provisioning API`
-* :term:`SOAP API`
-* :term:`OX App Suite`
+For descriptions of shared components,
+see :ref:`ox-connector-architecture-common`.
 
 .. _ox-connector-architecture-kubernetes-deployment:
 
 Deployment
 ==========
 
-You deploy the OX Connector as a Helm release in the Kubernetes cluster.
-The release creates a StatefulSet with a main OX Consumer container,
-a container that waits for the Provisioning API,
-and an initialization container that prepares the connector database.
-The consumer uses a configured SQL database for its task queue and object state.
-:numref:`ox-connector-architecture-kubernetes-deployment-figure`
-shows the deployment view of the components for the OX Connector.
+You deploy the *OX Connector* as a Helm release in the Kubernetes cluster.
+The release creates a StatefulSet with the following containers:
 
-The OX Connector connects to the Provisioning API within the cluster.
-Nubus for Kubernetes doesn't expose the Provisioning API outside the cluster.
+* A main OX Connector container
+* A container that waits for the *Provisioning API*
+* An initialization container that prepares the connector database
+
+The consumer uses a configured PostgreSQL database for its task queue and object state.
+:numref:`ox-connector-architecture-kubernetes-deployment-figure`
+shows the deployment of the *OX Connector* components.
 
 .. _ox-connector-architecture-kubernetes-deployment-figure:
 
@@ -101,14 +80,17 @@ Nubus for Kubernetes doesn't expose the Provisioning API outside the cluster.
    :target: ../_images/OX_Connector_Architecture_Kubernetes_deployment.svg
    :alt: OX Connector image and wait-for-dependency image running in the OX Connector pod with its database.
 
-   Deployment view for OX Connector components
+   Deployment view for *OX Connector* components
 
 .. _ox-connector-architecture-kubernetes-how-it-works:
 
-How the consumer works
-======================
+OX Connector Provisioning Consumer behavior
+===========================================
 
-The OX Consumer processes one provisioning message at a time.
+The *OX Connector* connects to the *Provisioning API* within the cluster.
+Nubus for Kubernetes doesn't expose the *Provisioning API* outside the cluster.
+
+The :term:`OX Connector Provisioning Consumer` processes one provisioning message at a time.
 :numref:`ox-connector-architecture-kubernetes-behavior-figure`
 shows the main processing flow.
 
@@ -120,38 +102,47 @@ shows the main processing flow.
 
    OX Consumer provisioning flow
 
-The following steps describe the provisioning flow:
+The following list describes the provisioning flow:
 
-#. A change to a selected UDM object creates an event in the Provisioning Service.
+#. A change to a subscribed UDM object creates an event in the *Provisioning Service*.
 
-#. The Provisioning API sends the event to the OX Consumer subscription.
+#. The *Provisioning API* sends the event to the *OX Consumer* subscription.
 
-#. The OX Consumer stores the event as a task in its database.
+#. The *OX Consumer* stores the event as a task in its database.
 
-#. The consumer processes pending tasks in a fixed module order and sends the data
-   to the SOAP API in OX App Suite.
+#. The consumer processes the event and sends its data to the *SOAP API* in *OX App Suite*.
 
 #. After successful processing, the consumer stores the object state in its database.
 
-When the message handler returns,
-the Provisioning API acknowledges the message.
+When the message handler returns successfully,
+the *Provisioning API* acknowledges the message.
 If an exception escapes the message handler,
-the message isn't acknowledged and the Provisioning API redelivers it.
-The consumer process then stops so that Kubernetes can restart it
-with fresh network connections.
+the *Provisioning API* doesn't acknowledge the message and redelivers it.
+The consumer process then stops.
+Kubernetes restarts the process with fresh network connections.
 
 The consumer processes context changes before dependent object types.
-It then processes access profiles, users, groups, functional accounts,
-shared account permissions, shared accounts, resources, and context deletions.
+It then processes the following object types:
 
-.. dropdown:: For OX Consumer processing in more detail, click to open.
+* Context changes
+* Access profiles
+* Users
+* Groups
+* Functional accounts
+* Shared account permissions
+* Shared accounts
+* Resources
+* Context deletions
+
+.. dropdown:: Detailed OX Connector Provisioning Consumer processing, click to open.
    :color: info
    :icon: zoom-in
 
    :numref:`ox-connector-architecture-kubernetes-details-figure`
-   shows the task queue, the database of old entries, and the SOAP provisioning step.
-   The diagram also shows the relation between the Provisioning API,
-   the OX Consumer, and OX App Suite.
+   shows the task queue, the database for *OX Connector*,
+   and the SOAP provisioning step.
+   The diagram also shows the relation between the *Provisioning API*,
+   the *OX Consumer*, and *OX App Suite*.
 
    .. _ox-connector-architecture-kubernetes-details-figure:
 
@@ -161,36 +152,29 @@ shared account permissions, shared accounts, resources, and context deletions.
 
       Detailed OX Consumer provisioning flow
 
-      Click to zoom the view.
+      Click the diagram to zoom in.
 
 .. _ox-connector-architecture-kubernetes-attributes:
 
 Provisioned attributes
 ======================
 
-The OX Consumer uses the same default user attribute mapping
-as the OX Connector app for Nubus for UCS.
-The mapping provisions user names, email addresses and aliases,
-business and personal contact details, organization and address data,
-profile images, dates, mailbox quotas, IMAP and SMTP servers,
-and user-defined fields.
-
-For information about the shared user attribute mapping,
-see :ref:`ox-connector-architecture-ucs-attributes`.
+For information about provisioned attributes,
+see :ref:`ox-connector-architecture-common`.
 
 .. _ox-connector-architecture-kubernetes-database:
 
-Database of old entries
-=======================
+Database of stored object state
+===============================
 
-The OX Consumer stores pending tasks and object state
-in the configured SQL database.
-An initialization container prepares the database
-when the OX Connector starts.
+The :term:`OX Connector Provisioning Consumer` stores pending tasks
+and object state in the configured SQL database.
+An initialization container prepares the database when the *OX Connector* starts.
 
 When the ``old`` and ``tasks`` tables are empty,
-the initialization container requests a prefill
-from the Provisioning Service.
+the initialization container requests a *prefill* from the *Provisioning Service*.
+It skips the request if its configuration doesn't enable resynchronization
+or if it can't access the required credentials.
 
-For information about the database tables and their purpose,
-see :ref:`ox-connector-architecture-ucs-database`.
+For information about stored object state and OX internal IDs,
+see :ref:`ox-connector-architecture-common`.
