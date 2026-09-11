@@ -26,7 +26,7 @@ spec:
         a valid value for the call to "git clone".
       type: string
     ox-lab-ref:
-      default: "ci-0.0.2"
+      default: "fix/CRD-openebs"
       description: |
         Branch or tag name to use when cloning the ox operations-guide
         repository.
@@ -35,7 +35,7 @@ spec:
         clone".
       type: string
     ox-app-suite-chart-version:
-      default: "8.48.481"
+      default: "8.51.777"
       description: |
         The version of the appsuite chart to use for the deployment. For example
         for shared account support we need >= 8.48
@@ -106,6 +106,7 @@ spec:
       dovecot_cert_name: "certificates-ci-tls"
       grafana_cert_name: "certificates-ci-tls"
       prometheus_cert_name: "certificates-ci-tls"
+      zenko_cert_name: "certificates-ci-tls"
 
       # No contexts to be provisioned
       do_provisioning: false
@@ -173,7 +174,7 @@ spec:
       yq -y -i
       ".dependencies |= map(select(.name == \"appsuite\").version = \"${OX_APP_SUITE_CHART_VERSION}\")"
       dependencies.yml
-    - python3 render.py -f ../lab.nubus-ci.yml
+    - python3 render.py --rendered rendered/lab.nubus-ci -f ../lab.nubus-ci.yml
     - rm -fr .git __pycache__
     - popd
   variables:

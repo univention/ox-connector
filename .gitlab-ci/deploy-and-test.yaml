@@ -222,6 +222,7 @@ collect-k8s-skip-tests:
     LDAP_BASE: dc=univention-organization,dc=intranet
     DEFAULT_CONTEXT: 10
     PORTAL_HOST: ${DEPLOY_SUBDOMAIN}.portal.review.univention.dev
+    OX_CONNECTOR_DB: postgresql://stub-user:stub-password@nubus-postgresql.${DEPLOY_NAMESPACE}.svc.cluster.local:5432/stub-database
 
 
 test-no-resync:
