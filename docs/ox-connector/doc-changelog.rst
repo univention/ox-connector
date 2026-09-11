@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 09. Sep 2026
+     - :ref:`ox-connector-architecture-kubernetes`
+     - Add architecture description for OX Connector on Nubus for Kubernetes.
+
    * - 27. Aug 2026
      - :ref:`ox-connector-architecture-ucs`
      - Add architecture description for OX Connector on Nubus for UCS.
