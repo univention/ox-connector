@@ -45,7 +45,7 @@ def read_version_from_ci() -> str:
         # This allows to build locally,
         # but also take the dynamic pipeline settings into account.
         return os.environ.get(
-            "DOCKER_BUILD_VERSION",
+            "DOC_TARGET_VERSION",
             ci.get("variables").get("APPCENTER_VERSION"),
         )
 

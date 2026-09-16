@@ -270,13 +270,11 @@ trigger-docs:
       when: "never"
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       variables:
-        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}-dev"
-        DOC_TARGET_VERSION: "${DOCKER_BUILD_VERSION}"
+        DOC_TARGET_VERSION: "${APPCENTER_VERSION}"
       changes: *changes-docs
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
-        DOCKER_BUILD_VERSION: "${APPCENTER_VERSION}"
-        DOC_TARGET_VERSION: "${DOCKER_BUILD_VERSION}"
+        DOC_TARGET_VERSION: "${APPCENTER_VERSION}"
       changes: *changes-docs
       when: "manual"
 
