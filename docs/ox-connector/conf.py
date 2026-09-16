@@ -188,6 +188,10 @@ latex_elements = {
     "papersize": "a4paper",
 }
 
+linkcheck_ignore = [
+    r"^../_images/[\w-]+\.svg$",
+]
+
 git_untracked_show_sourcelink = True
 
 # See Univention Sphinx Extension for its options.
