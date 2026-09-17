@@ -17,9 +17,6 @@ and *OX App Suite* meet the prerequisites.
 OX App Suite server
 ===================
 
-.. index::
-   single: prerequisites; OX App Suite
-
 The *OX App Suite* server must meet the following prerequisites:
 
 #. **Installed OX App Suite instance**
@@ -89,9 +86,6 @@ The *OX App Suite* server must meet the following prerequisites:
 OX Connector app in Univention App Center
 =========================================
 
-.. index::
-   single: prerequisites; ucs domain
-
 The *OX Connector* app from Univention App Center
 needs the *referential integrity* overlay
 in the central LDAP directory.
@@ -107,20 +101,12 @@ see :cite:t:`openldap-referential-integrity-overlay`.
 
    .. tab-item:: OX Connector on UCS Primary Directory Node
 
-      .. index::
-         single: ox connector; primary directory node
-         single: installation; primary directory node
-
       If you install the *OX Connector* app from Univention App Center
       on :external+uv-ucs-operation:term:`UCS Primary Directory Node`,
       the app activates the *referential integrity* overlay.
       You don't need to take further action.
 
    .. tab-item:: OX Connector on other system roles
-
-      .. index::
-         single: ox connector; other system roles
-         single: installation; other system roles
 
       If you install the *OX Connector* app from Univention App Center
       on a Nubus for UCS system role other than the

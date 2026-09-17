@@ -72,16 +72,6 @@ shows the following components, their boundaries, and dependencies:
 How the connector works
 =======================
 
-.. index::
-   single: udm modules
-   single: provisioning
-   see:  synchronization; provisioning
-   see: UDM; udm modules
-   single: udm modules; users/user
-   single: udm modules; groups/group
-   single: udm modules; oxmail/oxcontext
-   single: udm modules; oxresources/oxresources
-
 Univention Directory Manager (UDM) is an object layer
 on top of the LDAP directory in UCS.
 The OX Connector reacts to changes in the following UDM modules:
@@ -107,9 +97,6 @@ and sends data to the SOAP API in OX App Suite when required.
 
 Access profiles
 ---------------
-
-.. index::
-   single: udm modules; oxmail/accessprofile
 
 When the ``oxmail/accessprofile`` UDM module changes,
 the connector rewrites the local file
@@ -155,9 +142,6 @@ to OX App Suite:
    and retries later.
    For other errors, it moves the task to the morgue.
 
-.. index::
-   single: provisioning; procedure
-
 .. _ox-connector-architecture-ucs-provisioning-figure:
 
 .. figure:: /images/OX_Connector_Architecture_Provisioning_Procedure.*
@@ -170,9 +154,6 @@ to OX App Suite:
 
 Provisioned attributes
 ======================
-
-.. index::
-   pair: provisioning; attributes
 
 For information about configuring the user attribute mapping,
 see :ref:`ox-connector-configuration-ucs-user-attribute-mapping`.
@@ -188,11 +169,6 @@ see the following files:
 
 Database of stored object state
 ===============================
-
-.. index::
-   single: cache
-   single: OX App Suite; internal ID
-   pair: JSON; cache
 
 .. versionadded:: 3.0.0
 

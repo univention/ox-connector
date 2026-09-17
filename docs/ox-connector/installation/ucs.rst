@@ -34,15 +34,8 @@ You can install the app in Nubus for UCS in the following ways:
 Install with a web browser
 --------------------------
 
-.. index::
-   single: installation; with web browser
-
 To install the *OX Connector* with the *Management UI* in Nubus,
 use the following steps.
-
-.. index::
-   pair: installation; administrator
-   pair: installation; domain admins
 
 Before you start,
 make sure that you have a user account
@@ -81,9 +74,6 @@ in :cite:t:`uv-nubus-manual`.
 
 Install from the command line
 -----------------------------
-
-.. index::
-   single: installation; with command-line
 
 To install the *OX Connector* app from the command line,
 use the following steps:
