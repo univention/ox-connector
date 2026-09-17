@@ -73,7 +73,7 @@ def get_context_id(attributes):
     context_id = attributes.get("oxContext")
     if context_id is None:
         raise Skip("Object has no oxContext attribute!")
-    return context_id
+    return int(context_id)
 
 
 def get_old_obj(dn):
