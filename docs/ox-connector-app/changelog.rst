@@ -56,7 +56,7 @@ The following tools have been deleted: `rebuild-old.db`,
 `remove-from-ox-db-cache`, `update-ox-db-cache`, `check_sync_status.py`,
 `get_current_error.py`. They used deprecated database calls and did not work
 properly. You can do all meaningful manipulation with the tool
-`univention-ox-task-management`.
+`univention-ox-connector-task-management`.
 
 .. _app-changelog-v3.2.3:
 
