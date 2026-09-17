@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 17. Sep 2026
+     - :ref:`ox-connector-limitations`
+     - Add description for the limitations of the OX Connector.
+
    * - 09. Sep 2026
      - :ref:`ox-connector-architecture-kubernetes`
      - Add architecture description for OX Connector on Nubus for Kubernetes.
