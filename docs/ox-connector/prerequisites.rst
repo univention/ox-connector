@@ -33,6 +33,8 @@ The *OX App Suite* server must meet the following prerequisites:
    so that the *OX Connector* can access the ``/webservices`` endpoint
    in *OX App Suite*.
 
+.. _prerequisites-ox-app-suite-administrator:
+
 #. **OX App Suite administrator**
 
    Set up an administrator user in *OX App Suite*
@@ -46,6 +48,11 @@ The *OX App Suite* server must meet the following prerequisites:
    For the *OX Connector* app in Univention App Center,
    use the settings
    :envvar:`OX_MASTER_ADMIN` and :envvar:`OX_MASTER_PASSWORD`.
+
+   If *OX Connector* and *OX App Suite* run on separate UCS systems,
+   retrieve the password from the :file:`/etc/ox-secrets/master.secret` file
+   on the UCS system that runs *OX App Suite*.
+   Use ``oxadminmaster`` as the administrator username.
 
    For Nubus for Kubernetes,
    configure the OX administrator credentials in the Helm values

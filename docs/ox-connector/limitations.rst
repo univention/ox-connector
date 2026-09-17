@@ -8,104 +8,167 @@
 Limitations
 ***********
 
-To ensure a smooth operation of the :program:`OX Connector` app on UCS, you as
-administrator need to know the following limitations.
+To use the *OX Connector* reliably,
+read the following limitations.
+Each section identifies the deployments it applies to.
 
-.. _limit-ox-app-suite-app:
+.. _ox-connector-limitations-integration-app-suite:
 
-Integration of OX Connector and OX App Suite app
-================================================
+OX Connector integration with the OX App Suite app
+==================================================
 
-Starting with version 2.1.2,
-Univention supports the use of the :program:`OX Connector`
-for the :program:`OX App Suite` app from Univention App Center.
-The :program:`OX Connector` handles the provisioning,
-while the :program:`OX App Suite` delivers the actual groupware.
+.. dropdown:: Deployment — Nubus for UCS
+   :color: info
+   :icon: rocket
 
-However, the OX Connector needs administrative credentials
-to create context objects in the database for the :program:`OX App Suite`.
-The installation process doesn't know these credentials.
-Therefore, you need to verify the configuration of the :program:`OX Connector`
-after you have successfully installed :program:`OX App Suite`.
-The reconfiguration runs automatically
-if, and only if, both apps locate on the same UCS system.
+   This section applies to the Nubus for UCS deployment.
 
-If not,
-you find the password in the file :file:`/etc/ox-secrets/master.secret`
-on the UCS system running :program:`OX App Suite`.
-The username of the administrative account is ``oxadminmaster``.
-You need to set the credentials in the app settings of the :program:`OX Connecor`,
-see :ref:`app-configuration`.
+.. versionadded:: 2.1.2
 
-.. _how-the-connector-handles-fauly-items:
+Starting with version 2.1.2 of the OX Connector app,
+you can use the *OX Connector* with the *OX App Suite* app
+from Univention App Center.
+The OX Connector handles provisioning,
+while OX App Suite provides groupware.
 
-How the Connector handles faulty items
-======================================
+For OX App Suite administrator credentials on separate UCS systems,
+see :ref:`OX App Suite administrator <prerequisites-ox-app-suite-administrator>`.
 
-The :program:`OX Connector` knows two strategies how to handle faulty items it
-can't synchronize. You can choose which strategy to use: :ref:`settings`.
+.. _ox-connector-limitations-handle-faulty-items:
 
-.. _limit-continue-at-conflict:
+How OX Connector handles faulty items
+=====================================
+
+.. dropdown:: Deployment — All: Nubus for UCS and Nubus for Kubernetes
+   :color: info
+   :icon: rocket
+
+   This section applies to both deployments.
+
+The *OX Connector* stores provisioning tasks in its database.
+It uses :envvar:`OX_CONNECTOR_STOP_ON_ERROR` to select how it handles
+ordinary errors during provisioning.
+
+.. tab-set::
+
+   .. tab-item:: Nubus for UCS
+      :sync: ucs
+
+      In the Nubus for UCS deployment,
+      the value defaults to ``true``.
+
+   .. tab-item:: Nubus for Kubernetes
+      :sync: kubernetes
+
+      In the Nubus for Kubernetes deployment,
+      the value defaults to ``false``.
+
+.. _ox-connector-limitations-continue-at-conflict:
 
 OX Connector continues after faulty items
 -----------------------------------------
 
-.. index::
-   single: provisioning; faulty item
+If :envvar:`OX_CONNECTOR_STOP_ON_ERROR` is ``false``
+and the *OX Connector* can't process a faulty queue item,
+it moves the task to the error list
+and continues with the remaining queue items.
+The connector logs the problem.
 
-When the :program:`OX Connector` encounters a faulty queue item that it can't
-process, it continues with the next queue items. The OX Connector puts the
-faulty item aside for the Administrator to examine at a later stage. The
-problem is written in the log file, see :ref:`log-files`.
+The *OX Connector* app provides a command-line interface (CLI)
+to manage the error list.
 
-The app ships a CLI to manage the list of errors, see :ref:`app-cli`.
+.. TODO: Add a reference to the log files after issue #175 is complete.
 
-As administrator, you need to monitor the list of errors manually and decide
-what to do (delete or retry). Meanwhile, the :program:`OX Connector` continues
-to process data it gets from the :term:`Listener`.
+   , see :ref:`log-files`.
 
-Note that certain errors are excluded from that behavior. When the :program:`OX
-Connector` encounters a problem that hints to a network error, it retries this
-one task over and over again as continuing will most probably result in the
-same error for all items anyway. Synchronizing objects from the UDM module
-``oxmail/oxcontext`` will also be retried as these objects are extremely
-important to be in sync. All following items in the queue will likely fail,
-therefore the app does not just continue in this case. The strategy of stopping
-instead of continuing is also described in the next chapter
-:ref:`limit-stop-at-conflict`.
+   For more information,
+   see :ref:`app-cli`.
 
-.. _limit-stop-at-conflict:
+Regardless of the setting,
+the *OX Connector* handles HTTP, connection, timeout,
+and OX context errors differently.
+It retains the task in the task list,
+increments its error count,
+and retries the task after a delay.
+
+.. tab-set::
+
+   .. tab-item:: Nubus for UCS
+      :sync: ucs
+
+      When you set :envvar:`OX_CONNECTOR_STOP_ON_ERROR` to ``false``,
+      you must monitor the list of errors manually
+      and decide whether to delete or retry a task.
+      Meanwhile, the *OX Connector* continues
+      to process data it receives from the :term:`Provisioning Service`.
+
+   .. tab-item:: Nubus for Kubernetes
+      :sync: kubernetes
+
+      In the Nubus for Kubernetes deployment,
+      the OX Connector moves tasks that fail with an ordinary error to the error list by default.
+      The OX Connector then continues with the following tasks.
+
+      Network errors and errors while processing OX context objects remain in the task list.
+      The consumer retries these tasks while outstanding tasks remain.
+
+.. _ox-connector-limitations-stop-at-conflict:
 
 OX Connector stops at faulty items
 ----------------------------------
 
-.. index::
-   single: provisioning; faulty item
+If :envvar:`OX_CONNECTOR_STOP_ON_ERROR` is ``true``
+and the *OX Connector* can't process a faulty queue item,
+it retains the task in the task list.
+The connector logs the problematic task
+in the :term:`OX Connector Provisioning Consumer` log file.
 
-When the :program:`OX Connector` encounters a faulty queue item that it can't
-process, it stops the provisioning at the item and the problematic task in the
-:term:`Listener Converter` log file, see :ref:`log-files`.
+.. TODO: Add reference to the logfiles, after finishing issue #175
 
-Despite the stop, the :term:`Listener` continues to add items to the queue.
-After the administrator removed the faulty queue item, the Listener Converter
-continues to process the queue and also takes care of the added items.
+   , see :ref:`log-files`.
 
-As administrator, you need to resolve that conflict manually when it happens,
-see :ref:`provision-stopped`. After the conflict resolution, the connector
-continues to process the provisioning queue.
+The :term:`Provisioning Service` continues to add items to the queue.
 
-.. _limit-access-profiles:
+.. tab-set::
 
-No plausibility validation in access profile rights
-===================================================
+   .. tab-item:: Nubus for UCS
+      :sync: ucs
 
-.. index::
-   single: access profiles; plausibility
-   single: OX App Suite; permission level
-   see: permission level; OX App Suite
+      After an administrator removes the faulty queue item,
+      the *OX Connector Provisioning Consumer* resumes processing the queue.
+      It also processes items that the :term:`Provisioning Service` adds.
 
-The :program:`OX Connector` app doesn't evaluate permission level for created
-*access profiles* and tries to create any access profile.
+      .. TODO: Add reference to the stopped provisioning, after finishing issue #175
+
+         As administrator, you need to resolve that conflict manually when it happens,
+         see :ref:`provision-stopped`. After the conflict resolution, the connector
+         continues to process the provisioning queue.
+
+   .. tab-item:: Nubus for Kubernetes
+      :sync: kubernetes
+
+      In the Nubus for Kubernetes deployment,
+      when you set :envvar:`OX_CONNECTOR_STOP_ON_ERROR` to ``true``,
+      the OX Connector retains a task that fails with an ordinary error
+      in the task list.
+
+.. _ox-connector-limitations-access-profiles-rights:
+
+No validation of access profile rights
+======================================
+
+.. dropdown:: Deployment — All: Nubus for UCS and Nubus for Kubernetes
+   :color: info
+   :icon: rocket
+
+   This section applies to both deployments.
+
+When an access profile changes,
+the *OX Connector* doesn't check its rights against *OX App Suite*.
+It writes the recognized rights to the module-access definition file
+and applies them to users during provisioning.
+If a user references an unknown access profile,
+the connector leaves the user's existing module-access rights unchanged.
 
 For more information, see `OX App Suite Permission Level
 <https://oxpedia.org/wiki/index.php?title=AppSuite:Permission_Level>`_.
