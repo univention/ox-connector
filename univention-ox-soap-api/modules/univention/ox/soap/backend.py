@@ -108,7 +108,7 @@ for more information.\
                 # optional arguments for backend_init()
                 pass
             else:
-                self.logger.warn('Unknown argument.', key=k, value=v)
+                self.logger.warning('Unknown argument.', key=k, value=v)
 
     def _base_obj2soap_obj(self):  # type: () -> Any
         """

@@ -149,7 +149,7 @@ def set_ox_property(user, ox_property, mapping, attributes):
             if content_type and content_type.mime == "image/jpeg":
                 content_type = "image/jpeg"
             else:
-                logger.warn(
+                logger.warning(
                     "We only support jpeg images. Ignoring image...",
                     type=content_type,
                 )
@@ -205,7 +205,7 @@ def set_ox_property(user, ox_property, mapping, attributes):
                 break
 
     if not val and not mapping.get("nillable"):
-        logger.warn("Attribute is None.", attribute=ox_property)
+        logger.warning("Attribute is None.", attribute=ox_property)
 
     val = position_handle(val)
     val = multivalue_handle(val)

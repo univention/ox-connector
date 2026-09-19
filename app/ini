@@ -19,7 +19,7 @@ DockerScriptConfigure = /tmp/ox-connector.configure
 # We need the certificates to be available at container start, so mounting them is the only valid option
 DockerVolumes = /usr/local/share/ca-certificates/ucsCA.crt:/usr/local/share/ca-certificates/ucsCA.crt, /var/lib/univention-appcenter/listener/ox-connector/:/var/lib/univention-appcenter/listener/ox-connector/
 Description = Synchronize Nubus Users and Groups to Open-Xchange
-SupportedUcsVersions = 5.2-5
+SupportedUcsVersions = 5.2-6 errata603
 RequiredAppVersionUpgrade = 3.2.3
 Website = https://docs.software-univention.de/ox-connector-app/latest/
 LongDescription = <p>
