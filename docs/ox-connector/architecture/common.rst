@@ -15,6 +15,8 @@ For deployment-specific details, see
 :ref:`ox-connector-architecture-ucs`
 and :ref:`ox-connector-architecture-kubernetes`.
 
+.. _ox-connector-architecture-common-components:
+
 Common architecture components
 ==============================
 
@@ -71,6 +73,8 @@ The OX Connector has the following common architecture components:
       and running remote procedure calls.
       The connector uses the *SOAP API* to create, update, or delete *OX App Suite* objects.
 
+.. _ox-connector-architecture-common-attributes:
+
 Provisioned attributes
 ======================
 
@@ -84,6 +88,8 @@ The default user attribute mapping provisions the following attributes:
 * Mailbox quotas
 * IMAP and SMTP servers
 * User-defined fields
+
+.. _ox-connector-architecture-common-database-object-state:
 
 Database of object state
 ========================
