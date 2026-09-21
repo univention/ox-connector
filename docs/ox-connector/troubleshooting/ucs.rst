@@ -52,10 +52,10 @@ Domain join: :file:`/var/log/univention/join.log`
    Contains log information from the join processes. When the App Center install
    OX Connector, the app also joins the domain.
 
-.. _app-cli:
+.. _ox-connector-troubleshooting-ucs-manage-provisioning-tasks:
 
-CLI to monitor the current state
-================================
+Manage provisioning tasks
+=========================
 
 The OX Connector ships a command-line interface that you can use to query and
 manipulate the database it uses to keep track of current tasks, objects already
@@ -125,10 +125,10 @@ This is relevant only if you configured the connector to
 
    $ /usr/sbin/univention-ox-connector-task-management search-morgue
 
-.. _handling-errors:
+.. _ox-connector-troubleshooting-ucs-handle-failed-tasks:
 
-Handling errors
----------------
+Handle failed tasks
+-------------------
 
 You can decide what to do with the items that have been moved to the morgue.
 All commands assume that you have the ``UniventionObjectIdentifier`` of that
@@ -165,10 +165,10 @@ object. For each item you have the option to
 
       $ /usr/sbin/univention-ox-connector-task-management resync-item --obj-id=...
 
-.. _provision-stopped:
+.. _ox-connector-troubleshooting-ucs-resolve-blocked-provisioning:
 
-Provisioning stops working
-==========================
+Resolve blocked provisioning
+----------------------------
 
 When the provisioning stopped working, a previous change in Univention Directory Manager (UDM) is a
 probable reason and the OX Connector doesn't know how to proceed. The connector
@@ -191,7 +191,7 @@ tasks:$database_id``).
 .. _ox-connector-troubleshooting-ucs-reprovision-all-data:
 
 Re-provision all data
-=====================
+---------------------
 
 To re-provision all data, you recreate the subscription of the OX Connector
 with *prefill*. The :term:`Provisioning Service` then sends all existing Univention Directory
@@ -357,7 +357,7 @@ It skips that user and logs a message as shown in
 
 You need to re-provision the user object manually,
 in the example ``uid=oxuser1,cn=users,dc=example,dc=com``.
-Follow the instructions in :ref:`handling-errors` to synchronize the missing users.
+Follow the instructions in :ref:`ox-connector-troubleshooting-ucs-handle-failed-tasks` to synchronize the missing users.
 The next time the OX Connector processes the group object,
 the :term:`OX Connector Provisioning Consumer` takes the user up as group member again.
 
