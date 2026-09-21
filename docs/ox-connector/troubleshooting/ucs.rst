@@ -4,13 +4,11 @@
 
 .. _ox-connector-troubleshooting-ucs:
 
-*****************
-For Nubus for UCS
-*****************
+******************************************
+Troubleshoot OX Connector on Nubus for UCS
+******************************************
 
-When you encounter problems with the operation of the :program:`OX Connector`
-app, this section provides information where you can look closer into and to
-get an impression about what's going wrong.
+Use this page to troubleshoot problems with the :program:`OX Connector` app on Nubus for UCS.
 
 .. _ox-connector-troubleshooting-ucs-log-files:
 
