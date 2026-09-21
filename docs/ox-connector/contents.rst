@@ -17,6 +17,7 @@ OX Connector for Nubus documentation
    usage/index
    architecture/index
    limitations
+   troubleshooting/index
 
 .. toctree::
    :maxdepth: 1
