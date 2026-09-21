@@ -20,11 +20,8 @@ Log files
 The :program:`OX Connector` app produces different logging information in
 different places.
 
-.. index::
-   pair: consumer; log file
-
-Provisioning Consumer: standard output of the OX Connector container
-   Contains log information from the :term:`Provisioning Consumer` about create,
+OX Connector Provisioning Consumer: standard output of the OX Connector container
+   Contains log information from the :term:`OX Connector Provisioning Consumer` about create,
    update, and delete actions of objects.
 
    It also shows warnings and errors
@@ -36,9 +33,6 @@ Provisioning Consumer: standard output of the OX Connector container
 
       $ univention-app logs ox-connector
 
-.. index::
-   single: provisioning service; log file
-
 Provisioning Service: :file:`/var/log/univention/listener_modules/nubus-provisioning.log`
    Contains log information from the :term:`Provisioning Service` about the
    changes it detected in the LDAP directory
@@ -46,14 +40,8 @@ Provisioning Service: :file:`/var/log/univention/listener_modules/nubus-provisio
    The Provisioning Service containers write additional log information
    to :file:`/var/log/syslog`.
 
-.. index::
-   single: database management script; log file
-
 Database management script: :file:`/var/lib/univention-appcenter/apps/ox-connector/data/univention-ox-connector-task-management.log`
    Contains log information from the `Database management script` that is described below.
-
-.. index::
-   single: log file; app center
 
 App Center: :file:`/var/log/univention/appcenter.log`
    Contains log information around activities in the App Center.
@@ -62,21 +50,18 @@ App Center: :file:`/var/log/univention/appcenter.log`
    you run app lifecycle tasks like install, update and uninstall or when you
    change the app settings.
 
-.. index::
-   single: log file; domain join
-
 Domain join: :file:`/var/log/univention/join.log`
    Contains log information from the join processes. When the App Center install
    OX Connector, the app also joins the domain.
 
 .. _troubleshoot-consumer:
 
-Check the Provisioning Consumer
-===============================
+Check the OX Connector Provisioning Consumer
+============================================
 
 To troubleshoot the OX Connector,
 inspect the queue of tasks
-that the :term:`Provisioning Consumer` receives
+that the :term:`OX Connector Provisioning Consumer` receives
 from the :term:`Provisioning Service`.
 
 .. code-block:: console
@@ -85,7 +70,7 @@ from the :term:`Provisioning Service`.
    $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
 
 If the number of pending tasks keeps growing after a change in the LDAP directory,
-this indicates a problem in the :term:`Provisioning Consumer`
+this indicates a problem in the :term:`OX Connector Provisioning Consumer`
 or in the :term:`Provisioning Service`.
 For more information, see :ref:`log-files`.
 
@@ -133,11 +118,7 @@ The terminology of the tool is as follows:
 Health check
 ------------
 
-.. index::
-   pair: provisioning consumer; health check
-   pair: provisioning service; health check
-
-First, have a look at the log output of the :term:`Provisioning Consumer` and
+First, have a look at the log output of the :term:`OX Connector Provisioning Consumer` and
 look for warnings and errors, see :ref:`log-files`.
 
 Second you can get a brief summary of current tasks. This can indicate if the
@@ -151,7 +132,7 @@ OX Connector can process the items fast enough or at all.
 
 Third, you can get a brief summary of past errors. Every item is an object
 not synchronized. Note that this only makes sense should you have chosen
-:ref:`limit-continue-at-conflict`.
+:ref:`ox-connector-limitations-continue-at-conflict`.
 
 .. code-block:: console
    :caption: Show all items in the morgue.
@@ -203,11 +184,7 @@ object. For each item you have the option to
 Provisioning stops working
 ==========================
 
-.. index::
-   single: provisioning; stopped
-   single: provisioning; faulty item
-
-When the provisioning stopped working, a previous change in |UDM| is a
+When the provisioning stopped working, a previous change in Univention Directory Manager (UDM) is a
 probable reason and the OX Connector doesn't know how to proceed. The connector
 retries the action over and over again until an administrator repairs the cause
 manually.
@@ -238,9 +215,10 @@ Re-provision all data
    **Reprovisioning all data isn't recommended.**
 
 To re-provision all data, you recreate the subscription of the OX Connector
-with *prefill*. The :term:`Provisioning Service` then sends all existing |UDM|
+with *prefill*. The :term:`Provisioning Service` then sends all existing Univention Directory
+Manager (UDM)
 objects of the subscribed modules to the OX Connector, and the
-:term:`Provisioning Consumer` adds them to the provisioning queue.
+:term:`OX Connector Provisioning Consumer` adds them to the provisioning queue.
 
 Run the commands in :numref:`queue-reprovision-all-listing`
 on the :external+uv-ucs-operation:term:`Primary Directory Node`.
@@ -297,12 +275,9 @@ Therefore, the OX Connector doesn't run delete operations during re-provisioning
 Ensuring the OX database ID integrity
 =====================================
 
-.. index::
-   single: cache; rebuild
-
 The *internal ID* of objects in the database of OX App Suite can become
 corrupted, for example after a backup restore of the database. For more
-information about the cache, see :ref:`db-old-entries`.
+information about the cache, see :ref:`ox-connector-architecture-ucs-database`.
 
 To rewrite that cache, run the following commands:
 
@@ -322,10 +297,6 @@ To rewrite that cache, run the following commands:
       because it retrieves up to 1000 users of one context with one request.
 
 .. warning::
-
-   .. index::
-      single: cache; memory consumption
-      single: cache; system load
 
    Memory consumption
       On the UCS system with the OX Connector, the rebuild process may use up to
@@ -390,7 +361,7 @@ Missing group members
 
 When the :program:`OX Connector` synchronizes a group,
 it needs the *internal ID* of all its members,
-see :ref:`db-old-entries`.
+see :ref:`ox-connector-architecture-ucs-database`.
 It looks the members up in its database of old entries.
 If a user belongs to a group
 but isn't in the database of old entries,
@@ -402,7 +373,7 @@ You need to re-provision the user object manually,
 in the example ``uid=oxuser1,cn=users,dc=example,dc=com``.
 Follow the instructions in :ref:`handling-errors` to synchronize the missing users.
 The next time the OX Connector processes the group object,
-the :term:`Provisioning Consumer` takes the user up as group member again.
+the :term:`OX Connector Provisioning Consumer` takes the user up as group member again.
 
 .. code-block:: console
    :caption: Log message for missing group members
@@ -419,7 +390,7 @@ details about your case, so that the Univention Support team can help you:
 
 * Provide the relevant messages and tracebacks
   from :ref:`log-files`,
-  specifically the :term:`Provisioning Consumer`.
+  specifically the :term:`OX Connector Provisioning Consumer`.
 
 * Describe the steps that can reproduce the faulty behavior.
 
@@ -512,7 +483,7 @@ lead to the following errors:
 Troubleshooting migration of functional accounts to shared accounts
 ===================================================================
 
-During the :ref:`migration of functional accounts to shared accounts <usage-shared-accounts-migration>`,
+During the :ref:`migration of functional accounts to shared accounts <ox-connector-usage-shared-accounts-migration>`,
 a network failure or another unexpected error can leave a shared account half-configured.
 You might encounter one of the following states:
 
