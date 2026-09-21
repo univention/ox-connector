@@ -4,15 +4,15 @@
 
 .. _ox-connector-troubleshooting-ucs:
 
-*********************************
-Troubleshooting for Nubus for UCS
-*********************************
+*****************
+For Nubus for UCS
+*****************
 
 When you encounter problems with the operation of the :program:`OX Connector`
 app, this section provides information where you can look closer into and to
 get an impression about what's going wrong.
 
-.. _log-files:
+.. _ox-connector-troubleshooting-ucs-log-files:
 
 Log files
 =========
@@ -54,26 +54,6 @@ Domain join: :file:`/var/log/univention/join.log`
    Contains log information from the join processes. When the App Center install
    OX Connector, the app also joins the domain.
 
-.. _troubleshoot-consumer:
-
-Check the OX Connector Provisioning Consumer
-============================================
-
-To troubleshoot the OX Connector,
-inspect the queue of tasks
-that the :term:`OX Connector Provisioning Consumer` receives
-from the :term:`Provisioning Service`.
-
-.. code-block:: console
-   :caption: Show all tasks the OX Connector is yet to process.
-
-   $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
-
-If the number of pending tasks keeps growing after a change in the LDAP directory,
-this indicates a problem in the :term:`OX Connector Provisioning Consumer`
-or in the :term:`Provisioning Service`.
-For more information, see :ref:`log-files`.
-
 .. _app-cli:
 
 CLI to monitor the current state
@@ -113,29 +93,37 @@ The terminology of the tool is as follows:
       actively processed by the OX Connector. Administrators can examine the
       items in the morgue and decide how to proceed with them (see below).
 
-.. _health-check:
+.. _ox-connector-troubleshooting-ucs-check-provisioning-health:
 
-Health check
-------------
+Check provisioning health
+-------------------------
 
-First, have a look at the log output of the :term:`OX Connector Provisioning Consumer` and
-look for warnings and errors, see :ref:`log-files`.
+To check the provisioning health,
+first inspect the log output of the :term:`OX Connector Provisioning Consumer`
+for warnings and errors.
+For more information, see :ref:`ox-connector-troubleshooting-ucs-log-files`.
 
-Second you can get a brief summary of current tasks. This can indicate if the
-OX Connector can process the items fast enough or at all.
+Then inspect the provisioning queue.
+:numref:`ox-connector-troubleshooting-ucs-check-provisioning-health-listing`
+shows the commands.
+If the number of pending tasks keeps growing after a change in the LDAP directory,
+the :term:`OX Connector Provisioning Consumer`
+or the :term:`Provisioning Service` can't process tasks.
 
 .. code-block:: console
-   :caption: Show all tasks the OX Connector is yet to process.
+   :caption: Show pending tasks.
+   :name: ox-connector-troubleshooting-ucs-check-provisioning-health-listing
 
    $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
    $ /usr/sbin/univention-ox-connector-task-management search-tasks
 
-Third, you can get a brief summary of past errors. Every item is an object
-not synchronized. Note that this only makes sense should you have chosen
+Then inspect failed tasks in the morgue.
+This is relevant only if you configured the connector to
 :ref:`ox-connector-limitations-continue-at-conflict`.
 
 .. code-block:: console
-   :caption: Show all items in the morgue.
+   :caption: Show failed tasks in the morgue.
+   :name: ox-connector-troubleshooting-ucs-check-provisioning-health-morgue-listing
 
    $ /usr/sbin/univention-ox-connector-task-management search-morgue
 
@@ -189,7 +177,7 @@ probable reason and the OX Connector doesn't know how to proceed. The connector
 retries the action over and over again until an administrator repairs the cause
 manually.
 
-First, see the :ref:`log-files` and look for warnings and errors. If it's not a
+First, see the :ref:`ox-connector-troubleshooting-ucs-log-files` and look for warnings and errors. If it's not a
 temporary problem like for example network connectivity, the fix requires manual
 action.
 
@@ -389,7 +377,7 @@ Before you open a support ticket, make sure to collect and provide relevant
 details about your case, so that the Univention Support team can help you:
 
 * Provide the relevant messages and tracebacks
-  from :ref:`log-files`,
+  from :ref:`ox-connector-troubleshooting-ucs-log-files`,
   specifically the :term:`OX Connector Provisioning Consumer`.
 
 * Describe the steps that can reproduce the faulty behavior.
