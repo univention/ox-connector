@@ -8,61 +8,98 @@
 Troubleshoot OX Connector on Nubus for UCS
 ******************************************
 
-Use this page to troubleshoot problems with the :program:`OX Connector` app on Nubus for UCS.
+Use this page to troubleshoot problems with the *OX Connector* app on Nubus for UCS.
+It explains how to inspect log files and provisioning tasks,
+resolve blocked provisioning,
+and re-provision data or rebuild the OX database ID cache.
+It also covers known problems,
+including duplicate display names, missing group members,
+invalid identifier values, and failed shared-account migrations,
+and lists the information to collect for a support ticket.
 
 .. _ox-connector-troubleshooting-ucs-log-files:
 
 Log files
 =========
 
-The :program:`OX Connector` app produces different logging information in
-different places.
+The *OX Connector* app writes logs to several locations.
+This section lists the log file per involved component.
 
-OX Connector Provisioning Consumer: standard output of the OX Connector container
-   Contains log information from the :term:`OX Connector Provisioning Consumer` about create,
-   update, and delete actions of objects.
+.. _ox-connector-troubleshooting-ucs-log-files-consumer:
 
-   It also shows warnings and errors
-   when the OX Connector configuration isn't correct,
-   or the connector can't establish a connection to the :term:`SOAP API`.
+OX Connector Provisioning Consumer
+   Standard output of the *OX Connector* container.
+   To read the output, run the command in :numref:`ox-connector-troubleshooting-ucs-log-files-listing`.
+
+   Contains log information from the :term:`OX Connector Provisioning Consumer`
+   about object create, update, and delete actions.
+   It also reports warnings and errors when the *OX Connector* configuration isn't
+   correct or the connector can't connect to the :term:`SOAP API`.
 
    .. code-block:: console
       :caption: View the log output of the OX Connector Provisioning Consumer
+      :name: ox-connector-troubleshooting-ucs-log-files-listing
 
       $ univention-app logs ox-connector
 
-Provisioning Service: :file:`/var/log/univention/listener_modules/nubus-provisioning.log`
-   Contains log information from the :term:`Provisioning Service` about the
-   changes it detected in the LDAP directory
+.. _ox-connector-troubleshooting-ucs-log-files-provisioning:
+
+Provisioning Service
+   :file:`/var/log/univention/listener_modules/nubus-provisioning.log`
+
+   Contains log information from the :term:`Provisioning Service`
+   about changes detected in the LDAP directory
    and delivered to subscribed services.
    The Provisioning Service containers write additional log information
    to :file:`/var/log/syslog`.
 
-Database management script: :file:`/var/lib/univention-appcenter/apps/ox-connector/data/univention-ox-connector-task-management.log`
-   Contains log information from the `Database management script` that is described below.
+.. _ox-connector-troubleshooting-ucs-log-files-database-management:
 
-App Center: :file:`/var/log/univention/appcenter.log`
-   Contains log information around activities in the App Center.
+Database management script
+   :file:`/var/lib/univention-appcenter/apps/ox-connector/data/univention-ox-connector-task-management.log`
 
-   The App Center writes OX Connector relevant information to this file, when
-   you run app lifecycle tasks like install, update and uninstall or when you
-   change the app settings.
+   Contains log information from the database management script described in
+   :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
 
-Domain join: :file:`/var/log/univention/join.log`
-   Contains log information from the join processes. When the App Center install
-   OX Connector, the app also joins the domain.
+.. _ox-connector-troubleshooting-ucs-log-files-app-center:
+
+App Center
+   :file:`/var/log/univention/appcenter.log`
+
+   Contains log information about *App Center* activities.
+
+   The *App Center* writes *OX Connector*-related information to this file
+   when you run app lifecycle tasks, such as installing, updating,
+   or uninstalling the app, or when you change the app settings.
+
+   For information about *App Center* logging and diagnostics,
+   see :external+uv-ucs-operation:ref:`lifecycle-app-center-troubleshooting-logging`
+   in :cite:t:`uv-ucs-operation`.
+
+.. _ox-connector-troubleshooting-ucs-log-files-join:
+
+Domain join
+   :file:`/var/log/univention/join.log`
+
+   Contains log information from domain join processes.
+   When the *App Center* installs *OX Connector*, the app also joins the domain.
+
+   For information about the domain join process,
+   see :external+uv-ucs-operation:ref:`domain-infrastructure-join-process`
+   in :cite:t:`uv-ucs-operation`.
 
 .. _ox-connector-troubleshooting-ucs-manage-provisioning-tasks:
 
 Manage provisioning tasks
 =========================
 
-The OX Connector ships a command-line interface that you can use to query and
-manipulate the database it uses to keep track of current tasks, objects already
-synced and errors it may have found.
+Use the *OX Connector* command-line interface to query and manage its database.
+The database tracks current tasks,
+objects that the *OX Connector* has synchronized,
+and errors.
 
 .. code-block:: console
-   :caption: List all commands of the CLI.
+   :caption: List all commands of the CLI
 
    $ /usr/sbin/univention-ox-connector-task-management --help
 
@@ -73,23 +110,28 @@ The terminology of the tool is as follows:
 .. glossary::
 
    Tasks
-      A database table managed by the OX Connector. A row represents an active
-      task. The OX Connector iterates over all tasks and synchronizes them to
-      the OX App Suite.
+      A database table managed by the *OX Connector*.
+      A row represents an active task.
+      The *OX Connector* iterates over all tasks
+      and synchronizes them to the *OX App Suite*.
 
    Old
-      A database table managed by the OX Connector. A row represents the state
-      of an item at the moment it was successfully synchronized. It is more or
-      less a copy of a former task. Needed when certain items are synchronized
-      and reference other items (e.g., when synchronizing a group that contains
-      users). Also used for faster look-ups by storing the database ID given by
-      OX.
+      A database table managed by the *OX Connector*.
+      A row represents the state of an item
+      when the *OX Connector* successfully synchronized it.
+      The row is a copy of a previous task.
+      The *OX Connector* needs it when synchronizing items
+      that reference other items,
+      for example, groups that contain users.
+      The *OX Connector* also stores the database ID assigned by OX
+      so that it can look up objects faster.
 
    Morgue
-      A database table managed by the OX Connector. A row represents a failed
-      task. It was moved automatically or manually to this table and is not
-      actively processed by the OX Connector. Administrators can examine the
-      items in the morgue and decide how to proceed with them (see below).
+      A database table managed by the *OX Connector*.
+      A row represents a failed task.
+      The *OX Connector* or an administrator moved the task to this table,
+      so the *OX Connector* doesn't process it actively.
+      Administrators can examine items in the morgue and decide how to proceed.
 
 .. _ox-connector-troubleshooting-ucs-check-provisioning-health:
 
@@ -97,119 +139,163 @@ Check provisioning health
 -------------------------
 
 To check the provisioning health,
-first inspect the log output of the :term:`OX Connector Provisioning Consumer`
+first inspect the :ref:`log output of the OX Connector Provisioning Consumer <ox-connector-troubleshooting-ucs-log-files-consumer>`
 for warnings and errors.
 For more information, see :ref:`ox-connector-troubleshooting-ucs-log-files`.
 
-Then inspect the provisioning queue.
-:numref:`ox-connector-troubleshooting-ucs-check-provisioning-health-listing`
-shows the commands.
-If the number of pending tasks keeps growing after a change in the LDAP directory,
-the :term:`OX Connector Provisioning Consumer`
-or the :term:`Provisioning Service` can't process tasks.
+To check the provisioning health, use the following steps:
 
-.. code-block:: console
-   :caption: Show pending tasks.
-   :name: ox-connector-troubleshooting-ucs-check-provisioning-health-listing
+#. Inspect the provisioning queue.
+   :numref:`ox-connector-troubleshooting-ucs-check-provisioning-health-listing`
+   shows the commands.
+   If the number of pending tasks keeps growing after a change in the LDAP directory,
+   the :term:`OX Connector Provisioning Consumer`
+   or the :term:`Provisioning Service` can't process tasks.
 
-   $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
-   $ /usr/sbin/univention-ox-connector-task-management search-tasks
+   .. code-block:: console
+      :caption: Show pending tasks
+      :name: ox-connector-troubleshooting-ucs-check-provisioning-health-listing
 
-Then inspect failed tasks in the morgue.
-This is relevant only if you configured the connector to
-:ref:`ox-connector-limitations-continue-at-conflict`.
+      $ /usr/sbin/univention-ox-connector-task-management summarize-tasks
+      $ /usr/sbin/univention-ox-connector-task-management search-tasks
 
-.. code-block:: console
-   :caption: Show failed tasks in the morgue.
-   :name: ox-connector-troubleshooting-ucs-check-provisioning-health-morgue-listing
+#. Then inspect failed tasks in the morgue.
+   This is relevant only if you configured the connector to
+   :ref:`ox-connector-limitations-continue-at-conflict`.
 
-   $ /usr/sbin/univention-ox-connector-task-management search-morgue
+   .. code-block:: console
+      :caption: Show failed tasks in the morgue
+      :name: ox-connector-troubleshooting-ucs-check-provisioning-health-morgue-listing
+
+      $ /usr/sbin/univention-ox-connector-task-management search-morgue
 
 .. _ox-connector-troubleshooting-ucs-handle-failed-tasks:
 
 Handle failed tasks
 -------------------
 
-You can decide what to do with the items that have been moved to the morgue.
-All commands assume that you have the ``UniventionObjectIdentifier`` of that
-object. For each item you have the option to
+Decide how to handle failed tasks in the morgue.
+Use :numref:`ox-connector-troubleshooting-ucs-check-provisioning-health-morgue-listing`
+to find the ``UniventionObjectIdentifier`` of the affected object.
+Replace ``OBJECT_ID`` in the following commands with this identifier.
 
-#. Delete it from the list: It is as if this item never hit the OX Connector.
-   The underlying object can of course be synchronized again if it is modified
-   in the LDAP directory (creating a completely new item in the OX Connector's
-   tasks).
-
-   .. code-block:: console
-      :caption: Remove an item from the morgue.
-
-      $ /usr/sbin/univention-ox-connector-task-management remove-from-morgue --obj-id=...
-
-#. Retry the very same item: The erroneous item in the list is again copied to
-   the list of tasks, assuming that the problem is now fixed (e.g., a
-   validation on the OX App Suite's side has been disabled).
+#. **Remove the task from the morgue**:
+   The *OX Connector* treats the object as though it had never received the task.
+   If the underlying object changes in the LDAP directory,
+   the *OX Connector* can synchronize it again and create a new task.
+   Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-remove-listing`.
 
    .. code-block:: console
-      :caption: Retry an item from the morgue.
+      :caption: Remove an item from the morgue
+      :name: ox-connector-troubleshooting-ucs-handle-failed-tasks-remove-listing
 
-      $ /usr/sbin/univention-ox-connector-task-management retry-from-morgue --obj-id=...
+      $ /usr/sbin/univention-ox-connector-task-management \
+         remove-from-morgue \
+         --obj-id=OBJECT_ID
 
-#. Fresh synchronization of the object: The object is again put into the list
-   of tasks but not with the attributes it had when the synchronization
-   happened (and failed). Instead, it is freshly fetched from the LDAP
-   database. This only works for the first object found, so asterisks may not
-   do what you expect.
-
+#. **Retry the same task**:
+   After you resolve the problem,
+   the *OX Connector* copies the failed task back to the task list.
+   For example, you might first deactivate a validation rule in *OX App Suite*.
+   Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-retry-listing`.
 
    .. code-block:: console
-      :caption: Re-sync an existing item via UDM.
+      :caption: Retry an item from the morgue
+      :name: ox-connector-troubleshooting-ucs-handle-failed-tasks-retry-listing
 
-      $ /usr/sbin/univention-ox-connector-task-management resync-item --obj-id=...
+      $ /usr/sbin/univention-ox-connector-task-management \
+         retry-from-morgue \
+         --obj-id=OBJECT_ID
+
+#. **Resynchronize the object**:
+   The *OX Connector* adds the object to the task list with its current attributes
+   instead of the attributes from the failed synchronization.
+   It fetches the object again from the LDAP directory.
+   This works only for the first matching object,
+   so asterisks might not produce the expected result.
+   Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-resync-listing`.
+
+   .. code-block:: console
+      :caption: Re-sync an existing item via UDM
+      :name: ox-connector-troubleshooting-ucs-handle-failed-tasks-resync-listing
+
+      $ /usr/sbin/univention-ox-connector-task-management \
+         resync-item \
+         --obj-id=OBJECT_ID
 
 .. _ox-connector-troubleshooting-ucs-resolve-blocked-provisioning:
 
 Resolve blocked provisioning
 ----------------------------
 
-When the provisioning stopped working, a previous change in Univention Directory Manager (UDM) is a
-probable reason and the OX Connector doesn't know how to proceed. The connector
-retries the action over and over again until an administrator repairs the cause
-manually.
+If provisioning has stopped,
+a previous change in Univention Directory Manager (UDM) might be the cause.
+The *OX Connector* can't process the change
+and retries the action until an administrator resolves the cause.
 
-First, see the :ref:`ox-connector-troubleshooting-ucs-log-files` and look for warnings and errors. If it's not a
-temporary problem like for example network connectivity, the fix requires manual
-action.
+First, see :ref:`ox-connector-troubleshooting-ucs-log-files`.
+Then look for warnings and errors.
+If the problem isn't temporary, such as a network connectivity problem,
+resolve it manually.
 
-As a last resort, the administrator can move the task aside. The log file
-reveals the ``Database ID`` of that object (e.g. ``uid=...; $object_identifier;
-tasks:$database_id``).
+As a last resort, move the task to the morgue.
+Find the task ID in the log file.
+It follows ``tasks:`` in an entry such as
+``uid=...; OBJECT_IDENTIFIER; tasks:TASK_ID``.
+Replace ``TASK_ID`` in the command in
+:numref:`ox-connector-troubleshooting-ucs-resolve-blocked-provisioning-morgue-listing`.
 
 .. code-block:: console
-   :caption: Retry an error from the list.
+   :caption: Move a task to the morgue
+   :name: ox-connector-troubleshooting-ucs-resolve-blocked-provisioning-morgue-listing
 
-   $ /usr/sbin/univention-ox-connector-task-management move-task-to-morgue --task-id=$database_id  --error-msg="Manual intervention after careful consideration"
+   $ /usr/sbin/univention-ox-connector-task-management \
+      move-task-to-morgue \
+      --task-id=TASK_ID \
+      --error-msg="Manual intervention after careful consideration"
 
 .. _ox-connector-troubleshooting-ucs-reprovision-all-data:
 
 Re-provision all data
 ---------------------
 
-To re-provision all data, you recreate the subscription of the OX Connector
-with *prefill*. The :term:`Provisioning Service` then sends all existing Univention Directory
-Manager (UDM)
-objects of the subscribed modules to the OX Connector, and the
-:term:`OX Connector Provisioning Consumer` adds them to the provisioning queue.
+To re-provision all data,
+recreate the *OX Connector* subscription and enable *prefill*,
+as described below.
+The :term:`Provisioning Service` sends existing Univention Directory Manager (UDM) objects
+from subscribed modules to the *OX Connector*.
+The :term:`OX Connector Provisioning Consumer` adds them to its queue.
 
 .. warning::
 
-   Depending on the number of users and groups in the UCS LDAP directory, this
-   task may take a lot of time.
+   Depending on the number of users and groups in the Nubus for UCS LDAP directory,
+   this task can take a long time.
 
-   **Reprovisioning all data isn't recommended.**
+   **Avoid re-provisioning all data.**
 
-Run the commands in :numref:`ox-connector-troubleshooting-ucs-reprovision-all-data-listing`
+To re-provision all data,
+run the commands in :numref:`ox-connector-troubleshooting-ucs-reprovision-all-data-listing`
 on the :external+uv-ucs-operation:term:`Primary Directory Node`.
+The commands do the following:
+
+#. Set up configuration parameters, such as base URL, administrator password, and subscription password.
+
+#. Delete the existing subscription.
+
+#. Configure the connector subscription to subscribe to all relevant UDM modules.
+
+#. Create the subscription using the configuration from the JSON file.
+
+#. Delete the subscription configuration.
+
+#. Save the *Provisioning Service* credentials to a file in the *OX Connector* configuration directory
+   and restrict the file permissions.
+
+#. Restart the *OX Connector* app.
+
 The Provisioning Service doesn't add deleted UDM objects to the queue.
-Therefore, the OX Connector doesn't run delete operations during re-provisioning.
+Therefore, the *OX Connector* doesn't run delete operations during re-provisioning.
+Previously deleted UDM objects aren't removed from OX during this procedure.
 
 .. code-block:: console
    :caption: Re-provisioning all UDM objects to OX App Suite
@@ -252,56 +338,74 @@ Therefore, the OX Connector doesn't run delete operations during re-provisioning
 
 .. caution::
 
-   The OX Connector can delete objects
-   based on the data it receives.
-   For example, ``isOxGroup = False`` in a group object.
+   The *OX Connector* can delete objects based on the data that it receives.
+   For example, it deletes a group object when ``isOxGroup = False``.
 
-.. _cache-rebuild:
+.. _ox-connector-troubleshooting-ucs-database-integrity:
 
-Ensuring the OX database ID integrity
-=====================================
+Ensure OX database ID integrity
+===============================
 
-The *internal ID* of objects in the database of OX App Suite can become
-corrupted, for example after a backup restore of the database. For more
-information about the cache, see :ref:`ox-connector-architecture-ucs-database`.
+The *OX Connector* caches the internal IDs that *OX App Suite* assigns to objects.
+After you restore an *OX App Suite* database backup,
+the cached IDs can become stale or inconsistent.
+For more information about the cache,
+see :ref:`ox-connector-architecture-ucs-database`.
 
-To rewrite that cache, run the following commands:
+To rebuild the cache,
+run the command in :numref:`ox-connector-troubleshooting-ucs-rebuild-ox-db-id-listing`.
 
 .. code-block:: console
    :caption: Rebuild cache for *internal ID*
+   :name: ox-connector-troubleshooting-ucs-rebuild-ox-db-id-listing
 
    $ /usr/sbin/univention-ox-connector-task-management rewrite-ox-db-id
 
 .. tip::
 
    Retrieve all users per context in one request
-      Rebuilding the cache may take a long time and depends on the amount of
-      users in the OX App Suite database.
+      Rebuilding the cache can take a long time
+      and depends on the number of users in the *OX App Suite* database.
 
-      :command:`/usr/sbin/univention-ox-connector-task-management
-      rewrite-ox-db-id --build-cache-size=1000` can speed up the rebuild,
-      because it retrieves up to 1000 users of one context with one request.
+      The command in
+      :numref:`ox-connector-troubleshooting-ucs-database-integrity-listing`
+      can speed up cache rebuilding
+      because it retrieves up to 1,000 users from one context per request.
+
+      .. code-block::
+         :caption: Increase performance on rebuilding the cache
+         :name: ox-connector-troubleshooting-ucs-database-integrity-listing
+
+         $ /usr/sbin/univention-ox-connector-task-management \
+            rewrite-ox-db-id \
+            --build-cache-size=1000
 
 .. warning::
 
    Memory consumption
-      On the UCS system with the OX Connector, the rebuild process may use up to
-      1 GB memory per 10,000 users in the database for OX App Suite.
+      On the Nubus for UCS system with *OX Connector*,
+      the rebuild process can use up to 1 GB of memory per 10,000 users
+      in the *OX App Suite* database.
 
    System load
-      Furthermore, the process may generate a lot of load on the OX App Suite
-      system and the OX Connector app.
+      Furthermore, the process may generate a lot of load on the *OX App Suite* system
+      and the *OX Connector* app.
 
-Duplicated *displaynames*
+.. _ox-connector-troubleshooting-ucs-duplicate-display-name:
+
+Duplicate *display names*
 =========================
 
-In OX Connector version 2.2.0 the UDM property *oxDisplayName* does not have a
-unique constraint anymore.
+Since *OX Connector* version 2.2.0,
+the UDM property *oxDisplayName* no longer has a unique constraint.
 
-If duplicate values are used, but OX is not prepared for that, the *SOAP API* calls will
-fail with the following exception.
+If *OX App Suite* isn't configured to allow duplicate display names,
+:term:`SOAP API` calls fail with the exception as shown in
+:numref:`ox-connector-troubleshooting-ucs-duplicate-display-name-exception-listing`.
 
 .. code-block:: console
+   :caption: Exception when OX App Suite doesn't allow duplicate display names
+   :name: ox-connector-troubleshooting-ucs-duplicate-display-name-exception-listing
 
    2023-05-30 11:59:31 WARNING Traceback (most recent call last):
    2023-05-30 11:59:31 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 324, in run_on_files
@@ -328,38 +432,42 @@ fail with the following exception.
    2023-05-30 11:59:31 WARNING     raise Fault(
    2023-05-30 11:59:31 WARNING zeep.exceptions.Fault: The displayname is already used; exceptionId 1170523631-4
 
-To fix this issue, a change in the  *OX App Suite* configuration is required.
-Add the following lines to the :file:`user.properties` file.
+To allow duplicate display names,
+add the properties in :numref:`ox-connector-troubleshooting-ucs-duplicate-display-name-listing`
+to the :file:`user.properties` file in *OX App Suite*.
 
 .. code-block:: console
+   :caption: Configuration to allow duplicate display names in OX App Suite
+   :name: ox-connector-troubleshooting-ucs-duplicate-display-name-listing
 
    com.openexchange.user.enforceUniqueDisplayName=false
    com.openexchange.folderstorage.database.preferDisplayName=false
 
 .. note::
-   This is configured by default in the *OX App Suite* installation from the App center.
 
+   The *OX App Suite* installation from the *App Center*
+   configures these properties by default.
 
-.. _troubleshooting-missing-group-members:
+.. _ox-connector-troubleshooting-ucs-missing-group-members:
 
 Missing group members
 =====================
 
-When the :program:`OX Connector` synchronizes a group,
-it needs the *internal ID* of all its members,
-see :ref:`ox-connector-architecture-ucs-database`.
-It looks the members up in its database of old entries.
-If a user belongs to a group
-but isn't in the database of old entries,
-the :program:`OX Connector` doesn't fail.
-It skips that user and logs a message as shown in
+When the *OX Connector* synchronizes a group,
+it needs the *internal ID* of every group member.
+For more information, see :ref:`ox-connector-architecture-ucs-database`.
+The connector looks up each member in its database of old entries.
+If a user belongs to a group but isn't in that database,
+the *OX Connector* skips the user without failing.
+It logs a message, as shown in
 :numref:`troubleshooting-missing-group-members-log-listing`.
 
-You need to re-provision the user object manually,
-in the example ``uid=oxuser1,cn=users,dc=example,dc=com``.
-Follow the instructions in :ref:`ox-connector-troubleshooting-ucs-handle-failed-tasks` to synchronize the missing users.
-The next time the OX Connector processes the group object,
-the :term:`OX Connector Provisioning Consumer` takes the user up as group member again.
+Re-provision the missing user object manually.
+For example, re-provision ``uid=oxuser1,cn=users,dc=example,dc=com``.
+Follow :ref:`ox-connector-troubleshooting-ucs-handle-failed-tasks`
+to synchronize the missing user.
+When the *OX Connector* next processes the group object,
+the :term:`OX Connector Provisioning Consumer` adds the user to the group again.
 
 .. code-block:: console
    :caption: Log message for missing group members
@@ -368,17 +476,24 @@ the :term:`OX Connector Provisioning Consumer` takes the user up as group member
     2024-11-15 16:06:33 INFO    Group will be OX Group
     2024-11-15 16:06:33 INFO    Group wants user as member. But the user is unknown. Ignoring...
 
+.. _ox-connector-troubleshooting-ucs-invalidate-values:
+
 Invalid values for OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER
 ============================================================
 
-Only a UDM user property (or UDM group property in case of OX_GROUP_IDENTIFIER) that contains a **single value** which is **not None**
-is a valid option. In case a UDM property that contains an empty value or a list of values is specified, the :program:`OX Connector`
-will enter an error state which needs to be resolved manually by simply setting a valid value.
+A UDM user property, or a UDM group property for ``OX_GROUP_IDENTIFIER``,
+is valid only when it contains a single value that isn't ``None``.
+If the configured UDM property contains an empty value or a list of values,
+the *OX Connector* enters an error state.
+Set a valid value to resolve the error.
 
-Setting invalid values for the app settings `OX_USER_IDENTIFIER` or `OX_GROUP_IDENTIFIER` will
-lead to the following errors:
+Setting an invalid value for the app settings ``OX_USER_IDENTIFIER``
+or ``OX_GROUP_IDENTIFIER`` leads to the errors in :numref:`ox-connector-troubleshooting-ucs-invalidate-values-listing`
+or :numref:`ox-connector-troubleshooting-ucs-invalidate-values-groups-listing`.
 
 .. code-block:: console
+   :name: ox-connector-troubleshooting-ucs-invalidate-values-listing
+   :caption: Error caused by an invalid value for app settings ``OX_USER_IDENTIFIER``
 
     2024-01-11 13:57:39 WARNING Traceback (most recent call last):
     2024-01-11 13:57:39 WARNING   File "/tmp/univention-ox-connector.listener_trigger", line 351, in run_on_files
@@ -397,6 +512,8 @@ lead to the following errors:
     2024-01-11 13:57:39 WARNING for more information.
 
 .. code-block:: console
+   :name: ox-connector-troubleshooting-ucs-invalidate-values-groups-listing
+   :caption: Error caused by an invalid value for app settings ``OX_GROUP_IDENTIFIER``
 
     setting "users" udm property for groups
     2024-01-11 13:59:36 WARNING Traceback (most recent call last):
@@ -448,10 +565,10 @@ lead to the following errors:
     2024-01-11 13:59:36 WARNING     raise ValueError(
     2024-01-11 13:59:36 WARNING ValueError: The String type doesn't accept collections as value
 
-.. _app-troubleshooting-migration:
+.. _ox-connector-troubleshooting-ucs-migration:
 
-Troubleshooting migration of functional accounts to shared accounts
-===================================================================
+Troubleshoot migration from functional accounts to shared accounts
+==================================================================
 
 During the :ref:`migration of functional accounts to shared accounts <ox-connector-usage-shared-accounts-migration>`,
 a network failure or another unexpected error can leave a shared account half-configured.
@@ -460,12 +577,11 @@ You might encounter one of the following states:
 Functional account still exists
    The functional account is still present,
    and the shared account is partially configured.
-   Rerun the script with the same parameters as before
-   to retry the migration.
+   Rerun the script with the same parameters as before to retry the migration.
 
-Functional account doesn't exist anymore
-   The functional account doesn't exist anymore,
-   so the migration is nearly complete.
+Functional account no longer exists
+   The functional account no longer exists,
+   so only the final migration step remains.
    The remaining step is to modify the email address of the shared account
    and remove the ``tmp_`` prefix.
    To remove the prefix,
@@ -475,6 +591,8 @@ Functional account doesn't exist anymore
 
       .. tab-item:: Management UI
 
+         Use the *Management UI* on Nubus for Kubernetes
+         or in cases where you don't have access to the UDM command-line.
          Use the following steps:
 
          #. Sign in to the *Management UI*
@@ -494,14 +612,17 @@ Functional account doesn't exist anymore
 
       .. tab-item:: UDM command-line
 
-         To remove the prefix by using the :command:`udm` command
-         in Nubus for UCS,
+         To remove the prefix with the :command:`udm` command in Nubus for UCS,
          run the command shown in :numref:`app-troubleshooting-migration-remove-prefix-listing`.
          Define the following parameters:
 
          :``SHARED_ACCOUNT``: The DN of the affected shared account,
             for example ``"cn=test,cn=shared_accounts,cn=open-xchange,$(ucr get ldap/base)"``
          :``EMAIL``: The email address of the shared account.
+
+         After you ran the command,
+         verify that the shared account uses the expected email address
+         and no longer has the ``tmp_`` prefix.
 
          .. code-block:: console
             :caption: Remove the ``tmp_`` prefix from the email address of a shared account
@@ -515,9 +636,6 @@ Functional account doesn't exist anymore
                --dn "$SHARED_ACCOUNT" \
                --set mailPrimaryAddress="$EMAIL"
 
-         Verify that the shared account uses the expected email address
-         and no longer has the ``tmp_`` prefix.
-
 .. _ox-connector-troubleshooting-ucs-collect-support-information:
 
 Collect information for a support ticket
@@ -529,9 +647,10 @@ the issue:
 
 * Relevant messages and tracebacks from
   :ref:`ox-connector-troubleshooting-ucs-log-files`,
-  especially from the :term:`OX Connector Provisioning Consumer`.
+  especially from the
+  :ref:`OX Connector Provisioning Consumer logs <ox-connector-troubleshooting-ucs-log-files-consumer>`.
 
-* Steps that reproduce the faulty behavior.
+* Steps that reproduce the unexpected behavior.
 
 * The expected behavior.
 
