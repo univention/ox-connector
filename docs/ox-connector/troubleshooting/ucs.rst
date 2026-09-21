@@ -370,22 +370,6 @@ the :term:`OX Connector Provisioning Consumer` takes the user up as group member
     2024-11-15 16:06:33 INFO    Group will be OX Group
     2024-11-15 16:06:33 INFO    Group wants user as member. But the user is unknown. Ignoring...
 
-Collect information for support ticket
-======================================
-
-Before you open a support ticket, make sure to collect and provide relevant
-details about your case, so that the Univention Support team can help you:
-
-* Provide the relevant messages and tracebacks
-  from :ref:`ox-connector-troubleshooting-ucs-log-files`,
-  specifically the :term:`OX Connector Provisioning Consumer`.
-
-* Describe the steps that can reproduce the faulty behavior.
-
-* Describe the expected behavior.
-
-* Provide data from the provisioning that causes the error.
-
 Invalid values for OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER
 ============================================================
 
@@ -535,3 +519,22 @@ Functional account doesn't exist anymore
 
          Verify that the shared account uses the expected email address
          and no longer has the ``tmp_`` prefix.
+
+.. _ox-connector-troubleshooting-ucs-collect-support-information:
+
+Collect information for a support ticket
+========================================
+
+Before you open a support ticket,
+collect the following information so that Univention Support can investigate
+the issue:
+
+* Relevant messages and tracebacks from
+  :ref:`ox-connector-troubleshooting-ucs-log-files`,
+  especially from the :term:`OX Connector Provisioning Consumer`.
+
+* Steps that reproduce the faulty behavior.
+
+* The expected behavior.
+
+* Provisioning data that causes the error.
