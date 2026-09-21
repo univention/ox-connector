@@ -9,24 +9,6 @@ from univention.ox.provisioning.accessprofiles import (
 )
 
 
-def create_user(udm, name, domainname, context_id, ox_access):
-    obj = udm.create(
-        "users/user",
-        "cn=users",
-        {
-            "username": name,
-            "firstname": "Emil",
-            "lastname": name.title(),
-            "password": "univention",
-            "mailPrimaryAddress": "{}@{}".format(name, domainname),
-            "isOxUser": True,
-            "oxAccess": ox_access,
-            "oxContext": context_id,
-        },
-    )
-    return obj.dn
-
-
 def create_obj(udm, name, right):
     obj = udm.create(
         "oxmail/accessprofile",
@@ -43,6 +25,40 @@ def create_obj(udm, name, right):
 def find_access(find_ox_object, context_id, name, assert_empty=False):
     obj = find_ox_object(context_id, "User", name, assert_empty)
     return obj.service(obj.context_id).get_module_access({"id": obj.id})
+
+
+def test_disabled_user(
+    udm,
+    default_ox_context,
+    new_user_name,
+    create_ox_user,
+    wait_for_listener,
+    file_utility,
+    find_ox_object,
+):
+    """
+    A disabled user must have no OX access rights
+    """
+    ox_access = "accessprofile_test_disabled_user"
+    assert get_access_profile(ox_access) is None
+    dn = create_obj(udm, ox_access, "usm")
+    wait_for_listener(dn)
+    fname = "/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties"
+    with file_utility.open(fname) as fd:
+        content = fd.read()
+        assert f"{ox_access}=usm\n" in content
+    get_access_profiles(force_reload=True)
+    assert get_access_profile(ox_access) == ["USM"]
+
+    create_ox_user(
+        name=new_user_name,
+        further_udm_attrs={"oxAccess": ox_access, "disabled": True},
+    )
+    access = find_access(find_ox_object, default_ox_context, new_user_name)
+    for right in access:
+        if right == "OLOX20" or right == "publication":  # deprecated rights
+            continue
+        assert access[right] is False
 
 
 @pytest.mark.parametrize(
@@ -77,8 +93,8 @@ def test_every_one_right_access_profile(
     udm,
     default_ox_context,
     new_user_name,
+    create_ox_user,
     wait_for_listener,
-    domainname,
     right,
     right_soap,
     file_utility,
@@ -98,14 +114,10 @@ def test_every_one_right_access_profile(
     get_access_profiles(force_reload=True)
     profile = get_access_profile(ox_access)
     assert profile == [right_soap]
-    user_dn = create_user(
-        udm,
-        new_user_name,
-        domainname,
-        default_ox_context,
-        ox_access,
-    )
-    wait_for_listener(user_dn)
+    user_dn = create_ox_user(
+        name=new_user_name,
+        further_udm_attrs={"oxAccess": ox_access},
+    ).dn
     access = find_access(find_ox_object, default_ox_context, new_user_name)
     assert access[right_soap] is True
     for _right in access:
@@ -158,8 +170,8 @@ def test_accessprofile_with_special_characters(
     udm,
     default_ox_context,
     new_user_name,
+    create_ox_user,
     wait_for_listener,
-    domainname,
     special_character,
     file_utility,
     find_ox_object,
@@ -178,14 +190,10 @@ def test_accessprofile_with_special_characters(
     get_access_profiles(force_reload=True)
     profile = get_access_profile(ox_access)
     assert profile == ["USM"]
-    user_dn = create_user(
-        udm,
-        new_user_name,
-        domainname,
-        default_ox_context,
-        ox_access,
-    )
-    wait_for_listener(user_dn)
+    user_dn = create_ox_user(
+        name=new_user_name,
+        further_udm_attrs={"oxAccess": ox_access},
+    ).dn
     access = find_access(find_ox_object, default_ox_context, new_user_name)
     assert access["USM"] is True
     for _right in access:

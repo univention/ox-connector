@@ -281,10 +281,10 @@ def update_user(
     if initial_values:
         user.timezone = LOCAL_TIMEZONE
 
-    if attributes.get("oxAccess", "none") != "none":
-        user.mail_enabled = True
-    else:
-        user.mail_enabled = False
+    user.mail_enabled = attributes.get(
+        "oxAccess",
+        "none",
+    ) != "none" and not attributes.get("disabled")
 
 
 def set_user_rights(user, obj):
