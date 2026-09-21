@@ -190,10 +190,16 @@ tasks:$database_id``).
 
    $ /usr/sbin/univention-ox-connector-task-management move-task-to-morgue --task-id=$database_id  --error-msg="Manual intervention after careful consideration"
 
-.. _queue-reprovision-all:
+.. _ox-connector-troubleshooting-ucs-reprovision-all-data:
 
 Re-provision all data
----------------------
+=====================
+
+To re-provision all data, you recreate the subscription of the OX Connector
+with *prefill*. The :term:`Provisioning Service` then sends all existing Univention Directory
+Manager (UDM)
+objects of the subscribed modules to the OX Connector, and the
+:term:`OX Connector Provisioning Consumer` adds them to the provisioning queue.
 
 .. warning::
 
@@ -202,20 +208,14 @@ Re-provision all data
 
    **Reprovisioning all data isn't recommended.**
 
-To re-provision all data, you recreate the subscription of the OX Connector
-with *prefill*. The :term:`Provisioning Service` then sends all existing Univention Directory
-Manager (UDM)
-objects of the subscribed modules to the OX Connector, and the
-:term:`OX Connector Provisioning Consumer` adds them to the provisioning queue.
-
-Run the commands in :numref:`queue-reprovision-all-listing`
+Run the commands in :numref:`ox-connector-troubleshooting-ucs-reprovision-all-data-listing`
 on the :external+uv-ucs-operation:term:`Primary Directory Node`.
 The Provisioning Service doesn't add deleted UDM objects to the queue.
 Therefore, the OX Connector doesn't run delete operations during re-provisioning.
 
 .. code-block:: console
    :caption: Re-provisioning all UDM objects to OX App Suite
-   :name: queue-reprovision-all-listing
+   :name: ox-connector-troubleshooting-ucs-reprovision-all-data-listing
 
    $ export BASE_URL="https://$(ucr get ldap/master)/univention/provisioning"
    $ export ADMIN_PASSWORD="$(python3 -c 'import json; print(json.load(open("/etc/provisioning-secrets.json"))["PROVISIONING_API_ADMIN_PASSWORD"])')"
