@@ -20,6 +20,10 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 21. Sep 2026
+     - :ref:`ox-connector-troubleshooting-ucs`
+     - Add section about troubleshooting for Nubus for UCS.
+
    * - 17. Sep 2026
      - :ref:`ox-connector-limitations`
      - Add description for the limitations of the OX Connector.
