@@ -117,6 +117,8 @@ openXchange:
     groupIdentifier: "name"
     # -- UDM shared account property that the connector uses as the unique shared account identifier in OX.
     sharedAccountIdentifier: "name"
+  # -- OX Connector error handling behavior. When activated, the connector stops processing on the first error instead of continuing.
+  stopOnError: false
 
 waitForDependency:
   image:

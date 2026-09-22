@@ -34,6 +34,7 @@ data:
   OX_USER_IDENTIFIER: "{{ .Values.openXchange.mappings.userIdentifier }}"
   OX_GROUP_IDENTIFIER: "{{ .Values.openXchange.mappings.groupIdentifier }}"
   OX_SHARED_ACCOUNT_IDENTIFIER: "{{ .Values.openXchange.mappings.sharedAccountIdentifier }}"
+  OX_CONNECTOR_STOP_ON_ERROR: "{{ .Values.openXchange.stopOnError }}"
   LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash

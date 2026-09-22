@@ -44,6 +44,7 @@ A Helm chart for the ox-connector
 | openXchange.oxSharedAccount | bool | `true` | Enable provisioning of OX shared accounts. |
 | openXchange.oxSmtpServer | string | `nil` | Default SMTP server for new users if no SMTP server is set on the user object. |
 | openXchange.oxSoapServer | string | `nil` | Server where OX App Suite is installed. |
+| openXchange.stopOnError | bool | `false` | OX Connector error handling behavior. When activated, the connector stops processing on the first error instead of continuing. |
 | oxConnector.extraEnvVars | list | `[]` | Array with extra environment variables to add to containers. |
 | oxConnector.image.pullPolicy | string | `nil` | Image pull policy for the OX Connector container image. |
 | oxConnector.image.registry | string | `nil` | Container registry for the OX Connector image. |
