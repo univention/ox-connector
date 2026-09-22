@@ -15,3 +15,4 @@ and resolve common synchronization problems.
 .. toctree::
 
    ucs
+   kubernetes
