@@ -58,9 +58,8 @@ The *OX App Suite* server must meet the following prerequisites:
    configure the OX administrator credentials in the Helm values
    for the *OX Consumer*.
 
-   .. TODO: Activate the following content as soon as it's available in this document.
-      For manually managing OX contexts without the OX Connector,
-      see :ref:`usage-contexts`.
+   For manually managing OX contexts without the OX Connector,
+   see :ref:`ox-connector-usage-contexts`.
 
 #. **Duplicate display names**
 

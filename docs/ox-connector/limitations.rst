@@ -76,13 +76,9 @@ The connector logs the problem.
 
 The *OX Connector* app provides a command-line interface (CLI)
 to manage the error list.
-
-.. TODO: Add a reference to the log files after issue #175 is complete.
-
-   , see :ref:`log-files`.
-
-   For more information,
-   see :ref:`app-cli`.
+For more information,
+see :ref:`ox-connector-troubleshooting-ucs-log-files`
+and :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
 
 Regardless of the setting,
 the *OX Connector* handles HTTP, connection, timeout,
@@ -121,11 +117,10 @@ If :envvar:`OX_CONNECTOR_STOP_ON_ERROR` is ``true``
 and the *OX Connector* can't process a faulty queue item,
 it retains the task in the task list.
 The connector logs the problematic task
-in the :term:`OX Connector Provisioning Consumer` log file.
-
-.. TODO: Add reference to the logfiles, after finishing issue #175
-
-   , see :ref:`log-files`.
+in the
+:ref:`OX Connector Provisioning Consumer log file <ox-connector-troubleshooting-ucs-log-files-consumer>`.
+For more information,
+see :ref:`ox-connector-troubleshooting-ucs-log-files`.
 
 The :term:`Provisioning Service` continues to add items to the queue.
 
@@ -138,11 +133,10 @@ The :term:`Provisioning Service` continues to add items to the queue.
       the *OX Connector Provisioning Consumer* resumes processing the queue.
       It also processes items that the :term:`Provisioning Service` adds.
 
-      .. TODO: Add reference to the stopped provisioning, after finishing issue #175
-
-         As administrator, you need to resolve that conflict manually when it happens,
-         see :ref:`provision-stopped`. After the conflict resolution, the connector
-         continues to process the provisioning queue.
+      As administrator, you need to resolve that conflict manually when it happens,
+      see :ref:`ox-connector-troubleshooting-ucs-resolve-blocked-provisioning`.
+      After the conflict resolution, the connector
+      continues to process the provisioning queue.
 
    .. tab-item:: Nubus for Kubernetes
       :sync: kubernetes

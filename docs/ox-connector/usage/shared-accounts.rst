@@ -105,9 +105,7 @@ run the script with the ``--help`` option.
 The help output describes migrating multiple functional accounts in one run.
 It also explains how to supply credentials through environment variables.
 
-.. TODO: Reactivate after troubleshooting is added with #175
-
-   For troubleshooting, see :ref:`app-troubleshooting-migration`.
+For troubleshooting, see :ref:`ox-connector-troubleshooting-ucs-migration`.
 
 Choose the instructions for your OX Connector deployment.
 

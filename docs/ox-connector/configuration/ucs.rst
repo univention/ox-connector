@@ -93,9 +93,7 @@ App settings
    Before the :program:`OX Connector` provisions the first user,
    ensure that the default context exists.
 
-   .. TODO: Reactivate after the usage of contexts is available in the document. See univention/dev/projects/open-xchange/connector#171
-
-      To create a context, see :ref:`usage-contexts`.
+   To create a context, see :ref:`ox-connector-usage`.
 
    .. list-table::
       :header-rows: 1
@@ -470,9 +468,8 @@ App settings
       The failed action no longer interferes with the connector run,
       and an administrator can examine it later.
 
-   .. TODO: Reactivate after troubleshooting exists. See univention/dev/projects/open-xchange/connector#175
-
-      See also :ref:`app-troubleshooting`.
+      For information about managing provisioning tasks in Nubus for UCS,
+      see :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
 
    .. list-table::
       :header-rows: 1

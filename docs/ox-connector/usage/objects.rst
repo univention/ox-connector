@@ -194,10 +194,8 @@ To view custom *access profiles*:
 #. In the *LDAP directory* module, open
    ``open-xchange/accessprofiles/``.
 
-.. TODO: Reactivate after limitations are available with #174
-
-   For limitations about plausibility verification, see
-   :ref:`limit-access-profiles`.
+For limitations about plausibility verification, see
+:ref:`ox-connector-limitations-access-profiles-rights`.
 
 .. _ox-connector-usage-functional-accounts:
 

@@ -181,14 +181,12 @@ Don't modify the database file directly.
 shows how to inspect pending tasks on the Nubus for UCS system.
 The command displays a summary of the pending tasks.
 
+For more information about provisioning tasks,
+see :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
+
 .. code-block:: console
    :name: ox-connector-architecture-ucs-inspect-pending-tasks
    :caption: Inspect pending OX Connector tasks.
 
    $ univention-app shell ox-connector \
      python3 -m univention.ox.provisioning.db summarize-tasks
-
-.. TODO: Refers to a section in troubleshooting. Update with issue #175
-
-   For more information,
-   see :ref:`app-cli`.
