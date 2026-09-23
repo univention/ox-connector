@@ -14,12 +14,6 @@ include:
       - "jobs/container-build-external.yaml"
       - "jobs/package-and-publish-helm-charts-external.yaml"
 
-  - project: "univention/infrastructure/docker-services"
-    file:
-      - "renovatebot/renovate.gitlab-ci.yml"
-    rules:
-      - if: '$RUN_RENOVATE == "yes"'
-
   - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.55.3"
     inputs:
       helm_chart_name: "ox-connector"
@@ -29,8 +23,6 @@ include:
 
 workflow:
   rules:
-    - if: '$RUN_RENOVATE == "yes"'
-      when: always
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_OPEN_MERGE_REQUESTS'
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_PROTECTED == "true"'
@@ -68,17 +60,6 @@ variables:
     options:
       - "yes"
       - "no"
-  RUN_RENOVATE:
-    description: |
-      Set to yes if you want to run renovate
-    value: "no"
-    options:
-      - "yes"
-      - "no"
-
-.not-during-renovate: &not-during-renovate
-  - if: '$RUN_RENOVATE == "yes"'
-    when: never
 
 .build-matrix: &build-matrix
   - IMAGE_NAME: "ox-connector-appcenter"
@@ -110,11 +91,8 @@ variables:
 container-malware-scan:
   parallel:
     matrix: *build-matrix
-  rules: *not-during-renovate
 
 .version-rules: &version-rules
-  - if: '$RUN_RENOVATE == "yes"'
-    when: "never"
   - if: '$CI_PIPELINE_SOURCE == "schedule"'
     when: "never"
   - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
@@ -159,7 +137,6 @@ lint-render-manifests:
     expose_as: Rendered Kubernetes Manifests
     paths:
       - manifests/
-  rules: *not-during-renovate
 
 lint-kubeconform:
   stage: lint
@@ -174,7 +151,6 @@ lint-kubeconform:
   artifacts:
     reports:
       junit: kubeconform-report.xml
-  rules: *not-during-renovate
 
 unit-tests:
   stage: test
@@ -190,7 +166,6 @@ unit-tests:
         coverage_format: cobertura
         path: coverage.xml
     expire_in: 1 week
-  rules: *not-during-renovate
 
 container-build:
   variables:
