@@ -3,3 +3,4 @@ REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 OX_CONNECTOR_DB=sqlite:////var/lib/univention-appcenter/apps/ox-connector/data/ox-connector.db
 PROVISIONING_API_BASE_URL=https://@%@ox/connector/provisioning-server@%@/univention/provisioning/
 LOG_LEVEL=@%@OX_CONNECTOR_LOG_LEVEL@%@
+MAX_ACKNOWLEDGEMENT_RETRIES=3

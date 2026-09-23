@@ -1,7 +1,7 @@
 [Application]
 ID = ox-connector
 Code = 31
-Version = 4.0.0
+Version = 4.0.1
 Name = OX Connector
 Vendor = Univention
 Contact = feedback@univention.de
@@ -14,7 +14,7 @@ DockerScriptUpdateAppVersion =
 DockerScriptUpdateRelease =
 DockerScriptSetup =
 DockerShellCommand = /bin/bash
-DockerImage = docker.software-univention.de/ox-connector:4.0.0-dev
+DockerImage = docker.software-univention.de/ox-connector:4.0.1-dev
 DockerScriptConfigure = /tmp/ox-connector.configure
 # We need the certificates to be available at container start, so mounting them is the only valid option
 DockerVolumes = /usr/local/share/ca-certificates/ucsCA.crt:/usr/local/share/ca-certificates/ucsCA.crt, /var/lib/univention-appcenter/listener/ox-connector/:/var/lib/univention-appcenter/listener/ox-connector/

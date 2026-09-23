@@ -12,6 +12,27 @@ This changelog documents all notable changes to the :term:`OX Connector` app.
 It follows the `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format
 and adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v4.0.1:
+
+v4.0.1
+======
+
+Released: 2026-09-24
+
+Changed
+-------
+
+The users' attribute `disabled` is now actively synchronized to OX. Before, the
+state was implicit: A disabled user cannot login as no LDAP bind is possible.
+Now, we remove access to OX via the SOAP call as well as long as the user is
+disabled.
+
+Fixed
+-----
+
+The new logging mechanism introduced in 4.0.0 broke the connector in rare cases
+where it wanted to log a warning with a method that no longer exists.
+
 .. _app-changelog-v4.0.0:
 
 v4.0.0
