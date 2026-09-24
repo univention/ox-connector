@@ -13,12 +13,11 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+import datetime
 import os
 import sys
-from datetime import date
+from configparser import ConfigParser
 from pathlib import Path
-
-from ruamel.yaml import YAML
 
 # -- Project information -----------------------------------------------------
 
@@ -35,33 +34,25 @@ def ignore_gitlab_reference(constructor, node):
 
 def read_version_from_ci() -> str:
     """Read the version for the documentation from the pipeline definition."""
+    doc_target_key = os.environ.get("DOC_TARGET_VERSION")
+    if doc_target_key:
+        return doc_target_version(doc_target_key)
+
     appcenter_version = os.environ.get("APPCENTER_VERSION")
     if appcenter_version:
         return doc_target_version(appcenter_version)
 
-    yaml = YAML(typ="safe")
-    yaml.constructor.add_constructor("!reference", ignore_gitlab_reference)
-
-    ci_config = Path(__file__).resolve().parents[2] / ".gitlab-ci.yml"
-    with ci_config.open(encoding="utf-8") as fd:
-        data = yaml.load(fd)
-
-    variables = data.get("variables", {})
-    if not isinstance(variables, dict):
-        raise TypeError("Pipeline variables must be a mapping.")
-
-    appcenter_version = variables.get("APPCENTER_VERSION")
-    if not isinstance(appcenter_version, str):
-        raise ValueError("Missing APPCENTER_VERSION in pipeline variables.")
-
-    return doc_target_version(appcenter_version)
+    app_ini = Path(__file__).resolve().parents[2] / "app" / "ini"
+    app_config = ConfigParser()
+    app_config.read(app_ini)
+    return doc_target_version(app_config["Application"]["Version"])
 
 
 release = read_version_from_ci()
 version = release
-project = "OX Connector for Nubus documentation"
+project = f"OX Connector for Nubus documentation {release}"
 author = "Univention GmbH"
-year_range = date.today().year
+year_range = datetime.datetime.now(tz=datetime.UTC).date().year
 start_year = 2021
 if year_range > start_year:
     year_range = f"{start_year}-{year_range}"
