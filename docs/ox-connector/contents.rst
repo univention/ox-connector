@@ -22,5 +22,6 @@ OX Connector for Nubus documentation
 .. toctree::
    :maxdepth: 1
 
+   changelog/index
    doc-changelog
    bibliography
