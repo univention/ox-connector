@@ -20,6 +20,11 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 24. Sep 2026
+     - :ref:`ox-connector-changelog`
+     - Add the changelog entries for the *OX Connector App* on Nubus for UCS
+       and for the *OX Connector Provisioning Consumer* on Nubus for Kubernetes.
+
    * - 21. Sep 2026
      - :ref:`ox-connector-troubleshooting-ucs`
      - Add section about troubleshooting for Nubus for UCS.
