@@ -12,10 +12,11 @@ Copied from the Nubus Docs repository by Nico Gulden on 2025-05-15
 from __future__ import annotations
 
 import argparse
+import os
+from configparser import ConfigParser
 from pathlib import Path
 
 from ruamel.yaml import YAML
-
 
 BASE = Path(__file__).parent  # .gilab-ci/
 ROOT = BASE.parent
@@ -230,25 +231,18 @@ def add_jobs(pipeline: dict[str, object]) -> None:
 
 
 def read_appcenter_version() -> str:
-    import os
+    doc_target_key = os.environ.get("DOC_TARGET_VERSION")
+    if doc_target_key:
+        return doc_target_version(doc_target_key)
 
     appcenter_version = os.environ.get("APPCENTER_VERSION")
     if appcenter_version:
-        return appcenter_version
+        return doc_target_version(appcenter_version)
 
-    yaml = YAML(typ="safe")
-    with (ROOT / ".gitlab-ci.yml").open() as fd:
-        data = yaml.load(fd)
-
-    variables = data.get("variables", {})
-    if not isinstance(variables, dict):
-        raise TypeError("Pipeline variables must be a mapping.")
-
-    appcenter_version = variables.get("APPCENTER_VERSION")
-    if not isinstance(appcenter_version, str):
-        raise ValueError("Missing APPCENTER_VERSION in pipeline variables.")
-
-    return appcenter_version
+    app_ini = Path(__file__).resolve().parents[1] / "app" / "ini"
+    app_config = ConfigParser()
+    app_config.read(app_ini)
+    return doc_target_version(app_config["Application"]["Version"])
 
 
 def doc_target_version(appcenter_version: str) -> str:
