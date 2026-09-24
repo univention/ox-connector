@@ -220,10 +220,6 @@ trigger-docs:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: "never"
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
-      variables:
-        DOC_TARGET_VERSION: "${APPCENTER_VERSION}"
       changes: *changes-docs
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      variables:
-        DOC_TARGET_VERSION: "${APPCENTER_VERSION}"
       changes: *changes-docs
