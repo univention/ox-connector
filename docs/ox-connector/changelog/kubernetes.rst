@@ -6,7 +6,8 @@
 Changelog OX Connector on Kubernetes
 ************************************
 
-Find information about deploying *OX Consumer* for user provisioning at :ref:`user-provisioning`.
+Find information about deploying :term:`OX Connector Provisioning Consumer`
+for user provisioning at :ref:`ox-connector-install-on-kubernetes`.
 This changelog documents all notable changes to *OX Consumer*.
 
 This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format
@@ -23,15 +24,15 @@ Released: 2026-08-03
 Fixed
 -----
 
-Relaxed the DB integrity checks when adding relations between objects. Even
-after some objects had errors while syncing and thus could not be saved, the
-relation still needs to be added. Integrity is enforced on the library layer,
-not the DBMS.
+Relaxed database integrity checks when adding relations between objects.
+If objects encounter synchronization errors and can't be saved,
+the relation is still added.
+The library layer enforces integrity checks instead of the DBMS.
 
-If you deployed v0.41.0 at any time, you may want to `ALTER TABLE relations
-DROP CONSTRAINT relations_src_obj_id_fkey; ALTER TABLE relations DROP
-CONSTRAINT relations_dst_obj_id_fkey;` (or similar, depending on your
-database).
+If you deployed v0.41.0 and your database contains these foreign-key constraints,
+remove them with the following command:
+:command:`ALTER TABLE relations DROP CONSTRAINT relations_src_obj_id_fkey; ALTER TABLE relations DROP CONSTRAINT relations_dst_obj_id_fkey;`
+Use equivalent commands for other database systems.
 
 .. _consumer-changelog-v0.41.0:
 
@@ -44,14 +45,15 @@ Added
 -----
 
 This version adds support for *OX Shared Accounts*.
-You can now add UDM objects for shared account and corresponding shared account permissions.
-For more information, see :ref:`usage-shared-accounts`.
+You can now add UDM objects for shared accounts and their permissions.
+For more information, see :ref:`ox-connector-usage-shared-accounts`.
 
-*OX Shared Accounts* require a database to work properly.
-The *OX Connector* now requires a PostgreSQL database to operate.
-The database isn't part of the OX App Suite packaged and the OX Connector integration.
-You need to provide it separately.
-For more information, read :ref:`configure-database`.
+*OX Shared Accounts* require a database.
+The *OX Connector* now requires a PostgreSQL database.
+The database isn't included with the packaged *OX App Suite*
+and *OX Connector* integration.
+You must provide it separately.
+For more information, read :ref:`ox-connector-configuration-kubernetes-database`.
 
 .. warning::
 
@@ -62,9 +64,8 @@ For more information, read :ref:`configure-database`.
 Fixed
 -----
 
-The ox-connector pod is now correctly updated and restarted when the `openXchange.auth.password`
-value is changed.
-
+The ox-connector pod now updates and restarts correctly
+when the `openXchange.auth.password` value changes.
 
 .. _consumer-changelog-v0.36.2:
 
@@ -76,16 +77,18 @@ Released: 2026-03-17
 Removed
 -------
 
-The property `groups` in the Functional Accounts module has been removed.
-Adding groups to Functional Accounts was never supported
-and thus not an available option in the Univention Management Console.
-The logic that still made it possible to set groups via direct Univention Directory Manager access
-has been removed.
+The ``groups`` property has been removed from the *Functional Accounts* module.
+Functional accounts never supported groups,
+so the Univention Management Console didn't offer this option.
+The connector no longer lets you set groups
+through direct Univention Directory Manager access.
 
 .. important::
-    If groups were used as Functional Account members,
-    please add their members directly to the Functional Account.
-    Attempting to add a group to a Functional Account will raise an error in UDM after this update.
+
+    If groups were used as *Functional Account* members,
+    add their members directly to the *Functional Account*.
+    Attempting to add a group to a *Functional Account*
+    will raise an error in UDM after this update.
 
 
 .. _consumer-changelog-v0.36.1:
@@ -98,9 +101,10 @@ Released: 2026-03-12
 Fixed
 -----
 
-Users can give deputy permissions to other users (`oxDeputyPermissionGivenTo`).
-These references have to be updated on changes to that user. This was not done
-in case of a move operation in LDAP. This has been fixed.
+The ``oxDeputyPermissionGivenTo`` property lets users grant deputy permissions
+to other users.
+The connector didn't update these references when a referenced user was moved in LDAP.
+This issue is fixed.
 
 .. _consumer-changelog-v0.36.0:
 
@@ -112,11 +116,12 @@ Released: 4. Mar 2026
 Changed
 -------
 
-:program:`OX Consumer` now uses the UDM property ``univentionObjectIdentifier``
+The *OX Consumer* now uses the UDM property ``univentionObjectIdentifier``
 instead of ``entryUUID`` for the functional account login template.
-A functional account is a shared mailbox and calendar that multiple users share in :program:`OX App Suite`.
+A functional account provides a shared mailbox and calendar for multiple users
+in *OX App Suite*.
 If your configuration uses ``entryUUID``,
-consult the documentation for :program:`OX App Suite` and :program:`Dovecot`
+consult the *OX App Suite* and :program:`Dovecot` documentation
 to update the sign-in configuration to use ``univentionObjectIdentifier``.
 Without this update,
 users can't sign in to newly provisioned functional accounts.
@@ -132,4 +137,5 @@ After you upgrade to *OX Consumer* ``0.36.0``, validate the following:
 
 * Create a new functional account after the upgrade and verify that it was created successfully.
 * Verify that members can access the new functional account.
-* If validation fails, don't proceed with upgrading additional environments. Contact contracted support before continuing.
+* If validation fails, don't proceed with upgrading additional environments.
+  Contact your support provider before continuing.
