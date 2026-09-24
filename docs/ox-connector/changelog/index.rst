@@ -18,3 +18,4 @@ and as
    :maxdepth: 1
 
    app
+   kubernetes
