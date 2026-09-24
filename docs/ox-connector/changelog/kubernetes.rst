@@ -41,6 +41,58 @@ v0.41.0
 
 Released: 2026-07-10
 
+.. _consumer-changelog-v0.41.0-migration:
+
+Migration
+---------
+
+When you :ref:`upgrade from a previous version to v0.41.0 <consumer-changelog-v0.41.0>`,
+update your configuration so that the ``init-db`` container can complete the following procedure.
+The connector performs a full synchronization during its first startup,
+which can take some time.
+
+#. Detect empty database tables.
+#. Recreate the subscription to the *Provisioning Service*.
+#. Trigger a full synchronization of all UDM objects to the *OX Connector*.
+#. Create the cache in the database.
+
+.. warning::
+
+    Before you upgrade from a previous version to ``v0.41.0``,
+    complete the migration steps.
+    Otherwise, the *OX Connector* fails during startup.
+
+Go through the following steps to update your configuration:
+
+#. Create a PostgreSQL user and empty database for the *OX Connector*,
+   see :ref:`ox-connector-configuration-kubernetes-database`.
+
+#. Provide a PostgreSQL database connection URL through the
+   :envvar:`openXchange.oxDbConnectionString` Helm value
+   in your custom values file.
+   See :ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`.
+
+#. Retrieve the administrative credentials for the *Provisioning Service*
+   in your Nubus for Kubernetes deployment.
+   For information about retrieving these credentials,
+   refer to :external+uv-nubus-customization:ref:`customization-api-provisioning-authentication`
+   in :cite:t:`uv-nubus-customization`.
+
+   .. tip::
+
+      Use existing Kubernetes secrets
+         Instead of specifying passwords directly in the values file,
+         you can reference existing Kubernetes secrets.
+         When you use existing secrets,
+         Helm ignores inline ``password`` values.
+
+#. Provide the provisioning admin credentials through the following Helm Chart values:
+
+   * ``provisioningApi.resync.auth.username`` and  ``provisioningApi.resync.auth.password``
+   * or ``provisioningApi.resync.auth.existingSecret``
+
+#. Run :command:`helm upgrade` as described in :numref:`ox-consumer-helm-installation-listing` in :ref:`ox-connector-install-on-kubernetes-install-ox-consumer`.
+
 Added
 -----
 
@@ -57,9 +109,9 @@ For more information, read :ref:`ox-connector-configuration-kubernetes-database`
 
 .. warning::
 
-    Before you upgrade from a previous version to ``v0.41.0``
-    read :ref:`migration-v0.41.0`.
-    Otherwise, this version of the *OX Connector* fails during start.
+   Before you upgrade from a previous version to ``v0.41.0``,
+   complete the migration steps in :ref:`consumer-changelog-v0.41.0-migration`.
+   Otherwise, this version of the *OX Connector* fails during startup.
 
 Fixed
 -----
