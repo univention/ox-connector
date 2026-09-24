@@ -10,6 +10,12 @@ Shared accounts
 
 .. versionadded:: 3.2.0
 
+   Added *OX Connector App* version 3.2.0.
+
+.. versionadded:: v0.41.0
+
+   Added in *OX Connector* for Kubernetes version v.0.41.0.
+
 OX App Suite lets users and groups access shared accounts.
 Users with access to a shared account can read its email and calendar entries.
 As an administrator, you can configure fine-grained permissions for users and groups.
