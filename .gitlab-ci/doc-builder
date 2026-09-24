@@ -90,9 +90,7 @@ def main() -> None:
 
     appcenter_version = read_appcenter_version()
     pipeline.setdefault("variables", {})
-    pipeline["variables"]["DOC_TARGET_VERSION"] = doc_target_version(
-        appcenter_version,
-    )
+    pipeline["variables"]["DOC_TARGET_VERSION"] = appcenter_version
 
     add_jobs(pipeline)
 
@@ -131,6 +129,11 @@ def job_desc(
         DOC_TARGET_PATH=SPECIAL.get(pkg, {}).get("DOC_TARGET_PATH", None)
         or "$DOC_TARGET_NAME/$DOC_TARGET_VERSION/$language",
     )
+
+    if pkg == "ox-connector":
+        variables["DOC_TARGET_VERSION"] = doc_target_version(
+            read_appcenter_version(),
+        )
 
     job: dict[str, object] = {
         "variables": variables,
@@ -233,16 +236,16 @@ def add_jobs(pipeline: dict[str, object]) -> None:
 def read_appcenter_version() -> str:
     doc_target_key = os.environ.get("DOC_TARGET_VERSION")
     if doc_target_key:
-        return doc_target_version(doc_target_key)
+        return doc_target_key
 
     appcenter_version = os.environ.get("APPCENTER_VERSION")
     if appcenter_version:
-        return doc_target_version(appcenter_version)
+        return appcenter_version
 
     app_ini = Path(__file__).resolve().parents[1] / "app" / "ini"
     app_config = ConfigParser()
     app_config.read(app_ini)
-    return doc_target_version(app_config["Application"]["Version"])
+    return app_config["Application"]["Version"]
 
 
 def doc_target_version(appcenter_version: str) -> str:
