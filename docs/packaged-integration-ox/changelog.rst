@@ -19,6 +19,10 @@ Kubernetes* documentation.
      - Section
      - Change
 
+   * - 24. Sep 2026
+     - document
+     - Replace content with cross-references to new content locations.
+
    * - 22. Jun 2026
      - :ref:`migration-v0.41.0`
      - Add migration documentation for upgrading to v0.41.0 with PostgreSQL.
