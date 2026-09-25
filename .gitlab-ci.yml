@@ -14,7 +14,7 @@ include:
       - "jobs/container-build-external.yaml"
       - "jobs/package-and-publish-helm-charts-external.yaml"
 
-  - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.55.3"
+  - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.68.2"
     inputs:
       helm_chart_name: "ox-connector"
       helm_values: "--helm-values ${CI_PROJECT_DIR}/helm/ox-connector/linter_values.yaml"
