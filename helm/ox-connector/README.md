@@ -110,4 +110,4 @@ A Helm chart for the ox-connector
 | waitForDependency.image.pullPolicy | string | `nil` | Image pull policy for the dependency waiter image. |
 | waitForDependency.image.registry | string | `nil` | Container registry for the dependency waiter image. |
 | waitForDependency.image.repository | string | `"nubus/images/wait-for-dependency"` | Repository of the dependency waiter image. |
-| waitForDependency.image.tag | string | `"0.36.12@sha256:7150d72c8f342a05b945ce1b21464864aa91590d00f65ebe4b628571cce34efc"` | Tag of the dependency waiter image. |
+| waitForDependency.image.tag | string | `"0.36.17@sha256:7bd68c29709d7519967fe507c47ebd88434ba8125a0793e0f77a55af0367da0d"` | Tag of the dependency waiter image. |

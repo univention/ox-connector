@@ -129,7 +129,7 @@ waitForDependency:
     # -- Repository of the dependency waiter image.
     repository: "nubus/images/wait-for-dependency"
     # -- Tag of the dependency waiter image.
-    tag: "0.36.12@sha256:7150d72c8f342a05b945ce1b21464864aa91590d00f65ebe4b628571cce34efc"
+    tag: "0.36.17@sha256:7bd68c29709d7519967fe507c47ebd88434ba8125a0793e0f77a55af0367da0d"
 
 # Persistent volume claim settings.
 persistence:
