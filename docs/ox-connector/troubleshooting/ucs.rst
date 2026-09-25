@@ -481,14 +481,14 @@ the :term:`OX Connector Provisioning Consumer` adds the user to the group again.
 Invalid values for OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER
 ============================================================
 
-A UDM user property, or a UDM group property for ``OX_GROUP_IDENTIFIER``,
+A UDM user property, or a UDM group property for :envvar:`OX_GROUP_IDENTIFIER`,
 is valid only when it contains a single value that isn't ``None``.
 If the configured UDM property contains an empty value or a list of values,
 the *OX Connector* enters an error state.
 Set a valid value to resolve the error.
 
-Setting an invalid value for the app settings ``OX_USER_IDENTIFIER``
-or ``OX_GROUP_IDENTIFIER`` leads to the errors in :numref:`ox-connector-troubleshooting-ucs-invalidate-values-listing`
+Setting an invalid value for the app settings :envvar:`OX_USER_IDENTIFIER`
+or :envvar:`OX_GROUP_IDENTIFIER` leads to the errors in :numref:`ox-connector-troubleshooting-ucs-invalidate-values-listing`
 or :numref:`ox-connector-troubleshooting-ucs-invalidate-values-groups-listing`.
 
 .. code-block:: console

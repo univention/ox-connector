@@ -296,6 +296,8 @@ App settings
    If this app setting isn't set,
    the :program:`OX Connector` uses the ``username`` property by default.
 
+   For Nubus for Kubernetes, see :envvar:`openXchange.mappings.userIdentifier`.
+
    .. list-table::
       :header-rows: 1
       :widths: 2 2 8
@@ -325,6 +327,8 @@ App settings
    If this app setting isn't set,
    the :program:`OX Connector` uses the ``name`` property by default.
 
+   For Nubus for Kubernetes, see :envvar:`openXchange.mappings.groupIdentifier`.
+
    .. list-table::
       :header-rows: 1
       :widths: 2 2 8
@@ -353,6 +357,8 @@ App settings
    as the unique shared account identifier.
    If this app setting isn't set,
    the :program:`OX Connector` uses the ``name`` property by default.
+
+   For Nubus for Kubernetes, see :envvar:`openXchange.mappings.sharedAccountIdentifier`.
 
    .. list-table::
       :header-rows: 1
