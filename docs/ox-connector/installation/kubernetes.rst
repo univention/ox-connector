@@ -386,7 +386,16 @@ follow these steps:
    in :numref:`ox-consumer-helm-installation-listing`:
 
    * ``<NAMESPACE>``: Kubernetes namespace for the *OX Consumer*.
+     You may choose the same namespace as your Nubus for Kubernetes deployment.
+
    * ``<OX_CONSUMER_RELEASE_NAME>``: Helm Chart release name for the *OX Consumer*.
+
+     .. caution::
+
+        The release name for the *OX Consumer* must be different from your Nubus for Kubernetes release name.
+        You risk deleting your Nubus for Kubernetes installation,
+        if you select the same release name.
+
    * ``<OX_CONSUMER_VERSION>``: OX Consumer Helm Chart version to install.
 
    .. danger::
