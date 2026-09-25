@@ -2,6 +2,13 @@ version = 1
 revision = 3
 requires-python = "==3.13.*"
 
+[manifest]
+members = [
+    "ox-connector",
+    "univention-ox-provisioning",
+    "univention-ox-soap-api",
+]
+
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.7.1"
@@ -661,32 +668,32 @@ dev-scripts = [
 
 [package.metadata]
 requires-dist = [
-    { name = "lancelog", specifier = ">=0.3.4", index = "https://git.knut.univention.de/api/v4/projects/1449/packages/pypi/simple" },
-    { name = "nubus-provisioning-common", specifier = ">=0.64.0", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
-    { name = "nubus-provisioning-consumer", specifier = ">=0.64.0", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
-    { name = "udm-rest-api-client", extras = ["sync"], specifier = ">=0.1.0" },
+    { name = "lancelog", specifier = "==0.3.4", index = "https://git.knut.univention.de/api/v4/projects/1449/packages/pypi/simple" },
+    { name = "nubus-provisioning-common", specifier = "==2.2.4", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
+    { name = "nubus-provisioning-consumer", specifier = "==2.2.4", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
+    { name = "udm-rest-api-client", extras = ["sync"], specifier = "==0.1.2" },
     { name = "univention-ox-provisioning", editable = "univention-ox-provisioning" },
     { name = "univention-ox-soap-api", editable = "univention-ox-soap-api" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "kubernetes" },
-    { name = "pdbpp", specifier = ">=0.11.7" },
-    { name = "pytest" },
-    { name = "pytest-cov", specifier = ">=4.1.0" },
-    { name = "pytest-mock", specifier = ">=3.15.1" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "tenacity" },
-    { name = "uritemplate" },
+    { name = "kubernetes", specifier = "==36.0.3" },
+    { name = "pdbpp", specifier = "==0.12.1" },
+    { name = "pytest", specifier = "==9.1.1" },
+    { name = "pytest-cov", specifier = "==7.1.0" },
+    { name = "pytest-mock", specifier = "==3.15.1" },
+    { name = "python-dateutil", specifier = "==2.9.0.post0" },
+    { name = "tenacity", specifier = "==9.1.4" },
+    { name = "uritemplate", specifier = "==4.2.0" },
 ]
 dev-scripts = [
-    { name = "kubernetes" },
-    { name = "paramiko", specifier = ">=3.0.0" },
-    { name = "portforward" },
-    { name = "psycopg2" },
-    { name = "pyyaml" },
-    { name = "udm-rest-api-client", extras = ["cli"], specifier = ">=0.1.0" },
+    { name = "kubernetes", specifier = "==36.0.3" },
+    { name = "paramiko", specifier = "==5.0.0" },
+    { name = "portforward", specifier = "==0.7.6" },
+    { name = "psycopg2", specifier = "==2.9.13" },
+    { name = "pyyaml", specifier = "==6.0.3" },
+    { name = "udm-rest-api-client", extras = ["cli"], specifier = "==0.1.2" },
 ]
 
 [[package]]
@@ -1176,11 +1183,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "filetype" },
-    { name = "psycopg2" },
-    { name = "python-ldap" },
-    { name = "sqlalchemy" },
-    { name = "univention-ox-soap-api" },
+    { name = "filetype", specifier = "==1.2.0" },
+    { name = "psycopg2", specifier = "==2.9.13" },
+    { name = "python-ldap", specifier = "==3.4.8" },
+    { name = "sqlalchemy", specifier = "==2.0.54" },
+    { name = "univention-ox-soap-api", editable = "univention-ox-soap-api" },
 ]
 
 [[package]]
@@ -1195,9 +1202,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "six" },
-    { name = "tenacity" },
-    { name = "zeep" },
+    { name = "six", specifier = "==1.17.0" },
+    { name = "tenacity", specifier = "==9.1.4" },
+    { name = "zeep", specifier = "==4.3.3" },
 ]
 
 [[package]]

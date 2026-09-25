@@ -12,9 +12,9 @@ license = {text = "AGPL-3.0-only"}
 requires-python = "==3.13.*"
 
 dependencies = [
-    "six",
-    "zeep",
-    "tenacity",
+    "six==1.17.0",
+    "zeep==4.3.3",
+    "tenacity==9.1.4",
 ]
 
 [tool.hatch.build.targets.wheel]

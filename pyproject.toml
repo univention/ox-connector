@@ -15,38 +15,41 @@ requires-python = "==3.13.*"
 dependencies = [
   "univention-ox-provisioning",
   "univention-ox-soap-api",
-  "nubus-provisioning-consumer>=v0.64.0",
-  "nubus-provisioning-common>=v0.64.0",
-  "udm-rest-api-client[sync]>=v0.1.0",
-  "lancelog>=0.3.4",
+  "nubus-provisioning-consumer==2.2.4",
+  "nubus-provisioning-common==2.2.4",
+  "udm-rest-api-client[sync]==0.1.2",
+  "lancelog==0.3.4",
 ]
 
 [dependency-groups]
 dev = [
-  "pytest",
-  "pytest-cov>=4.1.0",
-  "pytest-mock>=3.15.1",
-  "uritemplate",
-  "kubernetes",
-  "pdbpp>=0.11.7",
-  "python-dateutil>=2.9.0.post0",
-  "tenacity",
+  "pytest==9.1.1",
+  "pytest-cov==7.1.0",
+  "pytest-mock==3.15.1",
+  "uritemplate==4.2.0",
+  "kubernetes==36.0.3",
+  "pdbpp==0.12.1",
+  "python-dateutil==2.9.0.post0",
+  "tenacity==9.1.4",
 ]
 dev-scripts = [
-  "paramiko>=3.0.0",
-  "udm-rest-api-client[cli]>=v0.1.0",
-  "kubernetes",
-  "pyyaml",
-  "psycopg2",
-  "portforward",
+  "paramiko==5.0.0",
+  "udm-rest-api-client[cli]==0.1.2",
+  "kubernetes==36.0.3",
+  "pyyaml==6.0.3",
+  "psycopg2==2.9.13",
+  "portforward==0.7.6",
 ]
 
 [tool.uv]
 python-preference = "system"
 
+[tool.uv.workspace]
+members = ["univention-ox-provisioning", "univention-ox-soap-api"]
+
 [tool.uv.sources]
-univention-ox-provisioning = { path = "./univention-ox-provisioning", editable = true }
-univention-ox-soap-api = { path = "./univention-ox-soap-api", editable = true }
+univention-ox-provisioning = { workspace = true }
+univention-ox-soap-api = { workspace = true }
 nubus-provisioning-consumer = { index = "nubus" }
 nubus-provisioning-common = { index = "nubus" }
 lancelog = { index = "gitlab" }
