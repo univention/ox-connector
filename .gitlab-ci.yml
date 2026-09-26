@@ -134,7 +134,7 @@ get-appcenter-version:
 test-chart-ox-connector:
   stage: test
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.21@sha256:2b5fde0de1b980c388a78883fc53d819f9116cf70be577351f6ebd33c9301518"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.22@sha256:a9254c92372e9847e792be0793d0e731678506b073ca9828e33693b7f7dad77a"
   script:
     - helm dep build helm/ox-connector
     - pytest -W error helm-unittests/
@@ -143,7 +143,7 @@ test-chart-ox-connector:
 lint-render-manifests:
   stage: lint
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.21@sha256:2b5fde0de1b980c388a78883fc53d819f9116cf70be577351f6ebd33c9301518"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.22@sha256:a9254c92372e9847e792be0793d0e731678506b073ca9828e33693b7f7dad77a"
   script:
     - helm dep build helm/ox-connector
     - helm template test helm/ox-connector
