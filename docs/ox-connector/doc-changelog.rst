@@ -20,6 +20,13 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 25. Sep 2026
+     - :ref:`ox-connector-troubleshooting-kubernetes`
+     - Add section about troubleshooting for Nubus for Kubernetes
+       and move the common content about managing provisioning tasks,
+       migration to shared accounts, and collecting support ticket information
+       to separate sections.
+
    * - 24. Sep 2026
      - :ref:`ox-connector-changelog`
      - Add the changelog entries for the *OX Connector App* on Nubus for UCS
