@@ -12,8 +12,7 @@ Use this page to troubleshoot problems with the *OX Connector* app on Nubus for 
 It explains how to inspect log files.
 It also covers known problems,
 including duplicate display names, missing group members,
-invalid identifier values, and failed shared-account migrations,
-and lists the information to collect for a support ticket.
+and invalid identifier values.
 
 .. _ox-connector-troubleshooting-ucs-log-files:
 
@@ -117,7 +116,7 @@ run the command in :numref:`ox-connector-troubleshooting-ucs-rebuild-ox-db-id-li
       can speed up cache rebuilding
       because it retrieves up to 1,000 users from one context per request.
 
-      .. code-block::
+      .. code-block:: console
          :caption: Increase performance on rebuilding the cache
          :name: ox-connector-troubleshooting-ucs-database-integrity-listing
 
@@ -138,8 +137,8 @@ run the command in :numref:`ox-connector-troubleshooting-ucs-rebuild-ox-db-id-li
 
 .. _ox-connector-troubleshooting-ucs-duplicate-display-name:
 
-Duplicate *display names*
-=========================
+Duplicate display names
+=======================
 
 Since *OX Connector* version 2.2.0,
 the UDM property *oxDisplayName* no longer has a unique constraint.
