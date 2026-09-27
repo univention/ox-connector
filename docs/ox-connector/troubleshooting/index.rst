@@ -14,5 +14,6 @@ and resolve common synchronization problems.
 
 .. toctree::
 
+   manage-tasks
    ucs
    kubernetes

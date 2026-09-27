@@ -182,7 +182,7 @@ shows how to inspect pending tasks on the Nubus for UCS system.
 The command displays a summary of the pending tasks.
 
 For more information about provisioning tasks,
-see :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
+see :ref:`ox-connector-troubleshooting-manage-provisioning-tasks`.
 
 .. code-block:: console
    :name: ox-connector-architecture-ucs-inspect-pending-tasks

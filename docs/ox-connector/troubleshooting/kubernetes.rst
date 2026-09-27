@@ -9,9 +9,7 @@ Troubleshoot OX Connector on Nubus for Kubernetes
 *************************************************
 
 Use this page to troubleshoot problems with the *OX Connector* on Nubus for Kubernetes.
-It explains how to inspect log files and provisioning tasks,
-resolve blocked provisioning,
-and re-provision data or rebuild the OX database ID cache.
+It explains how to inspect log files.
 It also covers known problems,
 including missing group members,
 and invalid identifier values.
@@ -105,27 +103,6 @@ Provisioning Service
    `kubectl logs | Kubernetes <https://kubernetes.io/docs/reference/kubectl/generated/kubectl_logs/>`_
       for more information of available parameters for :command:`kubectl logs`.
       For example, to follow the logs stream, use the option ``follow``.
-
-.. _ox-connector-troubleshooting-kubernetes-manage-provisioning-tasks:
-
-Manage provisioning tasks
-=========================
-
-.. code-block:: console
-
-   $ kubectl \
-      --namespace "$NAMESPACE_FOR_CONSUMER" \
-      get pods | grep "ox-connector"
-   # Remember the pod name
-
-   $ kubectl \
-      --namespace "$NAMESPACE_FOR_CONSUMER" \
-      execute \
-      --stdin \
-      --tty \
-      "$POD_NAME_FOR_OX_CONNECTOR" \
-      -- \
-      /usr/local/bin/univention-ox-connector-task-management --help
 
 .. _ox-connector-troubleshooting-kubernetes-database-integrity:
 

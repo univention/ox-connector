@@ -78,7 +78,7 @@ The *OX Connector* app provides a command-line interface (CLI)
 to manage the error list.
 For more information,
 see :ref:`ox-connector-troubleshooting-ucs-log-files`
-and :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
+and :ref:`ox-connector-troubleshooting-manage-provisioning-tasks`.
 
 Regardless of the setting,
 the *OX Connector* handles HTTP, connection, timeout,

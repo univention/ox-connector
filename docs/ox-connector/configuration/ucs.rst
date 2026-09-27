@@ -475,7 +475,7 @@ App settings
       and an administrator can examine it later.
 
       For information about managing provisioning tasks in Nubus for UCS,
-      see :ref:`ox-connector-troubleshooting-ucs-manage-provisioning-tasks`.
+      see :ref:`ox-connector-troubleshooting-manage-provisioning-tasks`.
 
    .. list-table::
       :header-rows: 1
