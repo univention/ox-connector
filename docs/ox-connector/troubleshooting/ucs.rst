@@ -308,24 +308,3 @@ or :numref:`ox-connector-troubleshooting-ucs-invalidate-values-groups-listing`.
     2024-01-11 13:59:36 WARNING   File "/usr/lib/python3.9/site-packages/zeep/xsd/types/builtins.py", line 27, in _wrapper
     2024-01-11 13:59:36 WARNING     raise ValueError(
     2024-01-11 13:59:36 WARNING ValueError: The String type doesn't accept collections as value
-
-
-.. _ox-connector-troubleshooting-ucs-collect-support-information:
-
-Collect information for a support ticket
-========================================
-
-Before you open a support ticket,
-collect the following information so that Univention Support can investigate
-the issue:
-
-* Relevant messages and tracebacks from
-  :ref:`ox-connector-troubleshooting-ucs-log-files`,
-  especially from the
-  :ref:`OX Connector Provisioning Consumer logs <ox-connector-troubleshooting-ucs-log-files-consumer>`.
-
-* Steps that reproduce the unexpected behavior.
-
-* The expected behavior.
-
-* Provisioning data that causes the error.
