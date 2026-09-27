@@ -134,7 +134,7 @@ The :term:`Provisioning Service` continues to add items to the queue.
       It also processes items that the :term:`Provisioning Service` adds.
 
       As administrator, you need to resolve that conflict manually when it happens,
-      see :ref:`ox-connector-troubleshooting-ucs-resolve-blocked-provisioning`.
+      see :ref:`ox-connector-troubleshooting-resolve-blocked-provisioning`.
       After the conflict resolution, the connector
       continues to process the provisioning queue.
 

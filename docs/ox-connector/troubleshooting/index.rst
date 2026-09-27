@@ -17,3 +17,4 @@ and resolve common synchronization problems.
    manage-tasks
    ucs
    kubernetes
+   migration-to-shared-accounts

@@ -111,7 +111,7 @@ run the script with the ``--help`` option.
 The help output describes migrating multiple functional accounts in one run.
 It also explains how to supply credentials through environment variables.
 
-For troubleshooting, see :ref:`ox-connector-troubleshooting-ucs-migration`.
+For troubleshooting, see :ref:`ox-connector-troubleshooting-migration`.
 
 Choose the instructions for your OX Connector deployment.
 

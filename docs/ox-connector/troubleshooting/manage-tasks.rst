@@ -197,26 +197,40 @@ To check the provisioning health, use the following steps:
                -- \
                univention-ox-connector-task-management search-morgue
 
-.. _ox-connector-troubleshooting-ucs-handle-failed-tasks:
+.. _ox-connector-troubleshooting-handle-failed-tasks:
 
 Handle failed tasks
 -------------------
 
 Decide how to handle failed tasks in the morgue.
-Use :numref:`ox-connector-troubleshooting-ucs-check-provisioning-health-morgue-listing`
-to find the ``UniventionObjectIdentifier`` of the affected object.
-Replace ``OBJECT_ID`` in the following commands with this identifier.
+
+.. tab-set::
+
+   .. tab-item:: Nubus for UCS
+      :sync: ucs
+
+      Use :numref:`ox-connector-troubleshooting-ucs-check-provisioning-health-morgue-listing`
+      to find the ``UniventionObjectIdentifier`` of the affected object.
+      Replace ``OBJECT_ID`` in the following commands with this identifier.
+
+   .. tab-item:: Nubus for Kubernetes
+      :sync: kubernetes
+
+      Use :numref:`ox-connector-troubleshooting-kubernetes-check-provisioning-health-morgue-listing`
+      to find the ``UniventionObjectIdentifier`` of the affected object.
+      Replace ``OBJECT_ID`` in the following commands with this identifier.
 
 #. **Remove the task from the morgue**:
    The *OX Connector* treats the object as though it had never received the task.
    If the underlying object changes in the LDAP directory,
    the *OX Connector* can synchronize it again and create a new task.
-   Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-remove-listing`.
 
    .. tab-set::
 
       .. tab-item:: Nubus for UCS
          :sync: ucs
+
+         Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-remove-listing`.
 
          .. code-block:: console
             :caption: Remove an item from the morgue
@@ -229,6 +243,7 @@ Replace ``OBJECT_ID`` in the following commands with this identifier.
       .. tab-item:: Nubus for Kubernetes
          :sync: kubernetes
 
+         Run the command in :numref:`ox-connector-troubleshooting-kubernetes-handle-failed-tasks-remove-listing`.
          To set the proper environment variables in the following listing,
          use the commands in
          :numref:`ox-connector-troubleshooting-kubernetes-manage-provisioning-tasks-listing`.
@@ -252,12 +267,13 @@ Replace ``OBJECT_ID`` in the following commands with this identifier.
    After you resolve the problem,
    the *OX Connector* copies the failed task back to the task list.
    For example, you might first deactivate a validation rule in *OX App Suite*.
-   Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-retry-listing`.
 
    .. tab-set::
 
       .. tab-item:: Nubus for UCS
          :sync: ucs
+
+         Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-retry-listing`.
 
          .. code-block:: console
             :caption: Retry an item from the morgue
@@ -270,6 +286,7 @@ Replace ``OBJECT_ID`` in the following commands with this identifier.
       .. tab-item:: Nubus for Kubernetes
          :sync: kubernetes
 
+         Run the command in :numref:`ox-connector-troubleshooting-kubernetes-handle-failed-tasks-retry-listing`.
          To set the proper environment variables in the following listing,
          use the commands in
          :numref:`ox-connector-troubleshooting-kubernetes-manage-provisioning-tasks-listing`.
@@ -295,12 +312,13 @@ Replace ``OBJECT_ID`` in the following commands with this identifier.
    It fetches the object again from the LDAP directory.
    This works only for the first matching object,
    so asterisks might not produce the expected result.
-   Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-resync-listing`.
 
    .. tab-set::
 
       .. tab-item:: Nubus for UCS
          :sync: ucs
+
+         Run the command in :numref:`ox-connector-troubleshooting-ucs-handle-failed-tasks-resync-listing`.
 
          .. code-block:: console
             :caption: Re-sync an existing item through UDM
@@ -313,6 +331,7 @@ Replace ``OBJECT_ID`` in the following commands with this identifier.
       .. tab-item:: Nubus for Kubernetes
          :sync: kubernetes
 
+         Run the command in :numref:`ox-connector-troubleshooting-kubernetes-handle-failed-tasks-resync-listing`.
          To set the proper environment variables in the following listing,
          use the commands in
          :numref:`ox-connector-troubleshooting-kubernetes-manage-provisioning-tasks-listing`.
@@ -332,7 +351,7 @@ Replace ``OBJECT_ID`` in the following commands with this identifier.
                resync-item \
                --obj-id=OBJECT_ID
 
-.. _ox-connector-troubleshooting-ucs-resolve-blocked-provisioning:
+.. _ox-connector-troubleshooting-resolve-blocked-provisioning:
 
 Resolve blocked provisioning
 ----------------------------
@@ -342,22 +361,22 @@ a previous change in Univention Directory Manager (UDM) might be the cause.
 The *OX Connector* can't process the change
 and retries the action until an administrator resolves the cause.
 
-First, see :ref:`ox-connector-troubleshooting-ucs-log-files`.
-Then look for warnings and errors.
-If the problem isn't temporary, such as a network connectivity problem,
-resolve it manually.
-
-As a last resort, move the task to the morgue.
-Find the task ID in the log file.
-It follows ``tasks:`` in an entry such as
-``uid=...; OBJECT_IDENTIFIER; tasks:TASK_ID``.
-Replace ``TASK_ID`` in the command in
-:numref:`ox-connector-troubleshooting-ucs-resolve-blocked-provisioning-morgue-listing`.
-
 .. tab-set::
 
    .. tab-item:: Nubus for UCS
       :sync: ucs
+
+      First, see :ref:`ox-connector-troubleshooting-ucs-log-files`.
+      Then look for warnings and errors.
+      If the problem isn't temporary, such as a network connectivity problem,
+      resolve it manually.
+
+      As a last resort, move the task to the morgue.
+      Find the task ID in the log file.
+      It follows ``tasks:`` in an entry such as
+      ``uid=...; OBJECT_IDENTIFIER; tasks:TASK_ID``.
+      Replace ``TASK_ID`` in the command in
+      :numref:`ox-connector-troubleshooting-ucs-resolve-blocked-provisioning-morgue-listing`.
 
       .. code-block:: console
          :caption: Move a task to the morgue
@@ -370,6 +389,18 @@ Replace ``TASK_ID`` in the command in
 
    .. tab-item:: Nubus for Kubernetes
       :sync: kubernetes
+
+      First, see :ref:`ox-connector-troubleshooting-kubernetes-log-files`.
+      Then look for warnings and errors.
+      If the problem isn't temporary, such as a network connectivity problem,
+      resolve it manually.
+
+      As a last resort, move the task to the morgue.
+      Find the task ID in the log file.
+      It follows ``tasks:`` in an entry such as
+      ``uid=...; OBJECT_IDENTIFIER; tasks:TASK_ID``.
+      Replace ``TASK_ID`` in the command in
+      :numref:`ox-connector-troubleshooting-kubernetes-resolve-blocked-provisioning-morgue-listing`.
 
       To set the proper environment variables in the following listing,
       use the commands in
@@ -391,7 +422,7 @@ Replace ``TASK_ID`` in the command in
             --task-id=TASK_ID \
             --error-msg="Manual intervention after careful consideration"
 
-.. _ox-connector-troubleshooting-ucs-reprovision-all-data:
+.. _ox-connector-troubleshooting-reprovision-all-data:
 
 Re-provision all data
 ---------------------
