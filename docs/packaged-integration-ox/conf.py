@@ -74,7 +74,7 @@ intersphinx_mapping = {
     ),
     "uv-ox-connector": reference_inventory(
         "ox-connector",
-        version=version,
+        version="4.x",
         language=language,
     ),
 }

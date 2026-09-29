@@ -26,6 +26,11 @@ from univention_sphinx_conf_helper.inventory_resolver import (
 # -- Project information -----------------------------------------------------
 
 
+def doc_target_version(appcenter_version: str) -> str:
+    major_version = appcenter_version.split(".", 1)[0]
+    return f"{major_version}.x"
+
+
 def ignore_gitlab_reference(constructor, node) -> None:
     """Ignore GitLab-only tags outside the variables mapping."""
     return None
@@ -171,7 +176,7 @@ intersphinx_mapping = {
     ),
     "uv-ox-connector": reference_inventory(
         "ox-connector",
-        version=version,
+        version=doc_target_version(version),
         language=language,
     ),
 }
