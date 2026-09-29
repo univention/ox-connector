@@ -113,8 +113,12 @@ html_theme_options = {
     "typesense_document_version": "latest",  # or "latest"
     "univention_matomo_tracking": True,
     "univention_docs_deployment": True,
-    "announcement": "This documentation describes a <strong>product preview</strong> "
-    + "for packaged integrations in Nubus for Kubernetes.",
+    "announcement": (
+        "<p>The content of this manual has been migrated to the "
+        "<a href='https://docs.software-univention.de/ox-connector/4.x/en/' "
+        "target='_blank' style='color: var(--pst-color-secondary)'>"
+        "OX Connector Manual</a>. "
+    ),
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
