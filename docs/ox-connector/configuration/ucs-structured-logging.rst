@@ -48,8 +48,6 @@ The fields have the following meanings:
 ``source``
    The source is the Python module name that produced the log entry.
 
-.. TODO: Use a valid logging example. See univention/dev/projects/open-xchange/connector#219
-
 .. seealso::
 
    :external+uv-nubus-manual:ref:`nubus-logging`
