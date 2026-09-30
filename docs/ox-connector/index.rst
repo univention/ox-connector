@@ -4,9 +4,9 @@
 
 .. _doc-entry:
 
-**********************
-OX Connector for Nubus
-**********************
+************
+Introduction
+************
 
 The *OX Connector* sends selected directory objects from Nubus
 to a remote *OX App Suite* installation through the OX SOAP API.
