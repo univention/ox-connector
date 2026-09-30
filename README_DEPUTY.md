@@ -44,5 +44,5 @@ I don't know how they can configure the doveadm rest api there.
 
 
 Useful links:
-- https://docs.software-univention.de/ox-connector-app/2.3.5/configuration.html#envvar-OX_ENABLE_DEPUTY_PERMISSIONS
+- https://docs.software-univention.de/ox-connector/latest/en/configuration/ucs.html#envvar-OX_ENABLE_DEPUTY_PERMISSIONS
 - https://documentation.open-xchange.com/8/middleware/permissions_and_capabilities/deputy_permission.html#introduction
