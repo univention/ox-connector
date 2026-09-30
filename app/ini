@@ -21,7 +21,7 @@ DockerVolumes = /usr/local/share/ca-certificates/ucsCA.crt:/usr/local/share/ca-c
 Description = Synchronize Nubus Users and Groups to Open-Xchange
 SupportedUcsVersions = 5.2-6 errata603
 RequiredAppVersionUpgrade = 3.2.3
-Website = https://docs.software-univention.de/ox-connector-app/latest/
+Website = https://docs.software-univention.de/ox-connector/latest/en/
 LongDescription = <p>
 		The OX Connector App synchronizes selected users and groups to a local or remote OX installation via OX' SOAP API.
 	</p>
@@ -33,7 +33,7 @@ LongDescription = <p>
 		<br>
 	</p>
 	<p>
-		For more information, see <a href="https://docs.software-univention.de/ox-connector-app/latest/">OX Connector app documentation</a>.
+		For more information, see <a href="https://docs.software-univention.de/ox-connector/latest/en/">OX Connector for Nubus Manual</a>.
 	</p>
 RequiredAppsInDomain = provisioning-service
 
@@ -56,5 +56,5 @@ LongDescription = <p>
 		<br>
 	</p>
 	<p>
-		Für weitere Informationen, siehe <a href="https://docs.software-univention.de/ox-connector-app/latest/">OX Connector app documentation</a> (nur in Englisch verfügbar).
+		Für weitere Informationen, siehe <a href="https://docs.software-univention.de/ox-connector/latest/en/">OX Connector für Nubus Handbuch</a> (nur in Englisch verfügbar).
 	</p>
