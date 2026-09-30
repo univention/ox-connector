@@ -82,7 +82,7 @@ class SoapBackend(object):
     _msg_name_missing = """
 No name for this attribute. Missing or misconfigured identifier app settings
 (OX_USER_IDENTIFIER or OX_GROUP_IDENTIFIER) might be the reason, see
-https://docs.software-univention.de/ox-connector-app/latest/troubleshooting.html#invalid-values-for-ox-user-identifier-or-ox-group-identifier
+https://docs.software-univention.de/ox-connector/latest/en/troubleshooting/ucs.html#invalid-values-for-ox-user-identifier-or-ox-group-identifier
 for more information.\
 """
 
