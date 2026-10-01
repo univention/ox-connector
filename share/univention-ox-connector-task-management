@@ -82,9 +82,11 @@ def _add_action(subparsers: Any, func: Callable[..., None]) -> None:
         }
         if not arg_params["required"]:
             arg_params["default"] = param.default
-        if param.annotation in [Path, int]:
-            arg_params["type"] = param.annotation
-        if param.annotation is bool:
+        if param.annotation == "Path":
+            arg_params["type"] = Path
+        elif param.annotation == "int":
+            arg_params["type"] = int
+        elif param.annotation == "bool":
             store_action = (
                 not param.default if param.default != inspect._empty else False
             )
