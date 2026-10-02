@@ -30,12 +30,14 @@ A Helm chart for the ox-connector
 | openXchange.auth.existingSecret.name | string | `nil` | Name of an existing Secret that contains the OX Admin password. The value in "openXchange.auth.password" is ignored if this value is set. |
 | openXchange.auth.password | string | `nil` | Password of the OX Admin user. |
 | openXchange.auth.username | string | `"oxadminmaster"` | Username of the OX Admin user. The OX Admin user can create, modify, and delete contexts and must already exist. |
+| openXchange.database.existingSecret.keyMapping.OX_CONNECTOR_DB | string | `nil` | Key in the existing Secret that holds the connection URL. Defaults to the key the chart uses in its own Secret. |
+| openXchange.database.existingSecret.name | string | `nil` | Name of an existing Secret that contains the SQLAlchemy DB connection URL. The value in "openXchange.oxDbConnectionString" is ignored if this value is set. Providing the URL this way keeps the database password out of the rendered manifests. |
 | openXchange.domainName | string | `nil` | OX mail domain that the connector uses to generate email addresses. |
 | openXchange.logLevel | string | `"INFO"` | OX Connector log level. Choose from "DEBUG", "INFO", "WARNING", and "ERROR". |
 | openXchange.mappings.groupIdentifier | string | `"name"` | UDM group property that the connector uses as the unique group identifier in OX. |
 | openXchange.mappings.sharedAccountIdentifier | string | `"name"` | UDM shared account property that the connector uses as the unique shared account identifier in OX. |
 | openXchange.mappings.userIdentifier | string | `"username"` | UDM user property that the connector uses as the unique user identifier in OX. |
-| openXchange.oxDbConnectionString | string | `nil` | SQLAlchemy DB connection URL for the OX connector. |
+| openXchange.oxDbConnectionString | string | `nil` | SQLAlchemy DB connection URL for the OX connector. Ignored if "openXchange.database.existingSecret.name" is set. |
 | openXchange.oxDefaultContext | string | `"10"` | Default OX context for users. The context must already exist. |
 | openXchange.oxDeputyPermissions | bool | `false` | Enable provisioning of OX deputy permissions. |
 | openXchange.oxImapServer | string | `nil` | Default IMAP server for new users if no IMAP server is set on the user object. |
