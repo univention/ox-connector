@@ -31,7 +31,7 @@ repos:
     hooks:
       - id: "conventional-pre-commit"
         stages: ["commit-msg"]
-        args: [--strict, --verbose]
+        args: [--strict, --verbose, --scopes=release,deps,helm,common-ci,ox-connector,Dockerfile,renovate,docs,appcenter,ox-extension,ci,udm,tests,provisioning]
 
   - repo: "https://github.com/psf/black"
     rev: "25.1.0"
