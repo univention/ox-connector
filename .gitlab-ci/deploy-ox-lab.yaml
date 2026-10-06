@@ -107,6 +107,7 @@ spec:
       grafana_cert_name: "certificates-ci-tls"
       prometheus_cert_name: "certificates-ci-tls"
       zenko_cert_name: "certificates-ci-tls"
+      zenko_tls_enabled: false
 
       # No contexts to be provisioned
       do_provisioning: false
