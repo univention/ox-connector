@@ -27,40 +27,6 @@ def find_access(find_ox_object, context_id, name, assert_empty=False):
     return obj.service(obj.context_id).get_module_access({"id": obj.id})
 
 
-def test_disabled_user(
-    udm,
-    default_ox_context,
-    new_user_name,
-    create_ox_user,
-    wait_for_listener,
-    file_utility,
-    find_ox_object,
-):
-    """
-    A disabled user must have no OX access rights
-    """
-    ox_access = "accessprofile_test_disabled_user"
-    assert get_access_profile(ox_access) is None
-    dn = create_obj(udm, ox_access, "usm")
-    wait_for_listener(dn)
-    fname = "/var/lib/univention-appcenter/apps/ox-connector/data/ModuleAccessDefinitions.properties"
-    with file_utility.open(fname) as fd:
-        content = fd.read()
-        assert f"{ox_access}=usm\n" in content
-    get_access_profiles(force_reload=True)
-    assert get_access_profile(ox_access) == ["USM"]
-
-    create_ox_user(
-        name=new_user_name,
-        further_udm_attrs={"oxAccess": ox_access, "disabled": True},
-    )
-    access = find_access(find_ox_object, default_ox_context, new_user_name)
-    for right in access:
-        if right == "OLOX20" or right == "publication":  # deprecated rights
-            continue
-        assert access[right] is False
-
-
 @pytest.mark.parametrize(
     "right,right_soap",
     [

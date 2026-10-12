@@ -10,6 +10,7 @@ import pytest
 
 from urllib.parse import urlparse
 from univention.ox.soap.backend_base import get_ox_integration_class
+from univention.ox.soap.config import DELETE_NON_OX_USERS
 from univention.ox.provisioning.users import _get_name
 
 T = typing.TypeVar("T")
@@ -36,6 +37,7 @@ def test_ignore_user(
     create_ox_user,
     default_ox_context,
     new_user_name,
+    udm,
     wait_for_listener,
 ):
     """
@@ -43,9 +45,23 @@ def test_ignore_user(
     """
     udm_object = create_ox_user(
         name=new_user_name,
-        context_id=None,
+        context_id=default_ox_context,
         enabled=False,
         wait=False,
+    )
+    wait_for_listener(udm_object.dn)
+    find_ox_object(
+        default_ox_context,
+        "User",
+        get_identifier(udm_object),
+        assert_empty=True,
+    )
+    # Modifying a user that was never created in OX (isOxUser = Not) must
+    # still not create it, regardless of OX_DELETE_NON_OX_USERS.
+    udm.modify(
+        "users/user",
+        udm_object.dn,
+        {"lastname": "Newman"},
     )
     wait_for_listener(udm_object.dn)
     find_ox_object(
@@ -778,11 +794,51 @@ def test_enable_and_disable_user(
     find_ox_object(new_context_id, "User", get_identifier(udm_object))
     udm.modify("users/user", udm_object.dn, {"isOxUser": False})
     wait_for_listener(udm_object.dn)
-    find_ox_object(
-        new_context_id,
-        "User",
-        get_identifier(udm_object),
-        assert_empty=True,
+    if DELETE_NON_OX_USERS:
+        find_ox_object(
+            new_context_id,
+            "User",
+            get_identifier(udm_object),
+            assert_empty=True,
+        )
+    else:
+        obj = find_ox_object(
+            new_context_id,
+            "User",
+            get_identifier(udm_object),
+        )
+        assert obj.mail_enabled is False
+
+
+def test_disable_user_mail_enabled(
+    find_ox_object,
+    create_ox_user,
+    default_ox_context,
+    udm,
+    wait_for_listener,
+):
+    """
+    A user with a valid access profile and disabled = True must have
+    mail_enabled = False in OX
+    """
+    udm_object = create_ox_user()
+    assert (
+        find_ox_object(
+            default_ox_context,
+            "User",
+            get_identifier(udm_object),
+        ).mail_enabled
+        is True
+    )
+    udm.modify("users/user", udm_object.dn, {"disabled": True})
+    wait_for_listener(udm_object.dn)
+    assert (
+        find_ox_object(
+            default_ox_context,
+            "User",
+            get_identifier(udm_object),
+        ).mail_enabled
+        is False
     )
 
 
@@ -1002,15 +1058,24 @@ def test_toggle_is_ox_user_property(
     )
     assert obj.name == get_identifier(udm_object)
 
-    # Toggle isOxUser back to False, and the user should be removed from OX
+    # Toggle isOxUser back to False. The user is either removed from OX
+    # (DELETE_NON_OX_USERS) or disabled.
     udm.modify("users/user", udm_object.dn, {"isOxUser": False})
     wait_for_listener(udm_object.dn)
-    find_ox_object(
-        default_ox_context,
-        "User",
-        get_identifier(udm_object),
-        assert_empty=True,
-    )
+    if DELETE_NON_OX_USERS:
+        find_ox_object(
+            default_ox_context,
+            "User",
+            get_identifier(udm_object),
+            assert_empty=True,
+        )
+    else:
+        obj = find_ox_object(
+            default_ox_context,
+            "User",
+            get_identifier(udm_object),
+        )
+        assert obj.mail_enabled is False
 
 
 def test_toggle_is_ox_user_property_no_change(
@@ -1112,6 +1177,135 @@ def test_toggle_is_ox_user_property_new_context(
         get_identifier(udm_object),
         assert_empty=False,
     )
+
+
+@pytest.mark.skipif(
+    DELETE_NON_OX_USERS,
+    reason="With OX_DELETE_NON_OX_USERS the user is deleted (not deactivated), which is covered by the other toggle tests.",
+)
+def test_deactivate_user_keeps_ox_object(
+    find_ox_object,
+    create_ox_context,
+    create_ox_user,
+    new_user_name,
+    udm,
+    wait_for_listener,
+):
+    """
+    With OX_DELETE_NON_OX_USERS disabled, unchecking "Activate User in OX"
+    (isOxUser = Not) must NOT delete the OX user. Instead it is deactivated:
+    the OX object stays present, but its mailbox is disabled
+    (mail_enabled = False). A following modification of the deactivated user
+    must not delete it either, but must still be synced to the existing OX
+    object (e.g. a changed lastname). Re-enabling the user re-enables the
+    mailbox.
+    """
+    new_context_id = create_ox_context()
+    udm_object = create_ox_user(
+        name=new_user_name,
+        context_id=new_context_id,
+        wait=False,
+    )
+    wait_for_listener(udm_object.dn)
+    obj = find_ox_object(
+        new_context_id,
+        "User",
+        get_identifier(udm_object),
+    )
+    assert obj.mail_enabled is True
+
+    # First modification: deactivate. The user stays but with a disabled
+    # mailbox.
+    udm.modify("users/user", udm_object.dn, {"isOxUser": False})
+    wait_for_listener(udm_object.dn)
+    # The OX object must still exist ...
+    obj = find_ox_object(
+        new_context_id,
+        "User",
+        get_identifier(udm_object),
+    )
+    # ... but be deactivated (mailbox disabled).
+    assert obj.mail_enabled is False
+
+    # Second modification: while the user is deactivated, change its
+    # lastname. This must not delete the user, but the modification must be
+    # synced to the existing OX object.
+    new_lastname = "Newman"
+    udm.modify(
+        "users/user",
+        udm_object.dn,
+        {"lastname": new_lastname},
+    )
+    wait_for_listener(udm_object.dn)
+    obj = find_ox_object(
+        new_context_id,
+        "User",
+        get_identifier(udm_object),
+    )
+    assert obj.sur_name == new_lastname
+    assert obj.mail_enabled is False
+
+    # Re-enabling the user re-enables the mailbox.
+    udm.modify("users/user", udm_object.dn, {"isOxUser": True})
+    wait_for_listener(udm_object.dn)
+    obj = find_ox_object(
+        new_context_id,
+        "User",
+        get_identifier(udm_object),
+    )
+    assert obj.mail_enabled is True
+    assert obj.sur_name == new_lastname
+
+
+@pytest.mark.skipif(
+    DELETE_NON_OX_USERS,
+    reason="With OX_DELETE_NON_OX_USERS the user is deleted (not deactivated), so there is nothing to move.",
+)
+def test_change_context_of_deactivated_user(
+    find_ox_object,
+    create_ox_context,
+    create_ox_user,
+    new_user_name,
+    udm,
+    wait_for_listener,
+):
+    """
+    With OX_DELETE_NON_OX_USERS disabled, changing the context of a
+    deactivated user (isOxUser = Not) must move the user (UserCopy into the
+    new context, delete in the old one). It must NOT just delete the user in
+    the old context without creating it in the new one.
+    """
+    old_context_id = create_ox_context()
+    udm_object = create_ox_user(
+        name=new_user_name,
+        context_id=old_context_id,
+        wait=False,
+    )
+    wait_for_listener(udm_object.dn)
+    find_ox_object(old_context_id, "User", get_identifier(udm_object))
+
+    udm.modify("users/user", udm_object.dn, {"isOxUser": False})
+    wait_for_listener(udm_object.dn)
+    obj = find_ox_object(old_context_id, "User", get_identifier(udm_object))
+    assert obj.mail_enabled is False
+
+    new_context_id = create_ox_context()
+    udm.modify("users/user", udm_object.dn, {"oxContext": new_context_id})
+    wait_for_listener(udm_object.dn)
+    find_ox_object(
+        old_context_id,
+        "User",
+        get_identifier(udm_object),
+        assert_empty=True,
+    )
+    obj = find_ox_object(new_context_id, "User", get_identifier(udm_object))
+    assert obj.mail_enabled is False
+
+    # Re-enabling the user in the new context re-enables the mailbox.
+    udm.modify("users/user", udm_object.dn, {"isOxUser": True})
+    wait_for_listener(udm_object.dn)
+    obj = find_ox_object(new_context_id, "User", get_identifier(udm_object))
+    assert obj.mail_enabled is True
 
 
 def test_default_sender_address(
