@@ -66,6 +66,7 @@ from univention.ox.soap.config import (
     LOCAL_TIMEZONE,
     get_context_admin_user,
     USER_IDENTIFIER,
+    DELETE_NON_OX_USERS,
 )
 
 User = get_ox_integration_class("SOAP", "User")
@@ -281,10 +282,7 @@ def update_user(
     if initial_values:
         user.timezone = LOCAL_TIMEZONE
 
-    user.mail_enabled = attributes.get(
-        "oxAccess",
-        "none",
-    ) != "none" and not attributes.get("disabled")
+    user.mail_enabled = is_activated(attributes)
 
 
 def set_user_rights(user, obj):
@@ -316,6 +314,14 @@ def set_user_rights(user, obj):
     )
 
 
+def is_activated(attributes):
+    return (
+        attributes.get("oxAccess", "none") != "none"
+        and not attributes.get("disabled")
+        and is_ox_user(attributes)
+    )
+
+
 def get_user_id(attributes, lookup_ox=True):
     context_id = get_context_id(attributes)
     username = _get_name(attributes)
@@ -344,7 +350,7 @@ def get_user_id(attributes, lookup_ox=True):
 
 def create_user(obj, user_copy_service=None, user_id=None):
     logger.info("Creating object", object=obj)
-    if not is_ox_user(obj.attributes):
+    if not is_ox_user(obj.attributes) and DELETE_NON_OX_USERS:
         logger.info("Object is no OX user. Deleting instead...", object=obj)
         return delete_user(obj)
     try:
@@ -356,6 +362,12 @@ def create_user(obj, user_copy_service=None, user_id=None):
                 )
             logger.info("Object exists. Modifying instead...", object=obj)
             return modify_user(obj)
+        elif not is_ox_user(obj.attributes) and not user_copy_service:
+            logger.info(
+                "Object is no OX user and does not exist. Ignoring...",
+                object=obj,
+            )
+            return
     except SkipContextAdmin:
         raise
     except Skip:
@@ -446,7 +458,7 @@ def create_user(obj, user_copy_service=None, user_id=None):
 
 def modify_user(obj):
     logger.info("Modifying object", object=obj)
-    if not is_ox_user(obj.attributes):
+    if not is_ox_user(obj.attributes) and DELETE_NON_OX_USERS:
         logger.info("Object is no OX user. Deleting instead...", object=obj)
         return delete_user(obj)
     try:
@@ -473,11 +485,6 @@ def modify_user(obj):
         )
         return create_user(obj)
     if obj.old_attributes:
-        if not is_ox_user(obj.old_attributes):
-            logger.warning(
-                "Object was no OX user before... that should not be the case. Modifying anyway...",
-                object=obj,
-            )
         try:
             old_context = get_context_id(obj.old_attributes)
         except Skip:

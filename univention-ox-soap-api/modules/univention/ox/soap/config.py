@@ -11,6 +11,7 @@ DEFAULT_IMAP_SERVER = os.environ.get("OX_IMAP_SERVER", "imap://localhost:143")
 DEFAULT_SMTP_SERVER = os.environ.get("OX_SMTP_SERVER", "smtp://localhost:587")
 DEFAULT_CONTEXT = int(os.environ.get("DEFAULT_CONTEXT", 10))
 DEFAULT_LANGUAGE = os.environ.get("OX_LANGUAGE", "de_DE")
+DELETE_NON_OX_USERS = os.environ.get("OX_DELETE_NON_OX_USERS") != "False"
 DOMAIN = os.environ.get("DOMAINNAME", "localhost.localdomain")
 IMAP_LOGIN = os.environ.get("OX_IMAP_LOGIN", "{}")
 LOCAL_TIMEZONE = os.environ.get("LOCAL_TIMEZONE", "Europe/Berlin")
