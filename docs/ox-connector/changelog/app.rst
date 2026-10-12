@@ -12,6 +12,21 @@ This changelog documents all notable changes to the :term:`OX Connector` app.
 It follows the `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format
 and adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v4.1.0:
+
+v4.1.0
+======
+
+Released: 2026-10-13
+
+Added
+-----
+
+A new setting :envvar:`OX_DELETE_NON_OX_USERS` controls whether the app deletes or
+disables a user that was previously provisioned as an OX user but now was
+updated and the checkbox `Activate User in OX` was unchecked. Previously, the
+user was always deleted; now, you can choose how the connector behaves.
+
 .. _app-changelog-v4.0.1:
 
 v4.0.1

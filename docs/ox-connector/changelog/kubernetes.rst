@@ -14,6 +14,23 @@ This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ 
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 
+.. _consumer-changelog-v0.47.0:
+
+v0.47.0
+=======
+
+Released: 2026-10-13
+
+Added
+-----
+
+A new Helm Chart value ``openXchange.deleteNonOxUsers`` controls whether the
+*OX Connector* deletes or disables a user that was previously provisioned as an
+OX user but now was updated and the checkbox *Activate User in OX* was
+unchecked. Previously, the user was always deleted; now, you can choose how the
+connector behaves.
+For more information, see :ref:`ox-connector-configuration-kubernetes-delete-non-ox-users`.
+
 .. _consumer-changelog-v0.41.1:
 
 v0.41.1

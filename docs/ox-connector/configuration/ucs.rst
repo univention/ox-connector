@@ -489,6 +489,34 @@ App settings
         - Boolean
         - ``True``
 
+.. envvar:: OX_DELETE_NON_OX_USERS
+
+   Changes how the :program:`OX Connector` app handles the unchecked checkbox
+   `Activate User in OX`. Set one of the following values:
+
+   ``True``
+      Delete the user.
+      When a user was previously provisioned as an OX user, the user is
+      now deleted. This may delete user data such as calendars.
+
+   ``False``
+      Disable the user.
+      When a user was previously provisioned as an OX user, the user is kept,
+      but disabled. The app will only delete a user in OX if the user is
+      actually deleted in UDM.
+
+   .. list-table::
+      :header-rows: 1
+      :widths: 2 2 8
+
+      * - Required
+        - Type
+        - Initial value
+
+      * - No
+        - Boolean
+        - ``True``
+
 .. _ox-connector-configuration-ucs-ucr-variables:
 
 UCR variables

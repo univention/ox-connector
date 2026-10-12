@@ -36,6 +36,30 @@ ensure the following requirements for the database for the *OX Connector* in Pos
 For information about how to configure the database connection,
 see :envvar:`openXchange.oxDbConnectionString` in :ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`.
 
+.. _ox-connector-configuration-kubernetes-delete-non-ox-users:
+
+Delete or disable users
+-----------------------
+
+.. versionadded:: v0.47.0
+
+The Helm Chart value ``openXchange.deleteNonOxUsers`` changes how the
+*OX Connector* handles the unchecked checkbox *Activate User in OX*.
+Set one of the following values:
+
+``true``
+   Delete the user.
+   When a user was previously provisioned as an OX user, the user is
+   now deleted. This may delete user data such as calendars.
+
+``false``
+   Disable the user.
+   When a user was previously provisioned as an OX user, the user is kept,
+   but disabled. The *OX Connector* will only delete a user in OX if the user
+   is actually deleted in UDM.
+
+The default value is ``true``.
+
 .. _ox-connector-configuration-kubernetes-helm-chart-reference:
 
 Helm Chart references values
