@@ -119,6 +119,8 @@ openXchange:
     sharedAccountIdentifier: "name"
   # -- OX Connector error handling behavior. When activated, the connector stops processing on the first error instead of continuing.
   stopOnError: false
+  # -- Delete users from OX when "Activate User in OX" is unchecked. When disabled, the user is deactivated (if it existed) instead.
+  deleteNonOxUsers: true
 
 waitForDependency:
   image:

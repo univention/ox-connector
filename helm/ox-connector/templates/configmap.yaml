@@ -35,6 +35,7 @@ data:
   OX_GROUP_IDENTIFIER: "{{ .Values.openXchange.mappings.groupIdentifier }}"
   OX_SHARED_ACCOUNT_IDENTIFIER: "{{ .Values.openXchange.mappings.sharedAccountIdentifier }}"
   OX_CONNECTOR_STOP_ON_ERROR: "{{ .Values.openXchange.stopOnError }}"
+  OX_DELETE_NON_OX_USERS: "{{ if .Values.openXchange.deleteNonOxUsers }}True{{ else }}False{{ end }}"
   LOG_LEVEL: "{{ .Values.openXchange.logLevel }}"
   wait-for-api.sh: |
     #!/bin/bash

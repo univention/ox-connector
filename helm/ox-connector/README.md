@@ -30,6 +30,7 @@ A Helm chart for the ox-connector
 | openXchange.auth.existingSecret.name | string | `nil` | Name of an existing Secret that contains the OX Admin password. The value in "openXchange.auth.password" is ignored if this value is set. |
 | openXchange.auth.password | string | `nil` | Password of the OX Admin user. |
 | openXchange.auth.username | string | `"oxadminmaster"` | Username of the OX Admin user. The OX Admin user can create, modify, and delete contexts and must already exist. |
+| openXchange.deleteNonOxUsers | bool | `true` | Delete users from OX when "Activate User in OX" is unchecked. When disabled, the user is deactivated (if it existed) instead. |
 | openXchange.domainName | string | `nil` | OX mail domain that the connector uses to generate email addresses. |
 | openXchange.logLevel | string | `"INFO"` | OX Connector log level. Choose from "DEBUG", "INFO", "WARNING", and "ERROR". |
 | openXchange.mappings.groupIdentifier | string | `"name"` | UDM group property that the connector uses as the unique group identifier in OX. |
