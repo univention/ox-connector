@@ -24,12 +24,12 @@ properties:
   module: [users/user]
   ldapMapping: isOxUser
   objectClass: oxUserObject
-  shortDescription: Activate User in OX (unchecking will delete!)
-  longDescription: Activate User in OX (unchecking will delete!)
+  shortDescription: Activate User in OX (unchecking may delete!)
+  longDescription: Depending on the OX Connector configuration, deactivating either deletes the user (including their data) or deactivates them.
   translationShortDescription:
-    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
+    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht u.U.!)
   translationLongDescription:
-    de_DE: In Open-Xchange aktivieren (Deaktivieren löscht!)
+    de_DE: Entsprechend der Konfiguration des OX-Connectors löscht das Deaktivieren einen Benutzer in OX (mitsamt der Benutzerdaten) oder deaktiviert ihn.
   tabName: OX App Suite
   overwriteTab:
   valueRequired: false
