@@ -27,6 +27,13 @@ disables a user that was previously provisioned as an OX user but now was
 updated and the checkbox `Activate User in OX` was unchecked. Previously, the
 user was always deleted; now, you can choose how the connector behaves.
 
+Fixed
+-----
+
+Upgrading from an older version could lead to errors when deleting objects due
+to a leftover ``NOT NULL`` constraint on the ``attrs`` column of the ``tasks``
+and ``morgue`` tables. The app now removes that constraint during the upgrade.
+
 .. _app-changelog-v4.0.1:
 
 v4.0.1

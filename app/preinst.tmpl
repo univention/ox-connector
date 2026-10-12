@@ -95,6 +95,113 @@ setup_docker_params() {
     fi
 }
 
+# OX-Connector version 3.x initialized the attrs column with
+# NOT NULL version 4.x removed this. We need to migrate the sqlite db
+# unfortunately sqlite has no migration functionality
+# so we need to recreate the tables
+migrate_db_schema() {
+    local db_file
+    local migrated=0
+    local rc
+
+    for db_file in \
+        "/var/lib/univention-appcenter/apps/${APP_ID}/data/ox-connector.db" \
+        "/var/lib/univention-appcenter/apps/${APP_ID}/data/listener/ox-connector.db"; do
+        # no db no problem
+        if [[ ! -f "${db_file}" ]]; then
+            continue
+        fi
+
+        echo "Checking database schema of ${db_file}"
+        if python3 - "${db_file}" <<'PYEOF'
+import shutil
+import sqlite3
+import sys
+from datetime import datetime
+
+SCHEMAS = {
+    "tasks": (
+        "CREATE TABLE tasks ("
+        "id INTEGER NOT NULL, obj_id VARCHAR NOT NULL, "
+        "udm_module VARCHAR NOT NULL, dn VARCHAR NOT NULL, attrs VARCHAR, "
+        "status VARCHAR NOT NULL, num_errors INTEGER NOT NULL, "
+        "created_at DATETIME, PRIMARY KEY (id))",
+        "CREATE INDEX tasks_created_at ON tasks (created_at)",
+    ),
+    "morgue": (
+        "CREATE TABLE morgue ("
+        "id INTEGER NOT NULL, obj_id VARCHAR NOT NULL, "
+        "udm_module VARCHAR NOT NULL, dn VARCHAR NOT NULL, attrs VARCHAR, "
+        "error_msg VARCHAR NOT NULL, timestamp DATETIME, PRIMARY KEY (id))",
+        "CREATE INDEX morgue_obj_id ON morgue (obj_id)",
+    ),
+}
+
+db_file = sys.argv[1]
+connection = sqlite3.connect(db_file, isolation_level=None)
+
+# check if migration already happened
+stale = [
+    table
+    for table in SCHEMAS
+    if connection.execute(
+        f'SELECT "notnull" FROM pragma_table_info({table!r}) '
+        "WHERE name = 'attrs'",
+    ).fetchone()[0]
+]
+if not stale:
+    sys.exit(3)
+
+backup = f"{db_file}.backup-{datetime.now():%Y%m%d-%H%M%S}"
+shutil.copy2(db_file, backup)
+print(f"Backing up database to {backup}")
+
+connection.execute("BEGIN")
+try:
+    for table in stale:
+        create_ddl, index_ddl = SCHEMAS[table]
+        connection.execute(f'ALTER TABLE "{table}" RENAME TO "{table}_old"')
+        connection.execute(create_ddl)
+        connection.execute(
+            f'INSERT INTO "{table}" SELECT * FROM "{table}_old"',
+        )
+        connection.execute(f'DROP TABLE "{table}_old"')
+        connection.execute(index_ddl)
+    connection.commit()
+except Exception:
+    connection.rollback()
+    raise
+finally:
+    connection.close()
+PYEOF
+        then
+            migrated=1
+        else
+            rc=$?
+            if [[ ${rc} -ne 3 ]]; then
+                echo "ERROR: database schema migration failed (exit ${rc})." >&2
+                exit "${rc}"
+            fi
+        fi
+    done
+
+    if [[ ${migrated} -eq 1 ]]; then
+        echo "Restarting ox-connector."
+        univention-app restart "${APP_ID}"
+        container="$(ucr get "appcenter/apps/${APP_ID}/container")"
+        for attempt in $(seq 1 20); do
+            if docker inspect --format '{{.State.Running}}' \
+                "${container}" 2>/dev/null | grep -q true; then
+                sleep 10
+                echo "Container is running"
+                break
+            fi
+            sleep 5
+        done
+    fi
+}
+
+migrate_db_schema
 setup_provisioning_subscriptions "${@}"
 setup_docker_params
 
