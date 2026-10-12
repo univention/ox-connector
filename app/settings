@@ -130,3 +130,11 @@ ShowReadOnly = Settings
 Type = String
 InitialValue = @%@ldap/master@%@
 Scope = outside
+
+[OX_DELETE_NON_OX_USERS]
+Description = When unchecking the box "Activate User in OX", the user will be deleted. Otherwise, the user will be deactivated (if the user existed).
+Description[de] = Beim Deaktivieren der Box "In Open-Xchange aktivieren" wird der Benutzer gelöscht. Sonst wird der Benutzer (falls vorhanden) deaktiviert.
+Show = Install, Settings
+Type = Bool
+Required = False
+InitialValue = True
