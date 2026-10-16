@@ -315,6 +315,10 @@ follow these steps:
       ``<HOSTNAME>``,
       and ``<DATABASE_NAME>`` with the values for your database connection.
 
+      You can also provide the connection string in an existing secret instead,
+      see :envvar:`openXchange.database.existingSecret.name` and
+      :envvar:`openXchange.database.existingSecret.keyMapping.OX_CONNECTOR_DB`.
+
    Section :ref:`helm-ref-provisioningapi`
       :envvar:`provisioningApi.auth.username`:
       The value of the ``name`` attribute in :numref:`ox-connector-kubernetes-subscription-listing`.

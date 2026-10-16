@@ -14,6 +14,21 @@ This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ 
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 
+.. _consumer-changelog-v0.48.0:
+
+v0.48.0
+=======
+
+Released: 2026-10-23
+
+Added
+-----
+
+A new Helm Chart value ``openXchange.database.existingSecret`` allows to specify
+the *OX Connector*'s DB connection string from in existing secret (rather than
+as a plain string in ``openXchange.oxDbConnectionString``.
+For more information, see :ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`.
+
 .. _consumer-changelog-v0.47.0:
 
 v0.47.0

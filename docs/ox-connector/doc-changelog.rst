@@ -20,6 +20,11 @@ Year 2026
      - Chapter or topic
      - Change
 
+   * - 23. Oct 2026
+     - :ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`
+     - Update section about database configuration to include configuration from
+       an existing secret.
+
    * - 25. Sep 2026
      - :ref:`ox-connector-troubleshooting-kubernetes`
      - Add section about troubleshooting for Nubus for Kubernetes
