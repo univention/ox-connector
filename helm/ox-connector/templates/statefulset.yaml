@@ -84,8 +84,8 @@ spec:
             - name: "OX_CONNECTOR_DB"
               valueFrom:
                 secretKeyRef:
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.database.existingSecret "key" "OX_CONNECTOR_DB" "context" .) | quote }}
                   name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.database.existingSecret "defaultNameSuffix" "db-connection-string" "context" .) | quote }}
-                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.database.existingSecret "key" "OX_CONNECTOR_DB") | quote }}
             - name: PROVISIONING_API_RESYNC_ENABLED
               value: {{ .Values.provisioningApi.resync.enabled | quote }}
             {{- if .Values.provisioningApi.resync.enabled }}
@@ -132,8 +132,8 @@ spec:
             - name: "OX_CONNECTOR_DB"
               valueFrom:
                 secretKeyRef:
+                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.database.existingSecret "key" "OX_CONNECTOR_DB" "context" .) | quote }}
                   name: {{ include "nubus-common.secrets.name" (dict "existingSecret" .Values.openXchange.database.existingSecret "defaultNameSuffix" "db-connection-string" "context" .) | quote }}
-                  key: {{ include "nubus-common.secrets.key" (dict "existingSecret" .Values.openXchange.database.existingSecret "key" "OX_CONNECTOR_DB") | quote }}
           {{- with .Values.oxConnector.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}
