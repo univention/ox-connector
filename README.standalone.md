@@ -13,6 +13,13 @@ You can run the helm unittests with the following command:
 docker compose -f helm/docker-compose.yaml run --rm test
 ```
 
+They can also be run from the local venv:
+
+```sh
+uv sync --dev
+uv run pytest helm-unittests/
+```
+
 ## Test via Nubus and OX Lab deployment
 
 The testing is fully automated within the pipeline in the following files:

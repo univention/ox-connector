@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.13.*"
 
 [manifest]
@@ -415,6 +415,19 @@ wheels = [
 ]
 
 [[package]]
+name = "helm-test-harness"
+version = "0.29.22"
+source = { registry = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple" }
+dependencies = [
+    { name = "pytest-helm" },
+    { name = "pytest-subtests" },
+]
+sdist = { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/f459e15bdd95b7251a9907af64a0b4772a7b9b56e02ade04b21bb261b3101d56/helm_test_harness-0.29.22.tar.gz", hash = "sha256:f459e15bdd95b7251a9907af64a0b4772a7b9b56e02ade04b21bb261b3101d56" }
+wheels = [
+    { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/f44ce0f64434c1b31bc69bc9e472693cdedee0837c23101654bf09fb2bb56f32/helm_test_harness-0.29.22-py3-none-any.whl", hash = "sha256:f44ce0f64434c1b31bc69bc9e472693cdedee0837c23101654bf09fb2bb56f32" },
+]
+
+[[package]]
 name = "idna"
 version = "3.20"
 source = { registry = "https://pypi.org/simple" }
@@ -648,10 +661,12 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "helm-test-harness" },
     { name = "kubernetes" },
     { name = "pdbpp" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pytest-helm" },
     { name = "pytest-mock" },
     { name = "python-dateutil" },
     { name = "tenacity" },
@@ -678,10 +693,12 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "helm-test-harness", index = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple" },
     { name = "kubernetes", specifier = "==36.0.3" },
     { name = "pdbpp", specifier = "==0.12.1" },
     { name = "pytest", specifier = "==9.1.1" },
     { name = "pytest-cov", specifier = "==7.1.0" },
+    { name = "pytest-helm", index = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple" },
     { name = "pytest-mock", specifier = "==3.15.1" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
     { name = "tenacity", specifier = "==9.1.4" },
@@ -963,6 +980,21 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-helm"
+version = "0.29.22"
+source = { registry = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple" }
+dependencies = [
+    { name = "pytest" },
+    { name = "pytest-mock" },
+    { name = "python-jsonpath" },
+    { name = "ruamel-yaml" },
+]
+sdist = { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/77dd002b753d85a16951ef4b319c2b3bcd96694dcda7a8d11919feaf80283b56/pytest_helm-0.29.22.tar.gz", hash = "sha256:77dd002b753d85a16951ef4b319c2b3bcd96694dcda7a8d11919feaf80283b56" }
+wheels = [
+    { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/096f73facd3dd01475b59b31eb27ed8a4974f64f28161519ddcd36861ed741e5/pytest_helm-0.29.22-py3-none-any.whl", hash = "sha256:096f73facd3dd01475b59b31eb27ed8a4974f64f28161519ddcd36861ed741e5" },
+]
+
+[[package]]
 name = "pytest-mock"
 version = "3.15.1"
 source = { registry = "https://pypi.org/simple" }
@@ -972,6 +1004,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/68/14/eb014d26be205d38ad5ad20d9a80f7d201472e08167f0bb4361e251084a9/pytest_mock-3.15.1.tar.gz", hash = "sha256:1849a238f6f396da19762269de72cb1814ab44416fa73a8686deac10b0d87a0f", size = 34036, upload-time = "2025-09-16T16:37:27.081Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5a/cc/06253936f4a7fa2e0f48dfe6d851d9c56df896a9ab09ac019d70b760619c/pytest_mock-3.15.1-py3-none-any.whl", hash = "sha256:0a25e2eb88fe5168d535041d09a4529a188176ae608a6d249ee65abc0949630d", size = 10095, upload-time = "2025-09-16T16:37:25.734Z" },
+]
+
+[[package]]
+name = "pytest-subtests"
+version = "0.15.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bb/d9/20097971a8d315e011e055d512fa120fd6be3bdb8f4b3aa3e3c6bf77bebc/pytest_subtests-0.15.0.tar.gz", hash = "sha256:cb495bde05551b784b8f0b8adfaa27edb4131469a27c339b80fd8d6ba33f887c", size = 18525, upload-time = "2025-10-20T16:26:18.358Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/23/64/bba465299b37448b4c1b84c7a04178399ac22d47b3dc5db1874fe55a2bd3/pytest_subtests-0.15.0-py3-none-any.whl", hash = "sha256:da2d0ce348e1f8d831d5a40d81e3aeac439fec50bd5251cbb7791402696a9493", size = 9185, upload-time = "2025-10-20T16:26:17.239Z" },
 ]
 
 [[package]]
@@ -993,6 +1038,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6a/53/ed9d74092561d4b01a2ef1349d52cdbc135e526c245f366b089cfca6de49/python_dotenv-1.2.3.tar.gz", hash = "sha256:a20a594dabeaa385725aa239d5244871c143ecb356add8a20fcf23773a6c3a35", size = 58945, upload-time = "2026-08-16T16:54:54.067Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0d/17/c5c6b53ddc18f297992099b3d9ec16c855c0ccc83263a21fe4d1c625ec6c/python_dotenv-1.2.3-py3-none-any.whl", hash = "sha256:904552145e8bfed22162c09dab1c2b9b54fefa7b23ba780f4f26ca0316b0f0d9", size = 22780, upload-time = "2026-08-16T16:54:52.473Z" },
+]
+
+[[package]]
+name = "python-jsonpath"
+version = "2.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ee/65/5dcdbd783b98a936f6aacee699aed4c0978d74cb0f8ad61dc59bb39b809a/python_jsonpath-2.2.1.tar.gz", hash = "sha256:3de7862cbc56566b61c2c25fe5a398bbba9466e972c1069a4c82cb60a8034dc5", size = 51022, upload-time = "2026-07-07T09:56:08.062Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/c1/e8ccd211bc8c411eb84341ae3ded659e6bdb926697fb7724e2dbbf8077cf/python_jsonpath-2.2.1-py3-none-any.whl", hash = "sha256:ff3a65df52336fec13e2728612d6e2a76221264762a1b5385fac5dd21ae6f40e", size = 65235, upload-time = "2026-07-07T09:56:06.755Z" },
 ]
 
 [[package]]
@@ -1073,6 +1127,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f3/61/d7545dafb7ac2230c70d38d31cbfe4cc64f7144dc41f6e4e4b78ecd9f5bb/requests-toolbelt-1.0.0.tar.gz", hash = "sha256:7681a0a3d047012b5bdc0ee37d7f8f07ebe76ab08caeccfc3921ce23c88d5bc6", size = 206888, upload-time = "2023-05-01T04:11:33.229Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/51/d4db610ef29373b879047326cbf6fa98b6c1969d6f6dc423279de2b1be2c/requests_toolbelt-1.0.0-py2.py3-none-any.whl", hash = "sha256:cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06", size = 54481, upload-time = "2023-05-01T04:11:28.427Z" },
+]
+
+[[package]]
+name = "ruamel-yaml"
+version = "0.19.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/3b/ebda527b56beb90cb7652cb1c7e4f91f48649fbcd8d2eb2fb6e77cd3329b/ruamel_yaml-0.19.1.tar.gz", hash = "sha256:53eb66cd27849eff968ebf8f0bf61f46cdac2da1d1f3576dd4ccee9b25c31993", size = 142709, upload-time = "2026-01-02T16:50:31.84Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b8/0c/51f6841f1d84f404f92463fc2b1ba0da357ca1e3db6b7fbda26956c3b82a/ruamel_yaml-0.19.1-py3-none-any.whl", hash = "sha256:27592957fedf6e0b62f281e96effd28043345e0e66001f97683aa9a40c667c93", size = 118102, upload-time = "2026-01-02T16:50:29.201Z" },
 ]
 
 [[package]]

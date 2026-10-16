@@ -31,6 +31,8 @@ dev = [
   "pdbpp==0.12.1",
   "python-dateutil==2.9.0.post0",
   "tenacity==9.1.4",
+  "helm-test-harness",
+  "pytest-helm",
 ]
 dev-scripts = [
   "paramiko==5.0.0",
@@ -53,6 +55,8 @@ univention-ox-soap-api = { workspace = true }
 nubus-provisioning-consumer = { index = "nubus" }
 nubus-provisioning-common = { index = "nubus" }
 lancelog = { index = "gitlab" }
+helm-test-harness = { index = "common-helm" }
+pytest-helm = { index = "common-helm" }
 
 [[tool.uv.index]]
 name = "nubus"
@@ -64,6 +68,11 @@ name = "gitlab"
 url = "https://git.knut.univention.de/api/v4/projects/1449/packages/pypi/simple"  # lancelog
 explicit = true
 default = false
+
+[[tool.uv.index]]
+name = "common-helm"
+url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple"  # helm-test-harness, pytest-helm
+explicit = true
 
 [tool.pytest.ini_options]
 markers = [
