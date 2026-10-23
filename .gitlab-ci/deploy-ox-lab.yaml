@@ -96,6 +96,7 @@ spec:
 
       # Not mark OpenEBS's hostpath storageclass as the cluster-wide default
       openebs_localpv_hostpath_storageclass_as_default: false
+      install_openebs: false
 
       # Avoid certificates. Our CI deployment uses the copied over ci
       # certificates.
