@@ -94,6 +94,9 @@ spec:
       install_ingress_nginx: false
       use_ingress_nginx: true
 
+      # Not mark OpenEBS's hostpath storageclass as the cluster-wide default
+      openebs_localpv_hostpath_storageclass_as_default: false
+
       # Avoid certificates. Our CI deployment uses the copied over ci
       # certificates.
       create_certs: false
