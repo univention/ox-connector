@@ -22,8 +22,8 @@ Year 2026
 
    * - 23. Oct 2026
      - :ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`
-     - Update section about database configuration to include configuration from
-       an existing secret.
+     - Update section about database configuration
+       to include configuration from an existing secret.
 
    * - 25. Sep 2026
      - :ref:`ox-connector-troubleshooting-kubernetes`

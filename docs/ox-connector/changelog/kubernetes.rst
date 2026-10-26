@@ -24,9 +24,9 @@ Released: 2026-10-23
 Added
 -----
 
-A new Helm Chart value ``openXchange.database.existingSecret`` allows to specify
-the *OX Connector*'s DB connection string from in existing secret (rather than
-as a plain string in ``openXchange.oxDbConnectionString``.
+Add the Helm Chart value ``openXchange.database.existingSecret``
+to specify the database connection string in the *OX Connector*
+from in existing secret, rather than as a plain string in ``openXchange.oxDbConnectionString``.
 For more information, see :ref:`ox-connector-install-on-kubernetes-prepare-ox-consumer`.
 
 .. _consumer-changelog-v0.47.0:
