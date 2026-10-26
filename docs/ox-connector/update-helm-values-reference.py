@@ -50,6 +50,7 @@ def main() -> int:
     try:
         if args.local:
             chart_dir = get_local_chart_dir()
+            prepare_local_chart(chart_dir)
         else:
             chart_version = args.chart_version or os.environ.get(
                 "OX_CONNECTOR_HELM_VERSION",
@@ -124,6 +125,10 @@ def get_local_chart_dir() -> Path:
     ):
         raise SystemExit(f"Local chart not found: {LOCAL_CHART_DIR}")
     return LOCAL_CHART_DIR
+
+
+def prepare_local_chart(chart_dir: Path) -> None:
+    run(["helm", "dependency", "build", str(chart_dir)])
 
 
 def pull_chart(chart_version: str, tmpdir: Path) -> Path:

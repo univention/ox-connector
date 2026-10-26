@@ -57,12 +57,14 @@ or when contributors need to refresh the generated reference.
 
 1. Use local mode only to preview unreleased chart changes.
 
-   Local mode uses the chart in this repository:
+   Local mode uses the chart in this repository and resolves its Helm Chart
+   dependencies before generating the reference:
 
    ```console
    $ python3 docs/ox-connector/update-helm-values-reference.py --local
    ```
 
+   The command requires access to the Helm registry for chart dependencies.
    Don't use local mode for published documentation
    unless the issue explicitly targets unreleased chart content.
    The local chart version can differ from the published Helm Chart version.
