@@ -80,32 +80,6 @@ wheels = [
 ]
 
 [[package]]
-name = "anyio"
-version = "4.15.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "idna" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a9/d2/f4d173e22df740bc37b1db102b386ba719b66e95b0f0d751f556b387e6d2/anyio-4.15.1.tar.gz", hash = "sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94", size = 276966, upload-time = "2026-09-05T10:42:39.44Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/b8/4bd346e22b28902df4d651910f5242c28d84e4a5c2435ca5c3f797ed7e2e/anyio-4.15.1-py3-none-any.whl", hash = "sha256:6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101", size = 132079, upload-time = "2026-09-05T10:42:37.923Z" },
-]
-
-[[package]]
-name = "asgi-correlation-id"
-version = "4.3.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "packaging" },
-    { name = "starlette" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/ff/a6538245ac1eaa7733ec6740774e9d5add019e2c63caa29e758c16c0afdd/asgi_correlation_id-4.3.4.tar.gz", hash = "sha256:ea6bc310380373cb9f731dc2e8b2b6fb978a76afe33f7a2384f697b8d6cd811d", size = 20075, upload-time = "2024-10-17T11:44:30.324Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/ab/6936e2663c47a926e0659437b9333ad87d1ff49b1375d239026e0a268eba/asgi_correlation_id-4.3.4-py3-none-any.whl", hash = "sha256:36ce69b06c7d96b4acb89c7556a4c4f01a972463d3d49c675026cbbd08e9a0a2", size = 15262, upload-time = "2024-10-17T11:44:28.739Z" },
-]
-
-[[package]]
 name = "attrs"
 version = "26.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -400,15 +374,15 @@ wheels = [
 
 [[package]]
 name = "helm-test-harness"
-version = "0.29.22"
+version = "0.29.24"
 source = { registry = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple" }
 dependencies = [
     { name = "pytest-helm" },
     { name = "pytest-subtests" },
 ]
-sdist = { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/f459e15bdd95b7251a9907af64a0b4772a7b9b56e02ade04b21bb261b3101d56/helm_test_harness-0.29.22.tar.gz", hash = "sha256:f459e15bdd95b7251a9907af64a0b4772a7b9b56e02ade04b21bb261b3101d56" }
+sdist = { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/9ad94adf5c5614a59baaefa2f2fe5763b366422c35cc403cf61146694493c20a/helm_test_harness-0.29.24.tar.gz", hash = "sha256:9ad94adf5c5614a59baaefa2f2fe5763b366422c35cc403cf61146694493c20a" }
 wheels = [
-    { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/f44ce0f64434c1b31bc69bc9e472693cdedee0837c23101654bf09fb2bb56f32/helm_test_harness-0.29.22-py3-none-any.whl", hash = "sha256:f44ce0f64434c1b31bc69bc9e472693cdedee0837c23101654bf09fb2bb56f32" },
+    { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/a99300946d5c0abdb877394acb889b87df5fe278591980597de1b537cd4fbfe9/helm_test_harness-0.29.24-py3-none-any.whl", hash = "sha256:a99300946d5c0abdb877394acb889b87df5fe278591980597de1b537cd4fbfe9" },
 ]
 
 [[package]]
@@ -594,20 +568,19 @@ wheels = [
 
 [[package]]
 name = "nubus-provisioning-common"
-version = "2.2.4"
+version = "2.2.10"
 source = { registry = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" }
 dependencies = [
-    { name = "asgi-correlation-id" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/8274608f7e22ef6e1723f3f0821ccea23848d1c8c7535f166439820782f96f2f/nubus_provisioning_common-2.2.4.tar.gz", hash = "sha256:8274608f7e22ef6e1723f3f0821ccea23848d1c8c7535f166439820782f96f2f" }
+sdist = { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/c4f5a51ca84dfa29f19cf685ee0398308873e177b87799d605c1a29dd67a3c83/nubus_provisioning_common-2.2.10.tar.gz", hash = "sha256:c4f5a51ca84dfa29f19cf685ee0398308873e177b87799d605c1a29dd67a3c83" }
 wheels = [
-    { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/904e6fc1c7769e504d51f23b0b735049e928deac1d55aab41b3a2247c7399019/nubus_provisioning_common-2.2.4-py3-none-any.whl", hash = "sha256:904e6fc1c7769e504d51f23b0b735049e928deac1d55aab41b3a2247c7399019" },
+    { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/c8f0960e743e0a9cdb92372900cbb05e8dae963006d8fac00e218b219ad24d80/nubus_provisioning_common-2.2.10-py3-none-any.whl", hash = "sha256:c8f0960e743e0a9cdb92372900cbb05e8dae963006d8fac00e218b219ad24d80" },
 ]
 
 [[package]]
 name = "nubus-provisioning-consumer"
-version = "2.2.4"
+version = "2.2.10"
 source = { registry = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -616,9 +589,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
 ]
-sdist = { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/d5016ad3b026ab0fe961972047029fbc0976bb464b172b1f8449141fe968f4d4/nubus_provisioning_consumer-2.2.4.tar.gz", hash = "sha256:d5016ad3b026ab0fe961972047029fbc0976bb464b172b1f8449141fe968f4d4" }
+sdist = { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/19abae035b670e66b3782365ad2abe98241215e2ef4717662c4a91e054f81ef0/nubus_provisioning_consumer-2.2.10.tar.gz", hash = "sha256:19abae035b670e66b3782365ad2abe98241215e2ef4717662c4a91e054f81ef0" }
 wheels = [
-    { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/b265950adebe04827929c23e0694ced110c8109d34a9ae1dfb929def38cc2014/nubus_provisioning_consumer-2.2.4-py3-none-any.whl", hash = "sha256:b265950adebe04827929c23e0694ced110c8109d34a9ae1dfb929def38cc2014" },
+    { url = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/files/ef7c405ab32f9e7c8c8f2c918eeff0e72ef83de7a2d2cf2dc449614a6faba560/nubus_provisioning_consumer-2.2.10-py3-none-any.whl", hash = "sha256:ef7c405ab32f9e7c8c8f2c918eeff0e72ef83de7a2d2cf2dc449614a6faba560" },
 ]
 
 [[package]]
@@ -668,8 +641,8 @@ dev-scripts = [
 [package.metadata]
 requires-dist = [
     { name = "lancelog", specifier = "==0.6.0", index = "https://git.knut.univention.de/api/v4/projects/1449/packages/pypi/simple" },
-    { name = "nubus-provisioning-common", specifier = "==2.2.4", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
-    { name = "nubus-provisioning-consumer", specifier = "==2.2.4", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
+    { name = "nubus-provisioning-common", specifier = "==2.2.10", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
+    { name = "nubus-provisioning-consumer", specifier = "==2.2.10", index = "https://git.knut.univention.de/api/v4/projects/882/packages/pypi/simple" },
     { name = "udm-rest-api-client", extras = ["sync"], specifier = "==0.1.2" },
     { name = "univention-ox-provisioning", editable = "univention-ox-provisioning" },
     { name = "univention-ox-soap-api", editable = "univention-ox-soap-api" },
@@ -965,7 +938,7 @@ wheels = [
 
 [[package]]
 name = "pytest-helm"
-version = "0.29.22"
+version = "0.29.24"
 source = { registry = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/simple" }
 dependencies = [
     { name = "pytest" },
@@ -973,9 +946,9 @@ dependencies = [
     { name = "python-jsonpath" },
     { name = "ruamel-yaml" },
 ]
-sdist = { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/77dd002b753d85a16951ef4b319c2b3bcd96694dcda7a8d11919feaf80283b56/pytest_helm-0.29.22.tar.gz", hash = "sha256:77dd002b753d85a16951ef4b319c2b3bcd96694dcda7a8d11919feaf80283b56" }
+sdist = { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/c3c65e09bb8e42d60bcc397359cd6db7903d457e61b41b47e63a145787768184/pytest_helm-0.29.24.tar.gz", hash = "sha256:c3c65e09bb8e42d60bcc397359cd6db7903d457e61b41b47e63a145787768184" }
 wheels = [
-    { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/096f73facd3dd01475b59b31eb27ed8a4974f64f28161519ddcd36861ed741e5/pytest_helm-0.29.22-py3-none-any.whl", hash = "sha256:096f73facd3dd01475b59b31eb27ed8a4974f64f28161519ddcd36861ed741e5" },
+    { url = "https://git.knut.univention.de/api/v4/projects/829/packages/pypi/files/01166d74f60f65bfbcfeb592ce6cabc73b9c714aa57f7432593ce7b38349bd32/pytest_helm-0.29.24-py3-none-any.whl", hash = "sha256:01166d74f60f65bfbcfeb592ce6cabc73b9c714aa57f7432593ce7b38349bd32" },
 ]
 
 [[package]]
@@ -1026,11 +999,11 @@ wheels = [
 
 [[package]]
 name = "python-jsonpath"
-version = "2.2.1"
+version = "2.2.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ee/65/5dcdbd783b98a936f6aacee699aed4c0978d74cb0f8ad61dc59bb39b809a/python_jsonpath-2.2.1.tar.gz", hash = "sha256:3de7862cbc56566b61c2c25fe5a398bbba9466e972c1069a4c82cb60a8034dc5", size = 51022, upload-time = "2026-07-07T09:56:08.062Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/6c/9fc15bfc9d311ba7d828e58daa7864cc5e92aff165fe5e58d9d24928627f/python_jsonpath-2.2.2.tar.gz", hash = "sha256:bb1a66e82b8c586fcdd53a1df46df92e1cd5e4164aa57f315b03afa76dd14947", size = 51619, upload-time = "2026-10-17T08:41:38.363Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/c1/e8ccd211bc8c411eb84341ae3ded659e6bdb926697fb7724e2dbbf8077cf/python_jsonpath-2.2.1-py3-none-any.whl", hash = "sha256:ff3a65df52336fec13e2728612d6e2a76221264762a1b5385fac5dd21ae6f40e", size = 65235, upload-time = "2026-07-07T09:56:06.755Z" },
+    { url = "https://files.pythonhosted.org/packages/97/42/9f23be33ed490b89a4acf2e87dcc319f52f8a97239b23fb6409c90199e07/python_jsonpath-2.2.2-py3-none-any.whl", hash = "sha256:b088251c7b63ee8c8ac14e54cf2eefbfe0cf5f59f0d26609a96bacb444ec40ac", size = 65738, upload-time = "2026-10-17T08:41:36.832Z" },
 ]
 
 [[package]]
@@ -1151,18 +1124,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b4/87/69e86a23cd9ccef0d654c09dc69dfea6d62b1311d2f13ca3daab1bcd922e/sqlalchemy-2.1.6-cp313-cp313-win_amd64.whl", hash = "sha256:b9f0b92b4a88b630f1e67df816b43cb017bb583479917dd100541d4f490a9517", size = 2432597, upload-time = "2026-10-21T17:11:35.514Z" },
     { url = "https://files.pythonhosted.org/packages/98/90/a7f81395135cc5da724403ece4340f7e04c1ce752da15d0ad337591ec9c9/sqlalchemy-2.1.6-cp313-cp313-win_arm64.whl", hash = "sha256:bc495d00f235c3df6f376187a4ef48a56e162fdcc0a113ee34518332aa1aa2df", size = 2393224, upload-time = "2026-10-21T18:54:18.405Z" },
     { url = "https://files.pythonhosted.org/packages/c1/69/c75534e336b06b3fd3f76de73d89736510800e60c77c58d4e4ce18389018/sqlalchemy-2.1.6-py3-none-any.whl", hash = "sha256:106878cf3795cd3d357e2e858609f9e44f20f19b2d8e48a3532bef3f90b03fbe", size = 2063055, upload-time = "2026-10-21T18:42:10.234Z" },
-]
-
-[[package]]
-name = "starlette"
-version = "1.7.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anyio" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7b/2b/3850dc6bf7ef71b088962eba31dafc6cffd2f96e577ebb0bb316df96da3e/starlette-1.7.0.tar.gz", hash = "sha256:c79f74ea63cff761804fbbfb182f1e0b440c2d07b164d24700c5a1bab5d6ff5d", size = 2736246, upload-time = "2026-09-23T07:30:26.35Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/d6/1ec1b290f9e0fb067899b61e1d37a30c923068bad260b216dbe37a7d2967/starlette-1.7.0-py3-none-any.whl", hash = "sha256:67f8e99895493dd2911a03f11314af6ceebeae4e704bb9f43dfc6a9db151c93e", size = 78980, upload-time = "2026-09-23T07:30:24.567Z" },
 ]
 
 [[package]]
