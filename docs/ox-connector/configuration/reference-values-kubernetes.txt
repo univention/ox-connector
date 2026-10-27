@@ -1,5 +1,5 @@
 :Name: ``ox-connector``
-:Version: ``0.42.1``
+:Version: ``0.48.0``
 :Description: A Helm chart for the ox-connector
 
 You find the configuration options for ``ox-connector`` in the following sections.
@@ -11,7 +11,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: affinity
 
-   #Global values
+   Pod affinity rules for the OX Connector workload.
 
    **Default value**: ``{}``
 
@@ -22,7 +22,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: environment
 
-   .. FIXME: Add documentation string for environment.
+   Additional environment variables for deployment templates.
 
    **Default value**: ``{}``
 
@@ -55,7 +55,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: fullnameOverride
 
-   .. FIXME: Add documentation string for fullnameOverride.
+   Override the fully qualified chart name.
 
    **Default value**: ``""``
 
@@ -66,14 +66,14 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: global.imagePullPolicy
 
-   Define an ImagePullPolicy. # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy # "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.
+   Image pull policy for all container images that don't define their own pull policy. For details, see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy.
 
    **Default value**: ``null``
 
 
 .. envvar:: global.imagePullSecrets
 
-   Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ # imagePullSecrets:   - "docker-registry"
+   Credentials to fetch images from a private registry. For details, see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/.
 
    **Default value**: ``[]``
 
@@ -96,7 +96,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: nameOverride
 
-   .. FIXME: Add documentation string for nameOverride.
+   Override the chart name.
 
    **Default value**: ``""``
 
@@ -107,7 +107,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: nodeSelector
 
-   .. FIXME: Add documentation string for nodeSelector.
+   Node selector for scheduling the OX Connector pod.
 
    **Default value**: ``{}``
 
@@ -118,140 +118,156 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: openXchange.auth.existingSecret.keyMapping.password
 
-   The key to retrieve the password from. Setting this value allows to use a key with a different name.
+   Key in the existing Secret that contains the OX Admin password. Set this value to use a key with a different name.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.auth.existingSecret.name
 
-   The name of an existing Secret to use for retrieving the password for the ox admin password. "openXchange.auth.password" will be ignored if this value is set.
+   Name of an existing Secret that contains the OX Admin password. The value in "openXchange.auth.password" is ignored if this value is set.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.auth.password
 
-   OX Admin password
+   Password of the OX Admin user.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.auth.username
 
-   OX Admin username (the OX Admin can create, modify, delete contexts; has to exist)
+   Username of the OX Admin user. The OX Admin user can create, modify, and delete contexts and must already exist.
 
    **Default value**: ``"oxadminmaster"``
 
+
 .. envvar:: openXchange.database.existingSecret.keyMapping.OX_CONNECTOR_DB
 
-   The key to retrieve the SQLAlchemy DB connection URL from. Setting this value allows to use a key with a different name. By default, the key must be named "OX_CONNECTOR_DB".
+   Key in the existing Secret that holds the connection URL. Defaults to the key the chart uses in its own Secret.
 
    **Default value**: ``null``
+
 
 .. envvar:: openXchange.database.existingSecret.name
 
-   The name of an existing Secret to use for retrieving the SQLAlchemy DB connection URL for the OX connector. "openXchange.oxDbConnectionString" will be ignored if this value is set.
+   Name of an existing Secret that contains the SQLAlchemy DB connection URL. The value in "openXchange.oxDbConnectionString" is ignored if this value is set. Providing the URL this way keeps the database password out of the rendered manifests.
 
    **Default value**: ``null``
+
+
+.. envvar:: openXchange.deleteNonOxUsers
+
+   Delete users from OX when "Activate User in OX" is unchecked. When disabled, the user is deactivated (if it existed) instead.
+
+   **Default value**: ``true``
 
 
 .. envvar:: openXchange.domainName
 
-   OX-Mail-Domain to generate OX-email-addresses
+   OX mail domain that the connector uses to generate email addresses.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.logLevel
 
-   OX Connector log level Chose from "DEBUG", "INFO", "WARNING" and "ERROR".
+   OX Connector log level. Choose from "DEBUG", "INFO", "WARNING", and "ERROR".
 
    **Default value**: ``"INFO"``
 
 
 .. envvar:: openXchange.mappings.groupIdentifier
 
-   UDM group property that is used as the unique group identifier for OX
+   UDM group property that the connector uses as the unique group identifier in OX.
 
    **Default value**: ``"name"``
 
 
 .. envvar:: openXchange.mappings.sharedAccountIdentifier
 
-   UDM shared account property that is used as the unique account identifier for OX
+   UDM shared account property that the connector uses as the unique shared account identifier in OX.
 
    **Default value**: ``"name"``
 
 
 .. envvar:: openXchange.mappings.userIdentifier
 
-   UDM user property that is used as the unique user identifier for OX
+   UDM user property that the connector uses as the unique user identifier in OX.
 
    **Default value**: ``"username"``
 
 
 .. envvar:: openXchange.oxDbConnectionString
 
-   SQLAlchemy DB connection URL for the OX connector. Will be ignored if "openXchange.database.existingSecret.name" is set.
+   SQLAlchemy DB connection URL for the OX connector. Ignored if "openXchange.database.existingSecret.name" is set.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.oxDefaultContext
 
-   Default context for users (has to exist)
+   Default OX context for users. The context must already exist.
 
    **Default value**: ``"10"``
 
 
 .. envvar:: openXchange.oxDeputyPermissions
 
-   Ox Connector deputy permissions flag.
+   Enable provisioning of OX deputy permissions.
 
    **Default value**: ``false``
 
 
 .. envvar:: openXchange.oxImapServer
 
-   Default IMAP server for new users (if not set explicitely there)
+   Default IMAP server for new users if no IMAP server is set on the user object.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.oxLanguage
 
-   Default language for new users
+   Default language for new users.
 
    **Default value**: ``"de_DE"``
 
 
 .. envvar:: openXchange.oxLocalTimezone
 
-   Default timezone for new users
+   Default time zone for new users.
 
    **Default value**: ``"Europe/Berlin"``
 
 
 .. envvar:: openXchange.oxSharedAccount
 
-   Ox Connector shared account flag.
+   Enable provisioning of OX shared accounts.
 
    **Default value**: ``true``
 
 
 .. envvar:: openXchange.oxSmtpServer
 
-   Default SMTP server for new users (if not set explicitely there)
+   Default SMTP server for new users if no SMTP server is set on the user object.
 
    **Default value**: ``null``
 
 
 .. envvar:: openXchange.oxSoapServer
 
-   The server where Open-Xchange is installed
+   Server where OX App Suite is installed.
 
    **Default value**: ``null``
+
+
+.. envvar:: openXchange.stopOnError
+
+   OX Connector error handling behavior. When activated, the connector stops processing on the first error instead of continuing.
+
+   **Default value**: ``false``
 
 .. _helm-ref-oxconnector:
 
@@ -260,28 +276,28 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: oxConnector.extraEnvVars
 
-   Array with extra environment variables to add to containers. # extraEnvVars:   - name: FOO     value: "bar"
+   Array with extra environment variables to add to containers.
 
    **Default value**: ``[]``
 
 
 .. envvar:: oxConnector.image.pullPolicy
 
-   .. FIXME: Add documentation string for oxConnector.image.pullPolicy.
+   Image pull policy for the OX Connector container image.
 
    **Default value**: ``null``
 
 
 .. envvar:: oxConnector.image.registry
 
-   .. FIXME: Add documentation string for oxConnector.image.registry.
+   Container registry for the OX Connector image.
 
    **Default value**: ``null``
 
 
 .. envvar:: oxConnector.image.repository
 
-   .. FIXME: Add documentation string for oxConnector.image.repository.
+   Repository of the OX Connector image.
 
    **Default value**:
 
@@ -293,13 +309,13 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: oxConnector.image.tag
 
-   .. FIXME: Add documentation string for oxConnector.image.tag.
+   Tag of the OX Connector image.
 
    **Default value**:
 
    .. code-block:: json
 
-      "0.42.1@sha256:16a17bf4d2ca2074d16ec708798012c9543091028cd3bc5a10e1c8be4fb14a64"
+      "0.48.0@sha256:a116062a743cb2b4ba014e36fa0f4966e3ada94d529f5c123b7e8c39dc037a57"
 
 
 .. _helm-ref-persistence:
@@ -309,14 +325,14 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: persistence.size
 
-   Specify PVCs size
+   Persistent volume claim size.
 
    **Default value**: ``"1Gi"``
 
 
 .. envvar:: persistence.storageClass
 
-   Specify storageClassName - Leave empty to use the default storage class
+   Storage class name. Leave empty to use the default storage class.
 
    **Default value**: ``""``
 
@@ -327,7 +343,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: podAnnotations
 
-   .. FIXME: Add documentation string for podAnnotations.
+   Additional annotations for the OX Connector pod.
 
    **Default value**: ``{}``
 
@@ -338,35 +354,35 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: podSecurityContext.fsGroup
 
-   .. FIXME: Add documentation string for podSecurityContext.fsGroup.
+   File system group ID for mounted volumes.
 
    **Default value**: ``1000``
 
 
 .. envvar:: podSecurityContext.runAsGroup
 
-   .. FIXME: Add documentation string for podSecurityContext.runAsGroup.
+   Group ID for the OX Connector pod.
 
    **Default value**: ``1000``
 
 
 .. envvar:: podSecurityContext.runAsNonRoot
 
-   .. FIXME: Add documentation string for podSecurityContext.runAsNonRoot.
+   Require the OX Connector pod to run as a non-root user.
 
    **Default value**: ``true``
 
 
 .. envvar:: podSecurityContext.runAsUser
 
-   .. FIXME: Add documentation string for podSecurityContext.runAsUser.
+   User ID for the OX Connector pod.
 
    **Default value**: ``1000``
 
 
 .. envvar:: podSecurityContext.seccompProfile.type
 
-   .. FIXME: Add documentation string for podSecurityContext.seccompProfile.type.
+   Seccomp profile type for the OX Connector pod.
 
    **Default value**: ``"RuntimeDefault"``
 
@@ -377,84 +393,84 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: probes.liveness.exec.command
 
-   .. FIXME: Add documentation string for probes.liveness.exec.command.
+   Command for the liveness probe.
 
    **Default value**: ``["/bin/sh", "-c", "exit 0\n"]``
 
 
 .. envvar:: probes.liveness.failureThreshold
 
-   .. FIXME: Add documentation string for probes.liveness.failureThreshold.
+   Number of failed liveness probes before Kubernetes restarts the container.
 
    **Default value**: ``3``
 
 
 .. envvar:: probes.liveness.initialDelaySeconds
 
-   .. FIXME: Add documentation string for probes.liveness.initialDelaySeconds.
+   Initial delay in seconds before the liveness probe starts.
 
    **Default value**: ``120``
 
 
 .. envvar:: probes.liveness.periodSeconds
 
-   .. FIXME: Add documentation string for probes.liveness.periodSeconds.
+   Interval in seconds between liveness probe executions.
 
    **Default value**: ``30``
 
 
 .. envvar:: probes.liveness.successThreshold
 
-   .. FIXME: Add documentation string for probes.liveness.successThreshold.
+   Number of successful liveness probes required to mark the container healthy.
 
    **Default value**: ``1``
 
 
 .. envvar:: probes.liveness.timeoutSeconds
 
-   .. FIXME: Add documentation string for probes.liveness.timeoutSeconds.
+   Timeout in seconds for the liveness probe.
 
    **Default value**: ``3``
 
 
 .. envvar:: probes.readiness.exec.command
 
-   .. FIXME: Add documentation string for probes.readiness.exec.command.
+   Command for the readiness probe.
 
    **Default value**: ``["/bin/sh", "-c", "exit 0\n"]``
 
 
 .. envvar:: probes.readiness.failureThreshold
 
-   .. FIXME: Add documentation string for probes.readiness.failureThreshold.
+   Number of failed readiness probes before Kubernetes marks the container not ready.
 
    **Default value**: ``30``
 
 
 .. envvar:: probes.readiness.initialDelaySeconds
 
-   .. FIXME: Add documentation string for probes.readiness.initialDelaySeconds.
+   Initial delay in seconds before the readiness probe starts.
 
    **Default value**: ``30``
 
 
 .. envvar:: probes.readiness.periodSeconds
 
-   .. FIXME: Add documentation string for probes.readiness.periodSeconds.
+   Interval in seconds between readiness probe executions.
 
    **Default value**: ``15``
 
 
 .. envvar:: probes.readiness.successThreshold
 
-   .. FIXME: Add documentation string for probes.readiness.successThreshold.
+   Number of successful readiness probes required to mark the container ready.
 
    **Default value**: ``1``
 
 
 .. envvar:: probes.readiness.timeoutSeconds
 
-   .. FIXME: Add documentation string for probes.readiness.timeoutSeconds.
+   Timeout in seconds for the readiness probe.
 
    **Default value**: ``3``
 
@@ -465,77 +481,77 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: provisioningApi.auth.existingSecret.keyMapping.password
 
-   The key to retrieve the password from. Setting this value allows to use a key with a different name.
+   Key in the existing Secret that contains the password. Set this value to use a key with a different name.
 
    **Default value**: ``null``
 
 
 .. envvar:: provisioningApi.auth.existingSecret.name
 
-   The name of an existing Secret to use for retrieving the password to authenticate with the Provisioning API. # "provisioningApi.auth.password" will be ignored if this value is set.
+   Name of an existing Secret that contains the Provisioning API password. The value in "provisioningApi.auth.password" is ignored if this value is set.
 
    **Default value**: ``null``
 
 
 .. envvar:: provisioningApi.auth.password
 
-   The password to authenticate with.
+   Password for authenticating to the Provisioning API.
 
    **Default value**: ``null``
 
 
 .. envvar:: provisioningApi.auth.username
 
-   The username to authenticate with.
+   Username for authenticating to the Provisioning API.
 
    **Default value**: ``"ox-consumer"``
 
 
 .. envvar:: provisioningApi.config.maxAcknowledgementRetries
 
-   The maximum number of retries for acknowledging a message
+   Maximum number of retries for acknowledging a message.
 
    **Default value**: ``3``
 
 
 .. envvar:: provisioningApi.connection.baseUrl
 
-   The base URL the provisioning API is reachable at. (e.g. "https://provisioning-api")
+   Base URL where the Provisioning API is reachable, for example "https://provisioning-api".
 
    **Default value**: ``""``
 
 
 .. envvar:: provisioningApi.resync.auth.existingSecret.keyMapping.password
 
-   The key to retrieve the password from. Setting this value allows to use a key with a different name.
+   Key in the existing Secret that contains the admin password. Set this value to use a key with a different name.
 
    **Default value**: ``null``
 
 
 .. envvar:: provisioningApi.resync.auth.existingSecret.name
 
-   The name of an existing Secret to use for retrieving the password to authenticate with the Provisioning API. # "provisioningApi.resync.auth.password" will be ignored if this value is set.
+   Name of an existing Secret that contains the Provisioning API admin password. The value in "provisioningApi.resync.auth.password" is ignored if this value is set.
 
    **Default value**: ``null``
 
 
 .. envvar:: provisioningApi.resync.auth.password
 
-   The admin password to authenticate with the Provisioning API.
+   Admin password for authenticating to the Provisioning API during resync.
 
    **Default value**: ``null``
 
 
 .. envvar:: provisioningApi.resync.auth.username
 
-   The admin username to authenticate with the Provisioning API for recreating the ox-connector subscriber.
+   Admin username for authenticating to the Provisioning API during resync.
 
    **Default value**: ``"admin"``
 
 
 .. envvar:: provisioningApi.resync.enabled
 
-   Enable the database resync on first startup only if database is empty.
+   Enable database resync on the first startup if the database is empty.
 
    **Default value**: ``true``
 
@@ -546,7 +562,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: replicaCount
 
-   .. FIXME: Add documentation string for replicaCount.
+   Number of OX Connector replicas.
 
    **Default value**: ``1``
 
@@ -557,28 +573,28 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: resources.limits.cpu
 
-   .. FIXME: Add documentation string for resources.limits.cpu.
+   CPU limit for the OX Connector container.
 
    **Default value**: ``"4"``
 
 
 .. envvar:: resources.limits.memory
 
-   .. FIXME: Add documentation string for resources.limits.memory.
+   Memory limit for the OX Connector container.
 
    **Default value**: ``"4Gi"``
 
 
 .. envvar:: resources.requests.cpu
 
-   .. FIXME: Add documentation string for resources.requests.cpu.
+   Requested CPU for the OX Connector container.
 
    **Default value**: ``"250m"``
 
 
 .. envvar:: resources.requests.memory
 
-   .. FIXME: Add documentation string for resources.requests.memory.
+   Requested memory for the OX Connector container.
 
    **Default value**: ``"512Mi"``
 
@@ -589,28 +605,28 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: resourcesWaitForDependency.limits.cpu
 
-   .. FIXME: Add documentation string for resourcesWaitForDependency.limits.cpu.
+   CPU limit for dependency waiter containers.
 
    **Default value**: ``"200m"``
 
 
 .. envvar:: resourcesWaitForDependency.limits.memory
 
-   .. FIXME: Add documentation string for resourcesWaitForDependency.limits.memory.
+   Memory limit for dependency waiter containers.
 
    **Default value**: ``"128Mi"``
 
 
 .. envvar:: resourcesWaitForDependency.requests.cpu
 
-   .. FIXME: Add documentation string for resourcesWaitForDependency.requests.cpu.
+   Requested CPU for dependency waiter containers.
 
    **Default value**: ``"100m"``
 
 
 .. envvar:: resourcesWaitForDependency.requests.memory
 
-   .. FIXME: Add documentation string for resourcesWaitForDependency.requests.memory.
+   Requested memory for dependency waiter containers.
 
    **Default value**: ``"64Mi"``
 
@@ -621,56 +637,56 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: securityContext.allowPrivilegeEscalation
 
-   .. FIXME: Add documentation string for securityContext.allowPrivilegeEscalation.
+   Allow privilege escalation in the OX Connector container.
 
    **Default value**: ``false``
 
 
 .. envvar:: securityContext.capabilities.drop
 
-   .. FIXME: Add documentation string for securityContext.capabilities.drop.
+   Linux capabilities to drop from the OX Connector container.
 
    **Default value**: ``["ALL"]``
 
 
 .. envvar:: securityContext.privileged
 
-   .. FIXME: Add documentation string for securityContext.privileged.
+   Run the OX Connector container in privileged mode.
 
    **Default value**: ``false``
 
 
 .. envvar:: securityContext.readOnlyRootFilesystem
 
-   .. FIXME: Add documentation string for securityContext.readOnlyRootFilesystem.
+   Mount the OX Connector container root filesystem as read-only.
 
    **Default value**: ``true``
 
 
 .. envvar:: securityContext.runAsGroup
 
-   .. FIXME: Add documentation string for securityContext.runAsGroup.
+   Group ID for the OX Connector container.
 
    **Default value**: ``1000``
 
 
 .. envvar:: securityContext.runAsNonRoot
 
-   .. FIXME: Add documentation string for securityContext.runAsNonRoot.
+   Require the OX Connector container to run as a non-root user.
 
    **Default value**: ``true``
 
 
 .. envvar:: securityContext.runAsUser
 
-   .. FIXME: Add documentation string for securityContext.runAsUser.
+   User ID for the OX Connector container.
 
    **Default value**: ``1000``
 
 
 .. envvar:: securityContext.seccompProfile.type
 
-   .. FIXME: Add documentation string for securityContext.seccompProfile.type.
+   Seccomp profile type for the OX Connector container.
 
    **Default value**: ``"RuntimeDefault"``
 
@@ -681,21 +697,21 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: serviceAccount.annotations
 
-   Annotations to add to the service account
+   Additional annotations for the service account.
 
    **Default value**: ``{}``
 
 
 .. envvar:: serviceAccount.automountServiceAccountToken
 
-   #\@param serviceAccount.automountServiceAccountToken Allows auto mount of ServiceAccountToken on the serviceAccount created #Can be set to false if pods using this serviceAccount do not need to use K8s API ##
+   Allow automatic mounting of the service account token.
 
    **Default value**: ``false``
 
 
 .. envvar:: serviceAccount.create
 
-   Specifies whether a service account should be created
+   Create a service account for the OX Connector.
 
    **Default value**: ``true``
 
@@ -709,7 +725,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: serviceAccount.name
 
-   The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+   Service account name. If this value is empty and "serviceAccount.create" is true, the chart generates a name from the fullname template.
 
    **Default value**: ``""``
 
@@ -720,7 +736,7 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: tolerations
 
-   .. FIXME: Add documentation string for tolerations.
+   Tolerations for scheduling the OX Connector pod.
 
    **Default value**: ``[]``
 
@@ -731,21 +747,21 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: waitForDependency.image.pullPolicy
 
-   .. FIXME: Add documentation string for waitForDependency.image.pullPolicy.
+   Image pull policy for the dependency waiter image.
 
    **Default value**: ``null``
 
 
 .. envvar:: waitForDependency.image.registry
 
-   .. FIXME: Add documentation string for waitForDependency.image.registry.
+   Container registry for the dependency waiter image.
 
    **Default value**: ``null``
 
 
 .. envvar:: waitForDependency.image.repository
 
-   .. FIXME: Add documentation string for waitForDependency.image.repository.
+   Repository of the dependency waiter image.
 
    **Default value**:
 
@@ -757,13 +773,13 @@ You find the configuration options for ``ox-connector`` in the following section
 
 .. envvar:: waitForDependency.image.tag
 
-   .. FIXME: Add documentation string for waitForDependency.image.tag.
+   Tag of the dependency waiter image.
 
    **Default value**:
 
    .. code-block:: json
 
-      "0.36.12@sha256:7150d72c8f342a05b945ce1b21464864aa91590d00f65ebe4b628571cce34efc"
+      "0.36.17@sha256:7bd68c29709d7519967fe507c47ebd88434ba8125a0793e0f77a55af0367da0d"
 
 
 
