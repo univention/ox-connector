@@ -248,6 +248,7 @@ Please copy this block to your release issue:
   - [ ] Apply the merge request to release the documentation
   - [ ] Update search index
   - [ ] Update docs navigation
+  - [ ] Update helm values reference using `update-helm-values-reference.py` (see [docs README](docs/ox-connector/README.md))
 - [ ] Release the app on omar (copy_from_appcenter.test.sh, sudo update_mirror.sh -v appcenter)
 - [ ] Optional: check released -> https://jenkins2022.knut.univention.de/job/UCS-5.0/job/UCS-5.0-7/view/Product%20Tests/job/product-test-component-ox-appsuite/ and `COMPONENT_VERSION=public`
 - [ ] Write mail to app-announcement@univention.de
