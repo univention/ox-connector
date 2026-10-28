@@ -18,24 +18,24 @@ dependencies = [
   "nubus-provisioning-consumer==2.2.4",
   "nubus-provisioning-common==2.2.4",
   "udm-rest-api-client[sync]==0.1.2",
-  "lancelog==0.3.4",
+  "lancelog==0.6.0",
 ]
 
 [dependency-groups]
 dev = [
-  "pytest==9.1.1",
+  "pytest==9.2.0",
   "pytest-cov==7.1.0",
-  "pytest-mock==3.15.1",
+  "pytest-mock==3.17.0",
   "uritemplate==4.2.0",
   "kubernetes==36.0.3",
   "pdbpp==0.12.1",
   "python-dateutil==2.9.0.post0",
-  "tenacity==9.1.4",
+  "tenacity==9.2.1",
   "helm-test-harness",
   "pytest-helm",
 ]
 dev-scripts = [
-  "paramiko==5.0.0",
+  "paramiko==5.1.0",
   "udm-rest-api-client[cli]==0.1.2",
   "kubernetes==36.0.3",
   "pyyaml==6.0.3",

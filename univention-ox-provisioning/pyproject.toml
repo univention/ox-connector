@@ -15,7 +15,7 @@ dependencies = [
     "univention_ox_soap_api",
     "python-ldap==3.4.8",
     "filetype==1.2.0",
-    "sqlalchemy==2.0.54",
+    "sqlalchemy==2.1.6",
     "psycopg2==2.9.13",
 ]
 
