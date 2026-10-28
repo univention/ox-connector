@@ -19,6 +19,14 @@ v4.2.0
 
 Released: TBA
 
+Added
+-----
+
+When new users are created in OX, the name used in the "From" field when
+composing emails (personal part of email address aka "mail address personal") is
+initialized to their display name in OX. Previously, this always defaulted to
+first and last name regardless of display name.
+
 Fixed
 -----
 

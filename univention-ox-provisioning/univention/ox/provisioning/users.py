@@ -322,37 +322,29 @@ def is_activated(attributes):
     )
 
 
-def set_mail_address_personal(user, obj):
-    """Set the personal part of the user's primary mail address.
-
-    OX derives the ``From`` header from the user's given and sur name and
-    ignores the display name. Directories that maintain their own display
-    name format (e.g. Active Directory ``displayName``, mapped to
-    ``oxDisplayName``) therefore never reach the recipient. Pushing the
-    display name into the account's ``personal`` makes OX use it verbatim.
-
-    Failures are logged rather than raised: a missing sender name must not
-    abort provisioning of the user.
+def set_mail_address_personal(user):
     """
-    personal = obj.attributes.get("oxDisplayName") or obj.attributes.get(
-        "displayName",
-    )
-    if isinstance(personal, (list, tuple)):
-        personal = personal[0] if personal else None
-    if not personal:
+    Set the personal part of the user's primary mail address.
+
+    The "mail address personal" is the name used in the "From" field when
+    composing an email. Set it to the user's display name in OX.
+
+    If anything goes wrong, logs the error without raising it .
+    """
+    if not user.display_name:
         return
     logger.info(
         "Setting mail address personal",
         user=user.id,
-        personal=personal,
+        personal=user.display_name,
     )
     try:
         user.service(user.context_id).change_mail_address_personal(
             {"id": user.id},
-            personal,
+            user.display_name,
         )
     except Exception as exc:
-        logger.error(
+        logger.exception(
             "Failed to set mail address personal",
             user=user.id,
             error=exc,
@@ -467,7 +459,7 @@ def create_user(obj, user_copy_service=None, user_id=None):
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
-    set_mail_address_personal(user, obj)
+    set_mail_address_personal(user)
     set_deputy_permissions(obj, user.context_id)
     logger.info(
         "Looking for groups of this user to be created in the context id",
@@ -625,7 +617,6 @@ def modify_user(obj):
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
-    set_mail_address_personal(user, obj)
     set_deputy_permissions(obj, context_id=user.context_id)
 
 

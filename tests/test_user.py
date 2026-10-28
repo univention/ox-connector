@@ -158,6 +158,62 @@ def test_add_user(
     assert obj.email1 == "{}@{}".format(new_user_name, domainname)
 
 
+def test_add_user_uses_display_name_as_mail_address_personal(
+    find_ox_object,
+    default_ox_context,
+    create_ox_user,
+    new_user_name,
+    log_utility,
+    get_ox_user_mail_address_personal,
+):
+    """Creating a user should set the "mail address personal"."""
+    udm_object = create_ox_user(
+        name=new_user_name,
+        context_id=default_ox_context,
+        wait=False,
+        further_udm_attrs={"oxDisplayName": "expected display name"},
+    )
+    log_utility.expect_dn(udm_object.dn)
+    obj = find_ox_object(
+        default_ox_context,
+        "User",
+        get_identifier(udm_object),
+    )
+    mail_address_personal = get_ox_user_mail_address_personal(
+        new_user_name,
+    )
+    assert obj.display_name == "expected display name"
+    assert mail_address_personal == "expected display name"
+
+
+@pytest.mark.parametrize("value", ["", None])
+def test_add_user_doesnt_use_empty_display_name_as_mail_address_personal(
+    find_ox_object,
+    default_ox_context,
+    create_ox_user,
+    new_user_name,
+    log_utility,
+    get_ox_user_mail_address_personal,
+    value,
+):
+    udm_object = create_ox_user(
+        name=new_user_name,
+        context_id=default_ox_context,
+        wait=False,
+        further_udm_attrs={"displayName": value},
+    )
+    log_utility.expect_dn(udm_object.dn)
+    obj = find_ox_object(
+        default_ox_context,
+        "User",
+        get_identifier(udm_object),
+    )
+    mail_address_personal = get_ox_user_mail_address_personal(
+        new_user_name,
+    )
+    assert mail_address_personal == f"{obj.given_name} {obj.sur_name}"
+
+
 def test_modify_user(
     find_ox_object,
     create_ox_context,
@@ -194,6 +250,40 @@ def test_modify_user(
     assert obj.email1 == new_mail_address
     assert obj.commercial_register == "A register"
     assert obj.sur_name == "Newman"
+
+
+def test_modify_user_doesnt_overwrite_mail_address_personal(
+    find_ox_object,
+    default_ox_context,
+    create_ox_user,
+    new_user_name,
+    udm,
+    log_utility,
+    get_ox_user_mail_address_personal,
+):
+    """Modifying a user should not touch the mail address personal."""
+    udm_object = create_ox_user(
+        name=new_user_name,
+        context_id=default_ox_context,
+        wait=False,
+        further_udm_attrs={"oxDisplayName": "expected display name"},
+    )
+    log_utility.expect_dn(udm_object.dn)
+    udm.modify(
+        "users/user",
+        udm_object.dn,
+        {"oxDisplayName": "new display name"},
+    )
+    obj = find_ox_object(
+        default_ox_context,
+        "User",
+        get_identifier(udm_object),
+    )
+    mail_address_personal = get_ox_user_mail_address_personal(
+        new_user_name,
+    )
+    assert obj.display_name == "expected display name"
+    assert mail_address_personal == "expected display name"
 
 
 @pytest.mark.skipif(

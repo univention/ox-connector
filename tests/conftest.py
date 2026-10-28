@@ -6,6 +6,7 @@ import logging
 import os
 import warnings
 from pathlib import Path
+import requests
 
 import pytest
 
@@ -16,6 +17,7 @@ from univention.ox.provisioning.db import DBSession
 from univention.ox.soap.backend_base import get_ox_integration_class
 
 TEST_LOG_FILE = Path("/tmp/test.log")
+USER_DEFAULT_PASSWORD = "univention"
 
 log = logging.getLogger(__name__)
 
@@ -466,7 +468,7 @@ def create_ox_user(
             "username": name,
             "firstname": "Emil",
             "lastname": name.title(),
-            "password": "univention",
+            "password": USER_DEFAULT_PASSWORD,
             "mailPrimaryAddress": "{}@{}".format(name, domainname),
             "isOxUser": enabled,
             "oxAccess": "premium",
@@ -639,3 +641,51 @@ def find_ox_object(get_ox_object):
             return ox_objs[0]
 
     return _find_ox_object
+
+
+@pytest.fixture
+def get_ox_user_mail_address_personal(ox_host):
+    """
+    Get the personal part of a user's email.
+
+    The personal part of the email or "mail address personal" is the name used
+    in the "From" field when composing an email. The SOAP API has a method to
+    set it, but none to get it. So use the HTTP API for this instead.
+    """
+
+    base_url = f"{ox_host}/appsuite/api"
+
+    def _get_ox_user_mail_address_personal(username: str) -> str:
+        client = "pytest"
+        with requests.Session() as session:
+            # Log in as the user, and request info about the mail account.
+            login_kwargs = {
+                "url": f"{base_url}/login",
+                "params": {"action": "login", "client": client},
+                "data": {"name": username, "password": USER_DEFAULT_PASSWORD},
+                "timeout": 30,
+            }
+            with session.post(**login_kwargs) as response:
+                session_id = read_json(response)["session"]
+            # Column ID 1037 is the "mail address personal", see
+            # https://documentation.open-xchange.com/components/middleware/http/8/index.html
+            get_kwargs = {
+                "url": f"{base_url}/account?action=all&columns=1037",
+                "params": {"client": client, "session": session_id},
+                "timeout": 30,
+            }
+            with session.get(**get_kwargs) as response:
+                result = read_json(response)
+            assert len(result["data"]) == 1
+            assert len(result["data"][0]) == 1
+            return result["data"][0][0]
+
+    def read_json(response: requests.Response) -> dict:
+        response.raise_for_status()
+        result = response.json()
+        assert isinstance(result, dict)
+        if result.get("error") or result.get("code"):
+            raise RuntimeError(f"Open-Xchange API error: {result}")
+        return result
+
+    return _get_ox_user_mail_address_personal
