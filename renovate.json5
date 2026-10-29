@@ -1,14 +1,25 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-   "packageRules": [
-     {
-       "matchPackageNames": ["python"],
-       "allowedVersions": "3.13.*"
-     },
-     {
-       "groupName": "nubus-provisioning",
-       "matchPackageNames": ["nubus-provisioning-consumer", "nubus-provisioning-common"]
-     }
-   ]
-
+  "packageRules": [
+    {
+      "matchPackageNames": ["python"],
+      "allowedVersions": "3.13.*"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "groupName": "Infrastructure"
+    },
+    {
+      "matchPackageNames": ["*base-image*"],
+      "groupName": "Dependencies"
+    },
+    {
+      "matchDatasources": ["pypi"],
+      "groupName": "Dependencies"
+    },
+    {
+      "matchTypes": ["lockfileMaintenance"],
+      "groupName": "Dependencies"
+    }
+  ]
 }
