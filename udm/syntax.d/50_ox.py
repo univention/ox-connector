@@ -399,9 +399,10 @@ class oxDeputyPermissionTalking(select):
 
 
 class fullWidthUserName(UDM_Objects):
+    use_objects = False
     udm_modules = ('users/user',)
     key = 'dn'
-    label = '%(username)s'
+    label = '%(uid)s'
     udm_filter = '(isOxUser=OK)'
     name = 'fullWidthUserName'
     size = 'One'
@@ -425,6 +426,7 @@ class oxDeputyPermissionUserMapping(complex):
 
 
 class OxUser(UDM_Objects):
+    use_objects = False
     udm_modules = ('users/user',)
     key = '%(univentionObjectIdentifier)s'
     label = '%(username)s'
@@ -432,6 +434,7 @@ class OxUser(UDM_Objects):
 
 
 class OxGroup(UDM_Objects):
+    use_objects = False
     udm_modules = ('groups/group',)
     key = '%(univentionObjectIdentifier)s'
     label = '%(name)s'
@@ -439,6 +442,7 @@ class OxGroup(UDM_Objects):
 
 
 class SharedAccountPermission(UDM_Objects):
+    use_objects = False
     udm_modules = ('oxmail/shared_account_permission',)
     key = '%(univentionObjectIdentifier)s'
     label = '%(displayName)s'

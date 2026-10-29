@@ -12,6 +12,19 @@ This changelog documents all notable changes to the :term:`OX Connector` app.
 It follows the `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format
 and adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+.. _app-changelog-v4.2.0:
+
+v4.2.0
+======
+
+Released: TBA
+
+Fixed
+-----
+
+Improved performance of *OX Shared Account* syntax classes. Bigger environments
+should load the form faster now.
+
 .. _app-changelog-v4.1.0:
 
 v4.1.0
