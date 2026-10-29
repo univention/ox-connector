@@ -65,7 +65,7 @@ intersphinx_mapping = {
         None,
     ),
     "uv-nubus-customization": (
-        "https://docs.software-univention.de/nubus-kubernetes-customization/latest/en/",
+        "https://docs.software-univention.de/nubus-customization/latest/en/",
         None,
     ),
     "uv-ox-connector-app": (

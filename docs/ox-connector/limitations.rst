@@ -165,4 +165,4 @@ If a user references an unknown access profile,
 the connector leaves the user's existing module-access rights unchanged.
 
 For more information, see `OX App Suite Permission Level
-<https://oxpedia.org/wiki/index.php?title=AppSuite:Permission_Level>`_.
+<https://wiki.open-xchange.com/wiki/index.php?title=AppSuite:Permission_Level>`_.
