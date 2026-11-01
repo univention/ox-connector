@@ -1,25 +1,35 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  // One MR per group, majors included
+  "separateMajorMinor": false,
   "packageRules": [
     {
       "matchPackageNames": ["python"],
       "allowedVersions": "3.13.*"
     },
+    // Default: everything is infrastructure (CI images, Helm charts, tools).
+    // Merged automatically once the MR pipeline succeeds.
     {
-      "matchDatasources": ["docker"],
-      "groupName": "Infrastructure"
+      "matchPackageNames": ["*"],
+      "groupName": "Infrastructure",
+      "automerge": true
     },
-    {
-      "matchPackageNames": ["*base-image*"],
-      "groupName": "Dependencies"
-    },
+    // Code that ends up in the product image: Python packages and the UCS base image.
+    // Always reviewed manually.
     {
       "matchDatasources": ["pypi"],
-      "groupName": "Dependencies"
+      "groupName": "Dependencies",
+      "automerge": false
     },
     {
-      "matchTypes": ["lockfileMaintenance"],
-      "groupName": "Dependencies"
+      "matchPackageNames": ["/base-image/"],
+      "groupName": "Dependencies",
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "groupName": "Dependencies",
+      "automerge": false
     }
   ]
 }
