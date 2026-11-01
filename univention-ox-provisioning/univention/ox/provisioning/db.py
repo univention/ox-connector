@@ -64,7 +64,10 @@ def get_db_url():
     if db_connection_string is None:
         raise ValueError("OX_CONNECTOR_DB environment variable must be set")
 
-    return make_url(db_connection_string)
+    url = make_url(db_connection_string)
+    if url.drivername == "postgresql":
+        url = url.set(drivername="postgresql+psycopg2")
+    return url
 
 
 DB_URL = get_db_url()
