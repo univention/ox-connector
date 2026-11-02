@@ -31,7 +31,7 @@
 
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
-    ref: "v1.69.3"
+    ref: "v1.70.0"
     file:
       - "defaults/stages.yaml"
       - "defaults/nubus-workflow.yaml"
@@ -46,7 +46,7 @@ include:
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes: *changes-container
       - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.8.0"
+  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.25.1"
 
 workflow:
   rules:
