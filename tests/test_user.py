@@ -323,7 +323,7 @@ def test_change_context_doesnt_overwrite_mail_address_personal(
 
     obj = find_ox_object(new_context_id, "User", get_identifier(udm_object))
     mail_address_personal = get_ox_user_mail_address_personal(
-        new_user_name,
+        new_user_name, ox_context=new_context_id
     )
     assert obj.display_name == "display name 2"
     assert mail_address_personal == "display name 1"

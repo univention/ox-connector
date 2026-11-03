@@ -7,6 +7,7 @@ import os
 import warnings
 from pathlib import Path
 import requests
+import time
 
 import pytest
 
@@ -644,7 +645,7 @@ def find_ox_object(get_ox_object):
 
 
 @pytest.fixture
-def get_ox_user_mail_address_personal(ox_host):
+def get_ox_user_mail_address_personal(ox_host, default_ox_context: int):
     """
     Get the personal part of a user's email.
 
@@ -654,19 +655,18 @@ def get_ox_user_mail_address_personal(ox_host):
     """
 
     base_url = f"{ox_host}/appsuite/api"
+    client = "pytest"
 
-    def _get_ox_user_mail_address_personal(username: str) -> str:
-        client = "pytest"
+    def _get_ox_user_mail_address_personal(
+        username: str, ox_context: int = default_ox_context
+    ) -> str:
+        if ox_context != default_ox_context:
+            # If we need to log in to a context other than the default,
+            # explicitly specify it as part of the login.
+            username = f"{username}@{ox_context}"
         with requests.Session() as session:
             # Log in as the user, and request info about the mail account.
-            login_kwargs = {
-                "url": f"{base_url}/login",
-                "params": {"action": "login", "client": client},
-                "data": {"name": username, "password": USER_DEFAULT_PASSWORD},
-                "timeout": 30,
-            }
-            with session.post(**login_kwargs) as response:
-                session_id = read_json(response)["session"]
+            session_id = login(username, session)
             # Column ID 1037 is the "mail address personal", see
             # https://documentation.open-xchange.com/components/middleware/http/8/index.html
             get_kwargs = {
@@ -679,6 +679,33 @@ def get_ox_user_mail_address_personal(ox_host):
             assert len(result["data"]) == 1
             assert len(result["data"][0]) == 1
             return result["data"][0][0]
+
+    def login(username: str, session: requests.Session) -> str:
+        result = {}
+        try_until = time.time() + 30
+        while time.time() < try_until:
+            login_kwargs = {
+                "url": f"{base_url}/login",
+                "params": {"action": "login", "client": client},
+                "data": {"name": username, "password": USER_DEFAULT_PASSWORD},
+                "timeout": try_until - time.time(),
+            }
+            with session.post(**login_kwargs) as response:
+                try:
+                    result = read_json(response)
+                except Exception:
+                    # Error from OX, probably failed login because the user
+                    # hasn't been synced there yet. Wait and retry. (Wait a
+                    # whole second to avoid getting rate-limited after 50
+                    # requests.)
+                    time.sleep(1)
+                    continue
+                session_id = result["session"]
+                assert isinstance(session_id, str)
+                return session_id
+        raise RuntimeError(
+            f"Open-Xchange login timed out, last result: {result}",
+        )
 
     def read_json(response: requests.Response) -> dict:
         response.raise_for_status()
