@@ -46,7 +46,7 @@ include:
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes: *changes-container
       - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.25.1"
+  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.25.2"
 
 workflow:
   rules:

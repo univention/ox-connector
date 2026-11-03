@@ -45,7 +45,7 @@ services:
 
   k8s-tests:
     container_name: "ox-connector-k8s-tests"
-    image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest@sha256:b11361ccf217c9e8cfc2552f04de430c1be345f4def0d2fe79e464348d39ea1e
+    image: gitregistry.knut.univention.de/univention/dev/projects/open-xchange/connector/ox-connector-standalone-test:latest@sha256:d15df313a38872ed5992851ad020d59c976d40be7079f4e6cc777794862f0bc1
     volumes:
       - "./tests/:/test-env/tests:ro"
       - "${KUBE_CONFIG:-~/.kube/config}:/root/.kube/config:ro"
