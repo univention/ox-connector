@@ -413,6 +413,7 @@ def create_user(obj, user_copy_service=None, user_id=None):
     )
     if not user_copy_service:
         user.create()
+        set_mail_address_personal(user)
     else:
         logger.info(
             "Creating object in context using UserCopy",
@@ -459,7 +460,6 @@ def create_user(obj, user_copy_service=None, user_id=None):
     obj.set_attr("oxDbId", user.id)
     obj.set_attr("oxDbUsername", user.name)
     set_user_rights(user, obj)
-    set_mail_address_personal(user)
     set_deputy_permissions(obj, user.context_id)
     logger.info(
         "Looking for groups of this user to be created in the context id",

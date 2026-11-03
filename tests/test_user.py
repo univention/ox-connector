@@ -274,6 +274,7 @@ def test_modify_user_doesnt_overwrite_mail_address_personal(
         udm_object.dn,
         {"oxDisplayName": "new display name"},
     )
+    log_utility.expect_dn(udm_object.dn)
     obj = find_ox_object(
         default_ox_context,
         "User",
@@ -282,8 +283,50 @@ def test_modify_user_doesnt_overwrite_mail_address_personal(
     mail_address_personal = get_ox_user_mail_address_personal(
         new_user_name,
     )
-    assert obj.display_name == "expected display name"
+    assert obj.display_name == "new display name"
     assert mail_address_personal == "expected display name"
+
+
+def test_change_context_doesnt_overwrite_mail_address_personal(
+    find_ox_object,
+    create_ox_context,
+    create_ox_user,
+    new_user_name,
+    udm,
+    log_utility,
+    get_ox_user_mail_address_personal,
+):
+    old_context_id = create_ox_context()
+    udm_object = create_ox_user(
+        name=new_user_name,
+        context_id=old_context_id,
+        wait=False,
+        further_udm_attrs={"oxDisplayName": "display name 1"},
+    )
+    log_utility.expect_dn(udm_object.dn)
+    udm.modify(
+        "users/user",
+        udm_object.dn,
+        {"oxDisplayName": "display name 2"},
+    )
+    log_utility.expect_dn(udm_object.dn)
+
+    new_context_id = create_ox_context()
+    udm.modify("users/user", udm_object.dn, {"oxContext": new_context_id})
+    log_utility.expect_dn(udm_object.dn)
+    find_ox_object(
+        old_context_id,
+        "User",
+        get_identifier(udm_object),
+        assert_empty=True,
+    )
+
+    obj = find_ox_object(new_context_id, "User", get_identifier(udm_object))
+    mail_address_personal = get_ox_user_mail_address_personal(
+        new_user_name,
+    )
+    assert obj.display_name == "display name 2"
+    assert mail_address_personal == "display name 1"
 
 
 @pytest.mark.skipif(
