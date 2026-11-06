@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2023 Univention GmbH
 
 import importlib.util
+import itertools
 import logging
 import os
 import warnings
@@ -658,15 +659,12 @@ def get_ox_user_mail_address_personal(ox_host, default_ox_context: int):
     client = "pytest"
 
     def _get_ox_user_mail_address_personal(
-        username: str, ox_context: int = default_ox_context
+        username: str,
+        ox_context: int = default_ox_context,
     ) -> str:
-        if ox_context != default_ox_context:
-            # If we need to log in to a context other than the default,
-            # explicitly specify it as part of the login.
-            username = f"{username}@{ox_context}"
         with requests.Session() as session:
             # Log in as the user, and request info about the mail account.
-            session_id = login(username, session)
+            session_id = login(username, ox_context, session)
             # Column ID 1037 is the "mail address personal", see
             # https://documentation.open-xchange.com/components/middleware/http/8/index.html
             get_kwargs = {
@@ -680,32 +678,55 @@ def get_ox_user_mail_address_personal(ox_host, default_ox_context: int):
             assert len(result["data"][0]) == 1
             return result["data"][0][0]
 
-    def login(username: str, session: requests.Session) -> str:
+    def login(
+        username: str,
+        ox_context: int,
+        session: requests.Session,
+    ) -> str:
         result = {}
         try_until = time.time() + 30
         while time.time() < try_until:
+            session_id = try_login(username, ox_context, session)
+            if session_id is None:
+                # Login failed. Wait and retry. (Wait a whole second to avoid
+                # getting rate-limited after 50 requests.)
+                time.sleep(1)
+                continue
+            return session_id
+        raise RuntimeError(
+            f"Open-Xchange login timed out, last result: {result}",
+        )
+
+    def try_login(
+        username: str,
+        ox_context: int,
+        session: requests.Session,
+    ) -> str | None:
+        # Depending on how the test system is configured, we may or may not
+        # have to explicitly specify the context after the username, and the
+        # password may be "dummy" (OX local database) or the one in LDAP we
+        # set. Try all combinations.
+        for login_name, password in itertools.product(
+            [username, f"{username}@{ox_context}"],
+            ["dummy", USER_DEFAULT_PASSWORD],
+        ):
             login_kwargs = {
                 "url": f"{base_url}/login",
                 "params": {"action": "login", "client": client},
-                "data": {"name": username, "password": USER_DEFAULT_PASSWORD},
-                "timeout": try_until - time.time(),
+                "data": {"name": login_name, "password": password},
+                "timeout": 5,
             }
             with session.post(**login_kwargs) as response:
                 try:
                     result = read_json(response)
+                    session_id = result["session"]
+                    assert isinstance(session_id, str)
+                    return session_id
                 except Exception:
-                    # Error from OX, probably failed login because the user
-                    # hasn't been synced there yet. Wait and retry. (Wait a
-                    # whole second to avoid getting rate-limited after 50
-                    # requests.)
-                    time.sleep(1)
-                    continue
-                session_id = result["session"]
-                assert isinstance(session_id, str)
-                return session_id
-        raise RuntimeError(
-            f"Open-Xchange login timed out, last result: {result}",
-        )
+                    # Error from OX, probably failed login, try another
+                    # login/password combination.
+                    pass
+        return None  # No login/password combination worked.
 
     def read_json(response: requests.Response) -> dict:
         response.raise_for_status()
