@@ -31,7 +31,7 @@
 
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
-    ref: "v1.70.0"
+    ref: "v1.71.0"
     file:
       - "defaults/stages.yaml"
       - "defaults/nubus-workflow.yaml"
@@ -46,7 +46,7 @@ include:
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes: *changes-container
       - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.25.3"
+  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.27.0"
 
 workflow:
   rules:
@@ -191,7 +191,7 @@ unit-tests:
 generate-docs-pipeline-config:
   stage: prepare
   image:
-    name: docker-registry.knut.univention.de/knut/deb-builder@sha256:9062b6df946118cc04a580a9242151b19984f7b35b6b8b254ef8fc3d40e001e8
+    name: docker-registry.knut.univention.de/knut/deb-builder@sha256:06c56aa629db0744cd2eab434a36851907a475b192dc236bb4a226320117ec12
     entrypoint: [""]
   script:
     - >
