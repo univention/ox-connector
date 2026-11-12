@@ -14,6 +14,27 @@ This project follows `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ 
 and `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 
+.. _consumer-changelog-v0.49.0:
+
+v0.49.0
+=======
+
+Released: 2026-11-12
+
+Added
+-----
+
+When new users are created in OX, the name used in the "From" field when
+composing emails (personal part of email address aka "mail address personal") is
+initialized to their display name in OX. Previously, this always defaulted to
+first and last name regardless of display name.
+
+Fixed
+-----
+
+Improved performance of *OX Shared Account* syntax classes. Bigger environments
+should load the form faster now.
+
 .. _consumer-changelog-v0.48.0:
 
 v0.48.0
