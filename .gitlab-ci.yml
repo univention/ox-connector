@@ -46,7 +46,7 @@ include:
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes: *changes-container
       - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.27.1"
+  - component: "$CI_SERVER_FQDN/univention/dev/tooling/ci-components/ai-review@2.28.0"
 
 workflow:
   rules:
@@ -134,7 +134,7 @@ get-appcenter-version:
 test-chart-ox-connector:
   stage: test
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.25@sha256:ad501511d7b3ede40c1f42fc57f48838f57ba104a432934fc4925fe0d4c53088"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.0@sha256:c01d9137efd7ab741d7da50e6abaef0b2b9505b6a0b3bb3d09a2126c3d7f4e64"
   script:
     - helm dep build helm/ox-connector
     - pytest -W error helm-unittests/
@@ -143,7 +143,7 @@ test-chart-ox-connector:
 lint-render-manifests:
   stage: lint
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.25@sha256:ad501511d7b3ede40c1f42fc57f48838f57ba104a432934fc4925fe0d4c53088"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.0@sha256:c01d9137efd7ab741d7da50e6abaef0b2b9505b6a0b3bb3d09a2126c3d7f4e64"
   script:
     - helm dep build helm/ox-connector
     - helm template test helm/ox-connector

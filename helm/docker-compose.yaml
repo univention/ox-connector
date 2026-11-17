@@ -3,7 +3,7 @@
 
 services:
   test:
-    image: gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.29.25@sha256:ad501511d7b3ede40c1f42fc57f48838f57ba104a432934fc4925fe0d4c53088
+    image: gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.0@sha256:c01d9137efd7ab741d7da50e6abaef0b2b9505b6a0b3bb3d09a2126c3d7f4e64
     pull_policy: always
     command: "pytest tests/"
     profiles:
