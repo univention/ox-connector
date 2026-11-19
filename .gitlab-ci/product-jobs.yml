@@ -9,7 +9,7 @@ include:
       - "jobs/container-build-external.yaml"
       - "jobs/package-and-publish-helm-charts-external.yaml"
 
-  - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.72.1"
+  - component: "$CI_SERVER_FQDN/univention/dev/nubus-for-k8s/common-ci/vul-man@v1.72.2"
     inputs:
       helm_chart_name: "ox-connector"
       helm_values: "--helm-values ${CI_PROJECT_DIR}/helm/ox-connector/linter_values.yaml"
@@ -175,7 +175,7 @@ upload-docker-image-to-appcenter:
     BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter:${RELEASE_VERSION}"
   rules: *version-container-manual-rules
   image:
-    name: "docker-registry.knut.univention.de/knut/ssh@sha256:dca0fc523dc28499692e5990757b42e626369a3c05b5fb3507e9eee9ea5c725c"
+    name: "docker-registry.knut.univention.de/knut/ssh@sha256:a39d402228ca5e7f4b7be4ee097bfc3fdde0711cfb3df9dac1cd5690b0d65c84"
     entrypoint: [""]
   before_script:
     - chmod 0600 "${SSH_PRIVATE_KEY}"

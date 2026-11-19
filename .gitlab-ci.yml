@@ -31,7 +31,7 @@
 
 include:
   - project: "univention/dev/nubus-for-k8s/common-ci"
-    ref: "v1.72.1"
+    ref: "v1.72.2"
     file:
       - "defaults/stages.yaml"
       - "defaults/nubus-workflow.yaml"
@@ -191,7 +191,7 @@ unit-tests:
 generate-docs-pipeline-config:
   stage: prepare
   image:
-    name: docker-registry.knut.univention.de/knut/deb-builder@sha256:ddf6d99056c3920b092c7594687e3f9b0d002bc5af228d79c80255d3df5bc432
+    name: docker-registry.knut.univention.de/knut/deb-builder@sha256:7e1e4a495cdfbd42908006f7a480fc869f309ca0896b94b4feca9aaf00dbbdce
     entrypoint: [""]
   script:
     - >
