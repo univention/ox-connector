@@ -175,7 +175,7 @@ upload-docker-image-to-appcenter:
     BUILD_IMAGE_PATH_AND_TAG: "${CI_REGISTRY_IMAGE}/ox-connector-appcenter:${RELEASE_VERSION}"
   rules: *version-container-manual-rules
   image:
-    name: "docker-registry.knut.univention.de/knut/ssh@sha256:a39d402228ca5e7f4b7be4ee097bfc3fdde0711cfb3df9dac1cd5690b0d65c84"
+    name: "docker-registry.knut.univention.de/knut/ssh@sha256:072c4d8f24dbbe92f858872a82486ae896dd7d6ea28454f8f55faa9aa29a38a9"
     entrypoint: [""]
   before_script:
     - chmod 0600 "${SSH_PRIVATE_KEY}"

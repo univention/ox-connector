@@ -134,7 +134,7 @@ get-appcenter-version:
 test-chart-ox-connector:
   stage: test
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.0@sha256:c01d9137efd7ab741d7da50e6abaef0b2b9505b6a0b3bb3d09a2126c3d7f4e64"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.1@sha256:c11f2d5210be69da131df071a442bfef55ff5892734b33718523579a74193602"
   script:
     - helm dep build helm/ox-connector
     - pytest -W error helm-unittests/
@@ -143,7 +143,7 @@ test-chart-ox-connector:
 lint-render-manifests:
   stage: lint
   needs: []
-  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.0@sha256:c01d9137efd7ab741d7da50e6abaef0b2b9505b6a0b3bb3d09a2126c3d7f4e64"
+  image: "gitregistry.knut.univention.de/univention/dev/nubus-for-k8s/common-helm/testrunner:0.30.1@sha256:c11f2d5210be69da131df071a442bfef55ff5892734b33718523579a74193602"
   script:
     - helm dep build helm/ox-connector
     - helm template test helm/ox-connector
@@ -191,7 +191,7 @@ unit-tests:
 generate-docs-pipeline-config:
   stage: prepare
   image:
-    name: docker-registry.knut.univention.de/knut/deb-builder@sha256:7e1e4a495cdfbd42908006f7a480fc869f309ca0896b94b4feca9aaf00dbbdce
+    name: docker-registry.knut.univention.de/knut/deb-builder@sha256:6df47f22b3e5add77cb38fba2912a6dd40c2bc4ef73ac7dbcd4bbd5d8d9934f1
     entrypoint: [""]
   script:
     - >
